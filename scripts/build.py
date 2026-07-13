@@ -15,6 +15,7 @@ TOOLS = (
     ("claude_code", "Claude Code"),
     ("codex", "Codex"),
     ("agy", "Antigravity"),
+    ("usage", "Usage"),
 )
 
 

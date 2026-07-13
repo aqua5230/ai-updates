@@ -1,0 +1,16 @@
+{
+  "version": "0.11.1",
+  "period": "2026-05-24",
+  "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+  "fetched_at": "2026-07-14",
+  "entries": [
+    "**[P0] Released `.app` crashes on launch on macOS Sequoia / arm64** (thanks @cmhcm — [#6](https://github.com/aqua5230/usage/pull/6)): all three prior releases (v0.10.0 / v0.10.1 / v0.11.0) are affected. Root cause: in py2app builds `i18n.py` is compiled into `lib/python313.zip` but `i18n.json` lives in `Contents/Resources/`. The old `Path(__file__).with_name(\"i18n.json\")` resolved to a path *through* the zipfile and raised `NotADirectoryError` on first read. Fix: new `i18n.packaged_resource_path()` helper prefers the `RESOURCEPATH` env var that py2app injects at launch (pointing at `Contents/Resources/`) and falls back to the source-adjacent path. All four packaged-resource callsites updated (`i18n.py` / `tui.py` / `main.py` / `menubar.py`). Source-mode runs are unaffected.",
+    "**Packaging metadata completed**: `pyproject.toml` `py-modules` adds the previously-missing `burn_rate` / `update_checker` / `tips_loader` / `usage_lang` / `usage_statusline_forwarder`, and `packages.find` `include` adds `panels*`. Non-editable installs now ship the full code.",
+    "**`.app` license metadata aligned**: `setup_app.py` `NSHumanReadableCopyright` updated from the stale `MIT License` to `Copyright © 2025-2026 lollapalooza. Licensed under AGPL-3.0-only.`, matching what `pyproject.toml` declares.",
+    "**`pricing_cache.json` path unified**: `analyzer/cost.py` now caches to `~/.claude/pricing_cache.json` (was repo root), matching `pricing.py`. A stray 1.1 MB orphan cache at repo root was removed.",
+    "**Panel names go through i18n**: `panels/__init__.py` exposes an `i18n_key` per panel and i18n.json gains the missing keys across all 5 languages. The \"Switch Panel\" menu no longer mixes Chinese names into en / ja / ko UIs.",
+    "**Status-file error messages go through i18n**: `usage_client.py`'s \"status file not found\" and \"no quota data yet\" hints now route through `_t()`, all 5 languages covered.",
+    "**Analytics CLI read order matches the main app**: `adapters/rate_limits.py` previously only read `~/.claude/tt-status.json`; it now follows the same `usage-status.json` → `usag-status.json` → `tt-status.json` fallback chain as `usage_client.py`.",
+    "**README documents the v0.11.0 update check + GitHub Releases as a network exception**: README.md / README.en.md both gain a new \"update check\" bullet and list the GitHub Releases API as the second of two network exceptions (the first remains the LiteLLM pricing table)."
+  ]
+}

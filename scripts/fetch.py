@@ -24,7 +24,11 @@ AGY_CHANGELOG_URL = (
     "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/"
     "main/CHANGELOG.md"
 )
+USAGE_CHANGELOG_URL = "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md"
 VERSION_HEADING = re.compile(r"^##\s+\[?[vV]?([^\]\s]+)\]?(?:\s|$)")
+KEEPACHANGELOG_HEADING = re.compile(
+    r"^##\s+\[([^\]]+)\]\s*-\s*(\d{4}-\d{2}-\d{2})\s*$"
+)
 
 
 def _request(url: str) -> bytes:
@@ -80,6 +84,44 @@ def parse_markdown_changelog(text: str) -> list[tuple[str, list[str]]]:
         elif line.startswith("## "):
             finish_version()
             version = None
+    finish_version()
+    return versions
+
+
+def parse_keepachangelog(text: str) -> list[tuple[str, str, list[str]]]:
+    """Parse Keep a Changelog version headings, dates, and bullet text."""
+    versions: list[tuple[str, str, list[str]]] = []
+    version: str | None = None
+    period: str | None = None
+    entries: list[str] = []
+    current: list[str] | None = None
+
+    def finish_entry() -> None:
+        nonlocal current
+        if current:
+            entries.append("\n".join(current).strip())
+        current = None
+
+    def finish_version() -> None:
+        finish_entry()
+        if version and period and entries:
+            versions.append((version, period, entries.copy()))
+        entries.clear()
+
+    for line in text.splitlines():
+        match = KEEPACHANGELOG_HEADING.match(line)
+        if match:
+            finish_version()
+            version, period = match.groups()
+            continue
+        if version is None:
+            continue
+        if line.startswith(("- ", "* ")):
+            finish_entry()
+            current = [line[2:].strip()]
+        elif current is not None and (line.startswith("  ") or not line.strip()):
+            if line.strip():
+                current.append(line.strip())
     finish_version()
     return versions
 
@@ -212,11 +254,33 @@ def fetch_agy() -> int:
     return sum(_write_raw("agy", record) for record in records)
 
 
+def fetch_usage(days: int = 30) -> int:
+    cutoff = date.today() - timedelta(days=days)
+    today = date.today().isoformat()
+    records = [
+        {
+            "version": version,
+            "period": period,
+            "source_url": USAGE_CHANGELOG_URL,
+            "fetched_at": today,
+            "entries": entries,
+        }
+        for version, period, entries in parse_keepachangelog(fetch_text(USAGE_CHANGELOG_URL))
+    ]
+    selected = [
+        record for record in records if date.fromisoformat(record["period"]) >= cutoff
+    ]
+    if not selected:
+        raise ValueError("Usage changelog contained no versions from the last 30 days")
+    return sum(_write_raw("usage", record) for record in selected)
+
+
 def main() -> int:
     try:
         fetch_claude()
         fetch_codex()
         fetch_agy()
+        fetch_usage()
     except (
         OSError,
         UnicodeDecodeError,

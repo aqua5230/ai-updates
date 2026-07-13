@@ -78,7 +78,7 @@ def test_build_outputs_pass_golden_validator() -> None:
     normalized = normalize_payload(payload)
 
     assert normalized is not None
-    assert len(normalized) == 3
+    assert len(normalized) == 4
     assert all(len(tool["versions"]) <= 3 for tool in normalized)
     assert (ROOT / "docs" / "data.json").is_file()
     assert (ROOT / "daily.json").is_file()
