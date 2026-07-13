@@ -90,6 +90,24 @@ def test_is_placeholder_accepts_empty_and_version_only_entries() -> None:
         {"entries": ["Release rust-v0.145.0-alpha.4", " release 0.145.0-ALPHA.4 "]},
         "0.145.0-alpha.4",
     )
+    assert is_placeholder(
+        {
+            "entries": [
+                "Published a version-only release with no merged pull request changes since "
+                "rust-v0.144.3."
+            ]
+        },
+        "0.144.3",
+    )
+    assert is_placeholder(
+        {
+            "entries": [
+                "Published a version-only release with no merged pull request changes since "
+                "`rust-v0.144.2`."
+            ]
+        },
+        "0.144.3",
+    )
     assert not is_placeholder(
         {"entries": ["Release 0.144.1", "Fixed standalone installs."]}, "0.144.1"
     )

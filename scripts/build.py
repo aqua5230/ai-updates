@@ -49,11 +49,24 @@ def is_placeholder(raw: dict[str, Any], version: str) -> bool:
     normalized_version = re.sub(r"^(?:rust[-_])?v(?=\d)", "", version.casefold())
     for entry in nonempty_entries:
         match = re.fullmatch(r"release\s+(.+)", entry, flags=re.IGNORECASE)
+        if match is not None:
+            entry_version = re.sub(r"\s+", "", match.group(1).casefold())
+            entry_version = re.sub(r"^(?:rust[-_])?v(?=\d)", "", entry_version)
+            if entry_version != normalized_version:
+                return False
+            continue
+
+        match = re.fullmatch(
+            r"published\s+a\s+version-only\s+release\s+with\s+no\s+merged\s+pull\s+request"
+            r"\s+changes\s+since\s+`?\s*([a-z0-9._\s-]+?)\s*`?\s*\.",
+            entry,
+            flags=re.IGNORECASE,
+        )
         if match is None:
             return False
-        entry_version = re.sub(r"\s+", "", match.group(1).casefold())
-        entry_version = re.sub(r"^(?:rust[-_])?v(?=\d)", "", entry_version)
-        if entry_version != normalized_version:
+        referenced_version = re.sub(r"\s+", "", match.group(1).casefold())
+        referenced_version = re.sub(r"^(?:rust[-_])?v(?=\d)", "", referenced_version)
+        if re.fullmatch(r"\d+(?:[._-][a-z0-9]+)+", referenced_version) is None:
             return False
     return True
 
