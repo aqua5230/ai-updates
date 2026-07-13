@@ -1,0 +1,33 @@
+name: Sync usage compatibility feed
+
+on:
+  push:
+    branches: [main]
+    paths: [ai_updates.json]
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ai-updates
+      - uses: actions/checkout@v4
+        with:
+          repository: aqua5230/usage
+          ref: main
+          token: ${{ secrets.USAGE_SYNC_TOKEN }}
+          path: usage
+      - name: Copy and push the compatibility feed
+        run: |
+          cp ai-updates/ai_updates.json usage/ai_updates.json
+          cd usage
+          if git diff --quiet -- ai_updates.json; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ai_updates.json
+          git commit -m "chore: sync AI updates"
+          git push origin HEAD:main
