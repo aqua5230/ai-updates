@@ -1,0 +1,23 @@
+{
+  "version": "0.11.9",
+  "period": "2026-05-27",
+  "items": [
+    {
+      "title": {
+        "zh-TW": "離線估價更準確，測試版更新不再漏接，終端介面不崩潰",
+        "zh-CN": "离线估价更准确，测试版更新不再漏接，终端界面不崩溃",
+        "en": "Accurate offline estimates, fixed beta updates, and crash-free terminal UI",
+        "ja": "オフライン時の見積もりが正確になり、ベータ版の更新を逃さず、端末UIも落ちなくなった",
+        "ko": "오프라인 요금 계산이 정확해지고, 베타 버전 업데이트를 놓치지 않으며, 터미널 UI가 튕기지 않는다."
+      },
+      "body": {
+        "zh-TW": "現在帶筆電出門沒網路時，系統估算花費會直接拿你上週剛抓過的價目表來算，不會再傻傻退回最古老的出廠價，讓成本估算大失真。如果你是愛用測試版的勇者，系統現在也看得懂「beta」這類後綴版號，有新版會正確跳出更新提示，不再報錯裝死。另外，用終端機查看對話紀錄時，就算有些紀錄沒有標示花費金額，畫面現在只會顯示「--」，不會再導致整個表格直接崩潰壞掉。就像出國沒網路時，你會拿出幾天前存的舊匯率表來換算，而不是硬用十年前的書本價格；而且就算清單裡某幾項商品沒貼標籤，結帳機台也不會整台當機了。",
+        "zh-CN": "现在带笔电出门没网络时，系统估算花费会直接拿你上周刚抓过的价目表来算，不会再傻傻退回最古老的出厂价，让成本估算大失真。如果你是爱用测试版的勇者，系统现在也看得懂「beta」这类后缀版号，有新版会正确跳出更新提示，不再报错装死。另外，用终端机查看对话记录时，就算有些记录没有标示花费金额，画面现在只会显示「--」，不会再导致整个表格直接崩溃坏掉。就像出国没网络时，你会拿出几天前存的旧汇率表来换算，而不是硬用十年前的书本价格；而且就算清单里某几项商品没贴标签，结账机台也不会整台死机了。",
+        "en": "When you're working offline without internet, the system now smartly estimates your costs using the real price list you fetched last week, instead of wildly falling back to ancient factory-default prices and skewing your budget. If you're an early adopter running beta versions, the update checker now understands version numbers ending in \"beta\", delivering update prompts correctly instead of throwing an error and playing dead. Also, when viewing your session history in the terminal, if a specific entry happens to lack cost data, it now gracefully displays \"--\" rather than crashing the entire table. It's like traveling abroad without data: you use the exchange rate you saved a few days ago instead of blindly relying on a ten-year-old guidebook; and if a couple of items on your grocery receipt are missing price tags, the whole cash register doesn't explode.",
+        "ja": "ノートパソコンを外へ持ち出してネットがない時、システムは先週取得した本物の料金表を使ってコストを見積もるようになり、馬鹿正直に大昔の初期価格に戻って計算を狂わせることがなくなった。もしあなたがテスト版を愛用する勇者なら、システムが「beta」のような末尾の文字を理解できるようになり、新バージョンがあれば正しく通知を出し、エラーで沈黙することもなくなった。また、端末で対話履歴を見た際、一部の記録に金額がなくても画面上は「--」と表示するだけで、表全体が壊れて落ちることはなくなった。海外旅行でネットが使えない時、10年前のガイドブックではなく数日前に保存した為替レートを使って計算するようなものであり、レシートの中に値札のない商品がいくつか混ざっていてもレジがフリーズしないようなものである。",
+        "ko": "이제 노트북을 들고나가 인터넷이 끊겨도, 시스템이 지난주에 받아둔 진짜 요금표를 가지고 비용을 계산하므로 미련하게 아주 옛날 기본 가격으로 돌아가 계산을 망치는 일이 없다. 베타 버전을 즐겨 쓰는 사용자라면, 시스템이 'beta' 같은 꼬리표를 알아먹고 새 버전이 나오면 오류를 뿜으며 죽어 있는 대신 업데이트 알림을 제대로 띄워준다. 또한 터미널에서 대화 기록을 볼 때 금액이 안 적힌 기록이 섞여 있어도 이제 화면에 '--'라고만 표시하며, 표 전체가 박살 나며 튕기는 일은 없다. 해외에 나가 데이터가 안 터질 때 10년 전 가이드북을 믿는 대신 며칠 전 저장해 둔 환율표를 꺼내서 계산하는 것과 같고, 영수증에 가격표 없는 물건이 몇 개 섞여 있다고 계산대가 통째로 멈춰버리지 않는 것과 같다."
+      },
+      "original": "**Pricing falls back to a stale cache when offline**: the fallback order in `pricing.py` is now fresh cache → network fetch → stale cache → hardcoded fallback. Previously a >7-day-old cache combined with no network dropped straight to the hardcoded prices, skewing cost estimates; the real (if stale) historical cache is now preferred.\n**Update check now handles pre-release versions**: `update_checker._parse_version` now strips pre-release / build suffixes via regex, so `0.11.0-beta.1` / `0.11.0+build.5` no longer return `None` and no longer make `compare_versions` raise. Beta testers receive update prompts correctly. No new package dependencies were added.\n**TUI session table no longer crashes on `cost_usd=None`**: widened `ui/tables.py:_fmt_cost` to `float | None` so entries written without a cost (a known path on the Codex side) now render as `--`, matching the popover-side behavior in `panels/web_panel.py`. Previously the `>=` comparison raised `TypeError` and broke the whole table."
+    }
+  ]
+}
