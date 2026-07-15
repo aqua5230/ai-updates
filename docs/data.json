@@ -6809,6 +6809,39 @@
       "name": "Usage",
       "versions": [
         {
+          "version": "0.28.2",
+          "raw": {
+            "version": "0.28.2",
+            "period": "2026-07-15",
+            "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+            "fetched_at": "2026-07-16",
+            "entries": [
+              "**Switching panels on Windows no longer risks a blank white window**: the panel-switch action reloaded the document synchronously from inside the pywebview JS-API callback, which could destroy the in-flight JavaScript Promise callback for that call and leave Edge WebView blank. The reload is now deferred until the bridge call has returned to JavaScript, with a pending-switch guard so rapid double-clicks recompute the target panel instead of reusing a stale one. The Windows PyInstaller bundle also now includes the status-line and session-hook source files that the setup and self-heal paths copy at runtime, which it previously omitted.",
+              "**The Windows tray window no longer flashes white regardless of theme**: pywebview's window background defaults to white, which bled through the frameless window's rounded corners (and any unpainted first frame) even when the active panel's CSS was rendering its dark variant. The window background now reads the system's light/dark theme setting and matches the panel's background color."
+            ]
+          },
+          "curated": null
+        },
+        {
+          "version": "0.28.1",
+          "raw": {
+            "version": "0.28.1",
+            "period": "2026-07-15",
+            "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+            "fetched_at": "2026-07-16",
+            "entries": [
+              "**Windows auto-detects the interface language**: with no `USAGE_LANG`/`TT_LANG`/`LANG` set, language detection only knew how to ask macOS (`NSLocale`) and always fell back to English on Windows. It now maps `GetUserDefaultUILanguage()` through `locale.windows_locale`, so a zh-TW / zh-CN / ja / ko Windows UI gets the matching interface out of the box. Environment variables still take precedence.",
+              "**mypy now runs on the Windows CI job too**: the `check-windows` job previously skipped type checking, which is how several Windows-only defects (including the tray-startup crash surface) went unnoticed. The platform-conditional code paths (`termios`/`msvcrt` key readers, `os.getuid`, `time.tzset`, pywebview's `Window | None`) are now typed so that `mypy .` is clean on both macOS and Windows.",
+              "**The Windows tray now actually starts**: importing the tray pulled in the `panels` package, whose `__init__` eagerly imported the PyObjC-backed `panels.web_panel`; on Windows this raised `ModuleNotFoundError: No module named 'objc'`, and because the TUI fallback in `main.py` only recognized a missing `wintray` module, the windowed build exited silently with nothing on screen. The panel registry now imports `web_panel` lazily inside `all_panels()` (macOS behavior unchanged), and the fallback degrades to the TUI whenever any module in the tray's import chain is missing, printing the missing module's name.",
+              "**The tray menu and JS bridge no longer break at startup**: pystray rejects menu actions whose lambda carries an extra defaulted positional parameter, so building the panel-switch submenu raised `ValueError` before the icon ever appeared; and pywebview serializes every public attribute of the `js_api` object into the JS bridge, so exposing the tray controller on it recursed through the WinForms window graph until the recursion limit. The panel-id binding is now keyword-only, and the bridge holds the controller in a private attribute.",
+              "**Project names derive correctly from POSIX-style cwds on Windows**: `usage_session_resume._project_from_cwd` and `adapters.claude.project_from_cwd` split paths on `os.sep` only, so a transcript cwd recorded with forward slashes (or a `C:/...`-style path) kept the whole path as the \"project\" on Windows. Both now normalize separators on Windows before splitting; POSIX behavior is unchanged, since backslashes are legal in POSIX filenames.",
+              "**The test suite collects and passes on Windows**: the `check-windows` CI job had been red since it was introduced. Five test modules that import PyObjC-backed code at module level are now skipped outside macOS via `collect_ignore`; timezone pinning that relied on `TZ` + `time.tzset()` (unavailable on Windows) now pins the conversion points directly; setup-hook tests no longer hardcode `/usr/bin/python3` or `/bin/sh`; and the Codex adapter/consistency tests now sandbox `ARCHIVED_SESSIONS_DIR` and the JSONL disk cache, which previously leaked real `~/.codex` history on any machine with usage data — regardless of OS.",
+              "**Encoded project-path decoding now works on Windows**: `project_from_encoded_path` reconstructed a project's real directory from its dash-encoded name by searching from the filesystem root, but a bare Windows `\\` has no drive letter and never matches a real path, so decoding always fell back to the raw encoded string. It now anchors at the drive root (e.g. `C:\\`) when the encoded name starts with one; POSIX behavior is unchanged."
+            ]
+          },
+          "curated": null
+        },
+        {
           "version": "0.28.0",
           "raw": {
             "version": "0.28.0",
@@ -11626,7 +11659,72 @@
     {
       "id": "gh_cli",
       "name": "GitHub CLI",
-      "versions": []
+      "versions": [
+        {
+          "version": "2.96.0",
+          "raw": {
+            "version": "2.96.0",
+            "period": "2026-07-02",
+            "source_url": "https://github.com/cli/cli/releases/tag/v2.96.0",
+            "entries": [
+              "Allow `gh release download` without authentication on public repositories by @BagToad in [#13723](https://github.com/cli/cli/pull/13723)",
+              "Detect additional third-party coding agents by @BagToad in [#13722](https://github.com/cli/cli/pull/13722)",
+              "Support `antigravity-cli` and `antigravity2.0` in `gh skill` by @BagToad in [#13784](https://github.com/cli/cli/pull/13784)",
+              "fix: show checks summary when all checks were cancelled by @s3onghyun in [#13679](https://github.com/cli/cli/pull/13679)",
+              "fix(skills): install universal agent to `~/.agents/skills` by @toller892 in [#13681](https://github.com/cli/cli/pull/13681)",
+              "fix(skills): honor `--dir` without agent prompt by @happysnaker in [#13766](https://github.com/cli/cli/pull/13766)",
+              "Fix concurrent map writes in codespace port forwarding by @williammartin in [#13313](https://github.com/cli/cli/pull/13313)",
+              "Use `int64` for GitHub database IDs by @williammartin in [#13403](https://github.com/cli/cli/pull/13403)",
+              "Pin reusable triage workflows to a commit SHA by @BagToad in [#13705](https://github.com/cli/cli/pull/13705)",
+              "Add security disclosure guidance to `AGENTS.md` by @BagToad in [#13720](https://github.com/cli/cli/pull/13720)",
+              "Clarify `--clone` boolean flag behaviour in `gh repo fork` help by @BagToad in [#13786](https://github.com/cli/cli/pull/13786)",
+              "Fix flaky `TestHuhPrompterMultiSelectWithSearchPersistence` on slow architectures by @pdostal in [#13675](https://github.com/cli/cli/pull/13675)",
+              "docs(search): add examples for multiple qualifiers by @happysnaker in [#13756](https://github.com/cli/cli/pull/13756)",
+              "docs: fix broken anchor link in release-process-deep-dive by @patrickwehbe in [#13688](https://github.com/cli/cli/pull/13688)",
+              "docs: fix broken install command and link/grammar errors by @patrickwehbe in [#13690](https://github.com/cli/cli/pull/13690)",
+              "docs: fix duplicated word in primer README by @s3onghyun in [#13677](https://github.com/cli/cli/pull/13677)",
+              "chore(deps): bump github.com/microsoft/dev-tunnels from 0.1.19 to 0.1.27 by @dependabot in [#13708](https://github.com/cli/cli/pull/13708)",
+              "chore(deps): bump actions/checkout from 6.0.3 to 7.0.0 by @dependabot in [#13703](https://github.com/cli/cli/pull/13703)",
+              "chore(deps): bump github.com/google/go-containerregistry from 0.21.6 to 0.21.7 by @dependabot in [#13702](https://github.com/cli/cli/pull/13702)",
+              "chore(deps): bump actions/setup-go from 6.4.0 to 6.5.0 by @dependabot in [#13740](https://github.com/cli/cli/pull/13740)",
+              "chore(deps): bump actions/attest from 4.1.0 to 4.1.1 by @dependabot in [#13754](https://github.com/cli/cli/pull/13754)",
+              "chore(deps): bump goreleaser/goreleaser-action from 7.2.2 to 7.2.3 by @dependabot in [#13759](https://github.com/cli/cli/pull/13759)",
+              "chore(deps): bump golangci/golangci-lint-action from 9.2.1 to 9.3.0 by @dependabot in [#13779](https://github.com/cli/cli/pull/13779)",
+              "@patrickwehbe made their first contribution in https://github.com/cli/cli/pull/13688",
+              "@s3onghyun made their first contribution in https://github.com/cli/cli/pull/13679",
+              "@toller892 made their first contribution in https://github.com/cli/cli/pull/13681",
+              "@happysnaker made their first contribution in https://github.com/cli/cli/pull/13756"
+            ],
+            "fetched_at": "2026-07-15"
+          },
+          "curated": null
+        },
+        {
+          "version": "2.95.0",
+          "raw": {
+            "version": "2.95.0",
+            "period": "2026-06-17",
+            "source_url": "https://github.com/cli/cli/releases/tag/v2.95.0",
+            "entries": [
+              "feat: add `repo read-file` and `repo read-dir` by @babakks in https://github.com/cli/cli/pull/13580",
+              "feat(skills): list available skills when install runs non-interactively by @SamMorrowDrums in https://github.com/cli/cli/pull/13548",
+              "Support custom CLAUDE_CONFIG_DIR in install by @tommaso-moro in https://github.com/cli/cli/pull/13523",
+              "fix(skills): stage updates in a temp dir and swap in-place by @SamMorrowDrums in https://github.com/cli/cli/pull/13449",
+              "Make filtering by bot authors more discoverable by @BagToad in https://github.com/cli/cli/pull/13642",
+              "docs(discussion): polish help docs by @babakks in https://github.com/cli/cli/pull/13632",
+              "Bump Go in devcontainer by @spenserblack in https://github.com/cli/cli/pull/13674",
+              "chore(deps): bump golang.org/x/text from 0.37.0 to 0.38.0 by @dependabot[bot] in https://github.com/cli/cli/pull/13640",
+              "chore(deps): bump charm.land/lipgloss/v2 from 2.0.3 to 2.0.4 by @dependabot[bot] in https://github.com/cli/cli/pull/13663",
+              "chore(deps): bump golang.org/x/term from 0.43.0 to 0.44.0 by @dependabot[bot] in https://github.com/cli/cli/pull/13661",
+              "chore(deps): bump github/codeql-action from 4.36.1 to 4.36.2 by @dependabot[bot] in https://github.com/cli/cli/pull/13619",
+              "chore(deps): bump github.com/sigstore/sigstore-go from 1.1.4 to 1.2.1 by @dependabot[bot] in https://github.com/cli/cli/pull/13662",
+              "chore(deps): bump golang.org/x/crypto from 0.52.0 to 0.53.0 by @dependabot[bot] in https://github.com/cli/cli/pull/13641"
+            ],
+            "fetched_at": "2026-07-15"
+          },
+          "curated": null
+        }
+      ]
     }
   ]
 }
