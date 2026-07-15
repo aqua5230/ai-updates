@@ -20,6 +20,7 @@ CLAUDE_CHANGELOG_URL = (
 )
 CLAUDE_RELEASES_URL = "https://api.github.com/repos/anthropics/claude-code/releases"
 CODEX_RELEASES_URL = "https://api.github.com/repos/openai/codex/releases"
+GH_CLI_RELEASES_URL = "https://api.github.com/repos/cli/cli/releases"
 AGY_CHANGELOG_URL = (
     "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/"
     "main/CHANGELOG.md"
@@ -275,12 +276,34 @@ def fetch_usage(days: int = 30) -> int:
     return sum(_write_raw("usage", record) for record in selected)
 
 
+def fetch_gh_cli(days: int = 30) -> int:
+    cutoff = date.today() - timedelta(days=days)
+    records: list[dict[str, Any]] = []
+    for page in range(1, 11):
+        payload = fetch_json(f"{GH_CLI_RELEASES_URL}?per_page=100&page={page}")
+        page_records = parse_github_releases(payload)
+        records.extend(page_records)
+        page_is_old = page_records and (
+            date.fromisoformat(page_records[-1]["period"]) < cutoff
+        )
+        if not payload or page_is_old:
+            break
+    selected = [record for record in records if date.fromisoformat(record["period"]) >= cutoff]
+    if not selected:
+        raise ValueError("GitHub CLI releases contained no versions from the last 30 days")
+    fetched_at = datetime.now(UTC).date().isoformat()
+    for record in selected:
+        record["fetched_at"] = fetched_at
+    return sum(_write_raw("gh_cli", record) for record in selected)
+
+
 def main() -> int:
     try:
         fetch_claude()
         fetch_codex()
         fetch_agy()
         fetch_usage()
+        fetch_gh_cli()
     except (
         OSError,
         UnicodeDecodeError,

@@ -4,13 +4,13 @@
 
 把 usage 專案（`~/Developer/usage`）裡的「AI 工具更新速報」內容管線拆成獨立專案：
 
-1. **每天自動**抓四個 AI 工具的官方 changelog 原文，逐版本存檔（永久歷史紀錄）。
+1. **每天自動**抓五個 AI 工具的官方 changelog 原文，逐版本存檔（永久歷史紀錄）。
 2. 提供一個 **GitHub Pages 靜態網頁**，顯示最新速報＋每工具的完整更新歷史，支援五語。
 3. 白話速報（五語改寫）仍走「人審後合入」，不全自動——原文層每天自動更新，白話層審核後上。
 4. 合入後自動把 `ai_updates.json` **同步回 usage repo**（aqua5230/usage main），讓已發佈的舊版 app 繼續吃到新內容（app 讀 `https://raw.githubusercontent.com/aqua5230/usage/main/ai_updates.json`，schema 不能變）。
 5. 供 usage app 的「AI 更新日報」面板吃的每日 feed：`daily.json`——每工具最新幾個版本，有白話用白話、還沒審的用原文逐字（標 `curated: false`），保證每天自動有新內容。
 
-## 四個工具與官方來源
+## 五個工具與官方來源
 
 | id | 顯示名 | 原文來源 |
 |---|---|---|
@@ -18,6 +18,7 @@
 | `codex` | Codex | GitHub releases API：`https://api.github.com/repos/openai/codex/releases` |
 | `agy` | Antigravity | 本機 `agy changelog`（純文字，格式：`版本號:` 開頭、每則 `· ` 開頭）。CI 上若找得到官方公開來源（網頁或 API）就用；找不到就做 `scripts/sync_agy.py`（本機跑 `agy changelog` 解析後落檔 commit），CI 只處理前兩個工具。 |
 | `usage` | Usage | `https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md` |
+| `gh_cli` | GitHub CLI | `https://api.github.com/repos/cli/cli/releases` |
 
 ## 目錄結構
 
@@ -56,7 +57,7 @@ curated 內容由維護者離線撰寫與審核後合入；本 repo 只定義資
 
 - **視覺已定案：`drafts/draft2.html`（開發者 changelog timeline 風）是權威視覺依據**——正式 `docs/index.html` 照它復刻版面、配色、字體、間距，只把內嵌假資料換成讀 `docs/data.json`＋補五語切換；不得憑文字描述重新發明視覺。
 - 靜態、無後端；資料來自同 repo 的 `docs/data.json`（build 產）。
-- 首屏：四工具最新版速報（白話卡片，item 之間明確視覺分隔）。
+- 首屏：五工具最新版速報（白話卡片，item 之間明確視覺分隔）。
 - 歷史：每工具可展開／切換的版本 timeline，白話版沒有的舊版本顯示原文。
 - 五語切換（跟 usage 同五語），預設跟瀏覽器語言。
 - 響應式（responsive），手機可讀。

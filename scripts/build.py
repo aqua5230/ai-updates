@@ -16,6 +16,7 @@ TOOLS = (
     ("codex", "Codex"),
     ("agy", "Antigravity"),
     ("usage", "Usage"),
+    ("gh_cli", "GitHub CLI"),
 )
 
 
@@ -86,10 +87,9 @@ def build() -> None:
         raw = _load_versions("raw", tool_id)
         curated = _load_versions("curated", tool_id)
         curated_latest = sorted(curated, key=_version_key, reverse=True)[:3]
-        if curated_latest:
-            app_tools.append(
-                {"id": tool_id, "name": name, "versions": [curated[v] for v in curated_latest]}
-            )
+        app_tools.append(
+            {"id": tool_id, "name": name, "versions": [curated[v] for v in curated_latest]}
+        )
 
         all_versions = sorted(set(raw) | set(curated), key=_version_key, reverse=True)
         visible_versions = [

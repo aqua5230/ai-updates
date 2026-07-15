@@ -31,6 +31,25 @@ def test_parse_codex_releases_fixture() -> None:
     ]
 
 
+def test_parse_gh_cli_releases_fixture() -> None:
+    payload = json.loads((FIXTURES / "gh_cli_releases.json").read_text(encoding="utf-8"))
+
+    assert fetch.parse_github_releases(payload) == [
+        {
+            "version": "2.63.0",
+            "period": "2026-07-11",
+            "source_url": "https://github.com/cli/cli/releases/tag/v2.63.0",
+            "entries": ["Added one command.", "Fixed one issue."],
+        },
+        {
+            "version": "2.62.0",
+            "period": "2026-07-04",
+            "source_url": "https://github.com/cli/cli/releases/tag/v2.62.0",
+            "entries": ["Improved one workflow."],
+        },
+    ]
+
+
 def test_parse_agy_changelog() -> None:
     assert parse_agy_changelog("1.2.3:\n· Added one thing.\n· Fixed another.\n") == [
         ("1.2.3", ["Added one thing.", "Fixed another."])
