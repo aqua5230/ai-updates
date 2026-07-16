@@ -8,7 +8,7 @@ import re
 import sys
 import urllib.error
 import urllib.request
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -214,34 +214,25 @@ def _markdown_records(
     ]
 
 
-def fetch_claude(days: int = 30) -> int:
+def fetch_claude(count: int = 20) -> int:
     dates = _release_dates(CLAUDE_RELEASES_URL)
-    cutoff = date.today() - timedelta(days=days)
     records = _markdown_records(fetch_text(CLAUDE_CHANGELOG_URL), CLAUDE_CHANGELOG_URL, dates)
-    dated = [record for record in records if record["version"] in dates]
-    selected = [
-        record for record in dated if date.fromisoformat(record["period"]) >= cutoff
-    ]
+    selected = [record for record in records if record["version"] in dates][:count]
     if not selected:
         raise ValueError("Claude changelog versions could not be matched to release dates")
     return sum(_write_raw("claude_code", record) for record in selected)
 
 
-def fetch_codex(days: int = 30) -> int:
-    cutoff = date.today() - timedelta(days=days)
+def fetch_codex(count: int = 20) -> int:
     records: list[dict[str, Any]] = []
     for page in range(1, 11):
         payload = fetch_json(f"{CODEX_RELEASES_URL}?per_page=100&page={page}")
-        page_records = parse_github_releases(payload)
-        records.extend(page_records)
-        page_is_old = page_records and (
-            date.fromisoformat(page_records[-1]["period"]) < cutoff
-        )
-        if not payload or page_is_old:
+        records.extend(parse_github_releases(payload))
+        if not payload or len(records) >= count:
             break
-    selected = [record for record in records if date.fromisoformat(record["period"]) >= cutoff]
+    selected = records[:count]
     if not selected:
-        raise ValueError("Codex releases contained no versions from the last 30 days")
+        raise ValueError("Codex releases contained no versions")
     fetched_at = datetime.now(UTC).date().isoformat()
     for record in selected:
         record["fetched_at"] = fetched_at
@@ -255,8 +246,7 @@ def fetch_agy() -> int:
     return sum(_write_raw("agy", record) for record in records)
 
 
-def fetch_usage(days: int = 30) -> int:
-    cutoff = date.today() - timedelta(days=days)
+def fetch_usage(count: int = 20) -> int:
     today = date.today().isoformat()
     records = [
         {
@@ -268,29 +258,22 @@ def fetch_usage(days: int = 30) -> int:
         }
         for version, period, entries in parse_keepachangelog(fetch_text(USAGE_CHANGELOG_URL))
     ]
-    selected = [
-        record for record in records if date.fromisoformat(record["period"]) >= cutoff
-    ]
+    selected = records[:count]
     if not selected:
-        raise ValueError("Usage changelog contained no versions from the last 30 days")
+        raise ValueError("Usage changelog contained no versions")
     return sum(_write_raw("usage", record) for record in selected)
 
 
-def fetch_gh_cli(days: int = 30) -> int:
-    cutoff = date.today() - timedelta(days=days)
+def fetch_gh_cli(count: int = 20) -> int:
     records: list[dict[str, Any]] = []
     for page in range(1, 11):
         payload = fetch_json(f"{GH_CLI_RELEASES_URL}?per_page=100&page={page}")
-        page_records = parse_github_releases(payload)
-        records.extend(page_records)
-        page_is_old = page_records and (
-            date.fromisoformat(page_records[-1]["period"]) < cutoff
-        )
-        if not payload or page_is_old:
+        records.extend(parse_github_releases(payload))
+        if not payload or len(records) >= count:
             break
-    selected = [record for record in records if date.fromisoformat(record["period"]) >= cutoff]
+    selected = records[:count]
     if not selected:
-        raise ValueError("GitHub CLI releases contained no versions from the last 30 days")
+        raise ValueError("GitHub CLI releases contained no versions")
     fetched_at = datetime.now(UTC).date().isoformat()
     for record in selected:
         record["fetched_at"] = fetched_at
