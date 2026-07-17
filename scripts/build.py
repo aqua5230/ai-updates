@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 from datetime import date
+from html import escape
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +20,8 @@ TOOLS = (
     ("usage", "Usage"),
     ("gh_cli", "GitHub CLI"),
 )
+SITE_URL = "https://aqua5230.github.io/ai-updates/"
+LANGUAGES = ("zh-TW", "en", "zh-CN", "ja", "ko")
 
 
 def _load_versions(layer: str, tool_id: str) -> dict[str, dict[str, Any]]:
@@ -78,6 +82,177 @@ def _write(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def _page_url(tool_id: str, version: str) -> str:
+    return f"{SITE_URL}v/{tool_id}/{version}/"
+
+
+def _localized(value: Any, language: str) -> str:
+    return value.get(language, "") if isinstance(value, dict) else ""
+
+
+def _curated_items(version: dict[str, Any]) -> list[dict[str, Any]]:
+    curated = version.get("curated")
+    if not isinstance(curated, dict):
+        return []
+    return [item for item in curated.get("items", []) if isinstance(item, dict)]
+
+
+def _description(version: dict[str, Any]) -> str:
+    items = _curated_items(version)
+    if items:
+        first = items[0]
+        return f"{_localized(first.get('title'), 'zh-TW')} {_localized(first.get('body'), 'zh-TW')}"[:150]
+    raw = version.get("raw")
+    entries = raw.get("entries", []) if isinstance(raw, dict) else []
+    return " ".join(entry for entry in entries if isinstance(entry, str))[:150]
+
+
+def _render_items(version: dict[str, Any], language: str) -> str:
+    items = _curated_items(version)
+    if items:
+        blocks = []
+        for item in items:
+            title = _localized(item.get("title"), language)
+            body = _localized(item.get("body"), language)
+            original = item.get("original", "")
+            if title or body:
+                blocks.append(
+                    f"<article><h3>{escape(title)}</h3><p>{escape(body)}</p>"
+                    f"<details><summary>Original changelog</summary><pre>{escape(str(original))}</pre></details></article>"
+                )
+        return "\n".join(blocks) or "<p>沒有可用的整理內容。</p>"
+
+    raw = version.get("raw")
+    entries = raw.get("entries", []) if isinstance(raw, dict) else []
+    return "\n".join(f"<article><pre>{escape(entry)}</pre></article>" for entry in entries if isinstance(entry, str)) or "<p>沒有可用的原始更新內容。</p>"
+
+
+def _render_static_page(
+    tool: dict[str, Any], index: int, versions: list[dict[str, Any]]
+) -> str:
+    version = versions[index]
+    version_name = str(version["version"])
+    tool_id = str(tool["id"])
+    name = str(tool["name"])
+    period = str((version.get("curated") or version.get("raw") or {}).get("period", ""))
+    description = _description(version)
+    release_notes = []
+    items = _curated_items(version)
+    if items:
+        release_notes = [
+            _localized(item.get("title"), "zh-TW")
+            for item in items
+            if _localized(item.get("title"), "zh-TW")
+        ]
+    structured_data = {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": name,
+        "softwareVersion": version_name,
+        "datePublished": period,
+        "releaseNotes": "；".join(release_notes),
+    }
+    json_ld = json.dumps(structured_data, ensure_ascii=False).replace("</", "<\\/")
+    previous_link = (
+        f'<a href="{escape(_page_url(tool_id, str(versions[index + 1]["version"])), quote=True)}">上一版</a>'
+        if index + 1 < len(versions)
+        else ""
+    )
+    next_link = (
+        f'<a href="{escape(_page_url(tool_id, str(versions[index - 1]["version"])), quote=True)}">下一版</a>'
+        if index > 0
+        else ""
+    )
+    if items:
+        language_sections = "\n".join(
+            f'<section lang="{language}"><h2>{escape(language)}</h2>{_render_items(version, language)}</section>'
+            for language in LANGUAGES
+        )
+    else:
+        language_sections = f'<section><h2>Original changelog</h2>{_render_items(version, "zh-TW")}</section>'
+    title = f"{name} {version_name} 更新白話速報"
+    url = _page_url(tool_id, version_name)
+    return f'''<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{escape(title)}</title>
+  <meta name="description" content="{escape(description, quote=True)}">
+  <link rel="canonical" href="{escape(url, quote=True)}">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{escape(title, quote=True)}">
+  <meta property="og:description" content="{escape(description, quote=True)}">
+  <meta property="og:url" content="{escape(url, quote=True)}">
+  <meta property="og:image" content="{SITE_URL}og-image.png">
+  <script type="application/ld+json">{json_ld}</script>
+  <style>:root{{color-scheme:light dark}}body{{font:16px/1.65 system-ui,sans-serif;max-width:54rem;margin:auto;padding:2rem}}article{{border-bottom:1px solid #999;padding:1rem 0}}h1,h2,h3{{line-height:1.25}}pre{{white-space:pre-wrap;overflow-wrap:anywhere}}a{{color:LinkText}}nav{{display:flex;gap:1rem;flex-wrap:wrap}}</style>
+</head>
+<body>
+  <header><h1>{escape(name)} {escape(version_name)}</h1><p>發布日期：{escape(period)}</p></header>
+  <main>{language_sections}</main>
+  <footer><nav><a href="{SITE_URL}#{tool_id}/{version_name}">回到互動版</a>{previous_link}{next_link}</nav></footer>
+</body>
+</html>
+'''
+
+
+def _write_static_pages(history_tools: list[dict[str, Any]]) -> int:
+    pages_root = ROOT / "docs" / "v"
+    shutil.rmtree(pages_root, ignore_errors=True)
+    page_count = 0
+    sitemap_entries = [f"  <url><loc>{SITE_URL}</loc></url>"]
+    llms_sections = [
+        "# AI Updates",
+        "五語 AI 工具 changelog 白話翻譯站。",
+        "資料每日更新。",
+    ]
+    for tool in history_tools:
+        versions = tool["versions"]
+        llms_sections.append(f"\n## {tool['name']}")
+        for index, version in enumerate(versions):
+            version_name = str(version["version"])
+            path = pages_root / str(tool["id"]) / version_name / "index.html"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(_render_static_page(tool, index, versions), encoding="utf-8")
+            url = _page_url(str(tool["id"]), version_name)
+            period = str((version.get("curated") or version.get("raw") or {}).get("period", ""))
+            sitemap_entries.append(f"  <url><loc>{escape(url)}</loc><lastmod>{escape(period)}</lastmod></url>")
+            llms_sections.append(f"- {url}")
+            page_count += 1
+    (ROOT / "docs" / "sitemap.xml").write_text(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
+        + "\n".join(sitemap_entries)
+        + "\n</urlset>\n",
+        encoding="utf-8",
+    )
+    (ROOT / "docs" / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}sitemap.xml\n", encoding="utf-8")
+    (ROOT / "docs" / "llms.txt").write_text("\n".join(llms_sections) + "\n", encoding="utf-8")
+    return page_count
+
+
+def _write_static_summary(history_tools: list[dict[str, Any]]) -> None:
+    index_path = ROOT / "docs" / "index.html"
+    if not index_path.exists():
+        return
+    index = index_path.read_text(encoding="utf-8")
+    links = []
+    for tool in history_tools:
+        if tool["versions"]:
+            latest = tool["versions"][0]
+            links.append(
+                f'<li><a href="{escape(_page_url(str(tool["id"]), str(latest["version"])), quote=True)}">'
+                f'{escape(str(tool["name"]))} {escape(str(latest["version"]))}</a></li>'
+            )
+    summary = "<!-- STATIC-SUMMARY:START -->\n  <noscript><section><h1>AI 工具更新速報</h1><p>最新版本：</p><ul>" + "".join(links) + "</ul></section></noscript>\n  <!-- STATIC-SUMMARY:END -->"
+    updated, count = re.subn(
+        r"<!-- STATIC-SUMMARY:START -->.*?<!-- STATIC-SUMMARY:END -->", summary, index, flags=re.DOTALL
+    )
+    if count != 1:
+        raise ValueError("docs/index.html must contain exactly one STATIC-SUMMARY marker block")
+    index_path.write_text(updated, encoding="utf-8")
+
+
 def build() -> None:
     generated_at = date.today().isoformat()
     app_tools: list[dict[str, Any]] = []
@@ -127,6 +302,8 @@ def build() -> None:
     _write(ROOT / "ai_updates.json", {"generated_at": generated_at, "tools": app_tools})
     _write(ROOT / "docs" / "data.json", {"generated_at": generated_at, "tools": history_tools})
     _write(ROOT / "daily.json", {"generated_at": generated_at, "tools": daily_tools})
+    _write_static_pages(history_tools)
+    _write_static_summary(history_tools)
 
 
 if __name__ == "__main__":
