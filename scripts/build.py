@@ -62,6 +62,13 @@ def is_placeholder(raw: dict[str, Any], version: str) -> bool:
                 return False
             continue
 
+        if re.fullmatch(
+            r"no\s+user-facing\s+changes\s+in\s+this\s+(?:patch\s+)?release\.?",
+            entry,
+            flags=re.IGNORECASE,
+        ):
+            continue
+
         match = re.fullmatch(
             r"published\s+a\s+version-only\s+release\s+with\s+no\s+merged\s+pull\s+request"
             r"\s+changes\s+since\s+`?\s*([a-z0-9._\s-]+?)\s*`?\s*\.",

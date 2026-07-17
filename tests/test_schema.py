@@ -109,6 +109,9 @@ def test_is_placeholder_accepts_empty_and_version_only_entries() -> None:
         },
         "0.144.3",
     )
+    assert is_placeholder(
+        {"entries": ["No user-facing changes in this patch release."]}, "0.144.4"
+    )
     assert not is_placeholder(
         {"entries": ["Release 0.144.1", "Fixed standalone installs."]}, "0.144.1"
     )
