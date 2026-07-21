@@ -114,6 +114,40 @@ def _description(version: dict[str, Any]) -> str:
     return " ".join(entry for entry in entries if isinstance(entry, str))[:150]
 
 
+def _render_inline_code(text: str) -> str:
+    parts = re.split(r"(`[^`]+`)", text)
+    return "".join(
+        f"<code>{escape(part[1:-1])}</code>"
+        if part.startswith("`") and part.endswith("`")
+        else escape(part)
+        for part in parts
+    )
+
+
+FENCED_CODE_RE = re.compile(
+    r"^[ \t]*```[ \t]*\r?\n([\s\S]*?)\r?\n^[ \t]*```[ \t]*(?=\r?$)", re.MULTILINE
+)
+
+
+def _render_body(text: str) -> str:
+    blocks = []
+    cursor = 0
+    for match in FENCED_CODE_RE.finditer(text):
+        prose = re.sub(r"\r?\n$", "", text[cursor:match.start()])
+        if prose:
+            blocks.append(f"<p>{_render_inline_code(prose)}</p>")
+        blocks.append(f'<pre class="code-block"><code>{escape(match.group(1))}</code></pre>')
+        cursor = match.end()
+        if text.startswith("\r\n", cursor):
+            cursor += 2
+        elif text.startswith("\n", cursor):
+            cursor += 1
+    prose = text[cursor:]
+    if prose:
+        blocks.append(f"<p>{_render_inline_code(prose)}</p>")
+    return "".join(blocks)
+
+
 def _render_items(version: dict[str, Any], language: str) -> str:
     items = _curated_items(version)
     if items:
@@ -124,7 +158,7 @@ def _render_items(version: dict[str, Any], language: str) -> str:
             original = item.get("original", "")
             if title or body:
                 blocks.append(
-                    f"<article><h3>{escape(title)}</h3><p>{escape(body)}</p>"
+                    f"<article><h3>{escape(title)}</h3>{_render_body(body)}"
                     f"<details><summary>Original changelog</summary><pre>{escape(str(original))}</pre></details></article>"
                 )
         return "\n".join(blocks) or "<p>沒有可用的整理內容。</p>"
@@ -193,7 +227,7 @@ def _render_static_page(
   <meta property="og:url" content="{escape(url, quote=True)}">
   <meta property="og:image" content="{SITE_URL}og-image.png">
   <script type="application/ld+json">{json_ld}</script>
-  <style>:root{{color-scheme:light dark}}body{{font:16px/1.65 system-ui,sans-serif;max-width:54rem;margin:auto;padding:2rem}}article{{border-bottom:1px solid #999;padding:1rem 0}}h1,h2,h3{{line-height:1.25}}pre{{white-space:pre-wrap;overflow-wrap:anywhere}}a{{color:LinkText}}nav{{display:flex;gap:1rem;flex-wrap:wrap}}</style>
+  <style>:root{{color-scheme:light dark}}body{{font:16px/1.65 system-ui,sans-serif;max-width:54rem;margin:auto;padding:2rem}}article{{border-bottom:1px solid #999;padding:1rem 0}}article p{{white-space:pre-line}}h1,h2,h3{{line-height:1.25}}code{{font:.9em "JetBrains Mono",monospace;color:#f0f6fc;background:#0d1117;border-radius:4px;padding:.1em .35em;overflow-wrap:anywhere;word-break:break-word}}pre{{white-space:pre-wrap;overflow-wrap:anywhere}}pre.code-block{{font:.85em/1.5 "JetBrains Mono",monospace;color:#f0f6fc;background:#0d1117;border-radius:6px;padding:.75rem}}pre.code-block code{{font:inherit;background:transparent;padding:0}}a{{color:LinkText}}nav{{display:flex;gap:1rem;flex-wrap:wrap}}</style>
 </head>
 <body>
   <header><h1>{escape(name)} {escape(version_name)}</h1><p>發布日期：{escape(period)}</p></header>
