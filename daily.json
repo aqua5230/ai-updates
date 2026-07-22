@@ -6,6 +6,73 @@
       "name": "Claude Code",
       "versions": [
         {
+          "version": "2.1.217",
+          "period": "2026-07-21",
+          "items": [
+            {
+              "original": "Added emoji shortcode autocomplete in the prompt input: type `:heart:` to insert ❤️, or `:hea` for suggestions — disable with the `emojiCompletionEnabled` setting"
+            },
+            {
+              "original": "Added warnings when transcript writes are failing (e.g. disk full) or when session saving is off due to an inherited environment variable, instead of losing transcripts silently"
+            },
+            {
+              "original": "Fixed a memory leak where truncated MCP tool outputs kept the full untruncated result in memory for the rest of the session"
+            },
+            {
+              "original": "Fixed Windows auto-update failures that could leave `claude.exe` missing; failed updates now restore the preserved executable automatically"
+            },
+            {
+              "original": "Fixed background session isolation not canonicalizing symlinked working directories, which could let sessions escape their workspace folder"
+            },
+            {
+              "original": "Fixed auto-compact never triggering for Claude Opus 4.8 on Bedrock and `/compact` failing once over the limit"
+            },
+            {
+              "original": "Fixed corporate mTLS, TLS-verify, OAuth scope, and proxy settings being ignored in Claude Desktop sessions"
+            },
+            {
+              "original": "Fixed screen reader mode's startup announcement being cut off by the first prompt render, and the thinking status row re-rendering every few seconds to update elapsed time and token counts"
+            },
+            {
+              "original": "Fixed managed settings that set `OTEL_EXPORTER_OTLP_ENDPOINT` not governing all signals — lower-scope signal-specific overrides no longer redirect telemetry away from the managed endpoint"
+            },
+            {
+              "original": "Fixed `--resume`/`--continue` and `/resume` failing with a TypeError when a transcript has a malformed attachment entry"
+            },
+            {
+              "original": "Fixed Remote Control sessions not showing a pending permission prompt or dialog to viewers that connected after it appeared"
+            },
+            {
+              "original": "Fixed background shells sometimes becoming impossible to stop after a session is sent to the background (`/background` or `←`) or when the session exits on a heavily loaded machine, most visible on Windows"
+            },
+            {
+              "original": "Fixed a `CLAUDE.md` or `SKILL.md` paths frontmatter value with many brace groups OOM-killing or stalling the CLI at startup — brace expansion is now budget-bounded"
+            },
+            {
+              "original": "Fixed the transcript preview sitting flush against the input area when attaching to a starting background session; it now leaves the same one-line gap as the live layout, so the transcript no longer shifts when the session takes over"
+            },
+            {
+              "original": "Improved footer PR badge links to be clickable hyperlinks even when terminal support can't be detected (e.g. over ssh/tmux); set `FORCE_HYPERLINK=0` to opt out"
+            },
+            {
+              "original": "Changed the login-expiry warning to appear 3 days before expiry instead of 5"
+            },
+            {
+              "original": "Capped the frontend-design plugin suggestion tip at 3 lifetime impressions instead of repeating indefinitely"
+            },
+            {
+              "original": "Added a cap on concurrently-running subagents (default 20, override with `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`) so one message can't fan out unbounded background agents"
+            },
+            {
+              "original": "Changed subagents to no longer spawn nested subagents by default; set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` to allow deeper nesting"
+            },
+            {
+              "original": "Fixed `--max-budget-usd` not stopping background subagents: once the cap is reached, new spawns are denied and running background agents are halted"
+            }
+          ],
+          "curated": false
+        },
+        {
           "version": "2.1.216",
           "period": "2026-07-20",
           "items": [
@@ -188,132 +255,6 @@
             }
           ],
           "curated": true
-        },
-        {
-          "version": "2.1.214",
-          "period": "2026-07-18",
-          "items": [
-            {
-              "title": {
-                "zh-TW": "權限守門更嚴，危險指令不再鑽漏洞",
-                "zh-CN": "权限把关更严，危险命令不再钻漏洞",
-                "en": "Tighter permission gates close command loopholes",
-                "ja": "権限の門番が厳しくなり、危険なコマンドの抜け道を塞いだ",
-                "ko": "권한 문지기가 더 엄격해져 위험한 명령의 허점을 막는다"
-              },
-              "body": {
-                "zh-TW": "你叫 Claude 改檔、跑終端機時，最怕它把看似無害的指令當成安全通行證。這次把權限檢查補成像大樓門禁：`dir/**` 不會再誤認整棟樓任何同名資料夾都能寫入；PowerShell、Bash 的重新導向、超長指令、zsh 比較式；`help`、`man` 的危險用法，以及使用 `-m`／`--magic-file` 或 `-f`／`--files-from` 的 `file` 指令，都會在有風險時停下來問你。Docker 或 Podman 若改連別台 daemon（背景服務程式）也得先確認。遠端工作階段更不會在你本機按同意前搶跑。原本該只限目前資料夾的 hook 規則，也不再意外套到更深處。",
-                "zh-CN": "让 Claude 改文件、跑终端时，最怕它把看似无害的命令当成安全通行证。这次把权限检查补成大楼门禁：`dir/**` 不会再误认整栋楼任何同名文件夹都能写入；PowerShell、Bash 的重定向、超长命令、zsh 比较式；`help`、`man` 的危险用法，以及使用 `-m`／`--magic-file` 或 `-f`／`--files-from` 的 `file` 命令，遇到风险都会停下来询问。Docker 或 Podman 若改连别台 daemon（后台服务程序）也得先确认。远程会话更不会在你本机同意前抢跑。",
-                "en": "When Claude edits files or runs terminal commands, lookalike commands should not get a free pass. Permission checks now treat `dir/**`, PowerShell, Bash redirects, very long commands, zsh comparisons, risky uses of `help` and `man`, and `file` commands using `-m`/`--magic-file` or `-f`/`--files-from` more cautiously. Docker or Podman commands aimed at another daemon also ask first, and remote sessions wait for local confirmation. Think of it as fixing badge readers that once mistook a hallway sign for building-wide access.",
-                "ja": "Claude にファイル編集や端末操作を任せる際、無害に見える命令が安全扱いされるのは困る。`dir/**`、PowerShell、Bash のリダイレクト、極端に長い命令、zsh の比較式、`help` と `man` の危険な使い方、`-m`／`--magic-file` または `-f`／`--files-from` を使う `file` コマンドを、権限確認がより慎重に扱うようになった。別の daemon（常駐サービス）へつなぐ Docker や Podman も確認を求め、遠隔セッションはローカル確認より先に進まない。建物全体の鍵と誤認していた入館証を直すような変更である。",
-                "ko": "Claude에게 파일 편집이나 터미널 작업을 맡길 때 무해해 보이는 명령이 공짜 통과증이 되면 곤란하다. 권한 검사가 `dir/**`, PowerShell, Bash 리디렉션, 아주 긴 명령, zsh 비교식, `help`와 `man`의 위험한 사용, `-m`／`--magic-file` 또는 `-f`／`--files-from`을 쓰는 `file` 명령을 더 신중히 다룬다. 다른 daemon(상주 서비스)으로 연결하는 Docker나 Podman도 먼저 묻고, 원격 세션은 로컬 확인보다 앞서 실행되지 않는다. 건물 전체 열쇠로 잘못 읽던 출입증을 고친 셈이다."
-              },
-              "original": "Fixed single-segment `dir/**` allow rules like `Edit(src/**)` auto-approving writes to nested `dir/` directories anywhere in the tree instead of only `<cwd>/dir`\nFixed a permission-check bypass affecting commands run in Windows PowerShell 5.1 sessions\nFixed Bash permission checks to fail closed on file-descriptor redirect forms that bash parses differently than the permission analyzer\nFixed Bash permission checks misjudging very long commands — commands over 10,000 characters now always prompt instead of running automatically\nFixed Bash permission checks treating zsh variable subscripts and modifiers in `[[ ]]` comparisons as inert text — these commands now prompt for approval\nFixed Bash permission checks to no longer auto-approve certain `help` and `man` commands that could run unsafe options, command substitutions, or backslash paths\nFixed permission prompts on remote sessions that could proceed before the local confirmation dialog\nAdded permission prompts for `docker` commands (including the Podman `docker` shim) carrying daemon-redirect flags (`--url`, `--connection`, `--identity`, and Podman's remote mode) that previously ran without one\nChanged single-segment `dir/**` hook `if:` conditions to match only `<cwd>/dir`; write `**/dir/**` for any-depth matching. `deny`/`ask` permission rules keep their any-depth match.\nChanged `file` commands using `-m`/`--magic-file` or `-f`/`--files-from` to require permission instead of being auto-allowed as read-only"
-            },
-            {
-              "title": {
-                "zh-TW": "對話能止損，長工也不再悄悄失聯",
-                "zh-CN": "对话能止损，长任务也不再悄悄失联",
-                "en": "Sessions can end safely and long jobs stay visible",
-                "ja": "会話を安全に終え、長い処理も音沙汰なしにしない",
-                "ko": "대화는 안전하게 끝내고 긴 작업은 소식 없이 사라지지 않는다"
-              },
-              "body": {
-                "zh-TW": "遇到持續辱罵或越獄（jailbreak，誘導 AI 逃避安全規則）的對話，Claude 現在可以主動結束工作階段，不必被困在拉扯裡。另一頭，長時間工具呼叫會定期送出進度心跳，讓你知道它還活著。幾個容易讓工作半途斷線的問題也補好了：feature flag（功能開關）的空值或壞資料不再讓程式崩潰或清空快取；設定檔指到裝置檔可能造成記憶體持續增加；超過 2 MiB 的設定檔則會在啟動時清楚拒絕；公司 proxy（代理伺服器）、慢速 SDK 管線、排程任務、Linux 的 `pkill -f`，以及 shell 設定路徑誤填成資料夾，都不再把工作悄悄弄壞。顧問思考時也不會誤跳網路警告，從家目錄執行 `claude rc` 則會說清楚信任設定不會被保存。像客服櫃台能請搗亂者離開，後台也會定時亮燈報平安。",
-                "zh-CN": "面对持续辱骂或越狱（jailbreak，诱导 AI 逃避安全规则）的对话，Claude 现在可以主动结束会话。长时间工具调用会定期发出进度心跳。功能开关的空值或坏数据、指向设备文件的设置文件可能造成内存持续增长、超过 2 MiB 的设置文件会在启动时清楚拒绝、公司 proxy（代理服务器）、慢速 SDK 管线、定时任务、Linux 的 `pkill -f`，以及误填为文件夹的 shell 配置路径，也不再轻易把工作悄悄弄坏。顾问思考时不会再误跳网络警告，从家目录执行 `claude rc` 也会说明信任设置不会保存。像客服柜台能请捣乱者离开，后台也会定时亮灯报平安。",
-                "en": "Claude can now end a session with persistently abusive users or jailbreak attempts, while long tool calls send periodic heartbeats so they no longer look dead. Several quiet failure paths are fixed too: bad feature flags, settings files pointing to device files that could cause unbounded memory growth, oversized settings files that now fail clearly at startup when over 2 MiB, corporate proxies, slow SDK consumers, scheduled tasks, Linux `pkill -f`, and shell-config paths that are directories. The advisor no longer raises a false network warning while thinking, and `claude rc` explains why trust cannot persist in the home directory. It is like a help desk that can end an abusive call while its back room keeps a status light on.",
-                "ja": "執拗な暴言や jailbreak（安全規則から逃れさせようとする誘導）には、Claude が会話を終えられるようになった。長いツール呼び出しも定期的に進捗の heartbeat を出す。壊れた feature flag、デバイスファイルを指してメモリが増え続ける設定ファイル、2 MiB 超では起動時に明確に拒否される設定ファイル、社内 proxy、遅い SDK 利用者、予定タスク、Linux の `pkill -f`、ディレクトリを指す shell 設定も作業を壊しにくくなった。advisor が考えている間の誤ったネットワーク警告は消え、ホームディレクトリの `claude rc` は信頼が保存されない理由を説明する。困った客との通話を終えつつ、裏方の稼働灯を点ける窓口のような改善である。",
-                "ko": "지속적인 폭언이나 jailbreak(안전 규칙을 피하게 유도하는 시도)에는 Claude가 세션을 끝낼 수 있게 됐다. 긴 도구 호출은 주기적으로 heartbeat를 보낸다. 잘못된 feature flag, 장치 파일을 가리켜 메모리가 계속 늘 수 있는 설정 파일, 2 MiB를 넘으면 시작할 때 명확히 거부되는 설정 파일, 회사 proxy, 느린 SDK 소비자, 예약 작업, Linux의 `pkill -f`, 디렉터리를 가리키는 shell 설정도 작업을 조용히 망가뜨리지 않게 고쳤다. advisor가 생각하는 동안 잘못 뜨던 네트워크 경고는 사라지고, 홈 디렉터리의 `claude rc`는 신뢰가 저장되지 않는 이유를 알려 준다. 난동 고객 통화는 끝내면서 뒷방의 작동등은 켜 두는 창구와 같다."
-              },
-              "original": "Added the EndConversation tool: Claude can end sessions with highly abusive users or jailbreak attempts, as on claude.ai since 2025 — see https://www.anthropic.com/research/end-subset-conversations\nAdded a periodic progress heartbeat for long-running tool calls that previously went silent\nFixed a crash when a GrowthBook feature evaluates to null, and a bug where a malformed flag payload could wipe the cached feature flags\nFixed Bash tool killing the Claude session when a `pkill -f` pattern accidentally matched the CLI's own process (Linux)\nFixed unbounded memory growth when `--settings` points at a device file or multi-GB file; oversized (>2 MiB) settings files now fail at startup with a clear error\nFixed streaming turns failing with \"Socket is closed\" behind corporate proxies on Windows\nFixed stream-json output truncation at exit for slow-reading SDK/pipeline consumers; the exit drain now scales with queued bytes instead of a flat 2s cap\nFixed scheduled tasks refusing their own configured prompt as untrusted input — the fired prompt is now delivered as the session's assigned task\nFixed `claude update` and `claude doctor` hanging silently, and the `/status` System diagnostics section going blank, when a shell-config path is a directory\nFixed a spurious \"check your network\" warning that appeared while the advisor was thinking\nImproved the `claude rc` workspace-trust error in the home directory to say trust there is never saved and to suggest running from a project directory"
-            },
-            {
-              "title": {
-                "zh-TW": "追查一段工作，記錄終於接得起來",
-                "zh-CN": "追查一段工作，记录终于接得起来",
-                "en": "Logs now connect the pieces of one job",
-                "ja": "一つの作業を追う記録が、ようやくつながる",
-                "ko": "한 작업을 추적하는 기록이 마침내 이어진다"
-              },
-              "body": {
-                "zh-TW": "當你想查「這則訊息到底叫了哪個工具、花了多少資源」，紀錄不該像散落的收據。memory 檔案（讓 Claude 留下跨工作階段筆記的檔案）現在有 ISO `modified` 時間戳；OpenTelemetry（把程式執行紀錄送進監控工具的標準）則替每則訊息加上 UUID、請求編號和工具來源，也可設定內容欄位原本 60 KB 的截斷上限。自訂 agent 列表能顯示模型與 reasoning effort（推理投入程度）。串流重複送出的累積訊息不會再把成本和 token（模型處理文字的計量單位）重複算，非同步紀錄也會帶上正確追蹤脈絡。最後，memory 裡行內 `#` 不會再害後面內容被截掉。像把每張收據編號、蓋章、釘回同一份帳本。",
-                "zh-CN": "想查“这条消息到底叫了哪个工具、花了多少资源”时，记录不该像散落的收据。memory 文件现在有 ISO `modified` 时间戳；OpenTelemetry（把程序运行记录送进监控工具的标准）会为每条消息加入 UUID、请求编号和工具来源，也可设置内容字段原本 60 KB 的截断上限。自定义 agent 列表能显示模型与 reasoning effort（推理投入程度）。流式消息不会再重复计算成本和 token（模型处理文字的计量单位），memory 里的行内 `#` 也不会截断后文。像给每张收据编号后钉回同一本账本。",
-                "en": "Tracing one job should not mean sorting scattered receipts. Memory files now carry an ISO `modified` timestamp, while OpenTelemetry events get message IDs, request IDs, and tool provenance, with a configurable 60 KB content limit. Custom agent rows can show model and reasoning effort; streaming telemetry no longer double-counts costs or tokens, and async logs retain trace context. Inline `#` no longer chops off saved memory values. It is a ledger where every receipt is numbered and filed together.",
-                "ja": "一つの仕事でどのメッセージがどのツールを呼び、何を消費したかを調べる記録が、散らばったレシートでは困る。memory ファイルには ISO の `modified` 時刻が付き、OpenTelemetry（実行記録を監視へ送る標準）にはメッセージ ID、要求 ID、ツールの出所が加わる。内容の 60 KB 上限も設定できる。ストリームの費用や token の二重計上、非同期ログの追跡情報欠落、`#` 以降の memory 切り捨ても直った。同じ帳簿に番号付きで綴じる改善である。",
-                "ko": "한 작업에서 어느 메시지가 어떤 도구를 불렀고 무엇을 썼는지 찾는 기록이 흩어진 영수증이면 곤란하다. memory 파일에 ISO `modified` 시간이 붙고, OpenTelemetry(실행 기록을 모니터링 도구로 보내는 표준)에 메시지 ID, 요청 ID, 도구 출처가 더해진다. 60 KB 내용 한도도 설정할 수 있다. 스트림 비용과 token의 이중 계산, 비동기 로그의 추적 정보 누락, memory에서 `#` 뒤가 잘리는 문제도 고쳤다. 모든 영수증을 번호 매겨 한 장부에 묶는 셈이다."
-              },
-              "original": "Added an ISO `modified` timestamp to memory file frontmatter\nAdded `message.uuid`, `client_request_id`, and `tool_source` attributes to OpenTelemetry log events for message-level correlation and tool provenance\nAdded `CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH` to configure the 60 KB truncation limit on OpenTelemetry content attributes\nAdded reasoning effort to the `subagentStatusLine` payload, so custom agent rows can render model and effort\nFixed memory frontmatter values being silently truncated at an inline `#` when memory files are saved\nFixed session cost and token telemetry double-counting on streams that emit multiple cumulative `message_delta` frames\nFixed OTel log events emitted outside the turn's async context missing the interaction span's trace context"
-            },
-            {
-              "title": {
-                "zh-TW": "Windows 終端機少了卡死與亂碼",
-                "zh-CN": "Windows 终端少了卡死和乱码",
-                "en": "Windows terminal work loses its hangs and garbling",
-                "ja": "Windows の端末作業で停止と文字化けを減らした",
-                "ko": "Windows 터미널 작업에서 멈춤과 깨짐을 줄였다"
-              },
-              "body": {
-                "zh-TW": "你在 Windows 用 PowerShell 跑工具，子程序等著標準輸入時，過去可能一路卡到逾時；現在能正常收尾。Python 讀到非 UTF-8 資料，或輸出非 ASCII 字元，也不會因編碼錯誤崩掉；PowerShell 7 的錯誤訊息不再夾著 ANSI escape sequence（控制終端機顏色等格式的隱藏碼）。`where.exe`、`fc.exe` 和 `diff.exe` 回報「沒找到差異」這類正常否定答案，也不會被誤報成錯誤。最後，Windows PowerShell 5.1 的 `>`、`>>` 會寫出其他工具讀得懂的 UTF-8，而非 UTF-16LE。像同一條傳送帶終於統一箱子標籤，既不塞車也不讀錯字。",
-                "zh-CN": "在 Windows 用 PowerShell 跑工具时，子程序等待标准输入过去可能一直卡到超时；现在能正常结束。Python 读到非 UTF-8 数据或输出非 ASCII 字符也不会因编码错误崩掉；PowerShell 7 的报错不再夹着 ANSI escape sequence（控制终端颜色等格式的隐藏码）。`where.exe`、`fc.exe` 和 `diff.exe` 的正常否定答案不再被误报为错误，PowerShell 5.1 的 `>`、`>>` 也会写出 UTF-8。像传送带统一了箱子标签，不再堵车或读错字。",
-                "en": "On Windows, PowerShell commands no longer wait until timeout when a child process needs standard input. Python now survives non-UTF-8 input and non-ASCII output, PowerShell 7 errors lose their raw terminal control codes, and valid “not found” answers from `where.exe`, `fc.exe`, and `diff.exe` are not treated as failures. PowerShell 5.1 redirects now write UTF-8 instead of UTF-16LE. It is one conveyor belt with labels every tool can read.",
-                "ja": "Windows の PowerShell では、子プロセスが標準入力を待つとタイムアウトまで固まる問題を直した。Python は非 UTF-8 入力や非 ASCII 出力で落ちにくくなり、PowerShell 7 のエラーから生の ANSI escape sequence（端末表示を制御する隠しコード）も消えた。`where.exe`、`fc.exe`、`diff.exe` の正常な否定結果はエラー扱いされず、PowerShell 5.1 のリダイレクトは UTF-16LE でなく UTF-8 を書く。全ツールが読めるラベルへそろえた搬送帯のような改善である。",
-                "ko": "Windows PowerShell에서는 자식 프로세스가 표준 입력을 기다릴 때 시간 초과까지 멈추던 문제를 고쳤다. Python은 UTF-8이 아닌 입력과 ASCII 밖 출력 때문에 덜 죽고, PowerShell 7 오류에서는 ANSI escape sequence(터미널 표시를 제어하는 숨은 코드)도 사라진다. `where.exe`, `fc.exe`, `diff.exe`의 정상적인 부정 답변은 오류가 아니며, PowerShell 5.1 리디렉션은 UTF-16LE 대신 UTF-8을 쓴다. 모든 도구가 읽는 라벨로 통일한 컨베이어 벨트와 같다."
-              },
-              "original": "Fixed PowerShell tool commands hanging until timeout when a child process waited on standard input (Windows)\nFixed Python scripts under the PowerShell tool crashing with UnicodeDecodeError when reading non-UTF-8 data from standard input (Windows)\nFixed Python scripts run via the PowerShell tool crashing with UnicodeEncodeError on non-ASCII output, and PowerShell 7 error messages containing raw ANSI escape sequences (Windows)\nFixed the PowerShell tool reporting `where.exe`, `fc.exe`, and `diff.exe` as errors when they return a valid negative answer (Windows)\nFixed `>` and `>>` under the PowerShell tool on Windows PowerShell 5.1 writing UTF-16LE files that other tools couldn't read as UTF-8"
-            },
-            {
-              "title": {
-                "zh-TW": "背景工作不再佔著位子又刪不掉",
-                "zh-CN": "后台工作不再占着位置又删不掉",
-                "en": "Background work no longer lingers or becomes undeletable",
-                "ja": "バックグラウンド作業が居座ったり削除不能になったりしない",
-                "ko": "백그라운드 작업이 자리를 차지하거나 삭제 불능이 되지 않는다"
-              },
-              "body": {
-                "zh-TW": "把工作放到 background 工作階段（背景執行，不佔著你眼前終端機）後，最煩的是它明明停了卻還佔著資源，或想清掉卻找不到。這版修了整條收尾流程：舊 daemon（背景常駐程式）退場時不會刪掉接班者的 control socket（用來溝通的本機通道）；用 `←` 或 `/background` 暫停的工作不會無限養著 worker；服務閒置、從非 Git 資料夾送出、或重新開啟時遇到不可讀目錄，都不會讓刪除或還原對話失敗。像夜班交接不再把新值班員的鑰匙丟掉，完成的工作階段也能確實清掉。",
-                "zh-CN": "把工作放到 background 会话（后台运行，不占着眼前终端）后，最烦的是它明明停了还占资源，或想清掉却找不到。这版修了整条收尾流程：旧 daemon（后台常驻程序）退出时不会删掉接班者的 control socket（本地通信通道）；用 `←` 或 `/background` 暂停的工作不会无限养着 worker；服务空闲、从非 Git 文件夹发出、或重新打开时遇到不可读目录，都不会让删除或恢复对话失败。像夜班交接不再丢掉新值班员钥匙，完成的会话也能彻底清理。",
-                "en": "Background work should not keep a desk forever or become impossible to remove. A departing daemon no longer deletes its successor’s control socket; parked jobs no longer keep workers alive indefinitely; and deletion or restore no longer breaks because the service is idle, work came from outside Git, or the session store has an unreadable folder. Like a night shift that hands over the right keys, every finished session can be removed cleanly.",
-                "ja": "background（端末を占有せず裏で動く実行）に回した仕事が、止まったのに資源を占めたり消せなくなったりするのは困る。退場する daemon（常駐サービス）が後継者の control socket（ローカル通信用の口）を消さず、保留した仕事も worker を無期限に残さない。サービスの待機、Git 外からの起動、保存場所の読めないフォルダも、削除や会話の復元を妨げなくなった。夜勤が次の人の鍵を捨てず、完了したセッションも確実に消せるようなものだ。",
-                "ko": "background(눈앞의 터미널을 차지하지 않고 뒤에서 실행)에 보낸 작업이 멈춘 뒤에도 자원을 차지하거나 지울 수 없으면 곤란하다. 떠나는 daemon(상주 서비스)이 후임의 control socket(로컬 통신 통로)을 지우지 않고, 보류한 작업도 worker를 무기한 살려 두지 않는다. 서비스 유휴 상태, Git 밖에서 시작한 작업, 저장소의 읽을 수 없는 폴더도 삭제나 대화 복원을 막지 않는다. 야간 근무자가 다음 사람 열쇠를 버리지 않고, 끝난 세션도 확실히 지우는 셈이다."
-              },
-              "original": "Fixed a displaced background daemon deleting its successor's control socket on shutdown, which made the next client kill the healthy replacement daemon\nFixed background sessions parked with `←` or `/background` and left idle keeping the background daemon and a worker process alive indefinitely\nFixed completed background sessions being impossible to remove via `claude rm` or the agent view once the background service had gone idle\nFixed background sessions dispatched from a non-git folder being impossible to delete from the agents view\nFixed reopening a stopped background session failing to restore its saved conversation when an unreadable folder exists in the session store"
-            },
-            {
-              "title": {
-                "zh-TW": "遠端控制與設定頁，不再無故被擋住",
-                "zh-CN": "远程控制与设置页，不再无故被拦住",
-                "en": "Remote control and settings stop getting blocked for no reason",
-                "ja": "リモート操作と設定画面が理由なく塞がれなくなった",
-                "ko": "원격 제어와 설정 화면이 이유 없이 막히지 않는다"
-              },
-              "body": {
-                "zh-TW": "你在手機或網頁看 Remote Control（遠端控制，從別台裝置查看 Claude 工作）時，不會再收到根本沒開啟功能的「session ready」通知。agent view（代理工作清單畫面）裡的 `/install-github-app` 和 `/mcp` 設定選單，也不會一律被封鎖；只有沒有連接終端機的背景工作階段才會被拒絕。透過 `--settings` 啟用的 plugin（外掛，擴充 Claude 功能的元件）會正常載入，OAuth token（登入用的授權令牌）輪替後，久開工作階段的功能開關也會刷新。像遙控器只對真正配對的設備響應，設定選單只有在背景工作階段沒有連接終端機時才會鎖住。",
-                "zh-CN": "在手机或网页看 Remote Control（远程控制，从别台设备查看 Claude 工作）时，不会再收到根本没开启功能的“session ready”通知。agent view 里的 `/install-github-app` 和 `/mcp` 设置菜单也不再一律被封锁；只有没连接终端的后台会话才会被拒绝。通过 `--settings` 启用的 plugin（插件，扩展 Claude 功能的组件）会正常加载，OAuth token（登录用的授权令牌）轮换后，长期开着的会话功能开关也会刷新。像遥控器只响应真正配对的设备，设置菜单只有在后台会话没有连接终端时才会锁住。",
-                "en": "Remote Control no longer sends “session ready” notifications for sessions where you never enabled it. In agent view, `/install-github-app` and `/mcp` settings are available unless a background session has no terminal attached. Plugins enabled with `--settings` load again, and long-running sessions refresh feature flags after an OAuth token rotates. It is a remote control that responds only to paired devices, with settings blocked only when a background session has no terminal attached.",
-                "ja": "Remote Control（別の端末から Claude の作業を見る機能）は、明示的に有効にしていないセッションへ「session ready」通知を出さなくなった。agent view の `/install-github-app` と `/mcp` 設定も、端末のないバックグラウンド作業以外では使える。`--settings` で有効にした plugin（機能を拡張する部品）は再び読み込まれ、OAuth token（ログイン認可の鍵）が更新されても長いセッションの機能フラグが古びない。正しく組にした機器だけへ反応するリモコンのような変更で、端末のないバックグラウンド作業だけ設定が拒否される。",
-                "ko": "Remote Control(다른 기기에서 Claude 작업을 보는 기능)은 명시적으로 켜지 않은 세션에 “session ready” 알림을 보내지 않는다. agent view의 `/install-github-app`과 `/mcp` 설정은 터미널이 없는 background 세션 외에는 쓸 수 있다. `--settings`로 켠 plugin(기능을 넓히는 부품)은 다시 로드되고, OAuth token(로그인 인가 열쇠)이 바뀐 뒤에도 긴 세션의 기능 플래그가 낡지 않는다. 제대로 짝지은 기기에만 반응하는 리모컨처럼, 터미널이 연결되지 않은 백그라운드 세션에서만 설정이 차단된다."
-              },
-              "original": "Fixed the Remote Control \"session ready\" push notification firing for sessions where Remote Control was not explicitly enabled\nFixed `/install-github-app` and the `/mcp` settings menu being blocked in agent-view sessions — they're now refused only in background sessions with no terminal attached\nFixed plugins enabled via the `--settings` CLI flag not loading (regression since v2.1.181)\nFixed feature flags going stale in long-running sessions after the OAuth token rotates\nChanged SessionStart hooks to report source `\"fork\"` when a session begins as a fork instead of `\"resume\"`"
-            },
-            {
-              "title": {
-                "zh-TW": "MCP 服務與連線，暫時出錯不會整排消失",
-                "zh-CN": "MCP 服务与连接，暂时出错不会整排消失",
-                "en": "MCP services and connections survive temporary errors",
-                "ja": "MCP サービスと接続は一時的なエラーでまとめて消えない",
-                "ko": "MCP 서비스와 연결은 일시적 오류로 한꺼번에 사라지지 않는다"
-              },
-              "body": {
-                "zh-TW": "當你更新 MCP（讓 Claude 連接外部工具的協定）的提示與資源時，偶發錯誤不再把伺服器現有的斜線指令和資源清空，像工具箱短暫斷電，裡面的工具仍留在原位。hooks（特定事件發生時自動執行的指令）傳回 exit code 2 而 stdout JSON 未通過 schema validation（檢查資料格式是否合規）時，現在仍會如文件所說阻擋。`/ultrareview` 在沒有 merge base（兩條 Git 分支共同起點）的 Git repository 裡，不再拒絕執行，會提供審查所有 tracked files（Git 正在追蹤的檔案）。若 keep-alive connection pooling（重複使用連線的方式）遇到 stale-connection error，之後會停用它，重試改開新 socket（網路連線通道）。",
-                "zh-CN": "更新 MCP（让 Claude 连接外部工具的协议）的提示和资源时，偶发错误不再清空服务器现有的斜杠命令和资源，像工具箱短暂断电，里面的工具仍留在原位。hooks（特定事件发生时自动执行的命令）返回 exit code 2 而 stdout JSON 未通过 schema validation（检查数据格式是否合规）时，现在仍会如文档所说阻挡。`/ultrareview` 在没有 merge base（两条 Git 分支共同起点）的 Git repository 里，不再拒绝运行，会提供审查所有 tracked files（Git 正在跟踪的文件）。如果 keep-alive connection pooling（重复使用连接的方式）遇到 stale-connection error，之后会停用它，重试改开新 socket（网络连接通道）。",
-                "en": "A transient error while refreshing MCP prompts and resources no longer clears a server's existing slash commands and resources, like a brief power flicker that leaves tools in their box. Hooks returning exit code 2 still block as documented when their stdout JSON fails schema validation. `/ultrareview` no longer refuses to run in a Git repository with no merge base: it offers to review all tracked files. After a stale-connection error, keep-alive connection pooling is disabled so retries open a fresh socket.",
-                "ja": "MCP（Claude を外部ツールへつなぐ規約）のプロンプトとリソースを更新中に一時的なエラーが起きても、サーバーの既存スラッシュコマンドとリソースは消えなくなった。工具箱が一瞬停電しても中の道具が残るようなものだ。hooks（特定のイベントで自動実行する命令）が exit code 2 を返し、stdout の JSON が schema validation（データ形式が適切か確かめる検査）を通らなくても、文書どおりブロックする。merge base（Git 分岐の共通起点）がない Git repository でも `/ultrareview` は拒否せず、追跡中の全ファイルをレビューする選択肢を出す。stale-connection error の後は keep-alive connection pooling を止め、再試行では新しい socket（通信の通り道）を開く。",
-                "ko": "MCP(Claude를 외부 도구에 연결하는 규약)의 프롬프트와 리소스를 새로 고치다가 일시 오류가 나도 서버의 기존 슬래시 명령과 리소스는 지우지 않는다. 공구함이 잠깐 정전돼도 안의 도구는 남는 것과 같다. hooks(특정 이벤트에 자동 실행하는 명령)가 exit code 2를 내고 stdout JSON이 schema validation(데이터 형식이 맞는지 확인하는 검사)을 통과하지 못해도 문서대로 막는다. merge base(Git 분기의 공통 시작점)가 없는 Git repository에서도 `/ultrareview`는 거부하지 않고 추적 중인 모든 파일을 검토하는 선택지를 낸다. stale-connection error 뒤에는 keep-alive connection pooling을 끄므로 재시도는 새 socket(통신 통로)을 연다."
-              },
-              "original": "Fixed `/ultrareview` refusing to run in repos with no merge base — it now offers to review all tracked files\nFixed hooks with exit code 2 not blocking as documented when the hook's stdout JSON fails schema validation\nFixed MCP transient errors during prompts/resources refresh clearing the server's slash commands and resources\nChanged keep-alive connection pooling to disable after a stale-connection error, so retries open a fresh socket"
-            }
-          ],
-          "curated": true
         }
       ]
     },
@@ -321,6 +262,1081 @@
       "id": "codex",
       "name": "Codex",
       "versions": [
+        {
+          "version": "0.145.0",
+          "period": "2026-07-21",
+          "items": [
+            {
+              "original": "Added experimental paginated thread history with efficient resume, search, persisted names, sub-agent support, and memories. (#33364, #33907, #34085, #34229, #34386)"
+            },
+            {
+              "original": "Expanded `/import` to migrate Cursor and Claude Code settings, MCP servers, plugins, sessions, commands, and project-scoped memories. (#31672, #33411, #33426, #33444)"
+            },
+            {
+              "original": "Added experimental Amazon Bedrock login, custom endpoint and authentication support, and GPT-5.6 Sol as the default Bedrock model. (#31327, #33170, #33175, #32288, #33695)"
+            },
+            {
+              "original": "Added audio inputs and tool outputs, including common local audio formats, and introduced streaming realtime V3 conversations. (#33261, #33856, #33932, #34080, #34385)"
+            },
+            {
+              "original": "Stabilized the opt-in multi-agent V2 experience with configurable sub-agent models, reasoning levels, concurrency, restored roles, and improved agent navigation. (#33550, #33631, #33657, #33841, #34383)"
+            },
+            {
+              "original": "Added secure, clickable inline visualization links in the terminal UI. (#33925, #34217, #34346)"
+            },
+            {
+              "original": "Editing an earlier prompt or retrying a safety-buffered turn now creates a contextual branch, preserving the original conversation, attachments, and mention bindings. (#33201, #33207, #33211)"
+            },
+            {
+              "original": "Improved terminal responsiveness for long conversations and streamed output through incremental Markdown rendering, fewer redraws, caching, and bounded command output. (#34045, #34049, #34216, #34223, #34359)"
+            },
+            {
+              "original": "Prevented slow or conflicting MCP startup and authentication flows by enforcing startup timeouts, avoiding blocking OAuth discovery, serializing refreshes, and reusing tool catalogs safely. (#32229, #32781, #32825, #33184, #33297)"
+            },
+            {
+              "original": "Improved Windows execution and sandbox reliability, including native exec-server sandboxing, network-proxy enforcement, hidden helper consoles, and correctly quoted hook commands. (#32849, #32857, #33926, #34423)"
+            },
+            {
+              "original": "Fixed compact release-metadata parsing and macOS code-mode installation, with an in-process fallback when the external code-mode host is unavailable. (#31667, #31876, #31899)"
+            },
+            {
+              "original": "Strengthened safety and approval handling with better forced-`rm` detection, consistent full-access confirmation, and preserved rejection reasons across tools. (#32989, #33464, #34400)"
+            },
+            {
+              "original": "Updated the bundled OpenAI Docs skill with current GPT-5.6 model resolution, prompting, and migration guidance across macOS, Linux, and Windows. (#31842, #33121)"
+            },
+            {
+              "original": "Migrated bundled GPT-5.4 selections and internal uses to the corresponding GPT-5.6 Terra and Luna variants. (#33173)"
+            },
+            {
+              "original": "Reduced startup and large-context overhead with concurrent skill/plugin discovery and more efficient remote compaction. (#31566, #33369, #33423, #34431)"
+            },
+            {
+              "original": "Updated the packaged ripgrep binary to 15.2.0. (#34384)"
+            },
+            {
+              "original": "#31667 fix: parse compact release metadata in installer @efrazer-oai"
+            },
+            {
+              "original": "#31362 core: route realtime and memories through HTTP client factory @bolinfest"
+            },
+            {
+              "original": "#31566 perf(skills): reuse walk inventory for host loading @jif-oai"
+            },
+            {
+              "original": "#31576 Bound exec-server process event reordering @jif-oai"
+            },
+            {
+              "original": "#31756 test(skills): assert symlinked metadata loading @jif-oai"
+            },
+            {
+              "original": "#31581 Resolve selected capability roots without starting executors @jif-oai"
+            },
+            {
+              "original": "#31789 Stop persisting RMCP service traces @jif-oai"
+            },
+            {
+              "original": "#31792 Summarize streamed response item logs @jif-oai"
+            },
+            {
+              "original": "#31791 Filter routine Hyper logs from SQLite @jif-oai"
+            },
+            {
+              "original": "#31790 Reduce MCP tool-list trace volume @jif-oai"
+            },
+            {
+              "original": "#31804 Stabilize the memories feature flag @jif-oai"
+            },
+            {
+              "original": "#31803 fix(mcp): default Apps product SKU to codex @alecbarber-oai"
+            },
+            {
+              "original": "#31745 code-mode: retain shared MCP types for deferred tools @sayan-oai"
+            },
+            {
+              "original": "#31672 Import enabled plugins from known marketplaces @charlesgong-openai"
+            },
+            {
+              "original": "#31652 fix(tui): hide empty reasoning summaries @fcoury-oai"
+            },
+            {
+              "original": "#31767 Remove the network proxy config wrapper @jif-oai"
+            },
+            {
+              "original": "#31481 fix: forward originator to Codex Apps MCP @raquel-openai"
+            },
+            {
+              "original": "#31363 codex-api: route file uploads through HTTP client factory @bolinfest"
+            },
+            {
+              "original": "#31813 tui: update safety buffering copy @etraut-openai"
+            },
+            {
+              "original": "#31830 fix(sandboxing): initialize network proxy config inline @fcoury-oai"
+            },
+            {
+              "original": "#31431 build: ratchet direct reqwest dependencies @bolinfest"
+            },
+            {
+              "original": "#31876 code-mode: fix installation on darwin @cconger"
+            },
+            {
+              "original": "#31842 Update bundled OpenAI Docs skill for GPT-5.6 @kkahadze-oai"
+            },
+            {
+              "original": "#31637 login: route raw auth flows through HTTP client @bolinfest"
+            },
+            {
+              "original": "#31686 [codex-apps] Filter optional file fields by tool schema @tsarlandie-oai"
+            },
+            {
+              "original": "#31899 code-mode: fall back to using in process v8 if we fail to resolve external process @cconger"
+            },
+            {
+              "original": "#31805 Bound remote MCP stdio lines @jif-oai"
+            },
+            {
+              "original": "#30293 Resolve and pin MCP OAuth credential stores @stevenlee-oai"
+            },
+            {
+              "original": "#31892 exec-server: materialize filesystem workspace roots @pakrym-oai"
+            },
+            {
+              "original": "#31327 feat: add managed Bedrock login API @celia-oai"
+            },
+            {
+              "original": "#31295 bench: add codex help e2e macrobenchmark @anp-oai"
+            },
+            {
+              "original": "#31428 bench: add e2e benchmark entrypoints @anp-oai"
+            },
+            {
+              "original": "#31937 exec-server: expose process helper to outer sandbox @pakrym-oai"
+            },
+            {
+              "original": "#32093 Remove the legacy exec policy engine @copyberry"
+            },
+            {
+              "original": "#32106 Reduce startup latency for ancestor discovery @copyberry"
+            },
+            {
+              "original": "#32112 Bound streamed exec-server HTTP response bodies @copyberry"
+            },
+            {
+              "original": "#32122 Test the shared exec-server HTTP response byte budget @copyberry"
+            },
+            {
+              "original": "#32123 Bound exec-server stdio JSON-RPC messages @copyberry"
+            },
+            {
+              "original": "#32126 Test bounded concurrency in ancestor discovery @copyberry"
+            },
+            {
+              "original": "#32134 Test stdio JSON-RPC size limits with LF and CRLF @copyberry"
+            },
+            {
+              "original": "#32135 Propagate tracing subscribers to exec start tasks @copyberry"
+            },
+            {
+              "original": "#32150 Keep unified exec output collection bounded @copyberry"
+            },
+            {
+              "original": "#32193 Validate memory consolidation artifacts before succeeding @copyberry"
+            },
+            {
+              "original": "#32197 Rebind memory consolidation workspace roots @copyberry"
+            },
+            {
+              "original": "#32200 Add a skill invocation extension contributor @copyberry"
+            },
+            {
+              "original": "#32206 Always send reasoning parameters in Responses requests @copyberry"
+            },
+            {
+              "original": "#32213 Generate unique IDs for review rollout messages @copyberry"
+            },
+            {
+              "original": "#32214 Propagate workspace roots to exec-server sandboxes @copyberry"
+            },
+            {
+              "original": "#32229 Serialize MCP OAuth credential refreshes @copyberry"
+            },
+            {
+              "original": "#32231 Support pending remote environment registration @copyberry"
+            },
+            {
+              "original": "#32232 Let permission hooks resolve strict auto-review requests @copyberry"
+            },
+            {
+              "original": "#32234 Add dedicated storage for paginated thread history @copyberry"
+            },
+            {
+              "original": "#32246 Extract reverse JSONL scanning from session indexing @copyberry"
+            },
+            {
+              "original": "#32256 Improve Responses WebSocket timing telemetry @copyberry"
+            },
+            {
+              "original": "#32261 Preserve local path conventions in automatic approvals @copyberry"
+            },
+            {
+              "original": "#32263 Include start times in terminal turn events @copyberry"
+            },
+            {
+              "original": "#32272 Expose scheduled tasks in plugin details @copyberry"
+            },
+            {
+              "original": "#32274 Remove the personality migration @copyberry"
+            },
+            {
+              "original": "#32276 Repair unterminated rollout files before appending @copyberry"
+            },
+            {
+              "original": "#32277 Honor `personality = \"none\"` in model instructions @copyberry"
+            },
+            {
+              "original": "#32280 Include terminal errors in turn completion events @copyberry"
+            },
+            {
+              "original": "#32286 Clarify waiting behavior in safety buffering prompts @copyberry"
+            },
+            {
+              "original": "#32288 Make GPT-5.6 Sol the default Bedrock model @copyberry"
+            },
+            {
+              "original": "#32289 Persist paginated items in the local thread store @copyberry"
+            },
+            {
+              "original": "#32290 Respect model support for reasoning summaries @copyberry"
+            },
+            {
+              "original": "#32301 Trust hooks from materialized workspace plugins @copyberry"
+            },
+            {
+              "original": "#32302 Prefer the Codex home socket for Unix IDE context @copyberry"
+            },
+            {
+              "original": "#32305 Improve file blob upload diagnostics @copyberry"
+            },
+            {
+              "original": "#32312 Require prefixes for outbound response item IDs @copyberry"
+            },
+            {
+              "original": "#32316 Stop falling back to older model availability announcements @copyberry"
+            },
+            {
+              "original": "#32326 Use canonical links in the moved config notice @copyberry"
+            },
+            {
+              "original": "#32332 Add ordinals to paginated rollout records @copyberry"
+            },
+            {
+              "original": "#32441 Preserve parent sandbox enforcement for memory consolidation @copyberry"
+            },
+            {
+              "original": "#32460 Emit thread-idle lifecycle after guardian interrupts @copyberry"
+            },
+            {
+              "original": "#32461 Expand tabs when rendering TUI diffs @copyberry"
+            },
+            {
+              "original": "#32485 Use available width for skill names in the toggle view @copyberry"
+            },
+            {
+              "original": "#32628 Improve composer completion target resolution @copyberry"
+            },
+            {
+              "original": "#32698 Extract connector runtime snapshot management @copyberry"
+            },
+            {
+              "original": "#32744 Log missing personality messages at trace level @copyberry"
+            },
+            {
+              "original": "#32746 Make advanced reasoning selection explicit in the TUI @copyberry"
+            },
+            {
+              "original": "#32747 Align Guardian reviews with session configuration @copyberry"
+            },
+            {
+              "original": "#32749 Expose model overrides for multi-agent v2 spawns @copyberry"
+            },
+            {
+              "original": "#32751 Restrict spawned-agent models to the active backend @copyberry"
+            },
+            {
+              "original": "#32761 Add shadow metrics for lexical skill selection @copyberry"
+            },
+            {
+              "original": "#32768 Align shadow skill selection with observable sources @copyberry"
+            },
+            {
+              "original": "#32780 Enable skill search shadow selection by default @copyberry"
+            },
+            {
+              "original": "#32781 Apply MCP startup timeouts during client creation @copyberry"
+            },
+            {
+              "original": "#32801 Refactor OAuth store lock contention tests @copyberry"
+            },
+            {
+              "original": "#32822 Make explicit multi-agent mode override proactive delegation @copyberry"
+            },
+            {
+              "original": "#32825 Avoid blocking thread startup on MCP OAuth discovery @copyberry"
+            },
+            {
+              "original": "#32835 Forward turn metadata in standalone web search @copyberry"
+            },
+            {
+              "original": "#32837 Restore V2 agent identities on root thread resume @copyberry"
+            },
+            {
+              "original": "#32838 Reap exited PID-managed app-server children @copyberry"
+            },
+            {
+              "original": "#32844 Expand millisecond duration histogram boundaries @copyberry"
+            },
+            {
+              "original": "#32849 Hide Windows filesystem helper console windows @copyberry"
+            },
+            {
+              "original": "#32857 Require the elevated Windows sandbox for network proxies @copyberry"
+            },
+            {
+              "original": "#32858 Persist slash-command popup dismissal @copyberry"
+            },
+            {
+              "original": "#32864 Coalesce concurrent Windows sandbox setup requests @copyberry"
+            },
+            {
+              "original": "#32866 Allow responses after image generation @copyberry"
+            },
+            {
+              "original": "#32867 Include connector IDs in MCP tool call analytics @copyberry"
+            },
+            {
+              "original": "#32875 Use model catalog policies for Guardian auto review @copyberry"
+            },
+            {
+              "original": "#32881 Broaden remote compaction model fallback @copyberry"
+            },
+            {
+              "original": "#32884 Prepare external agent migration for source adapters @copyberry"
+            },
+            {
+              "original": "#32887 Tag shell tool telemetry by command category @copyberry"
+            },
+            {
+              "original": "#32891 Attach connector caches to diagnostic uploads @copyberry"
+            },
+            {
+              "original": "#32894 Serialize plugin install requests @copyberry"
+            },
+            {
+              "original": "#32896 Load model context from a bounded rollout suffix @copyberry"
+            },
+            {
+              "original": "#32897 Route blocked network requests to their owning calls @copyberry"
+            },
+            {
+              "original": "#32898 Expose structured standalone web search results @copyberry"
+            },
+            {
+              "original": "#32899 Add exec-server environment status checks @copyberry"
+            },
+            {
+              "original": "#32900 Derive collaboration settings from turn context @copyberry"
+            },
+            {
+              "original": "#32903 Include session IDs in tool item analytics events @copyberry"
+            },
+            {
+              "original": "#32905 Timestamp app-server notifications at emission @copyberry"
+            },
+            {
+              "original": "#32911 Allow injecting the models manager into `ThreadManager` @copyberry"
+            },
+            {
+              "original": "#32920 Expose environment status through app-server @copyberry"
+            },
+            {
+              "original": "#32923 Materialize paginated thread history in SQLite @copyberry"
+            },
+            {
+              "original": "#32928 Resume thread history projection from its SQLite checkpoint @copyberry"
+            },
+            {
+              "original": "#32945 Restrict Guardian reviewer tools @copyberry"
+            },
+            {
+              "original": "#32949 Tighten recommended plugin install suggestions @copyberry"
+            },
+            {
+              "original": "#32952 Scope runtime workspace roots to execution environments @copyberry"
+            },
+            {
+              "original": "#32985 Expose exact per-response usage in raw app-server events @copyberry"
+            },
+            {
+              "original": "#32989 Always confirm before enabling full access @copyberry"
+            },
+            {
+              "original": "#33013 Bound exec-server JSON-RPC decoding complexity @copyberry"
+            },
+            {
+              "original": "#33026 Include raw response completions in TypeScript envelopes @copyberry"
+            },
+            {
+              "original": "#33030 Remove task messages from `list_agents` output @copyberry"
+            },
+            {
+              "original": "#33031 Preserve JSON number precision in exec-server RPC messages @copyberry"
+            },
+            {
+              "original": "#33035 Use session IDs for prompt cache keys @copyberry"
+            },
+            {
+              "original": "#33040 Send plugin analytics with API key authentication @copyberry"
+            },
+            {
+              "original": "#33076 Add an agent extension runner @copyberry"
+            },
+            {
+              "original": "#33093 Preserve streamed output during capped history replay @copyberry"
+            },
+            {
+              "original": "#33105 Fix TUI status visibility around streamed output @copyberry"
+            },
+            {
+              "original": "#33107 Preserve special filesystem subpaths as wire strings @copyberry"
+            },
+            {
+              "original": "#33109 Reject forks of paginated threads @copyberry"
+            },
+            {
+              "original": "#33113 Allow injecting the Codex Apps tools cache @copyberry"
+            },
+            {
+              "original": "#33121 Refine GPT-5.6 prompting and migration guidance @copyberry"
+            },
+            {
+              "original": "#33147 Support model catalog permission messages @copyberry"
+            },
+            {
+              "original": "#33149 Build MCP tool runtimes before router planning @copyberry"
+            },
+            {
+              "original": "#33150 Clarify exec yield timing on Windows @copyberry"
+            },
+            {
+              "original": "#33152 Support paginated thread history in app-server list APIs @copyberry"
+            },
+            {
+              "original": "#33155 Trace startup prewarm tasks @copyberry"
+            },
+            {
+              "original": "#33156 Run detached reviews as review-agent turns @copyberry"
+            },
+            {
+              "original": "#33159 Move sleep items to the extension-owned lifecycle path @copyberry"
+            },
+            {
+              "original": "#33166 Defer Noise environment connections until registration @copyberry"
+            },
+            {
+              "original": "#33167 Document the Windows exec yield time range @copyberry"
+            },
+            {
+              "original": "#33170 Support Amazon Bedrock login in the app server @copyberry"
+            },
+            {
+              "original": "#33173 Migrate GPT-5.4 uses to GPT-5.6 variants @copyberry"
+            },
+            {
+              "original": "#33175 Handle Amazon Bedrock credentials during logout @copyberry"
+            },
+            {
+              "original": "#33177 Support model catalog templates for Guardian policy prompts @copyberry"
+            },
+            {
+              "original": "#33180 Serialize concurrent MCP stdin writes @copyberry"
+            },
+            {
+              "original": "#33182 Preserve plugin install failure subtypes during imports @copyberry"
+            },
+            {
+              "original": "#33184 Reuse MCP tool catalogs across sessions @copyberry"
+            },
+            {
+              "original": "#33185 Keep approval test targets in the temporary home @copyberry"
+            },
+            {
+              "original": "#33187 Honor workspace spend controls in rate-limit handling @copyberry"
+            },
+            {
+              "original": "#33198 Keep interrupted prompts in conversation history @copyberry"
+            },
+            {
+              "original": "#33200 Separate exec permission paths from core models @copyberry"
+            },
+            {
+              "original": "#33201 Branch conversations when editing earlier TUI prompts @copyberry"
+            },
+            {
+              "original": "#33203 Preserve in-flight state when restoring thread input @copyberry"
+            },
+            {
+              "original": "#33207 Retry safety-buffered turns on a forked thread @copyberry"
+            },
+            {
+              "original": "#33209 Separate session state from session I/O @copyberry"
+            },
+            {
+              "original": "#33211 Preserve thread context when retrying or editing turns @copyberry"
+            },
+            {
+              "original": "#33213 Prepare Python SDK 0.144.4 stable release @copyberry"
+            },
+            {
+              "original": "#33223 Instrument environment and plugin resolution paths @copyberry"
+            },
+            {
+              "original": "#33232 Disambiguate skill mentions from shell parameters @copyberry"
+            },
+            {
+              "original": "#33237 Fix skill completion around bound mentions with suffixes @copyberry"
+            },
+            {
+              "original": "#33239 Render TUI composer tabs as single-column spaces @copyberry"
+            },
+            {
+              "original": "#33243 Add auto-compaction fallback token-budget settings @copyberry"
+            },
+            {
+              "original": "#33251 Report selected environment connection transitions @copyberry"
+            },
+            {
+              "original": "#33255 Add a fallback phase before automatic context rollover @copyberry"
+            },
+            {
+              "original": "#33261 Add Frameless Bidi support for realtime conversations @copyberry"
+            },
+            {
+              "original": "#33297 Allow MCP servers to opt out of tool catalog caching @copyberry"
+            },
+            {
+              "original": "#33308 Expand MCP tool catalog cache regression coverage @copyberry"
+            },
+            {
+              "original": "#33364 Enable paginated thread history in app-server @copyberry"
+            },
+            {
+              "original": "#33367 Respect final-answer boundaries for queued agent mail @copyberry"
+            },
+            {
+              "original": "#33369 Scan skill roots concurrently @copyberry"
+            },
+            {
+              "original": "#33373 Render TUI prompts before submitting user turns @copyberry"
+            },
+            {
+              "original": "#33411 Migrate plugin commands into skills on install @copyberry"
+            },
+            {
+              "original": "#33412 Refactor world-state rendering tests into snapshots @copyberry"
+            },
+            {
+              "original": "#33414 Expose connector candidates from imported sessions @copyberry"
+            },
+            {
+              "original": "#33421 Fetch workspace connectors concurrently @copyberry"
+            },
+            {
+              "original": "#33423 Load executor plugin declarations concurrently @copyberry"
+            },
+            {
+              "original": "#33424 Attribute OpenAI docs MCP requests to Codex @copyberry"
+            },
+            {
+              "original": "#33425 Refresh host skill catalogs through world state @copyberry"
+            },
+            {
+              "original": "#33426 Add Cursor support to setup import @copyberry"
+            },
+            {
+              "original": "#33427 Propagate deferred environment capability roots to MCP @copyberry"
+            },
+            {
+              "original": "#33430 Avoid creating metadata paths in the Windows sandbox @copyberry"
+            },
+            {
+              "original": "#33432 Preserve paginated history for spawned subagents @copyberry"
+            },
+            {
+              "original": "#33435 Warn on conflicting capability root locations @copyberry"
+            },
+            {
+              "original": "#33441 Shut down Codex threads after approval scenarios @copyberry"
+            },
+            {
+              "original": "#33444 Add external agent memory migration @copyberry"
+            },
+            {
+              "original": "#33445 Select the elevated Windows sandbox for network proxies @copyberry"
+            },
+            {
+              "original": "#33446 Remove the unused network proxy loader @copyberry"
+            },
+            {
+              "original": "#33454 Track prompt cache write token usage @copyberry"
+            },
+            {
+              "original": "#33456 Move external agent migration into its crate @copyberry"
+            },
+            {
+              "original": "#33457 Use final answers in turn history summaries @copyberry"
+            },
+            {
+              "original": "#33459 Allow more time for image generation in code mode @copyberry"
+            },
+            {
+              "original": "#33464 Strengthen forced `rm` command detection @copyberry"
+            },
+            {
+              "original": "#33467 Remove template IDs from MCP tool call metadata @copyberry"
+            },
+            {
+              "original": "#33500 Add cache-write tokens to the raw response schema @copyberry"
+            },
+            {
+              "original": "#33509 Preserve encrypted content in MCP tool outputs @copyberry"
+            },
+            {
+              "original": "#33550 Unify multi-agent settings under `agents` @copyberry"
+            },
+            {
+              "original": "#33572 Expose spawn agent types only when roles are configured @copyberry"
+            },
+            {
+              "original": "#33605 Add fielded BM25 to shadow skill selection @copyberry"
+            },
+            {
+              "original": "#33613 Add character n-gram skill selection @copyberry"
+            },
+            {
+              "original": "#33614 Add multi-query lexical skill selection @copyberry"
+            },
+            {
+              "original": "#33631 Honor configured model defaults for spawned agents @copyberry"
+            },
+            {
+              "original": "#33632 Remove generated-default filesystem path variants @copyberry"
+            },
+            {
+              "original": "#33633 Clarify when to wait for starting environments @copyberry"
+            },
+            {
+              "original": "#33636 Clarify when to wait for starting environments @copyberry"
+            },
+            {
+              "original": "#33639 Remove the unused realtime WebRTC crate @copyberry"
+            },
+            {
+              "original": "#33640 Avoid duplicate cached app list update notifications @copyberry"
+            },
+            {
+              "original": "#33645 Run `write_stdin` concurrently across terminal sessions @copyberry"
+            },
+            {
+              "original": "#33651 Add an app-server API for reading app metadata @copyberry"
+            },
+            {
+              "original": "#33656 Validate reasoning effort after applying spawn roles @copyberry"
+            },
+            {
+              "original": "#33657 Restore agent roles when reloading v2 sub-agents @copyberry"
+            },
+            {
+              "original": "#33658 Keep active-turn environments stable across settings updates @copyberry"
+            },
+            {
+              "original": "#33659 Require data URLs for code-mode image output @copyberry"
+            },
+            {
+              "original": "#33665 Refresh step world state for all sessions @copyberry"
+            },
+            {
+              "original": "#33677 Forward thread originators from standalone extensions @copyberry"
+            },
+            {
+              "original": "#33680 Reword the apply_patch tool description @copyberry"
+            },
+            {
+              "original": "#33683 Preserve scope and provenance for imported agent memory @copyberry"
+            },
+            {
+              "original": "#33684 Extract TUI approval request payloads into structs @copyberry"
+            },
+            {
+              "original": "#33687 Avoid unnecessary writes during migration repair @copyberry"
+            },
+            {
+              "original": "#33695 Support custom transports for Amazon Bedrock @copyberry"
+            },
+            {
+              "original": "#33841 Make parent-owned sub-agent threads read-only in the TUI @copyberry"
+            },
+            {
+              "original": "#33842 Give the zsh fork decline test more execution time @copyberry"
+            },
+            {
+              "original": "#33843 Add an API for reading installed app runtime state @copyberry"
+            },
+            {
+              "original": "#33845 Confirm usage-limit resets before redemption @copyberry"
+            },
+            {
+              "original": "#33848 Fix the managed Bedrock logout test assertion @copyberry"
+            },
+            {
+              "original": "#33851 Record web search result payload sizes @copyberry"
+            },
+            {
+              "original": "#33852 Add batched executor capability discovery @copyberry"
+            },
+            {
+              "original": "#33855 Tag realtime transcript tail flush delegations @copyberry"
+            },
+            {
+              "original": "#33856 Stream realtime V3 Codex handoff output @copyberry"
+            },
+            {
+              "original": "#33858 Isolate core tests from shell and rollout persistence @copyberry"
+            },
+            {
+              "original": "#33861 Test workspace write isolation across exec servers @copyberry"
+            },
+            {
+              "original": "#33862 Suppress empty multi-agent mode messages @copyberry"
+            },
+            {
+              "original": "#33863 Report detailed session import error types @copyberry"
+            },
+            {
+              "original": "#33864 Keep feature tests focused on behavior @copyberry"
+            },
+            {
+              "original": "#33866 Remove the redundant tool dispatch wrapper @copyberry"
+            },
+            {
+              "original": "#33867 Add grace period to code-mode yield timeouts @copyberry"
+            },
+            {
+              "original": "#33868 Remove stale ignored core tests @copyberry"
+            },
+            {
+              "original": "#33870 Remove the redundant borrowed line wrapping helper @copyberry"
+            },
+            {
+              "original": "#33872 Remove unused TUI collaboration mode indicators @copyberry"
+            },
+            {
+              "original": "#33876 Track collaboration mode instructions in world state @copyberry"
+            },
+            {
+              "original": "#33883 Report CLI as the external agent config import source @copyberry"
+            },
+            {
+              "original": "#33889 Centralize thread MCP connections in `McpRuntime` @copyberry"
+            },
+            {
+              "original": "#33892 Limit rollout metadata reads to headers @copyberry"
+            },
+            {
+              "original": "#33893 Track realtime conversation state in world state @copyberry"
+            },
+            {
+              "original": "#33895 Add SessionEnd hooks for thread teardown @copyberry"
+            },
+            {
+              "original": "#33896 Expose plugin installation interstitial requirements @copyberry"
+            },
+            {
+              "original": "#33901 Support ChatGPT-branded Desktop app builds @copyberry"
+            },
+            {
+              "original": "#33902 Add bounded batch lookups for message history @copyberry"
+            },
+            {
+              "original": "#33903 Route realtime V3 handoffs by response channel @copyberry"
+            },
+            {
+              "original": "#33905 Batch persistent history reads during reverse search @copyberry"
+            },
+            {
+              "original": "#33906 Launch managed network proxies on remote executors @copyberry"
+            },
+            {
+              "original": "#33907 Add occurrence search for paginated threads @copyberry"
+            },
+            {
+              "original": "#33908 Allow publishing plugins through share updates @copyberry"
+            },
+            {
+              "original": "#33921 Preserve sub-agent liveness in the agent picker @copyberry"
+            },
+            {
+              "original": "#33922 Allow selecting path-backed agents in the TUI picker @copyberry"
+            },
+            {
+              "original": "#33923 Add audio variants to user input protocols @copyberry"
+            },
+            {
+              "original": "#33925 Render inline visualization links in the TUI @copyberry"
+            },
+            {
+              "original": "#33926 Fix quoted hook commands on Windows @copyberry"
+            },
+            {
+              "original": "#33929 Handle audio inputs and Bazel unit test arguments @copyberry"
+            },
+            {
+              "original": "#33930 Track inherited paginated rollout prefixes @copyberry"
+            },
+            {
+              "original": "#33932 Forward audio inputs to the Responses API @copyberry"
+            },
+            {
+              "original": "#33938 Centralize SQLite connection configuration @copyberry"
+            },
+            {
+              "original": "#33944 Track permission instructions in world state @copyberry"
+            },
+            {
+              "original": "#33950 Let users remember the working directory for resumed sessions @copyberry"
+            },
+            {
+              "original": "#33961 Refresh bundled model metadata @copyberry"
+            },
+            {
+              "original": "#33963 Add context to sampling retry logs @copyberry"
+            },
+            {
+              "original": "#33982 Gate audio history by model input modalities @copyberry"
+            },
+            {
+              "original": "#34038 Handle compressed rollouts in doctor thread inventory @copyberry"
+            },
+            {
+              "original": "#34045 Render streamed Markdown incrementally @copyberry"
+            },
+            {
+              "original": "#34047 Avoid resending the model for reasoning shortcuts @copyberry"
+            },
+            {
+              "original": "#34049 Avoid redundant TUI redraws while streaming @copyberry"
+            },
+            {
+              "original": "#34067 Seed realtime V3 sessions with initial text items @copyberry"
+            },
+            {
+              "original": "#34080 Add audio output support to dynamic tools and code mode @copyberry"
+            },
+            {
+              "original": "#34085 Support legacy views for paginated thread history @copyberry"
+            },
+            {
+              "original": "#34194 Avoid cloning thread data when rendering transcripts @copyberry"
+            },
+            {
+              "original": "#34197 Use the Markdown collector as the streaming source of truth @copyberry"
+            },
+            {
+              "original": "#34198 Start side conversations without replaying inherited turns @copyberry"
+            },
+            {
+              "original": "#34199 Avoid liveness races when starting side conversations @copyberry"
+            },
+            {
+              "original": "#34204 Avoid cloning buffered TUI history lines @copyberry"
+            },
+            {
+              "original": "#34206 Avoid retaining decoded MCP images in history cells @copyberry"
+            },
+            {
+              "original": "#34216 Speed up TUI Markdown layout @copyberry"
+            },
+            {
+              "original": "#34217 Keep incremental rendering with visualization context @copyberry"
+            },
+            {
+              "original": "#34218 Track TUI command completion separately from output @copyberry"
+            },
+            {
+              "original": "#34222 Avoid buffering replay-irrelevant thread notifications @copyberry"
+            },
+            {
+              "original": "#34223 Cache finalized Markdown history rendering @copyberry"
+            },
+            {
+              "original": "#34224 Avoid cloning file changes in TUI diff rendering @copyberry"
+            },
+            {
+              "original": "#34226 Backfill completion items only for the active exec turn @copyberry"
+            },
+            {
+              "original": "#34229 Persist names for paginated threads @copyberry"
+            },
+            {
+              "original": "#34232 Remeasure dynamic cells in the transcript overlay @copyberry"
+            },
+            {
+              "original": "#34234 Avoid redundant TUI subagent metadata requests @copyberry"
+            },
+            {
+              "original": "#34271 Migrate legacy exec policy allow rules @copyberry"
+            },
+            {
+              "original": "#34293 Preserve zsh tied PATH exports in shell snapshots @copyberry"
+            },
+            {
+              "original": "#34344 Reject unsupported history modes when loading rollouts @copyberry"
+            },
+            {
+              "original": "#34345 Remove unused Rust helpers @copyberry"
+            },
+            {
+              "original": "#34346 Track inline visualization directives during streaming @copyberry"
+            },
+            {
+              "original": "#34347 Avoid cloning deferred TUI lifecycle payloads @copyberry"
+            },
+            {
+              "original": "#34348 Cache TUI flex heights across frame passes @copyberry"
+            },
+            {
+              "original": "#34355 Parallelize TUI bootstrap requests @copyberry"
+            },
+            {
+              "original": "#34357 Render streamed command output through preview iterators @copyberry"
+            },
+            {
+              "original": "#34359 Keep streamed command output bounded in the TUI @copyberry"
+            },
+            {
+              "original": "#34361 Avoid cloning thread history for token usage replay @copyberry"
+            },
+            {
+              "original": "#34365 Animate Max and Ultra reasoning effort changes @copyberry"
+            },
+            {
+              "original": "#34366 Avoid cloning hyperlink text during TUI rendering @copyberry"
+            },
+            {
+              "original": "#34368 Use app-server skill metadata directly in the TUI @copyberry"
+            },
+            {
+              "original": "#34371 Clear stale Guardian reviews when turns end @copyberry"
+            },
+            {
+              "original": "#34375 Extend second-based latency histogram buckets @copyberry"
+            },
+            {
+              "original": "#34378 Avoid rendering generated images twice @copyberry"
+            },
+            {
+              "original": "#34380 Stop retrying turns with invalid tool images @copyberry"
+            },
+            {
+              "original": "#34381 Avoid cloning Responses WebSocket payloads @copyberry"
+            },
+            {
+              "original": "#34382 Keep paginated thread Git metadata in SQLite @copyberry"
+            },
+            {
+              "original": "#34383 Mark multi-agent v2 as stable @copyberry"
+            },
+            {
+              "original": "#34384 Update packaged ripgrep to 15.2.0 @copyberry"
+            },
+            {
+              "original": "#34385 Preserve audio across history and tool outputs @copyberry"
+            },
+            {
+              "original": "#34386 Enable memories for paginated threads @copyberry"
+            },
+            {
+              "original": "#34387 Refresh bundled model metadata @copyberry"
+            },
+            {
+              "original": "#34389 Route Codex Apps MCP through plugin service @copyberry"
+            },
+            {
+              "original": "#34390 Use copy-on-write storage for history snapshots @copyberry"
+            },
+            {
+              "original": "#34392 Ignore inherited ACEs when refreshing Windows write roots @copyberry"
+            },
+            {
+              "original": "#34393 Add configurable hook context spill limits @copyberry"
+            },
+            {
+              "original": "#34396 Run compact session-start hooks before turn continuation @copyberry"
+            },
+            {
+              "original": "#34400 Propagate approval rejection reasons @copyberry"
+            },
+            {
+              "original": "#34403 Update tests for history and hook API changes @copyberry"
+            },
+            {
+              "original": "#34407 Resolve paginated rollout lineages @copyberry"
+            },
+            {
+              "original": "#34408 Support threadless MCP connections without event channels @copyberry"
+            },
+            {
+              "original": "#34409 Limit the Linux `/proc` preflight filesystem view @copyberry"
+            },
+            {
+              "original": "#34411 Require absolute paths for test SQLite configuration @copyberry"
+            },
+            {
+              "original": "#34413 Remove CSV-backed agent jobs @copyberry"
+            },
+            {
+              "original": "#34416 Show completed hook warnings in TUI headers @copyberry"
+            },
+            {
+              "original": "#34417 Enrich app/read connector metadata @copyberry"
+            },
+            {
+              "original": "#34423 Support Windows sandboxing in the exec server @copyberry"
+            },
+            {
+              "original": "#34429 Move shared skill models into `codex-skills` @copyberry"
+            },
+            {
+              "original": "#34431 Optimize remote compaction history handling @copyberry"
+            },
+            {
+              "original": "#34434 Support catalog messages for non-request approval policies @copyberry"
+            },
+            {
+              "original": "#34435 Resolve outbound proxy routes explicitly @copyberry"
+            },
+            {
+              "original": "#34436 Honor managed permission profiles in network proxy resolution @copyberry"
+            },
+            {
+              "original": "#34438 Increase the patch approval test timeout @copyberry"
+            },
+            {
+              "original": "#34441 Add buffered code-mode exec yields @copyberry"
+            }
+          ],
+          "curated": false
+        },
         {
           "version": "0.144.6",
           "period": "2026-07-18",
@@ -365,30 +1381,6 @@
                 "ko": "위험한 명령어를 실수로 입력했을 때 시스템이 더욱 철저하게 막아주고, 왜 실행할 수 없는지 그 이유를 분명하게 알려준다. 이번에는 위험 명령어 감지(dangerous-command detection, 파괴적인 동작을 자동으로 검사하고 차단하는 시스템) 범위가 넓어져서, `rm`(Unix 시스템에서 파일과 디렉터리를 삭제하는 명령어)을 강제로 쓰려는 다양한 형태를 더 많이 잡아낼 수 있게 되었다. 또한 명령어가 거부(denied)될 때 더 이상 애매한 오류만 던지지 않고 거부된 이유를 더 명확하게 제공한다. 예전엔 억지로 들어가려는 사람을 어쩌다 놓치기도 하고 막아설 때도 그저 \"안 돼\"라고만 하던 건물 경비원이, 이제는 더 많은 종류의 억지 돌파 요령을 꿰뚫어 보고 사람을 막아설 때 \"이 구역은 공사 중이라 들어갈 수 없습니다\"라고 구체적인 이유를 말해주는 것과 같다."
               },
               "original": "Improved dangerous-command detection, including more forced `rm` forms, and provides clearer rejection reasons when commands are denied. (#33455)\n#33455 [release/0.144] fix(core) expand is_dangerous_command @dylan-hurd-oai"
-            }
-          ],
-          "curated": true
-        },
-        {
-          "version": "0.144.2",
-          "period": "2026-07-13",
-          "items": [
-            {
-              "title": {
-                "zh-TW": "自動程式碼審查修回正常，先前改壞的提示詞撤回了",
-                "zh-CN": "自动代码审查修回正常，先前改坏的提示词撤回了",
-                "en": "Automatic code review is back to normal after reverting the prompt change that broke it",
-                "ja": "自動コードレビューが正常に戻り、壊したプロンプト変更は取り消された",
-                "ko": "자동 코드 리뷰가 정상으로 돌아왔고, 망가뜨린 프롬프트 변경은 취소되었다."
-              },
-              "body": {
-                "zh-TW": "如果你的自動程式碼審查突然變得不對勁，這次把它修回原本的樣子了。先前一次更新不小心把 Codex 的 Guardian 自動審查功能（Guardian，像個會自動幫你檢查程式碼的 AI 審查員）改壞了——給它的提示詞（prompting，告訴 AI 該怎麼做事的指令措辭）調整後反而讓審查品質退步（regression，新版反而比舊版差的退步）。這次直接回滾（revert，把改動整個撤回、回到之前的版本），把舊版的審查政策、請求格式（request format，AI 發送需求時的訊息結構）和工具行為（tool behavior，AI 呼叫外部工具時的表現）全部恢復原狀。就像餐廳主廚試了新食譜結果常客都說變難吃，最後趕緊翻回舊食譜照原本的方式做菜。",
-                "zh-CN": "如果你的自动代码审查突然变得不对劲，这次把它修回原本的样子了。先前一次更新不小心把 Codex 的 Guardian 自动审查功能（Guardian，像个会自动帮你检查代码的 AI 审查员）改坏了——给它的提示词（prompting，告诉 AI 该怎么做事的指令措辞）调整后反而让审查质量退步（regression，新版反而比旧版差的退步）。这次直接回滚（revert，把改动整个撤回、回到之前的版本），把旧版的审查策略、请求格式（request format，AI 发送请求时的消息结构）和工具行为（tool behavior，AI 调用外部工具时的表现）全部恢复原状。就像餐厅主厨试了新食谱结果回头客都说变难吃，最后赶紧翻回旧食谱照原本的方式做菜。",
-                "en": "If your automatic code review suddenly started acting up, this release puts it back the way it was. A prior change to the prompting (the wording of the instructions telling the AI how to do its job) for Codex's Guardian auto-review (Guardian, an AI reviewer that automatically inspects your code) caused a regression (a step backward where the new version is worse than the old one). This release reverts it (undoing a change and returning to the previous version), restoring the old review policy, request format (the message structure used when the AI sends a request), and tool behavior (how the AI acts when calling external tools). Like a restaurant chef who tried a new recipe, got panned by regulars for worse food, and hurriedly dug out the old recipe to cook the original way again.",
-                "ja": "もし自動コードレビューが急におかしくなっていたなら、今回それを本来の姿に戻した。以前の変更で、Codex の Guardian 自動レビュー機能（Guardian、コードを自動で点検してくれる AI 審査員のようなもの）に与えるプロンプト（prompting、AI にどう作業すべきか伝える指示の書き方）を調整した結果、かえってレビュー品質が後退（regression、新バージョンが旧バージョンより悪くなる退歩）してしまっていた。今回はそれをリバート（revert、変更を取り消して以前の状態に戻すこと）し、旧版のレビューポリシー、リクエスト形式（request format、AI が要求を送る際のメッセージ構造）、ツール挙動（tool behavior、AI が外部ツールを呼び出す際の振る舞い）をすべて元通りにした。レストランのシェフが新しいレシピを試したら常連客に味が落ちたと不評で、慌てて古いレシピを引っ張り出して元の作り方に戻したようなものである。",
-                "ko": "자동 코드 리뷰가 갑자기 이상해졌다면, 이번에 제대로 원래 모습으로 돌려놨다. 이전의 한 번 업데이트에서 Codex의 Guardian 자동 리뷰 기능(Guardian, 코드를 자동으로 검사해 주는 AI 심사원 같은 것)을 실수로 망가뜨렸다 — 이 기능에 내리는 프롬프트(prompting, AI에게 어떻게 일할지 알려주는 지시문의 표현)를 바꾸었다가 오히려 리뷰 품질이 후퇴(regression, 새 버전이 옛 버전보다 나빠지는 퇴보)하는 일이 벌어진 것이다. 이번에는 이를 리버트(revert, 바꾼 것을 취소하고 이전 상태로 되돌리는 것)해서, 이전 버전의 리뷰 정책, 요청 형식(request format, AI가 요청을 보낼 때의 메시지 구조), 도구 동작(tool behavior, AI가 외부 도구를 호출할 때의 행동 양식)을 모두 원래대로 회복했다. 식당 주방장이 새 레시피를 시도했다가 단골 손님들에게 맛이 떨어졌다는 불만을 듣고 서둘러 옛 레시피를 찾아내 본래 요리법으로 되돌린 것과 같다."
-              },
-              "original": "Restored the previous Guardian auto-review policy, request format, and tool behavior after rolling back a prompting regression. (#32672)\n#32672 [release/0.144] Revert \"Update auto review prompting\" @dylan-hurd-oai"
             }
           ],
           "curated": true
@@ -682,6 +1674,19 @@
       "name": "Usage",
       "versions": [
         {
+          "version": "0.28.17",
+          "period": "2026-07-21",
+          "items": [
+            {
+              "original": "**Classic popover no longer clips the Claude card when the footer status wraps to two lines.** Long status warnings (e.g. hook broken/restart) push the footer status pill onto a second line, adding roughly 30px the fixed popover height never accounted for; flex then squeezed the overflow-hidden Claude card and clipped its weekly reset row."
+            },
+            {
+              "original": "**Auto-start 5-hour Session could silently skip a reset boundary.** The keeper's fixed 5-hour self-throttle was measured from the last ping's own timestamp, which could drift out of sync with the real quota reset boundary and occasionally skip a ping entirely — leaving the next window to start only once you talked to Claude yourself. It now dedupes by the actual reset boundary instead of elapsed time, so drift can no longer cause a miss."
+            }
+          ],
+          "curated": false
+        },
+        {
           "version": "0.28.16",
           "period": "2026-07-21",
           "items": [
@@ -725,30 +1730,6 @@
                 "ko": "Claude 또는 Antigravity의 자동 이어받기를 켰다면 이제 두 스위치를 찾을 필요가 없다. 하나의 공용 스위치로 합쳐져, 켜면 두 창 지킴이가 함께 시작한다. 예전에 둘 중 하나만 켠 사람도 둘 다 켠 것으로 자동 처리된다. Antigravity의 가짜 카운트다운도 고쳤다. 할당량 API(프로그램이 할당량 정보를 가져오는 연결)는 잔여량이 100%여도 ‘약 5시간 후 재설정’이라고 알려 주곤 했다. 이는 첫 사용부터 시간이 흐르는 슬라이딩 윈도우(5시간 이용 구간)의 예약 표시일 뿐, 실제 카운트다운이 아니다. 이전 버전은 이를 실행 중인 세션으로 오해해 자동 이어받기를 전혀 실행하지 못했다. 잔여량 100%면 진행 중인 구간이 없다고 보고 자동 이어받기를 시작한다. 5시간 동안 재실행하지 않는 제한은 유지된다. 카드도 그때까지는 ‘Quota full’을 보여 준다. 계주 전체 스위치처럼 두 선수가 함께 준비하되, 시계는 경기가 정말 시작된 뒤에만 흐르는 셈이다."
               },
               "original": "**Auto-start is now one shared switch for Claude and Antigravity.** It starts both keepers together; users who previously enabled either individual switch are automatically treated as having both enabled.\n**Antigravity auto-start never fired, and the card showed a phantom countdown.** The Antigravity quota API reports a *sliding* reset time (always \"in ~5 hours\") while a 5-hour window is still untouched at 100% remaining. The 0.28.14 auto-start gate treated any reported countdown as \"a window is already running\", so it never pinged; it now treats 100% remaining itself as \"no active window\" (the 5-hour self-throttle still applies). The card likewise stopped rendering that placeholder as a live countdown — at 100% remaining it now shows \"Quota full\" until a real window starts."
-            }
-          ],
-          "curated": true
-        },
-        {
-          "version": "0.28.14",
-          "period": "2026-07-19",
-          "items": [
-            {
-              "title": {
-                "zh-TW": "下一個五小時工作階段可自動接棒",
-                "zh-CN": "下一个五小时工作会话可自动接棒",
-                "en": "Your next five-hour session can start itself",
-                "ja": "次の5時間セッションを自動で引き継げるようになった",
-                "ko": "다음 5시간 세션이 자동으로 이어서 시작된다"
-              },
-              "body": {
-                "zh-TW": "你剛用完 Antigravity 的五小時工作階段（session，一段可使用的固定時段），不想守著倒數等下一輪，現在可以在選單手動開啟自動接棒。它會查看最新、非模擬的 agy 額度結果；只有所選模型群組已完全重設且沒有倒數時，才在背景執行一次本機 agy CLI（命令列工具）的指定指令來開啟下一段。這個選項預設關閉，開過一次後五小時內不會重複觸發，也只使用你電腦上的 agy CLI。像接力賽交棒：跑者真的回到起跑線、計時器歸零才交棒，不會提早衝出去；開啟時也會顯示和 Claude 視窗守護功能相同的 Mac 睡眠提醒。",
-                "zh-CN": "刚用完 Antigravity 的五小时工作会话（session，一段可使用的固定时段），不想守着倒计时等下一轮，现在可以在菜单手动开启自动接棒。它会查看最新、非模拟的 agy 配额结果；只有所选模型群组已完全重置且没有倒计时，才在后台执行一次本机 agy CLI（命令行工具）的指定命令来开启下一段。这个选项默认关闭，开过一次后五小时内不会重复触发，也只使用你电脑上的 agy CLI。像接力赛交棒：跑者真的回到起跑线、计时器归零才交棒，不会提前冲出去；开启时也会显示和 Claude 窗口守护功能相同的 Mac 睡眠提醒。",
-                "en": "Finished an Antigravity five-hour session and don't want to watch the clock for the next one? You can now opt into an automatic handoff from the menu. It watches fresh, real agy quota results and, only when your chosen model group has fully reset with no countdown running, launches one specified command through the local agy CLI in the background. It is off by default, will not fire again for five hours, and uses only the agy CLI on your computer. Think of a relay race: the baton moves only after the runner is back at the starting line and the clock is at zero, never early. Enabling it also shows the same Mac sleep warning as the Claude window keeper.",
-                "ja": "Antigravity の5時間セッションを使い切り、次の回を始める時刻まで見張りたくないなら、メニューから自動引き継ぎを任意で有効にできる。最新かつ模擬ではない agy の利用枠結果を確認し、選んだモデル群のセッションが完全にリセットされ、カウントダウンもない時だけ、ローカルの agy CLI（コマンドライン操作用の道具）で指定コマンドを一度バックグラウンド実行する。初期状態では無効で、一度動くと5時間は再実行せず、使うのも自分の Mac 上の agy CLI だけである。走者が本当にスタート地点へ戻り、時計がゼロになってからバトンを渡すリレーのような仕組みであり、早出はしない。有効にすると Claude のウィンドウキーパーと同じ Mac のスリープ警告も表示される。",
-                "ko": "Antigravity의 5시간 세션을 다 쓴 뒤 다음 차례를 기다리기 싫다면, 메뉴에서 자동 이어받기를 선택해 켤 수 있다. 최신의 실제 agy 할당량 결과를 살피고, 선택한 모델 그룹의 세션이 완전히 초기화됐으며 카운트다운도 없을 때만 로컬 agy CLI(명령줄에서 쓰는 도구)로 지정된 명령 하나를 백그라운드에서 실행한다. 기본값은 꺼짐이며, 한 번 실행한 뒤에는 5시간 동안 다시 실행하지 않고, 내 컴퓨터의 agy CLI만 사용한다. 달리기 선수가 출발선으로 돌아오고 시계가 0이 된 뒤에만 바통을 넘기는 계주와 같아서 일찍 출발하지 않는다. 켜면 Claude 창 지킴이와 같은 Mac 잠자기 경고도 표시한다."
-              },
-              "original": "**Antigravity can now auto-start its next 5-hour session.** A new opt-in menu toggle watches fresh, non-mock agy quota results and, when the selected model group's session is fully reset with no countdown running, dispatches one background `agy -p ok --model 'Gemini 3.5 Flash (Low)'`. It is off by default, self-throttles for five hours, uses only the local agy CLI, and shows the same Mac sleep warning as the Claude window keeper when enabled."
             }
           ],
           "curated": true
