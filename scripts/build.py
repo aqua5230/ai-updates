@@ -125,7 +125,8 @@ def _render_inline_code(text: str) -> str:
 
 
 FENCED_CODE_RE = re.compile(
-    r"^[ \t]*```[ \t]*\r?\n([\s\S]*?)\r?\n^[ \t]*```[ \t]*(?=\r?$)", re.MULTILINE
+    r"^[ \t]*```[ \t]*[A-Za-z0-9_+-]*[ \t]*\r?\n([\s\S]*?)\r?\n^[ \t]*```[ \t]*(?=\r?$)",
+    re.MULTILINE,
 )
 
 
