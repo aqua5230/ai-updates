@@ -154,6 +154,13 @@ def parse_github_releases(payload: Any) -> list[dict[str, Any]]:
 
 
 def _release_body_entries(body: str) -> list[str]:
+    lines: list[str] = []
+    for line in body.splitlines():
+        if line.strip().lower() == "## changelog":
+            break
+        lines.append(line)
+    body = "\n".join(lines)
+
     entries: list[str] = []
     current: list[str] | None = None
     for line in body.splitlines():

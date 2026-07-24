@@ -50,6 +50,23 @@ def test_parse_gh_cli_releases_fixture() -> None:
     ]
 
 
+def test_release_body_entries_ignores_changelog_pr_list() -> None:
+    body = """## New Features
+- Added a faster installer.
+- Added compact release metadata.
+
+## Changelog
+- #31667 fix: parse compact release metadata in installer @efrazer-oai
+- #31668 fix: another generated changelog item @someone
+- #31669 chore: one more generated changelog item @someone
+"""
+
+    assert fetch._release_body_entries(body) == [
+        "Added a faster installer.",
+        "Added compact release metadata.",
+    ]
+
+
 def test_parse_agy_changelog() -> None:
     assert parse_agy_changelog("1.2.3:\n· Added one thing.\n· Fixed another.\n") == [
         ("1.2.3", ["Added one thing.", "Fixed another."])
