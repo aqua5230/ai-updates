@@ -218,24 +218,36 @@ def _render_body(text: str) -> str:
     return "".join(blocks)
 
 
-def _render_items(version: dict[str, Any], language: str) -> str:
+def _render_items(
+    version: dict[str, Any], language: str, *, include_original: bool = True
+) -> str:
     items = _curated_items(version)
     if items:
         blocks = []
         for item in items:
             title = _localized(item.get("title"), language)
             body = _localized(item.get("body"), language)
-            original = item.get("original", "")
             if title or body:
-                blocks.append(
-                    f"<article><h3>{escape(title)}</h3>{_render_body(body)}"
-                    f"<details><summary>Original changelog</summary><pre>{escape(str(original))}</pre></details></article>"
-                )
+                original = ""
+                if include_original:
+                    original = (
+                        "<details><summary>Original changelog</summary>"
+                        f"<pre>{escape(str(item.get('original', '')))}</pre></details>"
+                    )
+                blocks.append(f"<article><h3>{escape(title)}</h3>{_render_body(body)}{original}</article>")
         return "\n".join(blocks) or "<p>沒有可用的整理內容。</p>"
 
     raw = version.get("raw")
     entries = raw.get("entries", []) if isinstance(raw, dict) else []
     return "\n".join(f"<article><pre>{escape(entry)}</pre></article>" for entry in entries if isinstance(entry, str)) or "<p>沒有可用的原始更新內容。</p>"
+
+
+def _render_originals(version: dict[str, Any]) -> str:
+    return "\n".join(
+        "<article><details><summary>Original changelog</summary>"
+        f"<pre>{escape(str(item.get('original', '')))}</pre></details></article>"
+        for item in _curated_items(version)
+    )
 
 
 def _render_static_page(
@@ -276,9 +288,11 @@ def _render_static_page(
     )
     if items:
         language_sections = "\n".join(
-            f'<section lang="{language}"><h2>{escape(language)}</h2>{_render_items(version, language)}</section>'
+            f'<section lang="{language}"><h2>{escape(language)}</h2>'
+            f'{_render_items(version, language, include_original=False)}</section>'
             for language in LANGUAGES
         )
+        language_sections += f"\n<section><h2>原始 CHANGELOG</h2>{_render_originals(version)}</section>"
     else:
         language_sections = f'<section><h2>Original changelog</h2>{_render_items(version, "zh-TW")}</section>'
     title = f"{name} {version_name} 更新白話速報"
@@ -379,6 +393,7 @@ def build() -> None:
     generated_at = date.today().isoformat()
     app_tools: list[dict[str, Any]] = []
     history_tools: list[dict[str, Any]] = []
+    site_tools: list[dict[str, Any]] = []
     daily_tools: list[dict[str, Any]] = []
     _validate_static_summary_marker()
     for tool_id, name in TOOLS:
@@ -395,13 +410,30 @@ def build() -> None:
             for version in all_versions
             if version in curated or not is_placeholder(raw[version], version)
         ]
-        history_tools.append(
+        history_tool = {
+            "id": tool_id,
+            "name": name,
+            "versions": [
+                {"version": version, "raw": raw.get(version), "curated": curated.get(version)}
+                for version in visible_versions
+            ],
+        }
+        history_tools.append(history_tool)
+        latest = next(
+            (version for version in history_tool["versions"] if version["curated"]),
+            history_tool["versions"][0] if history_tool["versions"] else None,
+        )
+        site_tools.append(
             {
                 "id": tool_id,
                 "name": name,
+                "latest": latest,
                 "versions": [
-                    {"version": version, "raw": raw.get(version), "curated": curated.get(version)}
-                    for version in visible_versions
+                    {
+                        "version": version["version"],
+                        "period": (version["curated"] or version["raw"] or {}).get("period", ""),
+                    }
+                    for version in history_tool["versions"]
                 ],
             }
         )
@@ -423,7 +455,12 @@ def build() -> None:
         daily_tools.append({"id": tool_id, "name": name, "versions": daily_versions})
 
     _write(ROOT / "ai_updates.json", {"generated_at": generated_at, "tools": app_tools})
-    _write(ROOT / "docs" / "data.json", {"generated_at": generated_at, "tools": history_tools})
+    _write(ROOT / "docs" / "data.json", {"generated_at": generated_at, "tools": site_tools})
+    for history_tool in history_tools:
+        _write(
+            ROOT / "docs" / "history" / f"{history_tool['id']}.json",
+            history_tool,
+        )
     _write(ROOT / "daily.json", {"generated_at": generated_at, "tools": daily_tools})
     _write_static_pages(history_tools)
     _write_static_summary(history_tools)
