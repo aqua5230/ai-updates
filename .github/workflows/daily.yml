@@ -21,7 +21,9 @@ jobs:
         with:
           python-version: "3.13"
       - name: Fetch official updates
-        run: python3 scripts/fetch.py | tee /tmp/ai-updates-new.txt
+        run: |
+          set -o pipefail
+          python3 scripts/fetch.py | tee /tmp/ai-updates-new.txt
       - name: Open review issues
         env:
           GH_TOKEN: ${{ github.token }}
@@ -34,7 +36,10 @@ jobs:
               agy) tool_name="Antigravity" ;;
               usage) tool_name="Usage" ;;
               gh_cli) tool_name="GitHub CLI" ;;
-              *) exit 1 ;;
+              *)
+                echo "::warning::Unknown tool id '${tool_id}'; using it as the display name." >&2
+                tool_name="$tool_id"
+                ;;
             esac
             gh issue create \
               --title "Review ${tool_name} ${version}" \
@@ -42,6 +47,10 @@ jobs:
           done < /tmp/ai-updates-new.txt
       - name: Build feeds
         run: python3 scripts/build.py
+      - name: Verify build outputs
+        run: |
+          pip install pytest
+          pytest -q
       - name: Commit changed data
         run: |
           if git diff --quiet && [ -z "$(git status --porcelain)" ]; then
@@ -49,6 +58,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/raw ai_updates.json daily.json docs/data.json
+          git add data/raw ai_updates.json daily.json \
+            docs/data.json docs/index.html docs/sitemap.xml docs/robots.txt docs/llms.txt docs/v
           git commit -m "chore: update AI changelogs"
           git push origin HEAD:main

@@ -31,15 +31,84 @@ def _load_versions(layer: str, tool_id: str) -> dict[str, dict[str, Any]]:
         return versions
     for path in directory.glob("*.json"):
         value = json.loads(path.read_text(encoding="utf-8"))
-        if not isinstance(value, dict) or value.get("version") != path.stem:
-            raise ValueError(f"invalid version record: {path}")
+        _validate_record(path, layer, value)
+        if value["version"] != path.stem:
+            raise ValueError(f"{path}: version must match filename")
         versions[path.stem] = value
     return versions
 
 
-def _version_key(version: str) -> tuple[tuple[int, int | str], ...]:
-    parts = re.findall(r"\d+|[A-Za-z]+", version)
-    return tuple((0, int(part)) if part.isdigit() else (1, part.lower()) for part in parts)
+def _validate_record(path: Path, layer: str, value: Any) -> None:
+    if not isinstance(value, dict):
+        raise ValueError(f"{path}: record must be an object")
+
+    required = ("version", "period")
+    if layer == "raw":
+        required += ("source_url", "fetched_at", "entries")
+    else:
+        required += ("items",)
+    for field in required:
+        if field not in value:
+            raise ValueError(f"{path}: missing {field}")
+
+    for field in required:
+        if field in {"entries", "items"}:
+            continue
+        if not isinstance(value[field], str):
+            raise ValueError(f"{path}: {field} must be a string")
+
+    if layer == "raw":
+        entries = value["entries"]
+        if not isinstance(entries, list) or any(not isinstance(entry, str) for entry in entries):
+            raise ValueError(f"{path}: entries must be a list[str]")
+        return
+
+    # An empty items list is legitimate: maintenance-only releases have nothing worth rewriting.
+    items = value["items"]
+    if not isinstance(items, list):
+        raise ValueError(f"{path}: items must be a list[dict]")
+    for index, item in enumerate(items, 1):
+        if not isinstance(item, dict):
+            raise ValueError(f"{path}: items[{index}] must be a dict")
+        for field in ("title", "body"):
+            localized = item.get(field)
+            if not isinstance(localized, dict):
+                raise ValueError(f"{path}: items[{index}].{field} must be a dict")
+            for language in LANGUAGES:
+                text = localized.get(language)
+                if not isinstance(text, str) or not text.strip():
+                    raise ValueError(
+                        f"{path}: items[{index}].{field}.{language} must be a non-empty string"
+                    )
+        original = item.get("original")
+        if not isinstance(original, str) or not original.strip():
+            raise ValueError(f"{path}: items[{index}].original must be a non-empty string")
+
+
+def _version_key(version: str) -> tuple[Any, ...]:
+    core, separator, prerelease = version.partition("-")
+    core_key = tuple(int(part) for part in core.split("."))
+    if not separator:
+        return core_key, 1, ()
+
+    prerelease_key = tuple(
+        (0, int(part)) if part.isdigit() else (1, part.lower())
+        for part in prerelease.split(".")
+    )
+    return core_key, 0, prerelease_key
+
+
+def _period_end_date(period: str) -> str:
+    match = re.fullmatch(
+        r"(\d{4}-\d{2}-\d{2})(?:\s*~\s*(?:(\d{4})-)?(\d{2})-(\d{2}))?", period
+    )
+    if match is None:
+        raise ValueError(f"invalid period for ISO publication date: {period}")
+    start = date.fromisoformat(match.group(1))
+    if match.group(3) is None:
+        return start.isoformat()
+    end = date(int(match.group(2) or start.year), int(match.group(3)), int(match.group(4)))
+    return end.isoformat()
 
 
 def is_placeholder(raw: dict[str, Any], version: str) -> bool:
@@ -191,7 +260,7 @@ def _render_static_page(
         "@type": "SoftwareApplication",
         "name": name,
         "softwareVersion": version_name,
-        "datePublished": period,
+        "datePublished": _period_end_date(period),
         "releaseNotes": "；".join(release_notes),
     }
     json_ld = json.dumps(structured_data, ensure_ascii=False).replace("</", "<\\/")
@@ -259,7 +328,8 @@ def _write_static_pages(history_tools: list[dict[str, Any]]) -> int:
             path.write_text(_render_static_page(tool, index, versions), encoding="utf-8")
             url = _page_url(str(tool["id"]), version_name)
             period = str((version.get("curated") or version.get("raw") or {}).get("period", ""))
-            sitemap_entries.append(f"  <url><loc>{escape(url)}</loc><lastmod>{escape(period)}</lastmod></url>")
+            lastmod = _period_end_date(period)
+            sitemap_entries.append(f"  <url><loc>{escape(url)}</loc><lastmod>{escape(lastmod)}</lastmod></url>")
             llms_sections.append(f"- {url}")
             page_count += 1
     (ROOT / "docs" / "sitemap.xml").write_text(
@@ -295,11 +365,22 @@ def _write_static_summary(history_tools: list[dict[str, Any]]) -> None:
     index_path.write_text(updated, encoding="utf-8")
 
 
+def _validate_static_summary_marker() -> None:
+    index_path = ROOT / "docs" / "index.html"
+    if not index_path.exists():
+        return
+    index = index_path.read_text(encoding="utf-8")
+    count = len(re.findall(r"<!-- STATIC-SUMMARY:START -->.*?<!-- STATIC-SUMMARY:END -->", index, re.DOTALL))
+    if count != 1:
+        raise ValueError("docs/index.html must contain exactly one STATIC-SUMMARY marker block")
+
+
 def build() -> None:
     generated_at = date.today().isoformat()
     app_tools: list[dict[str, Any]] = []
     history_tools: list[dict[str, Any]] = []
     daily_tools: list[dict[str, Any]] = []
+    _validate_static_summary_marker()
     for tool_id, name in TOOLS:
         raw = _load_versions("raw", tool_id)
         curated = _load_versions("curated", tool_id)

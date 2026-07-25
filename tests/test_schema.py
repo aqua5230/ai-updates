@@ -128,7 +128,15 @@ def test_build_filters_placeholder_versions(tmp_path: Path, monkeypatch: Any) ->
     }
     for version, entries in records.items():
         (raw_dir / f"{version}.json").write_text(
-            json.dumps({"version": version, "period": "2026-07-13", "entries": entries}),
+            json.dumps(
+                {
+                    "version": version,
+                    "period": "2026-07-13",
+                    "source_url": f"https://example.test/{version}",
+                    "fetched_at": "2026-07-13",
+                    "entries": entries,
+                }
+            ),
             encoding="utf-8",
         )
     monkeypatch.setattr(build_script, "ROOT", tmp_path)
@@ -149,7 +157,13 @@ def test_build_keeps_curated_placeholder_versions(tmp_path: Path, monkeypatch: A
     curated_dir = data / "curated" / "codex"
     raw_dir.mkdir(parents=True)
     curated_dir.mkdir(parents=True)
-    raw = {"version": "0.3.0", "period": "2026-07-13", "entries": ["Release 0.3.0"]}
+    raw = {
+        "version": "0.3.0",
+        "period": "2026-07-13",
+        "source_url": "https://example.test/0.3.0",
+        "fetched_at": "2026-07-13",
+        "entries": ["Release 0.3.0"],
+    }
     curated = {"version": "0.3.0", "period": "2026-07-13", "items": []}
     (raw_dir / "0.3.0.json").write_text(json.dumps(raw), encoding="utf-8")
     (curated_dir / "0.3.0.json").write_text(json.dumps(curated), encoding="utf-8")
