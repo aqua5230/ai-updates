@@ -733,155 +733,127 @@
       "id": "agy",
       "name": "Antigravity",
       "latest": {
-        "version": "1.1.6",
+        "version": "1.1.7",
         "raw": {
-          "version": "1.1.6",
-          "period": "2026-07-24",
+          "version": "1.1.7",
+          "period": "2026-07-25",
           "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-          "fetched_at": "2026-07-24",
+          "fetched_at": "2026-07-25",
           "entries": [
-            "Custom Agents (Markdown Format). Added support for defining custom agents using Markdown files (`agent.md`) with YAML frontmatter and H1-delimited system prompts. Markdown agents support `mainAgent`, `subagent`, `hidden`, `inheritMcp`, and `commandExecutionPolicy` frontmatter fields for fine-grained control over agent behavior. Dynamically defined subagents (via `define_subagent`) now also write Markdown format so they resolve correctly on external builds.",
-            "Added an optional index argument to `/copy` so `/copy <n>` copies the n-th most recent response to the clipboard, while `/copy` and `/copy 1` still copy the latest.",
-            "Improved `/codesearch` to render results progressively as they stream in, showing a live count while loading and letting you cancel an in-flight search with `Esc` instead of blocking until the whole search finishes.",
-            "Improved default file access by granting read access to the system temporary directory out of the box, resolved correctly per platform, so agents no longer trigger permission prompts when reading temporary files.",
-            "Improved support for markdown-based custom agents so custom agent management and selection behave more consistently.",
-            "Improved customization discovery by sorting rules and discovered paths deterministically, preventing unstable prompt ordering and needless prompt-cache misses.",
-            "Improved overall reliability and stability across the CLI with additional hardening and fixes for intermittent failures in background tasks, print mode, and interactive flows.",
-            "Fixed switching from a custom agent back to the default agent via `/agents`, which previously failed silently and left the conversation stuck on the custom agent's persona.",
-            "Fixed a crash when a command was blocked by sandbox permissions before its output was captured, and cleaned up the permission approval and denial messages.",
-            "Fixed the artifact viewer emitting garbage escape bytes when cycling to image mode on terminals that are detected but cannot actually render Kitty graphics, such as iTerm2.",
-            "Fixed the first keystroke (such as `Esc`) being dropped when opening the first artifact view on some non-Kitty terminals.",
-            "Fixed conversation jitter and a stranded input box during streaming so transient markdown reflow no longer shifts the pending line and input box upward.",
-            "Fixed print mode (`-p`) surfacing the real conversation-creation failure instead of a misleading \"no active conversation\" error.",
-            "Fixed the message list dropping its header when rewinding or resetting conversation steps.",
-            "Fixed a background auto-updater double-spawn race where two processes could each spawn an updater within a single update window.",
-            "Fixed sandbox error reporting so blocked actions are recorded even when the network proxy is disabled.",
-            "Fixed the screen going blank after the authentication page.",
-            "Fixed the `ctrl+b` shortcut being hardcoded to background shell commands even when none were running, so a remapped `ctrl+b` is now respected whenever there are no running shell commands in the conversation."
+            "Improved permission prompts for compound shell commands so the full command is shown when any part of it needs approval.",
+            "Improved headless print mode by adding a `cache_read_tokens` field to the `json` and `stream-json` usage output, so non-interactive consumers can attribute prompt-cache hits.",
+            "Fixed disabled plugins still running their hooks and contributing other customizations, which could keep a broken hook active and break file-editing tools even after the plugin was turned off.",
+            "Fixed MCP OAuth against providers that do not strictly follow the spec (such as Salesforce and Atlassian) by relaxing issuer validation and including the `refresh_token` grant.",
+            "Fixed `/btw` failing with a \"parent conversation not found\" error when used as the very first action in a fresh session.",
+            "Fixed clipboard corruption of CJK and other non-ASCII text when copying on Windows.",
+            "Fixed print mode (`-p`) sending a prompt before the account-eligibility check finished, which let ineligible accounts bypass the check the interactive UI enforces."
           ]
         },
         "curated": {
-          "version": "1.1.6",
-          "period": "2026-07-24",
+          "version": "1.1.7",
+          "period": "2026-07-25",
           "items": [
             {
               "title": {
-                "zh-TW": "自訂 Agent 改用 Markdown，角色切換不再卡住",
-                "zh-CN": "自定义 Agent 改用 Markdown，角色切换不再卡住",
-                "en": "Custom agents move to Markdown, and switching roles no longer gets stuck",
-                "ja": "カスタム Agent が Markdown 化され、役割切替も止まらない",
-                "ko": "사용자 지정 Agent가 Markdown으로 바뀌고 역할 전환도 멈추지 않는다"
+                "zh-TW": "一行串好幾個指令，權限提示不再只給你看一半",
+                "zh-CN": "一行串好几个命令，权限提示不再只给你看一半",
+                "en": "Permission prompts now show the whole compound command",
+                "ja": "複数のコマンドをつなげても、許可プロンプトに全文が出る",
+                "ko": "여러 명령을 이어 붙여도 권한 창에 전체가 보인다"
               },
               "body": {
-                "zh-TW": "想替 AI 配一位專門校稿或查資料的助手，現在可以用 `agent.md` 這種 Markdown 檔（用標題與一般文字寫內容的純文字格式）來定義 custom agent（自訂 Agent，替 AI 指定另一套角色與做事規則）。檔案開頭的 YAML frontmatter（放在檔案開頭、用欄位寫設定的區塊）可決定它是主助手、子助手、是否隱藏、是否沿用 MCP（讓 AI 連接外部工具的協定），以及可否執行指令；用 H1 標題也能切出給它的系統提示詞。這像替不同職務做名牌和工作守則；動態建立的子助手也會拿到同款名牌，搬到外部版本仍認得出來。`/agents` 從自訂角色切回預設角色的失敗問題也修好，不會表面切換、其實還困在舊人格。",
-                "zh-CN": "想给 AI 配一位专门校稿或查资料的助手，现在可以用 `agent.md` 这种 Markdown 文件（用标题和普通文字写内容的纯文本格式）来定义 custom agent（自定义 Agent，替 AI 指定另一套角色与做事规则）。文件开头的 YAML frontmatter（放在文件开头、用字段写设置的区块）可决定它是主助手、子助手、是否隐藏、是否沿用 MCP（让 AI 连接外部工具的协议），以及能否执行命令。这像替不同职务做名牌和工作守则；动态建立的子助手也会拿到同款名牌，搬到外部版本仍认得出来。`/agents` 从自定义角色切回默认角色的失败问题也修好，不会表面切换、其实还困在旧人格。",
-                "en": "If you want an AI helper dedicated to proofreading or research, you can now define a custom agent with an `agent.md` Markdown file: ordinary text with headings. Its YAML frontmatter, a settings block at the very top of the file, can say whether it is the main agent, a subagent, hidden, inherits MCP (the protocol that lets AI connect to outside tools), or may run commands. Think of it as a job badge plus work rules for each role. Dynamically created subagents now get the same badge, so external builds recognize them too. `/agents` also correctly returns from a custom role to the default one instead of appearing to switch while leaving the conversation in the old persona.",
-                "ja": "校正や調査だけを任せる AI の手伝い役が欲しいなら、見出しと本文で書く `agent.md` という Markdown ファイルで custom agent（役割と行動規則を別にした AI 担当者）を定義できるようになった。先頭の YAML frontmatter（項目で設定を書く冒頭の区画）では、主担当か子担当か、隠すか、MCP（AI を外部ツールにつなぐ協定）を引き継ぐか、コマンド実行を許すかを決められる。職種ごとの名札と作業規則を作るようなものだ。動的に作った子担当者も同じ形式になるため、外部ビルドでも正しく見つかる。`/agents` でカスタム役から標準役へ戻れず、会話だけが古い人格に残る不具合も直った。",
-                "ko": "교정이나 자료 조사를 맡길 AI 도우미가 필요하다면, 제목과 일반 텍스트로 쓰는 `agent.md` Markdown 파일로 custom agent(별도 역할과 작업 규칙을 준 AI 담당자)를 정의할 수 있다. 파일 맨 앞의 YAML frontmatter(항목으로 설정을 적는 첫 구역)에서 주 담당인지 하위 담당인지, 숨길지, MCP(AI를 외부 도구에 연결하는 규약)를 물려받을지, 명령을 실행할지를 정한다. 직무마다 명찰과 업무 수칙을 붙이는 셈이다. 동적으로 만든 하위 담당자도 같은 형식으로 저장되어 외부 빌드에서도 제대로 찾아진다. `/agents`로 사용자 지정 역할에서 기본 역할로 돌아갈 때 겉으로만 바뀌고 이전 인격에 남던 문제도 고쳤다."
+                "zh-TW": "整理一批檔案時，你常會把好幾個動作串成一行指令送出去。以前只要其中一小段需要你點頭，跳出來的權限提示（動手前先問過你的確認視窗）就只顯示那一段，前後做了什麼全藏著不給看——等於在一份只掀開其中一條的合約上簽名。現在只要整串裡有任何一段需要核准，提示會把即將執行的完整指令原封不動攤開，你看得到它前面先做了什麼、後面接著做什麼，再決定要不要放行。",
+                "zh-CN": "整理一批文件时，你常会把好几个动作串成一行命令发出去。以前只要其中一小段需要你点头，弹出来的权限提示（动手前先问过你的确认窗口）就只显示那一段，前后做了什么全藏着不给看——等于在一份只掀开其中一条的合同上签名。现在只要整串里有任何一段需要批准，提示会把即将执行的完整命令原封不动摊开，你看得到它前面先做了什么、后面接着做什么，再决定要不要放行。",
+                "en": "When you clean up a batch of files, you tend to chain several actions into one shell command. Until now, if a single fragment of that chain needed approval, the permission prompt showed you only that fragment and hid everything around it — rather like being asked to sign a contract with one clause uncovered and the rest under a sheet of paper. Now, whenever any part of a compound command needs approval, the prompt lays out the full command exactly as it will run, so you can see what comes before and after before letting it through.",
+                "ja": "ファイルをまとめて片づけるとき、複数の動作を一行のコマンドにつなげることは多い。これまでは、そのうちの一部だけが承認を必要とする場合、許可プロンプトにはその断片しか出ず、前後は隠れたままだった。一条だけをめくった契約書に署名を求められるようなものだ。今は、つなげたコマンドのどこか一部でも承認が要るなら、実行される全文がそのまま提示される。前で何をして後ろで何をするのかを見てから、通すかどうかを決められる。",
+                "ko": "파일을 한꺼번에 정리할 때는 여러 동작을 한 줄 명령으로 이어 붙이는 일이 많다. 지금까지는 그중 한 조각만 승인이 필요해도 권한 창에는 그 조각만 보이고 앞뒤는 가려져 있었다. 한 조항만 펼쳐 놓은 계약서에 서명하라는 것과 다르지 않다. 이제는 이어 붙인 명령 중 어느 하나라도 승인이 필요하면 실행될 전체 명령이 그대로 펼쳐진다. 앞에서 무엇을 하고 뒤에서 무엇을 하는지 보고 나서 통과시킬지 정할 수 있다."
               },
-              "original": "Custom Agents (Markdown Format). Added support for defining custom agents using Markdown files (`agent.md`) with YAML frontmatter and H1-delimited system prompts. Markdown agents support `mainAgent`, `subagent`, `hidden`, `inheritMcp`, and `commandExecutionPolicy` frontmatter fields for fine-grained control over agent behavior. Dynamically defined subagents (via `define_subagent`) now also write Markdown format so they resolve correctly on external builds.\nImproved support for markdown-based custom agents so custom agent management and selection behave more consistently.\nFixed switching from a custom agent back to the default agent via `/agents`, which previously failed silently and left the conversation stuck on the custom agent's persona."
+              "original": "Improved permission prompts for compound shell commands so the full command is shown when any part of it needs approval."
             },
             {
               "title": {
-                "zh-TW": "`/copy` 能挑選較早的回答",
-                "zh-CN": "`/copy` 能挑选较早的回答",
-                "en": "`/copy` can now pick an earlier answer",
-                "ja": "`/copy` で少し前の回答も選べる",
-                "ko": "`/copy`로 조금 전 답변도 고를 수 있다"
+                "zh-TW": "沒人盯著的自動模式，補上用量明細與資格把關",
+                "zh-CN": "没人盯着的自动模式，补上用量明细与资格把关",
+                "en": "Print mode gains cache accounting and a real eligibility gate",
+                "ja": "画面のない実行モードに、使用量の内訳と資格チェックが入った",
+                "ko": "화면 없는 실행 모드에 사용량 내역과 자격 검사가 붙었다"
               },
               "body": {
-                "zh-TW": "剛看完幾輪回答，才發現想貼出去的是前一則？`/copy 2` 現在會把倒數第二則回答複製到剪貼簿（暫時放著、可貼到別處的地方）。數字 `n` 代表第 n 則最近回答；不加數字的 `/copy` 和 `/copy 1` 仍是最新一則。你可直接把那段貼進訊息、文件或筆記。像翻相簿時直接抽出前一張照片，不必先把最新照片複製走，再回頭手動選文字。",
-                "zh-CN": "刚看完几轮回答，才发现想贴出去的是前一则？`/copy 2` 现在会把倒数第二则回答复制到剪贴板（暂时放着、可贴到别处的地方）。数字 `n` 代表第 n 则最近回答；不加数字的 `/copy` 和 `/copy 1` 仍是最新一则。像翻相册时直接抽出前一张照片，不必先把最新照片复制走，再回头手动选文字。",
-                "en": "Finished a few rounds of answers and realized the one you need to paste is the previous one? `/copy 2` now copies the second-most-recent response to the clipboard, the temporary place from which you paste elsewhere. The number `n` means the n-th most recent response; plain `/copy` and `/copy 1` still mean the latest. It is like pulling the prior photo from an album directly instead of copying the newest photo first and then selecting old text by hand.",
-                "ja": "何往復か読んでから、貼りたいのは一つ前の回答だったと気づくことがある。`/copy 2` は、貼り付け用に一時保存する clipboard へ、二番目に新しい回答をコピーする。数字 `n` は新しい順で n 番目を表す。数字なしの `/copy` と `/copy 1` は従来どおり最新の回答である。アルバムから一つ前の写真を直接取り出せるようなもので、最新の写真を先にコピーして古い文章を手で選び直す必要がない。",
-                "ko": "몇 차례 답변을 읽은 뒤 붙여 넣을 것은 바로 전 답변이었다는 걸 깨달을 때가 있다. 이제 `/copy 2`는 붙여 넣기 전 잠시 보관하는 clipboard에 두 번째로 최근 답변을 복사한다. 숫자 `n`은 최근 답변 중 n번째를 뜻하며, 숫자 없는 `/copy`와 `/copy 1`은 여전히 최신 답변을 복사한다. 앨범에서 바로 앞 사진을 곧장 꺼내는 것과 같아서, 최신 답변을 먼저 복사한 뒤 예전 글을 손으로 다시 고를 필요가 없다."
+                "zh-TW": "排程在半夜自己跑，沒有人在旁邊看畫面，出了事常常是隔天才發現。這版替 headless print mode（不開視窗、直接把答案輸出的執行方式）補上兩道缺口。一是 `json` 與 `stream-json` 的用量報表多了 `cache_read_tokens` 這個欄位，程式自己就算得出這次有多少文字單位是直接讀暫存拿到的，不必再靠猜。二是用 `-p` 送出提示時，以前不等帳號資格檢查跑完就先發車，讓不符資格的帳號繞過互動介面本來會擋的那道關，現在會等檢查完成才送出。像無人商店，正因為沒有店員在場，收據要印得更清楚，門口的驗證更不能省。",
+                "zh-CN": "排程在半夜自己跑，没有人在旁边看画面，出了事常常是隔天才发现。这版替 headless print mode（不开窗口、直接把答案输出的执行方式）补上两道缺口。一是 `json` 与 `stream-json` 的用量报表多了 `cache_read_tokens` 这个字段，程序自己就算得出这次有多少文字单位是直接读暂存拿到的，不必再靠猜。二是用 `-p` 发出提示时，以前不等账号资格检查跑完就先发车，让不符资格的账号绕过交互界面本来会拦的那道关，现在会等检查完成才发出。像无人商店，正因为没有店员在场，收据要印得更清楚，门口的验证更不能省。",
+                "en": "When you wire the AI into an automated pipeline, nobody is watching the screen, so problems surface only afterwards. This release closes two gaps in headless print mode. First, the `json` and `stream-json` usage output now carries a `cache_read_tokens` field, so a non-interactive consumer can work out how much of the prompt was served from cache and attribute those hits itself. Second, running with `-p` used to send the prompt before the account-eligibility check had finished, which let ineligible accounts slip past the gate the interactive UI enforces; it now waits for the check. An unstaffed shop is exactly the place where the receipt has to be itemised and the door check cannot be skipped.",
+                "ja": "AI を自動処理の流れに組み込むと、画面を見ている人がいないので、問題は後になって表に出る。今回は headless print mode（ウィンドウを開かず答えをそのまま出力する実行方式）の穴を二つふさいだ。一つは `json` と `stream-json` の使用量出力に `cache_read_tokens` が加わったこと。どれだけの文字単位をキャッシュから読んだのかをプログラム側で計算でき、節約分をそのまま説明できる。もう一つは `-p` の挙動で、以前はアカウントの資格確認が終わる前にプロンプトを送っていたため、対話画面なら止められる相手が通り抜けていた。今は確認を待ってから送る。無人の店だからこそ、レシートは細かく、入口の確認は省けない。",
+                "ko": "AI를 자동 처리 흐름에 넣으면 화면을 보는 사람이 없어서 문제는 늘 나중에 드러난다. 이번 판에서는 headless print mode(창을 열지 않고 답을 그대로 출력하는 실행 방식)의 구멍 두 개를 막았다. 하나는 `json`과 `stream-json`의 사용량 출력에 `cache_read_tokens` 항목이 생긴 것이다. 이번에 몇 개의 문자 단위를 캐시에서 바로 읽었는지 프로그램이 스스로 계산해 아낀 몫을 설명할 수 있다. 다른 하나는 `-p`로 보낼 때다. 예전에는 계정 자격 확인이 끝나기 전에 프롬프트를 보내서, 대화 화면이라면 막혔을 계정이 그대로 통과했다. 이제는 확인을 기다린 뒤에 보낸다. 사람이 없는 가게일수록 영수증은 자세해야 하고 입구 확인은 건너뛸 수 없다."
               },
-              "original": "Added an optional index argument to `/copy` so `/copy <n>` copies the n-th most recent response to the clipboard, while `/copy` and `/copy 1` still copy the latest."
+              "original": "Improved headless print mode by adding a `cache_read_tokens` field to the `json` and `stream-json` usage output, so non-interactive consumers can attribute prompt-cache hits.\nFixed print mode (`-p`) sending a prompt before the account-eligibility check finished, which let ineligible accounts bypass the check the interactive UI enforces."
             },
             {
               "title": {
-                "zh-TW": "程式碼搜尋邊找邊顯示，也能按 Esc 停下",
-                "zh-CN": "代码搜索边找边显示，也能按 Esc 停下",
-                "en": "Code search shows results as it works, and Esc can stop it",
-                "ja": "コード検索は途中結果を表示し、Esc で止められる",
-                "ko": "코드 검색이 진행 중 결과를 보여 주고 Esc로 멈출 수 있다"
+                "zh-TW": "外掛關掉了，它的掛鉤還在背後動作",
+                "zh-CN": "插件关掉了，它的钩子还在背后动作",
+                "en": "Disabled plugins no longer keep running their hooks",
+                "ja": "無効にしたプラグインのフックが動かなくなった",
+                "ko": "비활성화한 플러그인의 훅이 더는 돌지 않는다"
               },
               "body": {
-                "zh-TW": "在大專案裡用 `/codesearch` 找一個函式名稱時，不必盯著空畫面等全部結果。搜尋結果現在會隨資料到達逐步顯示，還會告訴你目前找到了幾筆；你可以先從已出現的檔案判斷是否找對地方。如果方向不對，按 `Esc` 就能取消還在跑的搜尋。這像在倉庫找貨時，搬運員一找到一箱就先送到你面前，數量也一路更新；你發現拿錯訂單，隨時喊停即可。",
-                "zh-CN": "在大项目里用 `/codesearch` 找一个函数名称时，不必盯着空画面等全部结果。搜索结果现在会随资料到达逐步显示，还会告诉你目前找到了几笔；如果方向不对，按 `Esc` 就能取消还在跑的搜索。这像在仓库找货时，搬运员一找到一箱就先送到你面前，数量也一路更新；你发现拿错订单，随时喊停即可。",
-                "en": "When you use `/codesearch` to find a function name in a large project, you no longer have to stare at an empty screen until every result arrives. Matches now appear progressively, with a live count; if you searched in the wrong direction, `Esc` cancels the search while it is still running. It is like a warehouse worker bringing each box to you as soon as it is found while updating the tally, and stopping the moment you realize it is the wrong order.",
-                "ja": "大きなプロジェクトで `/codesearch` に関数名を探させるとき、全結果がそろうまで空の画面を見つめる必要がなくなった。見つかったものから順に表示され、件数もその場で増えていく。探す方向が違ったなら、実行中でも `Esc` で取り消せる。倉庫で品物を探す際、見つかった箱から先に運んでもらい、数も更新され、注文違いに気づいたらすぐ止められるようなものだ。",
-                "ko": "큰 프로젝트에서 `/codesearch`로 함수 이름을 찾을 때 모든 결과가 올 때까지 빈 화면을 볼 필요가 없어졌다. 찾은 결과부터 차례로 나타나고 개수도 실시간으로 보인다. 방향이 틀렸다면 아직 실행 중인 검색도 `Esc`로 취소할 수 있다. 창고에서 물건을 찾을 때 발견한 상자부터 먼저 가져오고 수량도 계속 알려 주며, 주문이 틀렸음을 알면 바로 멈추는 것과 같다."
+                "zh-TW": "把一個外掛停用，理當它就該完全安靜下來。以前並不是——它的 hook（掛鉤，特定事件一發生就被自動觸發的小程式）照樣在背景執行，它帶進來的其他自訂設定也繼續生效。最難纏的情況是那個掛鉤本身已經壞了：它會一路卡住編輯檔案的工具，而你早就把外掛關了，根本不會回頭懷疑它，只能對著改不動的檔案發呆。現在停用就是真的停用，掛鉤和它夾帶的自訂設定一起下線。像員工離職卻沒繳回門禁卡，人不在了，卡還刷得開門，這次是連卡一起收回來。",
+                "zh-CN": "把一个插件停用，理当它就该完全安静下来。以前并不是——它的 hook（钩子，特定事件一发生就被自动触发的小程序）照样在后台执行，它带进来的其他自定义设置也继续生效。最难缠的情况是那个钩子本身已经坏了：它会一路卡住编辑文件的工具，而你早就把插件关了，根本不会回头怀疑它，只能对着改不动的文件发呆。现在停用就是真的停用，钩子和它夹带的自定义设置一起下线。像员工离职却没交回门禁卡，人不在了，卡还刷得开门，这次是连卡一起收回来。",
+                "en": "Turn a plugin off and you would expect it to fall silent. It did not. Its hooks kept firing in the background, and the other customizations it brought along stayed in effect. The nastiest version of this was a hook that was already broken: it would jam the file-editing tools, and since you had disabled the plugin long ago, it never occurred to you to suspect it — you just sat there wondering why nothing would save. Disabling now really disables: the hooks and everything else the plugin contributed go quiet together. An employee leaves but keeps the door badge; the person is gone and the badge still opens the door. This time the badge comes back too.",
+                "ja": "プラグインを無効にしたら、それきり静かになるはずだ。実際はそうではなかった。フック（特定の出来事が起きると自動的に呼び出される小さなプログラム）は裏で動き続け、そのプラグインが持ち込んだ他の設定も効いたままだった。厄介なのは、そのフック自体が壊れている場合だ。ファイル編集のツールを詰まらせるのに、とっくに無効にしたプラグインを疑う人はいない。保存できない画面をただ眺めることになる。今は無効にすれば本当に無効で、フックも持ち込まれた設定も一緒に止まる。退職した社員の入館証を回収し忘れるのと同じで、本人がいなくても扉は開く。今回は証も回収した。",
+                "ko": "플러그인을 끄면 그것으로 조용해지는 것이 당연하다. 실제로는 그렇지 않았다. 훅(특정 사건이 일어나면 자동으로 불려 나오는 작은 프로그램)은 뒤에서 계속 돌았고, 그 플러그인이 함께 들여온 다른 설정도 그대로 살아 있었다. 고약한 경우는 그 훅 자체가 이미 망가져 있을 때다. 파일 편집 도구를 막아 버리는데, 진작에 꺼 둔 플러그인을 의심하는 사람은 없다. 저장되지 않는 화면만 바라보게 된다. 이제는 끄면 정말로 꺼져서 훅도 함께 들어온 설정도 같이 멈춘다. 퇴사한 직원의 출입증을 걷지 않은 것과 같다. 사람은 없는데 문은 열린다. 이번에는 증도 함께 걷었다."
               },
-              "original": "Improved `/codesearch` to render results progressively as they stream in, showing a live count while loading and letting you cancel an in-flight search with `Esc` instead of blocking until the whole search finishes."
+              "original": "Fixed disabled plugins still running their hooks and contributing other customizations, which could keep a broken hook active and break file-editing tools even after the plugin was turned off."
             },
             {
               "title": {
-                "zh-TW": "讀取暫存檔不再先跳權限詢問",
-                "zh-CN": "读取临时文件不再先跳权限询问",
-                "en": "Reading temporary files no longer starts with a permission prompt",
-                "ja": "一時ファイルの読み取りで最初に権限確認が出なくなる",
-                "ko": "임시 파일을 읽을 때 권한 확인이 먼저 뜨지 않는다"
+                "zh-TW": "接 Salesforce、Atlassian 的授權不再卡在規格差異",
+                "zh-CN": "接 Salesforce、Atlassian 的授权不再卡在规格差异",
+                "en": "MCP OAuth now works with providers that bend the spec",
+                "ja": "Salesforce や Atlassian との MCP 認証が通るようになった",
+                "ko": "Salesforce와 Atlassian의 MCP 인증이 통과한다"
               },
               "body": {
-                "zh-TW": "你請 Agent 看剛下載或剛產生的暫存檔時，現在通常不會先被權限視窗打斷。CLI 已預設給 system temporary directory（系統暫存目錄，程式短暫放檔案的地方）讀取權限，並依 Windows、macOS、Linux 各自的位置正確處理。它只多開了「看」的門，沒有多開修改或刪除的門；像飯店櫃台直接給你行李寄放區的查看證，讓助手能讀到它剛放進去的收據，不必每次先打電話確認。",
-                "zh-CN": "你请 Agent 看刚下载或刚生成的临时文件时，现在通常不会先被权限窗口打断。CLI 已默认给 system temporary directory（系统临时目录，程序短暂放文件的地方）读取权限，并按 Windows、macOS、Linux 各自的位置正确处理。它只多开了“看”的门，没有多开修改或删除的门；像酒店前台直接给你行李寄存区的查看证，让助手能读到它刚放进去的收据，不必每次先打电话确认。",
-                "en": "When you ask an agent to inspect a file it just downloaded or generated temporarily, a permission dialog usually will not interrupt first. The CLI now grants read access by default to the system temporary directory, the place where programs briefly park files, and resolves that location correctly on each platform. This opens only the door to look, not to edit or delete. It is like a hotel desk giving you a viewing pass for the luggage area so the helper can read the receipt it just put there without calling for approval every time.",
-                "ja": "Agent に、今ダウンロードした一時ファイルや生成直後の一時ファイルを見せる際、最初に権限画面で止められることが減る。CLI は system temporary directory（プログラムが短時間だけファイルを置く場所）への読み取りを最初から許可し、Windows、macOS、Linux それぞれの場所も正しく判断する。開くのは見るための扉だけで、変更や削除の扉ではない。ホテルのフロントが荷物預かり所の閲覧証を渡し、助手が置いたばかりの控えを毎回電話確認なしで読めるようなものだ。",
-                "ko": "Agent에게 방금 내려받거나 막 만든 임시 파일을 보여 줄 때 권한 창이 먼저 끼어드는 일이 줄었다. CLI가 system temporary directory(프로그램이 파일을 잠시 두는 곳)에 읽기 권한을 기본으로 주고 Windows, macOS, Linux의 위치도 각각 올바르게 찾는다. 열리는 것은 보기 위한 문뿐이며 수정하거나 삭제하는 문은 아니다. 호텔 프런트가 짐 보관소 열람증을 줘서 도우미가 방금 넣은 영수증을 매번 확인 전화 없이 읽는 것과 같다."
+                "zh-TW": "公司拿 Salesforce 管客戶、拿 Atlassian 那套管專案，你想讓 AI 直接讀得到裡面的資料，卻總是卡在授權那一步。問題出在 MCP（Model Context Protocol，讓 AI 接上外部工具的協定）走的 OAuth 授權流程：這兩家的實作沒有完全照規範走，發行方資訊對不上，驗證就直接判失敗。現在比對發行方的條件放寬了，也把 `refresh_token` 這種續期方式一併帶上，授權到期時能自己換一張新的，不用你重登一次。像出國帶轉接頭，各國插座本來就不完全一樣，與其要求對方改插座，不如自己帶一個接得上的頭。",
+                "zh-CN": "公司拿 Salesforce 管客户、拿 Atlassian 那套管项目，你想让 AI 直接读到里面的数据，却总是卡在授权那一步。问题出在 MCP（Model Context Protocol，让 AI 接上外部工具的协议）走的 OAuth 授权流程：这两家的实现没有完全照规范走，发行方信息对不上，验证就直接判失败。现在比对发行方的条件放宽了，也把 `refresh_token` 这种续期方式一并带上，授权到期时能自己换一张新的，不用你重新登录一次。像出国带转接头，各国插座本来就不完全一样，与其要求对方改插座，不如自己带一个接得上的头。",
+                "en": "Your company runs customers through Salesforce and projects through Atlassian, you want the AI to read from them directly, and you get stuck at authorization. The culprit is the OAuth flow behind MCP, the protocol that connects the AI to external tools: neither provider follows the spec to the letter, the issuer details fail to line up, and validation rejects the whole thing. Issuer validation is now relaxed, and the `refresh_token` grant is included, so an expiring authorization renews itself instead of sending you back to the login screen. It is the travel adapter approach: sockets genuinely differ between countries, and bringing a plug that fits beats demanding the country rewire.",
+                "ja": "会社では顧客を Salesforce、案件を Atlassian で管理していて、その中身を AI に直接読ませたいのに、認可の一歩手前で止まる。原因は MCP（AI を外部ツールにつなぐための取り決め）が使う OAuth の流れにある。この二社の実装は仕様どおりではなく、発行元の情報が噛み合わないだけで検証が落ちていた。今は発行元の照合をゆるめ、`refresh_token` による更新も一緒に扱うようにした。期限が切れても自分で取り直すので、ログインし直す必要がない。海外用の変換プラグと同じ発想だ。国ごとに差込口が違うのは前提で、相手に工事を求めるより、合う頭を持っていくほうが早い。",
+                "ko": "회사에서는 고객을 Salesforce로, 프로젝트를 Atlassian으로 관리하는데, 그 안의 자료를 AI에게 바로 읽히려고 하면 인가 단계에서 막힌다. 원인은 MCP(AI를 외부 도구에 연결하는 약속)가 쓰는 OAuth 흐름에 있다. 이 두 곳의 구현이 규격을 그대로 따르지 않아 발급자 정보가 맞지 않는다는 이유만으로 검증이 떨어졌다. 이제 발급자 확인 조건을 느슨하게 하고 `refresh_token` 방식의 갱신도 함께 처리한다. 기한이 지나도 알아서 새로 받으니 다시 로그인할 일이 없다. 해외용 변환 플러그와 같은 발상이다. 나라마다 콘센트가 다른 것은 전제이고, 상대에게 공사를 요구하기보다 맞는 머리를 챙겨 가는 편이 빠르다."
               },
-              "original": "Improved default file access by granting read access to the system temporary directory out of the box, resolved correctly per platform, so agents no longer trigger permission prompts when reading temporary files."
+              "original": "Fixed MCP OAuth against providers that do not strictly follow the spec (such as Salesforce and Atlassian) by relaxing issuer validation and including the `refresh_token` grant."
             },
             {
               "title": {
-                "zh-TW": "自訂規則排序固定，快取不再白白失效",
-                "zh-CN": "自定义规则排序固定，缓存不再白白失效",
-                "en": "Custom rules keep a stable order, avoiding needless cache misses",
-                "ja": "カスタム規則の順序が安定し、不要なキャッシュ切れを防ぐ",
-                "ko": "사용자 지정 규칙 순서가 고정되어 불필요한 캐시 누락을 막는다"
+                "zh-TW": "新對話第一句就打 `/btw`，不再說找不到上一則",
+                "zh-CN": "新对话第一句就打 `/btw`，不再说找不到上一条",
+                "en": "`/btw` works as the very first action in a fresh session",
+                "ja": "新しいセッションの最初の一手でも `/btw` が使える",
+                "ko": "새 세션의 첫 동작에서도 `/btw`가 된다"
               },
               "body": {
-                "zh-TW": "同一套自訂規則和路徑，現在每次被找到時都會排成固定順序。以前順序偶爾飄動，即使內容沒變，送進 prompt cache（提示詞快取，把已處理過的指示暫存再利用）看起來也像另一份資料，得重新處理。這次把排序定下來，讓快取能認出「還是原來那張清單」，少做無謂的重複準備。像把食譜卡永遠照同一順序放回抽屜，廚師下次一眼就知道沒換菜單，不必重新備料。",
-                "zh-CN": "同一套自定义规则和路径，现在每次被找到时都会排成固定顺序。以前顺序偶尔飘动，即使内容没变，送进 prompt cache（提示词缓存，把已处理过的指示暂存再利用）看起来也像另一份资料，得重新处理。这次把排序定下来，让缓存能认出“还是原来那张清单”。像把食谱卡永远按同一顺序放回抽屉，厨师下次一眼就知道没换菜单，不必重新备料。",
-                "en": "The same set of custom rules and discovered paths now arrives in a fixed order every time. Previously, the order could drift; even unchanged content then looked new to the prompt cache, which temporarily stores processed instructions for reuse, and had to be handled again. Stable sorting lets the cache recognize the same list. It is like returning recipe cards to a drawer in the same order, so the cook sees at once that the menu has not changed and need not prep everything again.",
-                "ja": "同じカスタム規則と見つかったパスは、これからは毎回決まった順序で並ぶ。以前は順序が時々揺れ、内容が同じでも prompt cache（処理済みの指示を一時保存して再利用する仕組み）には別の資料に見え、再処理が必要だった。順序を固定したため、キャッシュは同じ一覧だと認識できる。レシピカードをいつも同じ順で引き出しに戻せば、料理人がメニューは同じだとすぐ分かり、仕込みをやり直さずに済むようなものだ。",
-                "ko": "같은 사용자 지정 규칙과 찾아낸 경로가 이제는 매번 정해진 순서로 들어온다. 예전에는 순서가 가끔 달라져 내용이 같아도 prompt cache(처리한 지시를 잠시 저장해 다시 쓰는 기능)에는 다른 자료처럼 보여 다시 처리해야 했다. 정렬을 고정해 캐시가 같은 목록임을 알아본다. 조리법 카드를 늘 같은 순서로 서랍에 넣으면 요리사가 메뉴가 그대로임을 바로 알아차려 재료 준비를 다시 하지 않는 것과 같다."
+                "zh-TW": "開一個全新的工作階段，什麼都還沒問，直接打 `/btw` 想先補一句題外話——以前這會當場失敗，丟回一句「找不到父對話」（parent conversation，指這句題外話原本該掛上去的那一則）。這種錯最讓人愣住：明明什麼都還沒做錯，第一個動作就撞牆，而且訊息講的是一個你根本沒聽過的東西。現在把它當開場第一個動作用，也能正常運作了。像剛拆封的筆記本，你想在第一頁就貼張便利貼，總不能因為前面沒有頁面而不讓你貼。",
+                "zh-CN": "开一个全新的会话，什么都还没问，直接打 `/btw` 想先补一句题外话——以前这会当场失败，丢回一句「找不到父对话」（parent conversation，指这句题外话原本该挂上去的那一条）。这种错最让人发愣：明明什么都还没做错，第一个动作就撞墙，而且消息讲的是一个你根本没听过的东西。现在把它当开场第一个动作用，也能正常运作了。像刚拆封的笔记本，你想在第一页就贴张便利贴，总不能因为前面没有页面而不让你贴。",
+                "en": "You open a fresh session, ask nothing yet, and type `/btw` to drop in an aside first — and it used to fail on the spot with \"parent conversation not found\", the parent being the turn the aside was meant to hang off. Errors like this are the most disorienting kind: you have done nothing wrong, the very first thing you try hits a wall, and the message names something you have never heard of. Using it as the opening action now works. You have just unwrapped a notebook and want a sticky note on page one; the absence of earlier pages is no reason to refuse.",
+                "ja": "新しいセッションを開き、まだ何も尋ねないうちに `/btw` で一言添えようとする。以前はその場で失敗し、「親となる会話が見つからない」と返ってきた。親とは、その一言をぶら下げるはずの会話のことだ。この種のエラーがいちばん面食らう。何も間違えていないのに最初の一手で壁に当たり、しかも聞いたこともない名前を告げられる。今は開幕の一手として使っても通る。開封したばかりのノートの一ページ目に付箋を貼りたいだけで、前のページがないことは断る理由にならない。",
+                "ko": "새 세션을 열고 아직 아무것도 묻지 않은 채 `/btw`로 한마디 덧붙이려 한다. 예전에는 그 자리에서 실패하며 \"상위 대화를 찾을 수 없다\"고 돌려주었다. 상위란 그 한마디를 매달 대상이 되는 대화를 말한다. 이런 오류가 가장 당황스럽다. 잘못한 것이 없는데 첫 동작에서 벽에 부딪히고, 들어 본 적도 없는 이름까지 듣는다. 이제는 첫 동작으로 써도 통한다. 막 뜯은 공책의 첫 장에 붙임쪽지를 붙이려는 것뿐인데, 앞 장이 없다는 것이 거절할 이유가 되지는 않는다."
               },
-              "original": "Improved customization discovery by sorting rules and discovered paths deterministically, preventing unstable prompt ordering and needless prompt-cache misses."
+              "original": "Fixed `/btw` failing with a \"parent conversation not found\" error when used as the very first action in a fresh session."
             },
             {
               "title": {
-                "zh-TW": "終端機畫面修順，登入後不再一片空白",
-                "zh-CN": "终端画面修顺，登录后不再一片空白",
-                "en": "Terminal views are smoother, with no blank screen after sign-in",
-                "ja": "端末画面が滑らかになり、ログイン後の真っ白な画面も消える",
-                "ko": "터미널 화면이 매끄러워지고 로그인 뒤 빈 화면도 사라진다"
+                "zh-TW": "Windows 上複製中日韓文字不再變亂碼",
+                "zh-CN": "Windows 上复制中日韩文字不再变乱码",
+                "en": "Copying CJK text on Windows no longer corrupts it",
+                "ja": "Windows でコピーしても日本語が文字化けしない",
+                "ko": "Windows에서 복사해도 한글이 깨지지 않는다"
               },
               "body": {
-                "zh-TW": "螢幕上的小毛病，這版一次掃掉好幾個。切到圖片 artifact viewer（成品檢視器，用來看 AI 產出檔案的畫面）時，iTerm2 這類偵測到但不能畫 Kitty 圖形的終端機，不會再噴出亂碼；第一次開啟檢視器也不會吞掉你按的 `Esc`。回答串流時，Markdown（用簡單符號排版的文字格式）重新排版不再把輸入框往上推得抖動；倒帶或重設步驟後，訊息列表標題仍在。登入驗證頁結束後也不會只剩空白畫面。像電影院換幕時，以前字幕、座椅和片頭偶爾各自滑走；現在換場仍把畫面與你的按鍵留在該在的位置。",
-                "zh-CN": "屏幕上的小毛病，这版一次扫掉好几个。切到图片 artifact viewer（成品查看器，用来查看 AI 产出文件的画面）时，iTerm2 这类检测到但不能画 Kitty 图形的终端，不会再喷出乱码；第一次打开查看器也不会吞掉你按的 `Esc`。回答流式输出时，Markdown（用简单符号排版的文字格式）重新排版不再把输入框往上推得抖动；倒带或重置步骤后，消息列表标题仍在。登录验证页结束后也不会只剩空白画面。像电影院换幕时，以前字幕、座椅和片头偶尔各自滑走；现在换场仍把画面与按键留在该在的位置。",
-                "en": "Several screen glitches disappear together in this release. When switching an image artifact viewer, the view used for AI-generated files, iTerm2-like terminals that are detected but cannot draw Kitty graphics no longer spew garbage characters; the first viewer opening also stops swallowing your `Esc` key. During response streaming, Markdown, a plain-text formatting language, no longer reflows in a way that jitters the input box upward, and the message-list header survives rewinding or resetting steps. The screen also no longer goes blank after the sign-in page. Like a cinema changing scenes: subtitles, seats, and the opening title used to slide away separately; now the scene changes while the image and your keypress stay put.",
-                "ja": "画面まわりの小さな不具合をこの版でまとめて取り除いた。AI が作ったファイルを見る artifact viewer（成果物の表示画面）を画像表示へ切り替えるとき、iTerm2 のように検出はされるが Kitty graphics を描けない端末がゴミ文字を出すことはない。最初に表示画面を開いたときの `Esc` の取りこぼしも直った。回答のストリーミング中も、Markdown（簡単な記号で整形するテキスト形式）の再配置が入力欄を上へ揺らさず、手順を巻き戻し・リセットしてもメッセージ一覧の見出しは残る。認証ページ後に画面が真っ白になることもない。映画館の場面転換で字幕も座席もタイトルも別々にずれていたのが、今は画面とキー入力を正しい位置に残したまま切り替わるようなものだ。",
-                "ko": "화면에서 보이던 자잘한 문제를 이번 판에서 한꺼번에 없앴다. AI가 만든 파일을 보는 artifact viewer(결과물 보기 화면)를 이미지 모드로 바꿀 때 iTerm2처럼 감지는 되지만 Kitty graphics를 그릴 수 없는 터미널이 더는 깨진 문자를 뿜지 않는다. 처음 보기 화면을 열 때 `Esc`가 사라지던 문제도 고쳤다. 답변이 스트리밍되는 중에도 Markdown(간단한 기호로 글을 꾸미는 텍스트 형식)이 다시 배치되며 입력창을 위로 흔들지 않고, 단계를 되감거나 초기화해도 메시지 목록의 제목이 남는다. 인증 화면 뒤에 화면이 텅 비는 일도 없다. 영화관 장면 전환 때 자막과 좌석과 제목이 제각각 밀려나던 것이, 이제는 화면과 키 입력을 제자리에 둔 채 바뀌는 것과 같다."
+                "zh-TW": "在 Windows 上複製一段中文、日文或韓文，貼出來變成一排問號和方框——這件事以前真的會發生。毛病出在送進剪貼簿的那一刻：ASCII（大致只涵蓋英文字母、數字與常見符號的老字碼表）以外的字元沒有被正確編碼，字在搬運途中就已經碎了，貼到哪裡都拼不回來。你想把一段錯誤訊息複製給同事看，對方收到的是一團看不懂的符號，只好請你截圖重來。這版把編碼修好了，複製什麼就貼出什麼。像影印機明明吃得下這張紙，印出來卻缺了半篇字，這次換掉的是機器本身。",
+                "zh-CN": "在 Windows 上复制一段中文、日文或韩文，粘贴出来变成一排问号和方框——这件事以前真的会发生。毛病出在送进剪贴板的那一刻：ASCII（大致只涵盖英文字母、数字与常见符号的老字码表）以外的字符没有被正确编码，字在搬运途中就已经碎了，粘到哪里都拼不回来。你想把一段错误消息复制给同事看，对方收到的是一团看不懂的符号，只好请你截图重来。这版把编码修好了，复制什么就粘出什么。像复印机明明吃得下这张纸，印出来却缺了半篇字，这次换掉的是机器本身。",
+                "en": "Copy a line of Chinese, Japanese or Korean on Windows and paste out a row of question marks and empty boxes — that really did happen. The damage occurred at the moment the text entered the clipboard: non-ASCII characters were not encoded correctly, so the characters were already broken in transit and no destination could reassemble them. You copy an error message to show a colleague, they receive a blob of symbols, and you end up sending a screenshot instead. The encoding is fixed: what you copy is what you paste. A photocopier that accepts the page but prints half the characters as noise does not need better paper; it needs a new machine.",
+                "ja": "Windows で日本語や中国語、韓国語の一節をコピーすると、貼り付けた先が疑問符と白い四角の列になる。実際に起きていた。壊れるのはクリップボードに入る瞬間で、ASCII（英字と数字、よく使う記号がおおむねの範囲という古い文字コード表）の外にある文字が正しく符号化されず、運ばれる途中ですでに崩れている。どこに貼っても組み直せない。エラーの一文を同僚に見せようとコピーしても、届くのは意味の取れない記号の塊で、結局スクリーンショットを送り直すことになる。今回そこを直したので、コピーしたものがそのまま貼られる。紙は通るのに文字が半分潰れて出てくるコピー機は、紙を替えても直らない。機械のほうを替える話だった。",
+                "ko": "Windows에서 한국어나 중국어, 일본어 한 줄을 복사하면 붙여 넣은 자리가 물음표와 빈 네모의 행렬이 된다. 실제로 벌어지던 일이다. 망가지는 지점은 클립보드에 들어가는 순간으로, ASCII(영문자와 숫자, 자주 쓰는 기호가 대체로 전부인 오래된 문자 코드표) 바깥의 글자가 제대로 부호화되지 않아 옮겨지는 도중에 이미 부서진다. 어디에 붙여도 다시 맞출 수 없다. 오류 한 줄을 동료에게 보이려고 복사해도 상대가 받는 것은 알아볼 수 없는 기호 덩어리여서, 결국 화면을 찍어 다시 보내게 된다. 이번에 그 부분을 고쳐서 복사한 그대로 붙는다. 종이는 들어가는데 글자가 절반쯤 뭉개져 나오는 복사기는 종이를 바꿔서 해결되지 않는다. 기계를 바꿀 일이었다."
               },
-              "original": "Fixed the artifact viewer emitting garbage escape bytes when cycling to image mode on terminals that are detected but cannot actually render Kitty graphics, such as iTerm2.\nFixed the first keystroke (such as `Esc`) being dropped when opening the first artifact view on some non-Kitty terminals.\nFixed conversation jitter and a stranded input box during streaming so transient markdown reflow no longer shifts the pending line and input box upward.\nFixed the message list dropping its header when rewinding or resetting conversation steps.\nFixed the screen going blank after the authentication page."
-            },
-            {
-              "title": {
-                "zh-TW": "背景更新與受阻指令的錯誤資訊更可靠",
-                "zh-CN": "后台更新与受阻命令的错误信息更可靠",
-                "en": "Background updates and blocked-command errors are more reliable",
-                "ja": "バックグラウンド更新と拒否されたコマンドのエラー表示が確実に",
-                "ko": "백그라운드 업데이트와 막힌 명령 오류 정보가 더 믿을 만해진다"
-              },
-              "body": {
-                "zh-TW": "程式卡住時，最怕它只丟一句無關的錯誤。print mode（列印模式，用 `-p` 把回答直接輸出、不開互動介面的模式）建立對話失敗時，現在會顯示真正的建立失敗原因，不再假稱「沒有啟用中的對話」。sandbox（沙箱，把程式關在受限空間裡執行的保護機制）先擋住指令時，即使 network proxy（網路代理，代替程式轉送網路請求的中介）停用，也會留下受阻紀錄，核准與拒絕的訊息也整理得更清楚。背景自動更新器則修掉雙重啟動競賽：同一個更新時段不會兩個行程各自再叫一個更新器。沒有正在執行的背景 shell 指令時，你重新綁定的 `ctrl+b` 快捷鍵也會生效。像值班室終於寫對事故單，也確保同一班只派一位維修員出車。",
-                "zh-CN": "程序卡住时，最怕它只丢一句无关的错误。print mode（打印模式，用 `-p` 把回答直接输出、不打开交互界面的模式）创建对话失败时，现在会显示真正的创建失败原因，不再假称“没有进行中的对话”。sandbox（沙箱，把程序关在受限空间里运行的保护机制）先挡住命令时，即使 network proxy（网络代理，代替程序转送网络请求的中介）停用，也会留下受阻记录，批准与拒绝的消息也整理得更清楚。后台自动更新器则修掉双重启动竞争：同一个更新时段不会两个进程各自再叫一个更新器。没有正在运行的后台 shell 命令时，重新绑定的 `ctrl+b` 快捷键也会生效。像值班室终于写对事故单，也确保同一班只派一位维修员出车。",
-                "en": "When a program fails, the worst outcome is an error that points somewhere else. If print mode, the `-p` mode that outputs an answer without an interactive interface, cannot create a conversation, it now shows the real creation failure rather than claiming there is no active conversation. When the sandbox, the protective restricted space for running programs, blocks a command first, it records that block even with the network proxy off; approval and denial messages are cleaner too. The background auto-updater also fixes a double-spawn race, so two processes cannot each launch an updater in the same update window. When no background shell commands are running, a remapped `ctrl+b` shortcut is now respected. It is like a control room finally filing the right incident report and sending only one repair crew for one shift.",
-                "ja": "プログラムが失敗したとき、関係ないエラーしか出ないのが一番困る。`-p` で回答を直接出力し対話画面を開かない print mode で会話作成に失敗した場合、今は「有効な会話がない」とごまかさず、本当の作成失敗理由を示す。sandbox（プログラムを制限された空間で動かす保護機構）が先にコマンドを止めた場合も、network proxy（ネットワーク要求を代行して中継する仕組み）が無効でも記録を残し、許可・拒否の表示も整理した。バックグラウンドの自動更新器も二重起動の競合を直し、同じ更新時間帯に二つのプロセスが別々の更新器を呼ばない。バックグラウンドの shell コマンドが実行されていないとき、再割り当てした `ctrl+b` が使える。管制室が正しい事故票を書き、同じ勤務には修理班を一組だけ出すようなものだ。",
-                "ko": "프로그램이 실패했을 때 엉뚱한 오류 하나만 나오는 것만큼 답답한 일은 없다. `-p`로 답을 바로 내보내고 대화 화면을 열지 않는 print mode에서 대화 생성에 실패하면 이제 ‘진행 중인 대화가 없음’이라고 둘러대지 않고 실제 실패 원인을 보여 준다. sandbox(프로그램을 제한된 공간에 가둬 실행하는 보호 장치)가 먼저 명령을 막아도 network proxy(프로그램 대신 네트워크 요청을 전달하는 중개)가 꺼져 있으면 기록을 남기며, 허용과 거부 메시지도 더 분명해졌다. 백그라운드 자동 업데이트기는 같은 업데이트 시간에 두 프로세스가 각각 업데이트기를 띄우던 경쟁 문제도 고쳤다. 실행 중인 백그라운드 shell 명령이 없으면 다시 지정한 `ctrl+b` 단축키가 적용된다. 관제실이 올바른 사고 보고서를 쓰고 한 근무조에는 수리반 한 팀만 보내는 것과 같다."
-              },
-              "original": "Improved overall reliability and stability across the CLI with additional hardening and fixes for intermittent failures in background tasks, print mode, and interactive flows.\nFixed a crash when a command was blocked by sandbox permissions before its output was captured, and cleaned up the permission approval and denial messages.\nFixed print mode (`-p`) surfacing the real conversation-creation failure instead of a misleading \"no active conversation\" error.\nFixed a background auto-updater double-spawn race where two processes could each spawn an updater within a single update window.\nFixed sandbox error reporting so blocked actions are recorded even when the network proxy is disabled.\nFixed the `ctrl+b` shortcut being hardcoded to background shell commands even when none were running, so a remapped `ctrl+b` is now respected whenever there are no running shell commands in the conversation."
+              "original": "Fixed clipboard corruption of CJK and other non-ASCII text when copying on Windows."
             }
           ]
         }
