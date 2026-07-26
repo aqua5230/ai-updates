@@ -1063,57 +1063,174 @@
           "period": "2026-07-25",
           "items": [
             {
+              "title": {
+                "zh-TW": "選單列小動物不再偷吃你的 CPU",
+                "zh-CN": "菜单栏小动物不再偷吃你的 CPU",
+                "en": "Menu bar critters stop hogging your CPU",
+                "ja": "メニューバーの小動物が CPU を食い潰さなくなった",
+                "ko": "메뉴 막대 동물이 CPU를 잡아먹지 않는다"
+              },
+              "body": {
+                "zh-TW": "你正趕著用 AI，選單列裡的鳳凰、龍、獅子卻可能反而拖慢電腦。它們只在燃燒 token（AI 處理與計費的文字單位）時動，原本各自用計時器，每秒重排畫面 60 次；連沒有角色換格的時刻也重畫。現在三隻共用一個計時器，最快節奏從 0.05 秒改為 0.10 秒，18px 小圖看不出差別，沒換格就不重畫。原先每 30 秒在主執行緒（程式處理畫面的主要路線）逐一查 2,858 個歷史檔的燃燒速率，也挪到背景更新；選單列的文字與圖像改用快取（把查過或算過的結果暫存直接用）。像三個人各搶同一盞舞台燈，如今輪流走位，動畫照樣在；面板關閉時實測 CPU 從一個核心的 30–33% 降至 4.2–5.9%。",
+                "zh-CN": "你正赶着用 AI，菜单栏里的凤凰、龙、狮子却可能反而拖慢电脑。它们只在燃烧 token（AI 处理与计费的文字单位）时动，原本各自用计时器，每秒重排画面 60 次；连没有角色换格的时刻也重画。现在三只共用一个计时器，最快节奏从 0.05 秒改为 0.10 秒，18px 小图看不出差别，没换格就不重画。原先每 30 秒在主线程（程序处理画面的主要路线）逐一查 2,858 个历史文件的燃烧速率，也挪到后台更新；菜单栏的文字与图像改用缓存（把查过或算过的结果暂存直接用）。像三个人各抢同一盏舞台灯，如今轮流走位，动画照样在，实测 CPU 从一个核心的 30–33% 降至 4.2–5.9%。",
+                "en": "When you are busy using AI, the phoenix, dragon, and lion in the menu bar used to slow your Mac down at exactly the wrong moment. They animate only while you burn tokens, but each had its own timer and together forced 60 full redraws every second, even when no critter had moved. Now they share one timer, the quickest frame interval changes from 0.05 to 0.10 seconds with no visible difference in an 18px sprite, and unchanged frames skip redraws. The burn-rate lookup no longer checks 2,858 history files on the main thread every 30 seconds; it refreshes in the background, while text and sprites are cached. Like three performers fighting over one spotlight, they now take turns. The animation remains, while measured CPU use drops from 30–33% of one core to 4.2–5.9%.",
+                "ja": "AI を急いで使っている時、メニューバーのフェニックス、ドラゴン、ライオンがかえって Mac を遅くしていた。これらは token（AI が処理・課金する文字の単位）を消費している時だけ動くが、それぞれが別のタイマーを持ち、動物が一歩も進まない時まで毎秒 60 回、画面全体を描き直していた。今は三匹で一つのタイマーを共有し、最短の表示間隔を 0.05 秒から 0.10 秒へ広げた。18px の絵では見分けがつかず、変化のないコマは描き直さない。30 秒ごとにメインスレッド（画面を扱うプログラムの中心経路）で 2,858 個の履歴ファイルを調べていた消費速度の確認も裏で更新し、文字と絵はキャッシュ（調べた結果を一時保存して使う仕組み）する。三人が一つのスポットライトを奪い合う舞台が順番待ちになったようなものだ。動きは同じまま、CPU 使用量は一コアの 30〜33% から 4.2〜5.9% へ下がったのである。",
+                "ko": "AI를 급히 쓰는 동안 메뉴 막대의 불사조, 용, 사자가 오히려 Mac을 느리게 하던 일이 사라졌다. 이들은 token(AI가 처리하고 과금하는 글자 단위)을 쓸 때만 움직이지만, 각자 타이머를 써서 동물이 한 칸도 움직이지 않은 때까지 초당 60번 화면을 다시 그렸다. 이제 세 마리가 타이머 하나를 함께 쓰고 가장 빠른 화면 간격도 0.05초에서 0.10초로 늘렸다. 18px 그림에서는 차이가 보이지 않으며, 바뀌지 않은 장면은 다시 그리지 않는다. 30초마다 메인 스레드(화면을 처리하는 프로그램의 중심 경로)에서 2,858개 기록 파일을 훑던 소비 속도 확인도 백그라운드로 옮기고, 글자와 그림은 캐시(확인한 결과를 잠시 저장해 바로 쓰는 방식)한다. 세 사람이 스포트라이트 하나를 다투던 무대가 차례를 지키게 된 셈이다. 애니메이션은 그대로인데 CPU 사용량은 한 코어의 30~33%에서 4.2~5.9%로 내려간다."
+              },
               "original": "**The menu bar critters no longer cost a third of a CPU core**: the phoenix, dragon and lion each drove their own timer, and every single frame re-sent the whole status item title to AppKit — which re-typesets the entire string through CoreText and re-measures the item's width, asking the system for its preferred languages along the way. With all three animating at full speed that came to 60 full relayouts a second, measured at 30–33% of a core with the popover closed; the cost arrived precisely when you were busiest, since the critters only animate while you are burning tokens. They now share a single timer, the fastest frame interval widens from 0.05s to 0.10s (indistinguishable on an 18px sprite), and a tick where no critter advances skips the redraw entirely. The burn-rate lookup that used to sit on the animation path — stat-ing 2,858 history files on the main thread every time its 30-second cache expired — moved to the background refresh, and the menu bar's text and sprite fragments are now cached instead of rebuilt per frame. Same animation, measured 4.2–5.9%."
             },
             {
+              "title": {
+                "zh-TW": "過期的服務警示會自己退場",
+                "zh-CN": "过期的服务警报会自己退场",
+                "en": "Stale service alerts now clear themselves",
+                "ja": "古いサービス警告が自動で引っ込む",
+                "ko": "오래된 서비스 경고가 스스로 사라진다"
+              },
+              "body": {
+                "zh-TW": "服務明明已恢復，面板卻還掛著警示，現在不會一直嚇你。供應商的狀態頁（顯示服務是否正常的公告頁）有時忘了清掉「效能下降」；usage 新增兩條只針對這個最輕等級的收線規則，部分或重大中斷絕不會被藏起來。第一條是：頁面上所有未結案事件都進入 monitoring（供應商表示修好後持續觀察的階段）超過四小時，警示先隱藏，直到狀態改變。第二條是 usage 自己連續看到同一狀態超過 24 小時，也把它當遺留資訊。為什麼不直接信頁面時間？OpenAI 狀態頁的 25 個元件連正常項目也共用兩週前的時間，那可能只是元件建立時間。這像商店門口忘了收回的「暫時缺貨」牌；只有確定是輕微狀況又久未更新才收起，真停業仍會留下。",
+                "zh-CN": "服务明明已恢复，面板却还挂着警报，现在不会一直吓你。供应商的状态页（显示服务是否正常的公告页）有时忘了清掉“性能下降”；usage 新增两条只针对这个最轻等级的收线规则，部分或重大中断绝不会被藏起来。第一条是：页面上所有未结案事件都进入 monitoring（供应商表示修好后持续观察的阶段）超过四小时，警报先隐藏，直到状态改变。第二条是 usage 自己连续看到同一状态超过 24 小时，也把它当成遗留信息。为什么不直接信页面时间？OpenAI 状态页的 25 个组件连正常项目也共用两周前的时间，那可能只是组件建立时间。这像商店门口忘了收回的“暂时缺货”牌；只有确定是轻微状况又久未更新才收起，真停业仍会留下。",
+                "en": "A service can be back to normal while its panel still shows a warning. Usage now clears that kind of leftover alert without hiding a real outage. A provider status page may forget to remove a mild degraded-performance notice, so two retirement rules apply only to that lowest severity; partial and major outages always remain visible. First, if every unresolved incident has been in monitoring — the provider saying the fix is in and it is watching — for over four hours, the alert hides until something changes. Second, if Usage itself sees an unchanged status for more than 24 hours, it treats it as residue. Why not trust the page timestamp? All 25 OpenAI components, including healthy ones, share a timestamp more than two weeks old. It may mark when a component was created, not when its status changed. Like a shop's forgotten “temporarily out of stock” sign, only an old minor notice comes down; a real closure stays posted.",
+                "ja": "サービスが復旧しているのに、パネルだけが警告を出し続けることがある。Usage は本物の障害を隠さず、この種の置き去りの警告だけを消すようになった。提供元のステータスページ（サービスの正常さを知らせる告知ページ）は、軽い「性能低下」の表示を消し忘れることがあるため、最も軽い段階だけに二つの終了ルールを使う。部分障害や大規模障害は必ず表示されたままである。一つ目は、未解決の全インシデントが monitoring（修復後も提供元が見守っている段階）に入ってから四時間を超えた場合である。変化が起きるまで警告を隠す。二つ目は、Usage 自身が 24 時間を超えて同じ状態を見続けた場合である。OpenAI のページでは正常なものを含む 25 個の部品が二週間以上前の同じ時刻を使っており、それは状態変更ではなく部品の作成時刻かもしれない。店先に忘れられた「一時品切れ」の札のように、古い軽い札だけを下ろし、本当の休業表示は残すのである。",
+                "ko": "서비스는 이미 복구됐는데 패널에 경고가 계속 남아 당신을 놀라게 하던 일이 줄어든다. 제공업체의 상태 페이지(서비스가 정상인지 알리는 공지 페이지)는 가벼운 ‘성능 저하’ 표시를 지우는 것을 잊을 수 있다. Usage는 가장 낮은 이 단계에만 두 가지 정리 규칙을 적용하므로 부분 장애나 대규모 장애는 절대 숨기지 않는다. 첫째, 해결되지 않은 모든 사고가 monitoring(고친 뒤에도 제공업체가 지켜보는 단계)에 들어간 지 네 시간이 넘으면 상태가 바뀔 때까지 경고를 숨긴다. 둘째, Usage가 같은 상태를 24시간 넘게 계속 보면 남은 정보로 본다. 페이지의 시간만 믿지 않는 까닭도 있다. OpenAI 상태 페이지에서는 정상인 것을 포함한 25개 구성 요소가 2주 넘게 지난 같은 시간을 쓰는데, 이는 상태 변경 시각이 아니라 구성 요소를 만든 시각일 수 있다. 가게 앞에 잊힌 ‘일시 품절’ 팻말처럼, 오래된 가벼운 경고만 내리고 진짜 휴점 표시는 남긴다."
+              },
               "original": "**A service alert the provider forgot to clear no longer sticks around**: a status page can leave a component marked as degraded long after the incident is over, and the panel had no way to tell that apart from a live problem. Two rules now retire such an alert, both limited to the mildest *degraded performance* level so a partial or major outage is never hidden. First, if every unresolved incident on the page has sat in *monitoring* — the provider's own word for \"the fix is in, we are watching it\" — for more than four hours, the alert is suppressed until something changes. Second, a status observed unchanged for more than 24 hours is treated as residue. The second rule times what usage itself has seen rather than trusting the page's own timestamps: on OpenAI's page all 25 components, the operational ones included, share one timestamp from over two weeks earlier, so that field records when a component was defined, not when its status last moved."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "0.29.2",
           "period": "2026-07-25",
           "items": [
             {
-              "original": "**The council consensus tally no longer drops opinions**: stance labels were only matched at the very start of a turn's first line, so a rebuttal that reached its label a few words in — or ended its first line with one — counted as unparsed and vanished from the count. The whole first line is now scanned, and a turn must name exactly one distinct label to be counted; a turn quoting several stays unparsed instead of having one guessed for it."
+              "title": {
+                "zh-TW": "共識不再漏算意見，也不能只靠一句同意",
+                "zh-CN": "共识不再漏算意见，也不能只靠一句同意",
+                "en": "Consensus now counts every opinion and demands real agreement",
+                "ja": "合意は意見を取りこぼさず、一言の賛成だけでは成立しない",
+                "ko": "합의는 의견을 빠뜨리지 않고, 한마디 동의만으로 성립하지 않는다"
+              },
+              "body": {
+                "zh-TW": "一場討論要有共識，不能靠有人開頭寫了「同意」就算數。council 討論（讓多位參與者各自表態後彙整結論的流程）以前只在每回合第一行開頭找立場標籤；先寫幾個字才標、或把標籤放在行尾，意見就像投票箱旁漏掉的選票，沒有被計入。現在會掃完整第一行，但一回合必須明確只提一種不同立場才列入；同時引用幾種立場就維持未解析，不隨便猜。若有人以同意立場開場，還得交代看過什麼、為何同意、仍有哪些顧慮。得出的共識不再是蓋章，而是每張選票都可追查的會議紀錄。",
+                "zh-CN": "一场讨论要有共识，不能靠有人开头写了“同意”就算数。council 讨论（让多位参与者各自表态后汇总结论的流程）以前只在每回合第一行开头找立场标签；先写几个字才标、或把标签放在行尾，意见就像投票箱旁漏掉的选票，没有被计入。现在会扫描完整第一行，但一回合必须明确只提一种不同立场才列入；同时引用几种立场就保持未解析，不随便猜。若有人以同意立场开场，还得交代看过什么、为何同意、仍有哪些顾虑。得出的共识不再是盖章，而是每张选票都可追查的会议记录。",
+                "en": "Consensus cannot rest on someone merely opening with “agree.” In a council discussion, where several participants state positions before a conclusion is collected, stance labels used to be checked only at the beginning of each turn’s first line. A label appearing later, or at line end, could disappear like a ballot dropped beside the box. The whole first line is now scanned, but a turn counts only when it names exactly one distinct label; a turn quoting several remains unparsed rather than being guessed at. An agreement opening must also say what was reviewed, why it agrees, and what concerns remain. The result is less a rubber stamp than meeting minutes with every ballot traceable.",
+                "ja": "議論の合意は、誰かが冒頭で「賛成」と書いただけでは成立しない。複数の参加者が立場を示して結論をまとめる council の議論では、以前は各発言の一行目の先頭だけで立場ラベルを探していた。少し書いてからラベルを置いたり、行末に置いたりすると、投票箱の脇に落ちた票のように集計から消えていた。今は一行目全体を調べるが、数えられるのは異なるラベルを一つだけ明示した発言だけである。複数を引用した発言は推測せず未解析のままにする。賛成で始める参加者も、確認した内容、賛成する理由、残る懸念を示さねばならない。合意は押印ではなく、票を追える議事録に近づくのである。",
+                "ko": "토론에서 합의가 되려면 누군가 첫머리에 ‘동의’라고 썼다고 끝나서는 안 된다. 여러 참여자가 입장을 밝힌 뒤 결론을 모으는 council 토론에서는 예전에 각 발언 첫 줄의 맨 앞에서만 입장 표지를 찾았다. 몇 글자 뒤에 표지를 쓰거나 줄 끝에 두면 투표함 옆에 떨어진 표처럼 집계에서 사라졌다. 이제 첫 줄 전체를 살피지만, 서로 다른 표지를 정확히 하나만 밝힌 발언만 센다. 여러 표지를 인용한 발언은 억지로 추측하지 않고 미해석으로 둔다. 동의 입장으로 시작한 참여자는 검토한 내용, 동의 이유, 남은 걱정도 밝혀야 한다. 합의가 도장 찍기가 아니라 모든 표를 추적할 수 있는 회의 기록에 가까워진다."
+              },
+              "original": "**The council consensus tally no longer drops opinions**: stance labels were only matched at the very start of a turn's first line, so a rebuttal that reached its label a few words in — or ended its first line with one — counted as unparsed and vanished from the count. The whole first line is now scanned, and a turn must name exactly one distinct label to be counted; a turn quoting several stays unparsed instead of having one guessed for it.\n**Agreeing in a council rebuttal requires reasons**: a participant opening with the agreement stance must state what it reviewed, why it agrees, and what concerns remain, so consensus cannot be reached by rubber-stamping."
             },
             {
-              "original": "**Every selected participant shows its check mark**: the \"✓\" marking a participant as joining the discussion is drawn as a CSS `::after` overlay, which never renders on a replaced element. It therefore appeared only on the seat whose avatar falls back to an inline SVG (Antigravity) and stayed invisible on the seats drawn from an image icon (Claude, Codex), making a fully selected line-up look half-selected. All three now host the overlay on a wrapper element."
+              "title": {
+                "zh-TW": "選人與開始討論，介面終於說清楚",
+                "zh-CN": "选人和开始讨论，界面终于说清楚",
+                "en": "Selecting participants and starting a discussion are finally clear",
+                "ja": "参加者の選択と議論の開始が、ようやく分かりやすくなった",
+                "ko": "참여자 선택과 토론 시작 상태를 이제 분명히 알 수 있다"
+              },
+              "body": {
+                "zh-TW": "你選 Claude、Codex 或 Antigravity 加進討論時，每個被選中的座位現在都會亮出 ✓。先前這個記號綁在頭像本身，只有使用內嵌圖示的 Antigravity 碰巧顯示得出來；Claude 和 Codex 使用圖片頭像，整排明明都選好了，畫面卻像只選一半。現在三者都把記號放在外層，選取狀態一致可見。開始討論按鈕若變灰，底下也會說明是沒填主題、沒選參與者，還是已有討論正在跑。理由會連到按鈕並放進狀態區，鍵盤與螢幕閱讀器使用者也收得到，不必靠滑鼠懸停猜答案。像活動報名櫃台，名牌終於都掛在到場者胸前，不能開場時也會直接告訴你缺哪一項。",
+                "zh-CN": "你选 Claude、Codex 或 Antigravity 加进讨论时，每个被选中的座位现在都会亮出 ✓。先前这个记号绑在头像本身，只有使用内嵌图标的 Antigravity 碰巧显示得出来；Claude 和 Codex 使用图片头像，整排明明都选好了，画面却像只选一半。现在三者都把记号放在外层，选取状态一致可见。开始讨论按钮若变灰，底下也会说明是没填主题、没选参与者，还是已有讨论正在运行。理由会连到按钮并放进状态区，键盘与屏幕阅读器用户也收得到，不必靠鼠标悬停猜答案。像活动报名柜台，名牌终于都挂在到场者胸前，不能开场时也会直接告诉你缺哪一项。",
+                "en": "When you add Claude, Codex, or Antigravity to a discussion, every selected seat now shows a ✓. The mark used to sit on the avatar itself: it happened to appear for Antigravity’s inline SVG icon, but stayed invisible for Claude and Codex image avatars, making a fully selected lineup look half-selected. All three now place the overlay on a wrapper, so selection is consistently visible. If Start discussion is greyed out, text underneath now says whether the topic is missing, nobody is selected, or a discussion is already running. That reason is connected to the button and placed in a status region, so keyboard and screen-reader users receive it too. It is like a registration desk where every attendee finally gets a visible badge, and a closed door explains exactly what is still missing.",
+                "ja": "Claude、Codex、Antigravity を議論に加えると、選ばれた席すべてに ✓ が表示されるようになった。以前はこの印がアバターそのものに付いており、インライン SVG の Antigravity だけはたまたま見えたが、画像アイコンの Claude と Codex では見えなかった。全員を選んでも半分しか選ばれていないように見えたのである。今は三者とも外側の要素に印を置き、選択状態がそろって見える。Start discussion ボタンが灰色なら、話題がない、参加者がいない、すでに議論中のいずれかを下に示す。理由はボタンと結び付けられ、ステータス領域にも置かれるため、キーボードやスクリーンリーダーでも分かる。受付で全員の名札が見え、開始できない理由もその場で分かるようなものである。",
+                "ko": "Claude, Codex, Antigravity를 토론에 넣으면 선택된 모든 자리에 이제 ✓가 보인다. 예전에는 이 표지가 아바타 자체에 붙어 있었다. 인라인 SVG 아이콘을 쓰는 Antigravity에서는 우연히 보였지만, 이미지 아이콘을 쓰는 Claude와 Codex에서는 보이지 않아 모두 골라도 절반만 고른 것처럼 보였다. 이제 셋 모두 바깥 요소에 표지를 붙여 선택 상태가 똑같이 드러난다. Start discussion 버튼이 회색이면 아래에서 주제가 없는지, 참여자를 고르지 않았는지, 이미 토론이 진행 중인지 알려 준다. 이유는 버튼과 연결되고 상태 영역에도 들어가므로 키보드와 스크린 리더 사용자도 알 수 있다. 접수대에서 모든 참석자의 이름표가 보이고, 시작할 수 없는 이유도 바로 알려 주는 것과 같다."
+              },
+              "original": "**Every selected participant shows its check mark**: the \"✓\" marking a participant as joining the discussion is drawn as a CSS `::after` overlay, which never renders on a replaced element. It therefore appeared only on the seat whose avatar falls back to an inline SVG (Antigravity) and stayed invisible on the seats drawn from an image icon (Claude, Codex), making a fully selected line-up look half-selected. All three now host the overlay on a wrapper element.\n**The disabled *start discussion* button says why it is disabled**: a line under the button now names what is missing — no topic, no participant selected, or a discussion already running — instead of leaving a greyed-out button and no explanation. The reason is tied to the button with `aria-describedby` and lives in a status region, so keyboard and screen-reader users get it too, not only whoever hovers."
             },
             {
-              "original": "**The disabled *start discussion* button says why it is disabled**: a line under the button now names what is missing — no topic, no participant selected, or a discussion already running — instead of leaving a greyed-out button and no explanation. The reason is tied to the button with `aria-describedby` and lives in a status region, so keyboard and screen-reader users get it too, not only whoever hovers."
-            },
-            {
+              "title": {
+                "zh-TW": "主持人星號不再讓輔助工具猜人",
+                "zh-CN": "主持人星号不再让辅助工具猜人",
+                "en": "Moderator stars no longer make assistive tools guess",
+                "ja": "司会者の星印を支援技術が推測しなくてよくなった",
+                "ko": "진행자 별표를 보조 기술이 추측할 필요가 없어졌다"
+              },
+              "body": {
+                "zh-TW": "輪到你挑主持人時，三顆星星過去都對螢幕閱讀器說同一句話，根本無法清楚分辨到底哪一席正在主持。現在每顆星會公開自己的按下狀態，滑鼠提示也分成「目前主持人」或「設為主持人」。這改動看似小，卻讓不用看畫面的人能跟看得見的人一樣確認會議誰在掌舵。像舞台後的控台，三個按鈕以前都只寫「燈」，如今一眼或一聽就知道哪盞已經亮、按哪顆會換人。",
+                "zh-CN": "轮到你挑主持人时，三颗星星过去都对屏幕阅读器说同一句话，根本无法分辨哪一席正在主持。现在每颗星会公开自己的按下状态，鼠标提示也分成“当前主持人”或“设为主持人”。这改动看似小，却让不用看画面的人能跟看得见的人一样确认会议谁在掌舵。像舞台后的控制台，三个按钮以前都只写“灯”，如今一眼或一听就知道哪盏已经亮、按哪颗会换人。",
+                "en": "When it is time to choose a moderator, the three stars used to give a screen reader the same accessible name, leaving no way to tell which seat was moderating. Each star now exposes whether it is pressed, and its tooltip says either “current moderator” or “set as moderator.” The change is small but lets people who do not view the screen confirm who is steering the meeting just as everyone else can. It is like a stage control board whose three buttons once all said “light”; now you can see or hear which lamp is on and which button changes it.",
+                "ja": "司会者を選ぶ場面で、以前は三つの星がスクリーンリーダーに同じ名前を伝えていたため、どの席が司会中なのか分からなかった。今は各星が押されている状態を示し、ツールチップも「現在の司会者」か「司会者に設定」のどちらかを表示する。小さな変更だが、画面を見ない人も見える人と同じように、会議を誰が進めているか確かめられる。舞台裏の操作盤で、以前は三つのボタンがすべて「照明」とだけ書かれていたのが、今はどの灯りが点き、どれを押せば交代するか分かるようなものである。",
+                "ko": "진행자를 고를 때 예전에는 세 별이 스크린 리더에 모두 같은 이름을 들려주어 어느 자리가 진행 중인지 알 수 없었다. 이제 각 별은 눌린 상태를 드러내고, 도움말도 ‘현재 진행자’ 또는 ‘진행자로 설정’이라고 구분해 보여 준다. 작은 변화지만 화면을 보지 않는 사람도 다른 사람처럼 누가 회의를 이끄는지 확인할 수 있다. 무대 뒤 조작판의 세 버튼이 예전에는 모두 ‘조명’이라고만 적혀 있었지만, 이제는 어느 등이 켜졌고 어느 버튼을 누르면 바뀌는지 알 수 있는 것과 같다."
+              },
               "original": "**The moderator star is tellable apart**: all three stars carried the same accessible name, so a screen reader could not say which seat was moderating. Each star now exposes its pressed state, and its tooltip reads *current moderator* or *set as moderator* to match."
             },
             {
-              "original": "**Agreeing in a council rebuttal requires reasons**: a participant opening with the agreement stance must state what it reviewed, why it agrees, and what concerns remain, so consensus cannot be reached by rubber-stamping."
-            },
-            {
+              "title": {
+                "zh-TW": "打包工具 setuptools 升到 83.0.0",
+                "zh-CN": "打包工具 setuptools 升到 83.0.0",
+                "en": "Packaging tool setuptools moves to 83.0.0",
+                "ja": "パッケージ作成ツール setuptools を 83.0.0 に更新",
+                "ko": "패키지 도구 setuptools를 83.0.0으로 올렸다"
+              },
+              "body": {
+                "zh-TW": "這版也把 setuptools（Python 用來打包與安裝套件的工具）升到 83.0.0。原始紀錄未說明對畫面或功能的影響；原始紀錄只交代這項相依套件升級，沒有承諾特定功能改變。對從原始碼安裝、打包或維護 Usage 的人，它像廚房換了新的量杯：原始紀錄沒有說明成品會有什麼變化。若你只是開啟成品使用，知道這是維護性更新即可；若你處理建置環境中的相依版本，則以 83.0.0 為準。",
+                "zh-CN": "这版也把 setuptools（Python 用来打包与安装软件包的工具）升到 83.0.0。原始记录未说明对界面或功能的影响；原始记录只交代这项依赖包升级，没有承诺特定功能改变。对从源代码安装、打包或维护 Usage 的人，它像厨房换了新的量杯：原始记录没有说明成品会有什么变化。若你只是打开成品使用，知道这是维护性更新即可；若你处理构建环境中的依赖版本，则以 83.0.0 为准。",
+                "en": "This release also moves setuptools, a Python tool for packaging and installing software, to 83.0.0. The source note does not describe any effect on the interface or features. The source notes only this dependency upgrade and do not promise a specific feature change. For someone installing from source, packaging, or maintaining Usage, it is like replacing a kitchen measuring cup. The source note does not say what changes, if anything, in the finished app. If you only use the finished app, treat this as maintenance. If you manage build dependencies, use 83.0.0 as the stated version.",
+                "ja": "この版では、Python でソフトウェアをパッケージ化しインストールするための setuptools も 83.0.0 へ更新した。原文は画面や機能への影響を説明していない。原文が伝えているのはこの依存パッケージの更新だけで、特定の機能変更は約束していない。ソースからの導入、パッケージ作成、Usage の保守をする人にとっては、台所の計量カップを新しくするようなものだ。完成品にどのような変化があるかは原文に書かれていない。完成品を使うだけなら保守更新として捉えればよく、ビルド時の依存関係を管理するなら 83.0.0 が基準となる。",
+                "ko": "이번 판에서는 Python으로 소프트웨어를 묶고 설치하는 도구인 setuptools도 83.0.0으로 올렸다. 원문은 화면이나 기능에 미치는 영향을 설명하지 않는다. 원문은 이 의존성 도구의 판올림만 말할 뿐, 특정 기능 변화는 약속하지 않는다. 소스에서 설치하거나 패키지를 만들거나 Usage를 관리하는 사람에게는 부엌의 계량컵을 새것으로 바꾸는 일과 같다. 완성품에 어떤 변화가 있는지는 원문에 나와 있지 않다. 완성품만 쓴다면 유지 관리 업데이트로 보면 되고, 빌드 의존성 버전을 관리한다면 83.0.0을 기준으로 삼으면 된다."
+              },
               "original": "Bumped `setuptools` to 83.0.0."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "0.29.1",
           "period": "2026-07-25",
           "items": [
             {
+              "title": {
+                "zh-TW": "替 Council 每個座位配一頂專業帽子",
+                "zh-CN": "给 Council 每个座位配一顶专业帽子",
+                "en": "Give every Council seat its own expert hat",
+                "ja": "Council の各席に専門家の帽子をかぶせられる",
+                "ko": "Council의 각 자리에 전문 모자를 씌운다"
+              },
+              "body": {
+                "zh-TW": "同一場 Council（讓多個 AI 分座討論的功能）裡，現在能替每個座位挑不同專長。想請一位看合約、一位找網頁問題、另一位做安全檢查時，模型選擇器旁的角色選擇器會列出已安裝人才包裡的專家。角色（persona，先替 AI 戴上的專業帽子）會以提示詞前綴加入，所以同一個 CLI（從命令列啟動的工具）可在兩張椅子分別扮演兩種人。角色會按人才包分組並可收合，五十個選項也不會把畫面捲到找不到底。角色文字則在執行時向 talent-market CLI 取得，不會塞進 usage 本身；像替一場會議現場選角，每張椅子都能坐上合適的專家。",
+                "zh-CN": "同一场 Council（让多个 AI 分座讨论的功能）里，现在能为每个座位挑不同专长。想请一位看合同、一位找网页问题、另一位做安全检查时，模型选择器旁的角色选择器会列出已安装人才包里的专家。角色（persona，先给 AI 戴上的专业帽子）会作为提示词前缀加入，所以同一个 CLI（从命令行启动的工具）能在两张椅子分别扮演两种人。角色会按人才包分组并可折叠，五十个选项也不会把页面滚到找不到底。角色文字则在运行时向 talent-market CLI 获取，不会塞进 usage 本身；像替一场会议现场选角，每张椅子都能坐上合适的专家。",
+                "en": "In one Council (a feature where several AIs discuss an issue from separate seats), each seat can now take a different specialty. Need one person to review a contract, one to spot front-end trouble, and another to audit security? A role picker beside the model picker lists specialists from your installed talent packs. A persona (an expert hat placed on an AI before it speaks) is injected as a prompt prefix, so the same CLI (a tool launched from a command line) can wear two different hats in two seats. Roles are grouped by talent pack in a collapsible picker, keeping even 50 choices manageable. Their text is fetched from the talent-market CLI at runtime instead of bundled into usage: like casting a meeting, each chair gets the right specialist.",
+                "ja": "一つの Council（複数の AI が別々の席で話し合う機能）で、席ごとに異なる専門性を選べるようになった。契約を読む役、フロントエンドの問題を探す役、安全性を点検する役が欲しいなら、モデル選択の横にある役割選択から、導入済み talent pack の専門家を選ぶ。persona（AI が話す前にかぶせる専門家の帽子）はプロンプトの先頭に加わるため、同じ CLI（コマンドラインから起動する道具）でも二つの席で別の役を演じられる。役割は talent pack ごとにまとまり、折りたためるので、50 個あっても選択肢が画面の外へ流れない。役割の文章は実行時に talent-market CLI から取得し、usage 本体には同梱しない。会議の配役で各席にふさわしい専門家を座らせるような仕組みである。",
+                "ko": "한 Council(여러 AI가 각자 자리에 앉아 토론하는 기능) 안에서 자리마다 다른 전문성을 고를 수 있게 됐다. 계약을 검토할 사람, 프런트엔드 문제를 찾을 사람, 보안을 점검할 사람이 필요하다면 모델 선택기 옆 역할 선택기에서 설치한 talent pack의 전문가를 고른다. persona(AI가 말하기 전에 씌우는 전문가 모자)는 프롬프트 앞에 붙으므로, 같은 CLI(명령줄에서 실행하는 도구)도 두 자리에서 다른 역할을 맡을 수 있다. 역할은 talent pack별로 묶여 접을 수 있어 50개여도 목록이 화면 밖으로 끝없이 밀리지 않는다. 역할 문구는 실행할 때 talent-market CLI에서 가져오며 usage 자체에 넣지 않는다. 회의의 각 자리에 알맞은 전문가를 배치하는 일과 같다."
+              },
               "original": "**Council participants can wear a persona from the AI Talent Market**: every seat now has a role picker next to its model picker, listing the specialists from your installed talent packs (contract review, front-end, security audit, and the rest). The role's expertise is injected as a prompt prefix, so the same CLI can sit in two seats wearing two different hats. Roles are grouped by talent pack in a collapsible picker — collapsed it shows only the pack names, so a 50-role list no longer scrolls off the screen. Role text is fetched from the talent-market CLI at runtime and is never bundled into usage itself."
             },
             {
-              "original": "**Five debate styles for a council**: pick the tone every participant takes from the second round on — constructive consensus-seeking, adversarial fault-finding, collaborative gap-filling, Socratic questioning of assumptions, or devil's advocate. The stance label each participant must open with is preserved under every style."
+              "title": {
+                "zh-TW": "先決定辯論打法，同意就提早收場",
+                "zh-CN": "先决定辩论打法，同意就提前收场",
+                "en": "Choose a debate style, then stop once everyone agrees",
+                "ja": "議論の型を選び、全員が同意すれば早く終えられる",
+                "ko": "토론 방식을 고르고, 모두 동의하면 일찍 끝낸다"
+              },
+              "body": {
+                "zh-TW": "一群 AI 反覆討論時，你可以先決定這場會議要當腦力激盪，還是挑錯大會。Council 從第二輪起可替每位參與者從五種辯論風格中選一種：找共識、挑漏洞、補缺口、蘇格拉底式追問假設，或唱反調的魔鬼代言人。無論選哪種，每人回應開頭的立場標籤都會保留，並統計在摘要上方。若打開 end on consensus（全員同意便停止的開關），某一輪人人標示同意時，討論會立刻結束，不會耗完原先預留輪數；只要有人沒完成該輪，便不算共識。像會議主席先訂好規則、再看全體舉牌，牌沒全舉起就不宣布散會。",
+                "zh-CN": "一群 AI 反复讨论时，你可以先决定这场会议要当脑力激荡，还是挑错大会。Council 从第二轮起可为每位参与者从五种辩论风格中选一种：找共识、挑漏洞、补缺口、苏格拉底式追问假设，或唱反调的魔鬼代言人。无论选哪种，每人回应开头的立场标签都会保留，并统计在摘要上方。若打开 end on consensus（全员同意便停止的开关），某一轮人人标示同意时，讨论会立刻结束，不会耗完原先预留轮数；只要有人没完成该轮，便不算共识。像会议主席先订好规则、再看全体举牌，牌没全举起就不宣布散会。",
+                "en": "When a group of AIs keeps debating, you can now decide whether the meeting should brainstorm together or hunt for flaws. From round two onward, Council lets each participant take one of five debate styles: constructive consensus-seeking, adversarial fault-finding, collaborative gap-filling, Socratic questioning of assumptions, or devil's advocate. Whatever style you choose, the stance label opening each reply stays visible and is counted above the summary. Enable end on consensus (a switch that stops once everyone agrees), and the discussion ends as soon as every participant marks agreement in a round instead of using all budgeted rounds. If anyone fails to finish that round, it does not count. Like a chair setting meeting rules, then checking every raised hand before calling the room settled.",
+                "ja": "AI の集団が何度も議論する時、その場を一緒に案を練る会議にするか、欠点をあえて探す会議にするかを先に決められる。Council では第二ラウンド以降、各参加者が五つの議論スタイルから一つを選べる。建設的に合意を探す、対立的に欠点を探す、協力して穴を埋める、前提をソクラテス式に問い直す、または悪魔の代弁者として反対を唱える、の五つである。どの型でも各回答の冒頭にある立場ラベルは残り、要約の上で集計される。end on consensus（全員の同意で止めるスイッチ）を有効にすると、一つのラウンドで全員が同意を示した時点で、予定した回数を使い切らずに終わる。ただし一人でも完走しなければ合意には数えない。司会者が会議の規則を決め、全員の挙手を見てから閉会するようなものである。",
+                "ko": "AI 여러 명이 계속 토론할 때, 이 자리를 함께 답을 찾는 회의로 할지 일부러 허점을 찾는 회의로 할지 먼저 정할 수 있다. Council은 둘째 라운드부터 참가자마다 다섯 가지 토론 방식 중 하나를 고르게 한다. 건설적으로 합의를 찾기, 맞서서 흠 찾기, 함께 빈틈 메우기, 가정을 소크라테스식으로 묻기, 또는 악마의 대변인처럼 반대하기이다. 어느 방식을 골라도 각 답변 첫머리의 입장 표시는 남고 요약 위에서 집계된다. end on consensus(모두 동의하면 멈추는 스위치)를 켜면 한 라운드에서 전원이 동의를 표시하는 즉시, 잡아 둔 라운드를 다 쓰지 않고 끝난다. 다만 한 명이라도 그 라운드를 끝내지 못하면 합의로 세지 않는다. 진행자가 회의 규칙을 정한 뒤 모든 손이 올라왔는지 보고 끝내는 일과 같다."
+              },
+              "original": "**Five debate styles for a council**: pick the tone every participant takes from the second round on — constructive consensus-seeking, adversarial fault-finding, collaborative gap-filling, Socratic questioning of assumptions, or devil's advocate. The stance label each participant must open with is preserved under every style.\n**Council consensus is counted, and can end the discussion early**: the stance labels participants open their rebuttals with are now tallied and shown above the summary. Turn on *end on consensus* and a discussion stops as soon as every participant in a round agrees, instead of burning through the rounds you budgeted for. A round where anyone failed to finish never counts as consensus."
             },
             {
-              "original": "**Council consensus is counted, and can end the discussion early**: the stance labels participants open their rebuttals with are now tallied and shown above the summary. Turn on *end on consensus* and a discussion stops as soon as every participant in a round agrees, instead of burning through the rounds you budgeted for. A round where anyone failed to finish never counts as consensus."
-            },
-            {
+              "title": {
+                "zh-TW": "主持人看不到名字，結論更不偏袒",
+                "zh-CN": "主持人看不到名字，结论更不偏袒",
+                "en": "Moderators no longer see names, keeping summaries impartial",
+                "ja": "司会者が名前を見ないため、結論がえこひいきしにくい",
+                "ko": "진행자가 이름을 못 봐 요약이 더 공정해진다"
+              },
+              "body": {
+                "zh-TW": "要主持人替多個 AI 的意見下結論時，現在它先看不到發言者姓名。交給主持人的逐字稿（transcript，完整保留每句話的討論記錄）已匿名化，避免它偏愛自己那個 CLI（從命令列啟動的工具）寫出的答案。摘要送回你的畫面或匯出成 Markdown（能直接排版的純文字格式）前，名字會恢復，所以你仍會讀到「Claude 主張……」，而非「參與者 A」。只有說話者的標記被遮住，原話不會改動；即使討論題目正是 Claude 或 Codex，內容也照樣看得懂。這像盲飲評酒：評審先喝內容、不看酒標，公布結果時才告訴你是哪一瓶。",
+                "zh-CN": "要主持人替多个 AI 的意见下结论时，现在它先看不到发言者姓名。交给主持人的逐字稿（transcript，完整保留每句话的讨论记录）已经匿名化，避免它偏爱自己那个 CLI（从命令行启动的工具）写出的答案。摘要送回你的页面或导出成 Markdown（能直接排版的纯文本格式）前，名字会恢复，所以你仍会读到「Claude 主张……」，而非「参与者 A」。只有说话者的标记被遮住，原话不会改动；即使讨论题目正是 Claude 或 Codex，内容也照样看得懂。这像盲饮评酒：评审先喝内容、不看酒标，公布结果时才告诉你是哪一瓶。",
+                "en": "When a moderator is asked to draw a conclusion from several AIs, it now sees the opinions before it sees their authors. The transcript (a record preserving every spoken line) handed to the moderator is anonymized, so it cannot favor answers written by its own CLI (a tool launched from a command line). Names return before the summary reaches your screen or is exported as Markdown (plain text that can carry formatting), so you still read “Claude argued...” rather than “Participant A.” Only author labels are hidden; the words themselves remain untouched, even when the discussion is about Claude or Codex. It is like a blind wine tasting: judges taste what is in the glass before learning its label.",
+                "ja": "複数の AI の意見から司会者に結論を出させる時、司会者は発言者の名前を先に見なくなった。司会者へ渡す transcript（一言ずつを残した議論の記録）は匿名化されるため、自分の CLI（コマンドラインから起動する道具）が書いた答えをえこひいきできない。要約を画面へ返す前、または Markdown（整形できるプレーンテキスト形式）として書き出す前には名前が戻るため、「参加者 A」ではなく「Claude は……と主張した」と読める。隠すのは発言者の印だけで、発言そのものには手を加えない。議題が Claude や Codex についてでも、内容はそのまま読める。銘柄を隠したワインの試飲で、審査員が中身を味わってからラベルを知るような仕組みである。",
+                "ko": "여러 AI의 의견을 바탕으로 진행자가 결론을 낼 때, 이제 진행자는 발언자 이름을 먼저 보지 못한다. 진행자에게 건네는 transcript(말 한마디씩을 보존한 토론 기록)는 익명 처리되어, 자기 CLI(명령줄에서 실행하는 도구)가 쓴 답을 편들 수 없다. 요약을 화면에 보여 주거나 Markdown(서식을 담을 수 있는 일반 텍스트 형식)으로 내보내기 전에는 이름이 돌아오므로, 여전히 'Claude는 ...라고 주장했다'라고 읽지 '참가자 A'라고만 읽지는 않는다. 가리는 것은 발언자 표시뿐이며 말 자체는 손대지 않는다. 주제가 Claude나 Codex여도 내용은 그대로 읽을 수 있다. 상표를 가린 와인을 먼저 맛본 뒤 이름을 확인하는 시음과 같다."
+              },
               "original": "**The moderator no longer sees who said what**: the transcript handed to the moderator is anonymized, so it cannot favor the answers its own CLI wrote. Participant names are restored before the summary reaches your screen and the exported Markdown, so you still read \"Claude argued…\" rather than \"Participant A argued…\". Participants' own words are passed through untouched — a discussion *about* Claude or Codex stays readable."
             }
           ],
-          "curated": false
+          "curated": true
         }
       ]
     },
