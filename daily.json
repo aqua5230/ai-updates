@@ -713,28 +713,58 @@
           "period": "2026-07-28",
           "items": [
             {
-              "original": "Print mode (`-p` / `--print`) now supports structured, machine-readable output via the `--output-format` flag (`text` (default), `json`, or `stream-json`), so headless runs in CI, eval harnesses, and scripts can consume the CLI's output programmatically; these flags are now discoverable in `--help`."
+              "title": {
+                "zh-TW": "命令列輸出能直接交給程式接手",
+                "zh-CN": "命令行输出能直接交给程序接手",
+                "en": "Command-line output is now ready for programs to consume",
+                "ja": "コマンドラインの出力をそのままプログラムへ渡せる",
+                "ko": "명령줄 출력을 프로그램에 바로 넘길 수 있다"
+              },
+              "body": {
+                "zh-TW": "把命令列工具接進 CI（自動跑測試與部署的流程）時，最怕它只吐一大段人看得懂、程式卻接不住的文字。現在在 `-p` 後加 `--output-format json` 或 `--output-format stream-json`，就能拿到結構化輸出；`--help` 也找得到。選 `stream-json` 時，結果會像接力直播：一開始送出 `init`，每一步送 `step_update`，最後才送 `result`，不必等整趟工作結束。每個事件有固定的 `step_type`；工具呼叫才會附工具名稱、參數與輸出。如果有委派子代理，也帶上對話 ID 與紀錄位置。想固定答案格式，可加 `--json-schema`，給規格或檔案路徑。輸出的使用量也多了 `cache_read_tokens`，看得出有多少 token 命中快取（把先前結果暫存再利用）。",
+                "zh-CN": "把命令行工具接进 CI（自动跑测试和部署的流程）时，最怕它只吐出一大段人看得懂、程序却接不住的文字。现在在 `-p` 后加 `--output-format json` 或 `--output-format stream-json`，就能拿到供程序读取的结构化输出；`--help` 也找得到这些选项。选 `stream-json` 时，结果像接力直播：一开始送出 `init`，每一步送 `step_update`，最后才送 `result`，不用等整趟工作结束。每个事件都有固定的 `step_type` 类别；工具调用才会附上工具名称、参数与输出。如果有委派子代理，也带上对话 ID 与记录位置。想让最后答案固定格式，可加 `--json-schema`，直接给规则文字或文件路径。输出的用量也多了 `cache_read_tokens`，看得出有多少 token 命中缓存（把先前结果暂存再利用）。",
+                "en": "When you connect a command-line tool to CI, a wall of text that only humans can read is a dead end. In print mode, add `--output-format json` or `--output-format stream-json` to hand structured output to a program; both flags now also appear in `--help`. `stream-json` works like a live relay: it sends `init`, then `step_update` events as work progresses, and ends with `result`, so nothing has to wait for the whole run. Each event has a fixed `step_type`; only tool calls include names, parameters, and output. Delegated subagents also provide a conversation ID and log location. Add `--json-schema` with either an inline schema or a schema-file path to require a particular final shape. Usage data now includes `cache_read_tokens`, showing how many tokens hit the prompt cache.",
+                "ja": "CI にコマンドラインツールをつなぐとき、人には読めてもプログラムが受け取れない長文だけでは困る。print モードで `--output-format json` または `--output-format stream-json` を加えれば、プログラム用の構造化出力を渡せるようになり、両方のフラグは `--help` にも表示される。`stream-json` は中継放送のように、最初に `init`、進行中に `step_update`、最後に `result` を送るため、完走まで待つ必要がない。各イベントには固定の `step_type` があり、ツール呼び出しにだけ名前、引数、出力が入る。委任したサブエージェントには会話 ID とログの場所も付く。`--json-schema` に規格文字列か規格ファイルへのパスを渡せば、最後の結果の形式を決められる。使用量には `cache_read_tokens` も加わり、prompt cache にヒットした token 数が分かる。",
+                "ko": "명령줄 도구를 CI에 연결할 때 사람이 읽는 긴 글만 나오면 프로그램은 다음 일을 받지 못한다. print 모드에서 `--output-format json` 또는 `--output-format stream-json`을 더하면 프로그램이 읽을 구조화된 출력을 넘길 수 있고, 두 플래그는 `--help`에서도 찾을 수 있다. `stream-json`은 중계 방송처럼 처음에 `init`을 보내고, 진행 중에는 `step_update`를 보내며, 끝에 `result`를 보낸다. 그래서 전체 실행이 끝날 때까지 기다릴 필요가 없다. 각 이벤트에는 고정된 `step_type`이 있고, 도구 호출에만 이름과 매개변수, 출력이 담긴다. 위임한 하위 에이전트에는 대화 ID와 로그 위치도 붙는다. `--json-schema`에 규격 문자열이나 규격 파일 경로를 주면 마지막 결과의 모양을 강제할 수 있다. 사용량에는 `cache_read_tokens`도 추가돼 prompt cache에 적중한 token 수를 알 수 있다."
+              },
+              "original": "Print mode (`-p` / `--print`) now supports structured, machine-readable output via the `--output-format` flag (`text` (default), `json`, or `stream-json`), so headless runs in CI, eval harnesses, and scripts can consume the CLI's output programmatically; these flags are now discoverable in `--help`.\nAdded the `stream-json` output format: a strongly-typed NDJSON event stream that emits typed `init`, `step_update`, and terminal `result` events with a stable, closed-vocabulary `step_type` discriminator, so consumers receive progress incrementally instead of waiting for the whole run to finish.\nAdded the `--json-schema` flag to enforce a custom JSON schema on the structured output, accepting either an inline schema string or a path to a schema file; for `stream-json` the schema applies to the final `result` event.\nEnriched the structured stream with a `tool_info` object for each tool call (canonical tool name, parameters, and output) and a `subagent_info` payload for delegated subagents (including `conversation_id` and `log_uri`) so consumers can correlate child trajectories.\nThe JSON usage object emitted by `json` and `stream-json` now reports token accounting including `cache_read_tokens`, so non-interactive consumers can attribute prompt-cache hits."
             },
             {
-              "original": "Added the `stream-json` output format: a strongly-typed NDJSON event stream that emits typed `init`, `step_update`, and terminal `result` events with a stable, closed-vocabulary `step_type` discriminator, so consumers receive progress incrementally instead of waiting for the whole run to finish."
-            },
-            {
-              "original": "Added the `--json-schema` flag to enforce a custom JSON schema on the structured output, accepting either an inline schema string or a path to a schema file; for `stream-json` the schema applies to the final `result` event."
-            },
-            {
-              "original": "Enriched the structured stream with a `tool_info` object for each tool call (canonical tool name, parameters, and output) and a `subagent_info` payload for delegated subagents (including `conversation_id` and `log_uri`) so consumers can correlate child trajectories."
-            },
-            {
-              "original": "The JSON usage object emitted by `json` and `stream-json` now reports token accounting including `cache_read_tokens`, so non-interactive consumers can attribute prompt-cache hits."
-            },
-            {
+              "title": {
+                "zh-TW": "選取文字要不要自動複製，自己決定",
+                "zh-CN": "选取文字要不要自动复制，自己决定",
+                "en": "You decide whether selecting text copies it automatically",
+                "ja": "文字を選んだら自動コピーするか自分で決められる",
+                "ko": "글자를 선택하면 자동 복사할지 직접 정한다"
+              },
+              "body": {
+                "zh-TW": "你在終端機裡拖曳選取一段結果，原本只是想看清楚，鬆開滑鼠卻可能把內容自動塞進剪貼簿，甚至弄壞特定資料。現在 TUI（終端機裡用文字畫出的互動介面）的 altscreen 呈現模式新增 `copyOnSelect`，預設開啟：選取後放開滑鼠便會複製。它像影印機自動送紙，省掉按複製，卻不適合每種紙張。若你貼上後發現內容怪掉，打開 `/settings`，把 `copyOnSelect` 關閉，就只保留選取、不再自動複製。",
+                "zh-CN": "你在终端里拖动选取一段结果，本来只是想看清楚，松开鼠标却可能把内容自动塞进剪贴板，甚至弄坏特定数据。现在 TUI（终端里用文字画出的交互界面）的 altscreen 呈现模式新增 `copyOnSelect`，默认开启：选取后放开鼠标便会复制。它像复印机自动送纸，省掉按复制，却不适合每种纸张。若你贴上后发现内容变怪，打开 `/settings`，把 `copyOnSelect` 关闭，就只保留选取、不再自动复制。",
+                "en": "You may drag across terminal text only to inspect it, then release the mouse and find that the selection has already landed in your clipboard — sometimes corrupting certain payloads. The TUI's altscreen renderer now has `copyOnSelect`, enabled by default: release a text selection and it copies automatically. It is like a copier that feeds every sheet the moment you touch it: handy when you want a copy, awkward when you do not. If pasted content comes out wrong, open `/settings` and turn `copyOnSelect` off. You can still select text, but releasing the mouse will no longer copy it.",
+                "ja": "端末で結果の一部をドラッグして見やすくしただけなのに、マウスを離すと内容がクリップボードへ自動で入り、特定のデータを壊してしまうことがある。TUI の altscreen 描画には、選択してマウスを離すとコピーする `copyOnSelect` が追加され、初期状態では有効である。触れた紙をすぐ送り出すコピー機のように、コピーしたいときは便利だが、そうでないときは困る。貼り付けた内容がおかしくなったら `/settings` を開き、`copyOnSelect` を無効にすればよい。選択は残るが、自動コピーは起きなくなる。",
+                "ko": "터미널에서 결과 일부를 드래그해 읽기만 하려 했는데, 마우스를 놓자마자 내용이 클립보드에 자동으로 들어가 특정 데이터가 망가질 수 있다. TUI의 altscreen 표시 모드에 `copyOnSelect`가 추가됐으며 기본값은 켜짐이다. 글자를 선택하고 마우스를 놓으면 곧바로 복사한다. 손댄 종이를 바로 넣는 복사기처럼 복사가 필요할 때는 편하지만, 아닐 때는 곤란하다. 붙여 넣은 내용이 이상해지면 `/settings`를 열어 `copyOnSelect`를 끄면 된다. 선택은 그대로 하되 자동 복사는 일어나지 않는다."
+              },
               "original": "Added a `copyOnSelect` setting (default on, toggleable in `/settings`) that controls whether releasing a mouse text-selection auto-copies it to the system clipboard in the TUI's altscreen rendering mode; disable it to stop the automatic copy on release — useful when the auto-copy is unwanted or corrupts certain payloads."
             },
             {
+              "title": {
+                "zh-TW": "常用串接指令核准一次就夠",
+                "zh-CN": "常用复合命令批准一次就够",
+                "en": "Approve a familiar chained command once, not every time",
+                "ja": "いつもの連結コマンドは一度の許可で済む",
+                "ko": "자주 쓰는 연결 명령은 한 번만 허용하면 된다"
+              },
+              "body": {
+                "zh-TW": "你每天都要更新專案，輸入 `git fetch && git rebase` 後又得重複核准，流程像同一張通行證每天重新蓋章。現在可以把這條完全相同的串接指令存成「永遠允許」規則。下次再跑同一條指令時，不必再等，權限確認不會重跳。它認的是整串命令，不是看到 `git` 就一概放行；因此常用流程少一步，其他不同命令仍各自檢查。",
+                "zh-CN": "你每天都要更新项目，输入 `git fetch && git rebase` 后又得重复批准，流程像同一张通行证每天重新盖章。现在可以把这条完全相同的复合命令存成「永远允许」规则。下次再跑同一条命令时，权限确认不会重跳。它认的是整串命令，不是看到 `git` 就一概放行；因此常用流程少一步，其他不同命令仍各自检查。",
+                "en": "When you update a project every day, approving `git fetch && git rebase` again and again feels like getting the same pass stamped from scratch. You can now save that exact chained command as an always-allow rule. The next time you run the identical command, the permission prompt stays away. The rule recognizes the whole chain, not every command that happens to begin with `git`; your routine loses a step while different commands still receive their own check.",
+                "ja": "毎日プロジェクトを更新し、`git fetch && git rebase` を打つたびに許可し直すのは、同じ通行証に毎日あらためて判を押すようなものだ。この完全に同じ連結コマンドは、常に許可する規則として保存できるようになった。次回も同じコマンドを実行するなら、権限確認は再び出ない。`git` で始まるものをまとめて通すのではなく、連結した命令全体を見分けるため、いつもの手順だけが一段減り、別の命令はそれぞれ確認される。",
+                "ko": "매일 프로젝트를 업데이트하며 `git fetch && git rebase`를 입력할 때마다 다시 허용하는 일은 같은 통행증에 매일 도장을 새로 찍는 것과 같다. 이제 이 완전히 같은 연결 명령을 항상 허용하는 규칙으로 저장할 수 있다. 다음에 같은 명령을 실행하면 권한 확인이 다시 뜨지 않는다. `git`으로 시작하는 모든 명령을 통과시키는 것이 아니라 연결된 명령 전체를 알아본다. 그래서 익숙한 절차만 한 단계 줄고, 다른 명령은 각각 확인한다."
+              },
               "original": "Improved compound-command permissions so an exact chained command (such as `git fetch && git rebase`) can be saved as an allow-always rule and no longer re-prompts on the next identical run."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "1.1.7",
@@ -982,26 +1012,48 @@
           "period": "2026-07-27",
           "items": [
             {
+              "title": {
+                "zh-TW": "AI Council 少帶一箱工具，Claude 額度更省",
+                "zh-CN": "AI Council 少带一箱工具，Claude 额度更省",
+                "en": "AI Council stops hauling unused tools into every Claude turn",
+                "ja": "AI Council が不要な道具箱を持ち込まず、Claude の利用枠を節約",
+                "ko": "AI Council이 매 차례 쓸데없는 도구 상자를 빼고 Claude 사용량을 아낀다"
+              },
+              "body": {
+                "zh-TW": "AI Council 裡的 Claude 成員明明被要求只討論，卻每回合還背著一整箱用不到的工具，會白佔你的 Claude 額度。先前在沒有附上專案資料夾時，`claude -p` 沒有傳入 `--tools`，Claude Code 仍會把 Bash、Edit、Write 等內建工具（讓 AI 能執行終端機、編輯與寫入檔案的能力）整套塞進每回合的輸入。現在此情況會明確傳入 `--tools \"\"`，把工具箱留在門外。每次 Claude 呼叫也會加上 `--exclude-dynamic-system-prompt-sections`，讓系統提示詞（AI 每回合先讀的固定規則）開頭在各回合維持位元組完全一致，較有機會命中 Anthropic 的自動提示詞快取（把已處理內容暫存直接沿用），少花重複額度。這只影響 Claude；Codex 和 Antigravity 成員不變。",
+                "zh-CN": "AI Council 里的 Claude 成员明明被要求只讨论，却每回合还背着一整箱用不到的工具，会白占你的 Claude 额度。此前没有附上项目文件夹时，`claude -p` 没有传入 `--tools`，Claude Code 仍会把 Bash、Edit、Write 等内置工具（让 AI 能执行终端、编辑与写入文件的能力）整套塞进每回合的输入。现在这种情况会明确传入 `--tools \"\"`，把工具箱留在门外。每次 Claude 调用也会加上 `--exclude-dynamic-system-prompt-sections`，让系统提示词（AI 每回合先读的固定规则）开头在各回合维持字节完全一致，更有机会命中 Anthropic 的自动提示词缓存（把已处理内容暂存后直接沿用），少花重复额度。这只影响 Claude；Codex 和 Antigravity 成员不变。",
+                "en": "In AI Council, Claude participants are told to discuss rather than use tools, yet they used to carry a whole unused toolbox into every turn, consuming Claude quota. When `claude -p` ran without an attached project folder, it omitted `--tools`, so Claude Code still packed its built-in tools—Bash, Edit, Write, and more—into each turn's input. It now explicitly sends `--tools \"\"` in that case, leaving the toolbox outside. Every Claude call also adds `--exclude-dynamic-system-prompt-sections`, keeping the system-prompt prefix byte-for-byte stable across turns and giving Anthropic's automatic prompt cache a better chance to reuse it. Codex and Antigravity participants are unchanged.",
+                "ja": "AI Council の Claude 参加者は議論だけをするよう指示されているのに、毎ターン使わない道具箱まで抱え、Claude の利用枠を余計に使っていた。プロジェクトフォルダを付けずに `claude -p` を実行すると、以前は `--tools` が渡されず、Claude Code が Bash、Edit、Write などの内蔵ツール（AI が端末操作やファイル編集・書き込みを行うための機能）を毎ターンの入力に丸ごと入れていた。今はこの場合に `--tools \"\"` を明示し、道具箱を外に置く。さらに全 Claude 呼び出しで `--exclude-dynamic-system-prompt-sections` を加え、システムプロンプト（AI が各ターンの前に読む固定ルール）の先頭をターン間でバイト単位まで同一に保つ。これにより Anthropic の自動プロンプトキャッシュが再利用できる可能性が高まる。Codex と Antigravity の参加者は変わらない。",
+                "ko": "AI Council의 Claude 참여자는 토론만 하라는 지시를 받는데도, 매 차례 쓰지도 않을 도구 상자를 들고 와 Claude 사용량을 괜히 차지하곤 했다. 프로젝트 폴더를 붙이지 않고 `claude -p`를 실행하면 예전에는 `--tools`가 빠져, Claude Code가 Bash, Edit, Write 등 내장 도구(AI가 터미널을 실행하고 파일을 편집·작성하는 기능)를 매 차례 입력에 통째로 넣었다. 이제 이 경우 `--tools \"\"`를 명시해 도구 상자를 문밖에 둔다. 모든 Claude 호출에는 `--exclude-dynamic-system-prompt-sections`도 추가한다. 이로써 시스템 프롬프트(AI가 매 차례 먼저 읽는 고정 규칙)의 앞부분이 차례마다 바이트 단위까지 같아져 Anthropic의 자동 프롬프트 캐시가 다시 쓸 가능성이 커진다. Codex와 Antigravity 참여자는 영향이 없다."
+              },
               "original": "**AI Council spends less Claude quota per turn**: `claude -p` calls without an attached project folder used to omit `--tools` entirely, so Claude Code loaded its full built-in toolset — Bash, Edit, Write, and the rest — into every turn's input even though the council prompt already tells participants not to call tools. Calls now pass `--tools \"\"` when no project folder is attached, and every Claude call adds `--exclude-dynamic-system-prompt-sections` to keep the system prompt prefix byte-stable across turns for a better shot at Anthropic's automatic prompt caching. Codex and Antigravity participants are unaffected."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "0.29.4",
           "period": "2026-07-26",
           "items": [
             {
-              "original": "**Steer the council mid-discussion**: an opt-in \"guidance between rounds\" toggle pauses the session before every round after the first, so you can react to what you just heard — \"we're single-host, no cluster\" — instead of watching a debate run off in the wrong direction or stopping and restarting from scratch. The pause waits up to 5 minutes and is skipped automatically if left blank; the round then proceeds exactly as it did before."
-            },
-            {
-              "original": "**See who disagreed, not just how many**: the consensus tally under the moderator's summary now lists each participant by name next to their stance, with dissenting and alternative positions colored so they stand out, instead of a bare \"2 agree, 1 alternative\" that meant scrolling back through the transcript to find out who."
-            },
-            {
-              "original": "**The five debate tones now explain themselves**: a one-line plain-language hint appears under the tone picker — devil's advocate, for instance, now reads \"the AIs will deliberately argue the opposite side to test whether a plausible conclusion holds up\" — so a first-time user isn't left guessing how \"adversarial\" differs from \"devil's advocate.\""
+              "title": {
+                "zh-TW": "AI 開會時能插話校正，也一眼看懂誰持反對意見",
+                "zh-CN": "AI 开会时能插话校正，也一眼看懂谁持反对意见",
+                "en": "Steer an AI council as it talks, and see exactly who disagrees",
+                "ja": "AI評議会の途中で軌道修正し、誰が反対したかも一目で分かる",
+                "ko": "AI 회의 도중 방향을 고치고, 누가 반대했는지도 한눈에 본다"
+              },
+              "body": {
+                "zh-TW": "幾個 AI 正在替你討論方案，第一輪卻發現大家把你的單機需求當成要做叢集，也就是讓多台主機一起運作；現在不用整場喊停重來。開啟「輪次間指引」開關後，討論工作階段（一次連續進行的討論）每一輪結束、下一輪開始前都會暫停，讓你補一句「只有單一主機，不要叢集」。若一直空白，最多等五分鐘便自動略過，討論照原本方式繼續，像主持會議時每回合按一下暫停鈴，及早把話題拉回來。主持人摘要下方的共識統計（列出每位參與者採取的立場）也會直接寫出名字；反對與替代意見用顏色標出，不必再翻紀錄猜是誰說的。第一次挑辯論語氣時，五種選項下方都有白話提示；例如「魔鬼代言人」會刻意站到相反邊，測試看似合理的結論是否站得住腳，因此不會再把它和「對抗式」混為一談。",
+                "zh-CN": "几个 AI 正在替你讨论方案，第一轮却发现大家把你的单机需求当成要做集群；现在不用整场喊停重来。打开“轮次间指引”开关后，每一轮结束、下一轮开始前都会暂停，让你补一句“只有单一主机，不要集群”。空白五分钟会自动跳过，讨论按原来的方式继续，像主持会议时每回合按一下暂停铃，及早把话题拉回来。主持人摘要下方的共识统计（列出每位参与者采取的立场）也会直接写出名字；反对与替代意见用颜色标出，不必再翻记录猜是谁说的。第一次挑选辩论语气时，五种选项下方都有白话提示；例如“魔鬼代言人”会刻意站到相反边，测试看似合理的结论是否站得住脚，因此不会再把它和“对抗式”混为一谈。",
+                "en": "Picture an AI council discussing a plan, then learning after round one that your single-host setup is being mistaken for a cluster. You no longer need to scrap the whole discussion. Turn on “guidance between rounds” and the session pauses before every later round, so you can add a correction such as “single host, no cluster.” A blank pause skips itself after five minutes, then the next round continues normally—like a chairperson’s bell that gets the meeting back on topic early. The consensus tally beneath the moderator’s summary now names each participant beside their position and colors dissenting or alternative views, so you need not hunt through the transcript. New to the five debate tones? Each picker option now has a plain-language hint: devil’s advocate deliberately argues the other side to test whether a plausible conclusion actually holds up, rather than merely being adversarial.",
+                "ja": "複数のAIに案を議論させたら、第一ラウンドの後で単一ホストの要件をクラスター前提で受け取っていたと気づくことがある。もう議論全体を止めて最初からやり直す必要はない。「ラウンド間の指示」を有効にすると、最初の後の各ラウンドの前で議論が一度止まり、「単一ホストで、クラスターは不要」と補足できる。何も書かなければ5分後に自動で飛ばされ、次のラウンドは従来どおり進む。司会が各回の前にベルを鳴らし、話を早めに本題へ戻すようなものだ。司会者の要約の下にある合意集計も、各参加者の名前と立場を並べ、反対意見や代替案を色で目立たせる。5種類の討論トーンには平易な説明も付く。「悪魔の代弁者」はもっともらしい結論が本当に成り立つか試すため、あえて反対側を論じる役であり、単なる対立的な議論とは違うのである。",
+                "ko": "여러 AI에게 방안을 토론하게 했는데 첫 라운드가 끝난 뒤 단일 호스트 요구를 클러스터로 잘못 이해했다는 걸 알아차릴 수 있다. 이제 토론 전체를 멈추고 처음부터 다시 시작할 필요가 없다. ‘라운드 사이 안내’ 토글을 켜면 첫 라운드 뒤의 매 라운드 전에 세션이 멈춰서 ‘단일 호스트이며 클러스터는 필요 없음’처럼 바로잡는 말을 덧붙일 수 있다. 아무것도 쓰지 않으면 5분 뒤 자동으로 건너뛰고 다음 라운드는 원래대로 진행한다. 회의 진행자가 매 차례 종을 울려 일찍 본론으로 돌려놓는 것과 같다. 진행자 요약 아래의 합의 집계도 이제 각 참여자의 이름과 입장을 함께 보여 주며, 반대 의견과 대안은 색으로 눈에 띄게 표시한다. 다섯 가지 토론 분위기를 처음 고를 때도 각 선택지 아래에 쉬운 설명이 붙는다. 가령 ‘악마의 변호인’은 그럴듯한 결론이 정말 버티는지 시험하려고 일부러 반대편을 주장하는 역할이므로, 단순히 대립적인 방식과는 다른 것이다."
+              },
+              "original": "**Steer the council mid-discussion**: an opt-in \"guidance between rounds\" toggle pauses the session before every round after the first, so you can react to what you just heard — \"we're single-host, no cluster\" — instead of watching a debate run off in the wrong direction or stopping and restarting from scratch. The pause waits up to 5 minutes and is skipped automatically if left blank; the round then proceeds exactly as it did before.\n**See who disagreed, not just how many**: the consensus tally under the moderator's summary now lists each participant by name next to their stance, with dissenting and alternative positions colored so they stand out, instead of a bare \"2 agree, 1 alternative\" that meant scrolling back through the transcript to find out who.\n**The five debate tones now explain themselves**: a one-line plain-language hint appears under the tone picker — devil's advocate, for instance, now reads \"the AIs will deliberately argue the opposite side to test whether a plausible conclusion holds up\" — so a first-time user isn't left guessing how \"adversarial\" differs from \"devil's advocate.\""
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "0.29.3",
