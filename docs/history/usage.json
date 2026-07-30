@@ -3,6 +3,34 @@
   "name": "Usage",
   "versions": [
     {
+      "version": "0.29.9",
+      "raw": {
+        "version": "0.29.9",
+        "period": "2026-07-29",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-30",
+        "entries": [
+          "**The panel can now be placed anywhere on screen**: it was an `NSPopover`, which AppKit anchors to the status item and dismisses the moment focus moves elsewhere, so where it sat was never yours to choose. It is now a borderless floating panel: drag it from any empty spot, and it reopens where you left it. It stays put when another app takes focus — a second click on the menu bar icon, or Escape, closes it. Rounded corners and the drop shadow came free with the popover and are now drawn by the window itself. Dragging travels over the existing JS bridge: an injected script reports a mousedown that landed outside any interactive or scrollable element, and the window hands the gesture to `performWindowDragWithEvent:` so the system drives it. Resizing pins the top-left corner, because a window's origin is its bottom-left and the panel would otherwise appear to jump every time its height tracked a fresh content measurement.",
+          "**The AI Talent Market panel no longer collapses into a squashed strip**: the panel intermittently opened at roughly the height of its own header, cutting off the team list. The dynamic content-height probe releases the layout's height constraints before measuring, and this panel builds its list as an absolutely positioned layer inside a `flex: 1` body — with the constraints released, that body collapsed to zero and the probe reported little more than the header, which the clamp then rounded up to the minimum panel height. Whether it happened came down to measurement timing, hence the intermittency. Panels now carry a switch for the probe, and this one — a fixed-height design that scrolls internally and never needed measuring — opts out.",
+          "**Dismissing the switch-panel menu no longer closes the panel**: opening \"Switch Panel\" and then clicking the panel itself, pressing Escape, or clicking away closed the whole panel. A transient popover was already gone by the time the menu took focus, so closing it was merely cleanup; the floating panel survives the menu, which turned the same cleanup into a mistouch that threw the panel away."
+        ]
+      },
+      "curated": null
+    },
+    {
+      "version": "0.29.8",
+      "raw": {
+        "version": "0.29.8",
+        "period": "2026-07-29",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-30",
+        "entries": [
+          "**The Windows panel no longer snaps back to the primary monitor on every panel switch**: dragging the popover onto a second display and then switching panel style (or theme) forced it right back onto the primary monitor. Windows' `SPI_GETWORKAREA` API only ever reports the *primary* monitor's work area, and the window was clamped against that single rectangle on every reposition regardless of which monitor it actually lived on — so a window dragged onto a secondary display got clamped straight back onto the primary one the next time the panel reloaded. Placement now looks up the work area of whichever monitor the window's current (or saved) position falls on via `MonitorFromPoint`/`GetMonitorInfoW`, so a window on a secondary display stays there across panel switches. A related issue on a single monitor is fixed alongside it: switching panels reset the remembered content height to `None`, so the window was briefly clamped against each panel's near-fullscreen placeholder height (`PANEL_HEIGHTS`) before its real height was measured, which could shove a dragged window toward the top of the screen; the previous panel's measured height is now kept as the transitional estimate instead."
+        ]
+      },
+      "curated": null
+    },
+    {
       "version": "0.29.7",
       "raw": {
         "version": "0.29.7",
@@ -13,7 +41,29 @@
           "**The panel no longer leaves an empty strip at the bottom**: panel height came from a fixed per-panel constant, so any layout that rendered shorter than the registered value left dead space below the footer. The common trigger is Codex reporting only a weekly window with no 5-hour data, which drops a quota row from the card. The panel now measures its own natural height after each refresh and the window resizes to match, clamped to the usable screen area; the registered constants stay as the pre-measurement default and as the fallback when a measurement is unusable. A panel that deliberately leaves room for a full-window backdrop — World Cup's pitch is the only one — marks that region so it keeps its designed height instead of collapsing while the measurement releases the layout's height constraints."
         ]
       },
-      "curated": null
+      "curated": {
+        "version": "0.29.7",
+        "period": "2026-07-29",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "額度面板會自己收好高度，不留底部空白",
+              "zh-CN": "额度面板会自己收好高度，不留底部空白",
+              "en": "Quota panels now fit their content instead of leaving a blank strip",
+              "ja": "利用枠パネルが内容に合わせて縮み、下端に空白を残さない",
+              "ko": "할당량 패널이 내용에 맞춰 줄어들어 아래쪽 빈 공간을 남기지 않는다"
+            },
+            "body": {
+              "zh-TW": "你打開 Usage 面板（跳出來顯示額度的小視窗）查看 Codex 的每週額度時，底部不會再莫名多出一條空白帶。以前畫面高度照每張面板預設的固定值算；若 Codex 只回報每週時段、沒有 5 小時資料，額度卡少了一列，底下就留下死白。現在每次更新後，面板會量自己的實際高度，視窗隨著內容縮放，且不會超出可用螢幕範圍；量不出來時仍用原本數值當備援。這像量身裁衣：少一行內容就收短一點。只有 World Cup 的球場主題刻意預留滿版背景，會標記那塊空間，保留原本設計高度。",
+              "zh-CN": "你打开 Usage 面板（弹出来显示额度的小窗口）查看 Codex 的每周额度时，底部不会再莫名多出一条空白带。以前画面高度按每张面板预设的固定值算；如果 Codex 只报告每周时段、没有 5 小时数据，额度卡少了一行，底下就留下空白。现在每次更新后，面板会测量自己的实际高度，窗口随内容缩放，也不会超出可用屏幕范围；测不出来时仍用原来的数值作备用。这像量身裁衣：少一行内容就收短一点。只有 World Cup 的球场主题故意预留全屏背景，会标记那块区域，保留原本设计的高度。",
+              "en": "When you open the Usage panel to check Codex's weekly quota, an odd blank strip will no longer linger below it. The panel height used to come from a fixed preset. If Codex reported only a weekly window and no 5-hour data, the quota card lost one row but kept the extra height. Now, after each refresh, the panel measures its natural height and the window follows it without exceeding usable screen space; the old value remains a fallback if measuring fails. Think of a tailored hem: one less line of content, one less line of fabric. The World Cup pitch theme is the exception: it marks its intentional full-window backdrop so its designed height remains intact.",
+              "ja": "Usage パネルを開いて Codex の週ごとの利用枠を確認するとき、下端に理由のない空白帯が残らなくなった。以前は各パネルの高さが固定の初期値で決まり、Codex が週ごとの期間だけを報告して 5 時間分のデータがないと、利用枠カードの一行が減っても余分な高さだけが残っていた。今は更新のたびにパネル自身が自然な高さを測り、ウィンドウも内容に合わせて伸縮する。使える画面範囲は超えず、測定できない場合は従来の値を代わりに使う。仕立てた服の裾のように、内容が一行減れば丈も短くなる。World Cup のピッチテーマだけは全画面の背景を意図的に残すため、その領域を印として元の高さを保つのである。",
+              "ko": "Usage 패널을 열어 Codex의 주간 할당량을 볼 때 아래쪽에 이유 없는 빈 띠가 남지 않는다. 예전에는 패널 높이를 고정된 기본값으로 정했다. Codex가 주간 기간만 보고하고 5시간 데이터가 없으면 할당량 카드에서 한 줄이 사라져도 남는 높이는 그대로였다. 이제 새로 고칠 때마다 패널이 자기 내용의 자연스러운 높이를 재고, 창도 내용에 맞춰 크기를 바꾼다. 사용할 수 있는 화면 범위는 넘지 않으며, 측정할 수 없을 때는 기존 값을 백업으로 쓴다. 맞춤옷의 단처럼 내용이 한 줄 줄면 길이도 한 줄 줄어드는 셈이다. 단, World Cup의 경기장 테마는 전체 창 배경을 일부러 남겨야 하므로 그 영역을 표시해 원래 높이를 유지한다."
+            },
+            "original": "**The panel no longer leaves an empty strip at the bottom**: panel height came from a fixed per-panel constant, so any layout that rendered shorter than the registered value left dead space below the footer. The common trigger is Codex reporting only a weekly window with no 5-hour data, which drops a quota row from the card. The panel now measures its own natural height after each refresh and the window resizes to match, clamped to the usable screen area; the registered constants stay as the pre-measurement default and as the fallback when a measurement is unusable. A panel that deliberately leaves room for a full-window backdrop — World Cup's pitch is the only one — marks that region so it keeps its designed height instead of collapsing while the measurement releases the layout's height constraints."
+          }
+        ]
+      }
     },
     {
       "version": "0.29.6",
@@ -26,7 +76,29 @@
           "**Claude Code panel no longer stays blank forever on Windows**: the installer picked whichever `python`/`py` `shutil.which()` found on `PATH` without checking it actually ran, so on any Windows machine without a real Python install, it silently wired the statusLine hook to Windows' non-functional \"App Execution Alias\" stub (the placeholder `python.exe`/`python3.exe` that Windows 10/11 ships by default to prompt a Microsoft Store install). The hook then failed silently on every refresh, `usage-status.json` was never written, and the Claude Code panel showed `--` permanently — not a first-run loading state. The installer now actually runs each candidate with `--version` before trusting it, and skips any that don't execute."
         ]
       },
-      "curated": null
+      "curated": {
+        "version": "0.29.6",
+        "period": "2026-07-29",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 狀態列不再永遠空白",
+              "zh-CN": "Windows 状态栏不再永远空白",
+              "en": "Windows status line no longer stays blank forever",
+              "ja": "Windowsのステータス行がずっと空白のままにならない",
+              "ko": "Windows 상태 표시줄이 더는 계속 비어 있지 않다."
+            },
+            "body": {
+              "zh-TW": "Windows 電腦沒裝 Python 時，Claude Code 面板不會再永遠只顯示「--」。安裝程式原本只看 PATH（告訴電腦去哪找程式的搜尋名單）裡有沒有 `python` 或 `py`，卻沒確認它能不能跑；Windows 10、11 內建的 App Execution Alias 只是引你去 Microsoft Store 安裝的假 `python.exe`，也會被誤認。於是 statusLine hook（顯示在終端機最底下狀態列的掛鉤小程式）每次更新都靜悄悄失敗，`usage-status.json` 沒寫出來，面板便一直空白。現在安裝程式會先用 `--version` 實測候選程式，不能執行就跳過。像插座看似有孔、裡頭卻沒接電；現在會先試亮測電筆，才把線接上。",
+              "zh-CN": "Windows 电脑没装 Python 时，Claude Code 面板不会再永远只显示“--”。安装程序原本只看 PATH（告诉电脑去哪里找程序的搜索名单）里有没有 `python` 或 `py`，却没确认它能不能运行；Windows 10、11 内置的 App Execution Alias 只是把人引去 Microsoft Store 安装的假 `python.exe`，也会被误认。于是 statusLine hook（显示在终端最底部状态栏的挂钩小程序）每次刷新都悄悄失败，`usage-status.json` 没有写出来，面板便一直空白。现在安装程序会先用 `--version` 实测候选程序，不能执行就跳过。像插座看似有孔、里面却没接电；现在会先用测电笔验过，才把线接上。",
+              "en": "On a Windows PC without Python, the Claude Code panel will no longer show `--` forever. The installer used to trust any `python` or `py` found on PATH (the list of places Windows searches for programs) without checking whether it could run. Windows 10 and 11 ship an App Execution Alias: a placeholder `python.exe` that only sends you to Microsoft Store, yet it was mistaken for Python. The statusLine hook, a small program that updates the bottom status line, then failed silently on every refresh, so `usage-status.json` was never written. Now each candidate must pass `--version` first. It is like testing an outlet before plugging in the appliance.",
+              "ja": "Windows で Python を入れていない場合でも、Claude Code のパネルが `--` のまま永遠に空白になることはなくなった。以前のインストーラーは、PATH（プログラムを探す場所の一覧）にある `python` や `py` を、実行できるか確かめずに採用していた。Windows 10／11 の App Execution Alias は Microsoft Store の導入画面へ送るだけの仮の `python.exe` だが、これも本物と取り違えられていた。その結果、statusLine hook（端末の最下部にある状態行を更新する小さなプログラム）が更新のたびに黙って失敗し、`usage-status.json` が作られず、パネルは空白のままだった。今は候補ごとに `--version` を実行し、動かなければ飛ばす。差し込む前にコンセントへ検電器を当てるような修正である。",
+              "ko": "Windows에 Python을 설치하지 않았어도 Claude Code 패널이 `--`만 보인 채 계속 비어 있지는 않는다. 설치 프로그램은 원래 PATH(컴퓨터가 프로그램을 찾는 위치 목록)에서 찾은 `python`이나 `py`가 실제로 실행되는지 확인하지 않고 골랐다. Windows 10과 11에 기본으로 있는 App Execution Alias는 Microsoft Store 설치 화면으로 보내기만 하는 가짜 `python.exe`인데도 진짜 Python으로 잘못 판단됐다. 그 결과 statusLine hook(터미널 맨 아래 상태 표시줄을 갱신하는 작은 프로그램)이 매번 조용히 실패했고, `usage-status.json`이 만들어지지 않아 패널이 빈 채로 남았다. 이제는 후보마다 `--version`을 먼저 실행해 보고, 실행되지 않으면 건너뛴다. 전자제품을 꽂기 전에 콘센트에 전기가 오는지 검사하는 것과 같다."
+            },
+            "original": "**Claude Code panel no longer stays blank forever on Windows**: the installer picked whichever `python`/`py` `shutil.which()` found on `PATH` without checking it actually ran, so on any Windows machine without a real Python install, it silently wired the statusLine hook to Windows' non-functional \"App Execution Alias\" stub (the placeholder `python.exe`/`python3.exe` that Windows 10/11 ships by default to prompt a Microsoft Store install). The hook then failed silently on every refresh, `usage-status.json` was never written, and the Claude Code panel showed `--` permanently — not a first-run loading state. The installer now actually runs each candidate with `--version` before trusting it, and skips any that don't execute."
+          }
+        ]
+      }
     },
     {
       "version": "0.29.5",
