@@ -709,76 +709,131 @@
       "id": "agy",
       "name": "Antigravity",
       "latest": {
-        "version": "1.1.8",
+        "version": "1.1.9",
         "raw": {
-          "version": "1.1.8",
-          "period": "2026-07-28",
+          "version": "1.1.9",
+          "period": "2026-07-31",
           "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-          "fetched_at": "2026-07-28",
+          "fetched_at": "2026-07-31",
           "entries": [
-            "Print mode (`-p` / `--print`) now supports structured, machine-readable output via the `--output-format` flag (`text` (default), `json`, or `stream-json`), so headless runs in CI, eval harnesses, and scripts can consume the CLI's output programmatically; these flags are now discoverable in `--help`.",
-            "Added the `stream-json` output format: a strongly-typed NDJSON event stream that emits typed `init`, `step_update`, and terminal `result` events with a stable, closed-vocabulary `step_type` discriminator, so consumers receive progress incrementally instead of waiting for the whole run to finish.",
-            "Added the `--json-schema` flag to enforce a custom JSON schema on the structured output, accepting either an inline schema string or a path to a schema file; for `stream-json` the schema applies to the final `result` event.",
-            "Enriched the structured stream with a `tool_info` object for each tool call (canonical tool name, parameters, and output) and a `subagent_info` payload for delegated subagents (including `conversation_id` and `log_uri`) so consumers can correlate child trajectories.",
-            "The JSON usage object emitted by `json` and `stream-json` now reports token accounting including `cache_read_tokens`, so non-interactive consumers can attribute prompt-cache hits.",
-            "Added a `copyOnSelect` setting (default on, toggleable in `/settings`) that controls whether releasing a mouse text-selection auto-copies it to the system clipboard in the TUI's altscreen rendering mode; disable it to stop the automatic copy on release — useful when the auto-copy is unwanted or corrupts certain payloads.",
-            "Improved compound-command permissions so an exact chained command (such as `git fetch && git rebase`) can be saved as an allow-always rule and no longer re-prompts on the next identical run."
+            "Added slash-command and skill expansion to print mode, so a headless run such as `-p \"/my-skill review this diff\"` now resolves and applies the skill instead of sending it as literal text, with `--disable-slash-commands` to opt out.",
+            "Improved interactive startup so a slow or hanging MCP server no longer stalls the first agent turn, loading MCP servers in the background for the interactive session while headless and one-shot runs keep blocking so their single scripted turn still sees the full toolset.",
+            "Improved permission grants so a pattern approved at a prompt is recorded for the rest of the conversation, letting later commands that match it run without prompting again.",
+            "Improved the default system temporary-directory grant to cover writes as well as reads, so agents no longer trigger a permission prompt when creating or updating files there.",
+            "Fixed stop hooks that always block hanging the agent forever; after a configurable number of consecutive continuations, the hook can no longer block and the turn ends normally.",
+            "Fixed `PostToolUse` hooks firing on non-tool steps such as user input and model responses, which also caused them to ignore their configured matchers.",
+            "Fixed slash commands not being recognized when separated from their arguments by a newline or tab, so a prompt starting with a command followed by a newline is now parsed as a command instead of being sent verbatim.",
+            "Fixed deleting into a collapsed paste placeholder removing one character at a time, which left a visible fragment in the prompt while the full pasted content was still submitted; the block is now deleted atomically.",
+            "Fixed the artifact viewer losing syntax highlighting when returning from the editor view, and returning to the wrong panel when exiting the artifact detail view.",
+            "Fixed the headless `stream-json` `init` event advertising tools that are not available in your build.",
+            "Fixed MCP servers forcing a full re-authentication after a dropped connection."
           ]
         },
         "curated": {
-          "version": "1.1.8",
-          "period": "2026-07-28",
+          "version": "1.1.9",
+          "period": "2026-07-31",
           "items": [
             {
               "title": {
-                "zh-TW": "命令列輸出能直接交給程式接手",
-                "zh-CN": "命令行输出能直接交给程序接手",
-                "en": "Command-line output is now ready for programs to consume",
-                "ja": "コマンドラインの出力をそのままプログラムへ渡せる",
-                "ko": "명령줄 출력을 프로그램에 바로 넘길 수 있다"
+                "zh-TW": "列印模式也會認得斜線指令與技能",
+                "zh-CN": "打印模式也会认得斜杠命令与技能",
+                "en": "Print mode now understands slash commands and skills",
+                "ja": "プリントモードでもスラッシュコマンドとスキルを認識",
+                "ko": "출력 모드도 슬래시 명령과 스킬을 알아듣는다"
               },
               "body": {
-                "zh-TW": "把命令列工具接進 CI（自動跑測試與部署的流程）時，最怕它只吐一大段人看得懂、程式卻接不住的文字。現在在 `-p` 後加 `--output-format json` 或 `--output-format stream-json`，就能拿到結構化輸出；`--help` 也找得到。選 `stream-json` 時，結果會像接力直播：一開始送出 `init`，每一步送 `step_update`，最後才送 `result`，不必等整趟工作結束。每個事件有固定的 `step_type`；工具呼叫才會附工具名稱、參數與輸出。如果有委派子代理，也帶上對話 ID 與紀錄位置。想固定答案格式，可加 `--json-schema`，給規格或檔案路徑。輸出的使用量也多了 `cache_read_tokens`，看得出有多少 token 命中快取（把先前結果暫存再利用）。",
-                "zh-CN": "把命令行工具接进 CI（自动跑测试和部署的流程）时，最怕它只吐出一大段人看得懂、程序却接不住的文字。现在在 `-p` 后加 `--output-format json` 或 `--output-format stream-json`，就能拿到供程序读取的结构化输出；`--help` 也找得到这些选项。选 `stream-json` 时，结果像接力直播：一开始送出 `init`，每一步送 `step_update`，最后才送 `result`，不用等整趟工作结束。每个事件都有固定的 `step_type` 类别；工具调用才会附上工具名称、参数与输出。如果有委派子代理，也带上对话 ID 与记录位置。想让最后答案固定格式，可加 `--json-schema`，直接给规则文字或文件路径。输出的用量也多了 `cache_read_tokens`，看得出有多少 token 命中缓存（把先前结果暂存再利用）。",
-                "en": "When you connect a command-line tool to CI, a wall of text that only humans can read is a dead end. In print mode, add `--output-format json` or `--output-format stream-json` to hand structured output to a program; both flags now also appear in `--help`. `stream-json` works like a live relay: it sends `init`, then `step_update` events as work progresses, and ends with `result`, so nothing has to wait for the whole run. Each event has a fixed `step_type`; only tool calls include names, parameters, and output. Delegated subagents also provide a conversation ID and log location. Add `--json-schema` with either an inline schema or a schema-file path to require a particular final shape. Usage data now includes `cache_read_tokens`, showing how many tokens hit the prompt cache.",
-                "ja": "CI にコマンドラインツールをつなぐとき、人には読めてもプログラムが受け取れない長文だけでは困る。print モードで `--output-format json` または `--output-format stream-json` を加えれば、プログラム用の構造化出力を渡せるようになり、両方のフラグは `--help` にも表示される。`stream-json` は中継放送のように、最初に `init`、進行中に `step_update`、最後に `result` を送るため、完走まで待つ必要がない。各イベントには固定の `step_type` があり、ツール呼び出しにだけ名前、引数、出力が入る。委任したサブエージェントには会話 ID とログの場所も付く。`--json-schema` に規格文字列か規格ファイルへのパスを渡せば、最後の結果の形式を決められる。使用量には `cache_read_tokens` も加わり、prompt cache にヒットした token 数が分かる。",
-                "ko": "명령줄 도구를 CI에 연결할 때 사람이 읽는 긴 글만 나오면 프로그램은 다음 일을 받지 못한다. print 모드에서 `--output-format json` 또는 `--output-format stream-json`을 더하면 프로그램이 읽을 구조화된 출력을 넘길 수 있고, 두 플래그는 `--help`에서도 찾을 수 있다. `stream-json`은 중계 방송처럼 처음에 `init`을 보내고, 진행 중에는 `step_update`를 보내며, 끝에 `result`를 보낸다. 그래서 전체 실행이 끝날 때까지 기다릴 필요가 없다. 각 이벤트에는 고정된 `step_type`이 있고, 도구 호출에만 이름과 매개변수, 출력이 담긴다. 위임한 하위 에이전트에는 대화 ID와 로그 위치도 붙는다. `--json-schema`에 규격 문자열이나 규격 파일 경로를 주면 마지막 결과의 모양을 강제할 수 있다. 사용량에는 `cache_read_tokens`도 추가돼 prompt cache에 적중한 token 수를 알 수 있다."
+                "zh-TW": "你想把檢查工作交給不開視窗的列印模式（print mode，跑完一個指令就輸出結果的模式）時，現在可以直接輸入 `-p \"/my-skill review this diff\"`。開頭的斜線指令會被辨認，技能也會被展開套用，不再整串當成普通文字丟給 AI。即使指令和參數之間按了換行或 Tab，仍會正確拆開；若你要原封不動送出斜線文字，則加上 `--disable-slash-commands`。這像寄件櫃終於讀得懂收件人姓名與地址各在哪一欄，不會把整張地址貼紙當成一段留言。",
+                "zh-CN": "想把检查工作交给不开窗口的打印模式（print mode，跑完一条命令就输出结果的模式）时，现在可以直接输入 `-p \"/my-skill review this diff\"`。开头的斜杠命令会被识别，技能也会展开并应用，不再把整串当普通文字丢给 AI。即使命令和参数之间按了换行或 Tab，仍会正确拆开；若要原封不动发送斜杠文字，则加上 `--disable-slash-commands`。这像寄件柜终于读得懂收件人姓名与地址各在哪一栏，不会把整张地址贴纸当成一段留言。",
+                "en": "When you want to hand a review to print mode (a mode that runs one command and returns its result without opening a window), you can now type `-p \"/my-skill review this diff\"` directly. The opening slash command is recognized, and its skill is expanded and applied instead of being handed to AI as literal text. A newline or Tab between command and arguments also works; if you need to send slash text unchanged, add `--disable-slash-commands`. It is like a mailing counter finally separating recipient and address fields instead of treating the whole label as a note.",
+                "ja": "画面を開かず、一つのコマンドを実行して結果を返すプリントモードでレビューを任せたいなら、`-p \"/my-skill review this diff\"` と直接入力できる。先頭のスラッシュコマンドを認識し、スキルを展開して適用するため、文字どおりの文章として AI に渡さない。コマンドと引数の間が改行や Tab でも正しく分けられる。スラッシュ付きの文字をそのまま送りたい場合は `--disable-slash-commands` を付ける。宛名と住所の欄をようやく読み分け、宛名ラベル全体を伝言として扱わない郵便窓口のようなものだ。",
+                "ko": "창을 열지 않고 명령 하나를 실행해 결과를 돌려주는 출력 모드에서 검토를 맡기려면 이제 `-p \"/my-skill review this diff\"`를 바로 입력할 수 있다. 맨 앞의 슬래시 명령을 알아보고 스킬을 펼쳐 적용하므로, 그 문장을 글자 그대로 AI에 넘기지 않는다. 명령과 인수 사이에 줄바꿈이나 Tab이 있어도 제대로 나눈다. 슬래시가 든 글자를 그대로 보내려면 `--disable-slash-commands`를 붙이면 된다. 우체국 창구가 수신인과 주소 칸을 구분해 읽고 주소 라벨 전체를 메모로 취급하지 않는 것과 같다."
               },
-              "original": "Print mode (`-p` / `--print`) now supports structured, machine-readable output via the `--output-format` flag (`text` (default), `json`, or `stream-json`), so headless runs in CI, eval harnesses, and scripts can consume the CLI's output programmatically; these flags are now discoverable in `--help`.\nAdded the `stream-json` output format: a strongly-typed NDJSON event stream that emits typed `init`, `step_update`, and terminal `result` events with a stable, closed-vocabulary `step_type` discriminator, so consumers receive progress incrementally instead of waiting for the whole run to finish.\nAdded the `--json-schema` flag to enforce a custom JSON schema on the structured output, accepting either an inline schema string or a path to a schema file; for `stream-json` the schema applies to the final `result` event.\nEnriched the structured stream with a `tool_info` object for each tool call (canonical tool name, parameters, and output) and a `subagent_info` payload for delegated subagents (including `conversation_id` and `log_uri`) so consumers can correlate child trajectories.\nThe JSON usage object emitted by `json` and `stream-json` now reports token accounting including `cache_read_tokens`, so non-interactive consumers can attribute prompt-cache hits."
+              "original": "Added slash-command and skill expansion to print mode, so a headless run such as `-p \"/my-skill review this diff\"` now resolves and applies the skill instead of sending it as literal text, with `--disable-slash-commands` to opt out.\nFixed slash commands not being recognized when separated from their arguments by a newline or tab, so a prompt starting with a command followed by a newline is now parsed as a command instead of being sent verbatim."
             },
             {
               "title": {
-                "zh-TW": "選取文字要不要自動複製，自己決定",
-                "zh-CN": "选取文字要不要自动复制，自己决定",
-                "en": "You decide whether selecting text copies it automatically",
-                "ja": "文字を選んだら自動コピーするか自分で決められる",
-                "ko": "글자를 선택하면 자동 복사할지 직접 정한다"
+                "zh-TW": "先開始對話，MCP 工具慢慢到位",
+                "zh-CN": "先开始对话，MCP 工具慢慢就位",
+                "en": "Start chatting while MCP tools finish loading",
+                "ja": "MCP ツールの準備を待たずに会話を開始",
+                "ko": "MCP 도구가 준비되는 동안 먼저 대화를 시작한다"
               },
               "body": {
-                "zh-TW": "你在終端機裡拖曳選取一段結果，原本只是想看清楚，鬆開滑鼠卻可能把內容自動塞進剪貼簿，甚至弄壞特定資料。現在 TUI（終端機裡用文字畫出的互動介面）的 altscreen 呈現模式新增 `copyOnSelect`，預設開啟：選取後放開滑鼠便會複製。它像影印機自動送紙，省掉按複製，卻不適合每種紙張。若你貼上後發現內容怪掉，打開 `/settings`，把 `copyOnSelect` 關閉，就只保留選取、不再自動複製。",
-                "zh-CN": "你在终端里拖动选取一段结果，本来只是想看清楚，松开鼠标却可能把内容自动塞进剪贴板，甚至弄坏特定数据。现在 TUI（终端里用文字画出的交互界面）的 altscreen 呈现模式新增 `copyOnSelect`，默认开启：选取后放开鼠标便会复制。它像复印机自动送纸，省掉按复制，却不适合每种纸张。若你贴上后发现内容变怪，打开 `/settings`，把 `copyOnSelect` 关闭，就只保留选取、不再自动复制。",
-                "en": "You may drag across terminal text only to inspect it, then release the mouse and find that the selection has already landed in your clipboard — sometimes corrupting certain payloads. The TUI's altscreen renderer now has `copyOnSelect`, enabled by default: release a text selection and it copies automatically. It is like a copier that feeds every sheet the moment you touch it: handy when you want a copy, awkward when you do not. If pasted content comes out wrong, open `/settings` and turn `copyOnSelect` off. You can still select text, but releasing the mouse will no longer copy it.",
-                "ja": "端末で結果の一部をドラッグして見やすくしただけなのに、マウスを離すと内容がクリップボードへ自動で入り、特定のデータを壊してしまうことがある。TUI の altscreen 描画には、選択してマウスを離すとコピーする `copyOnSelect` が追加され、初期状態では有効である。触れた紙をすぐ送り出すコピー機のように、コピーしたいときは便利だが、そうでないときは困る。貼り付けた内容がおかしくなったら `/settings` を開き、`copyOnSelect` を無効にすればよい。選択は残るが、自動コピーは起きなくなる。",
-                "ko": "터미널에서 결과 일부를 드래그해 읽기만 하려 했는데, 마우스를 놓자마자 내용이 클립보드에 자동으로 들어가 특정 데이터가 망가질 수 있다. TUI의 altscreen 표시 모드에 `copyOnSelect`가 추가됐으며 기본값은 켜짐이다. 글자를 선택하고 마우스를 놓으면 곧바로 복사한다. 손댄 종이를 바로 넣는 복사기처럼 복사가 필요할 때는 편하지만, 아닐 때는 곤란하다. 붙여 넣은 내용이 이상해지면 `/settings`를 열어 `copyOnSelect`를 끄면 된다. 선택은 그대로 하되 자동 복사는 일어나지 않는다."
+                "zh-TW": "剛打開互動對話，某個 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器若很慢或卡住，第一輪不會再跟著停在門口。互動工作階段會在背景載入 MCP 伺服器；不過無頭模式和單次執行仍會等待，確保它們唯一那輪工作看得到完整工具組。連線中斷後恢復時，MCP 也不再強迫你重新做完整驗證。像登機時，櫃檯先讓旅客開始辦理，行李車在後頭跟上；但只飛一趟的包機仍得等所有行李裝妥才起飛。",
+                "zh-CN": "刚打开互动对话，某个 MCP（Model Context Protocol，让 AI 连接外部工具的协议）服务器若很慢或卡住，第一轮不会再跟着停在门口。互动会话会在后台加载 MCP 服务器；不过无头模式和单次执行仍会等待，确保它们唯一那轮工作看得到完整工具组。连接中断后恢复时，MCP 也不再强迫你重新做完整验证。像登机时，柜台先让旅客开始办理，行李车在后头跟上；但只飞一趟的包机仍得等所有行李装妥才起飞。",
+                "en": "When you open an interactive chat and an MCP server is slow or stuck, your first turn no longer waits at the door with it. MCP (Model Context Protocol, a protocol that connects AI to outside tools) servers load in the background for an interactive session. Headless and one-shot runs still wait, so their only scripted turn sees the complete toolset. When a connection returns after dropping, MCP no longer makes you complete authentication all over again. It is like starting passenger check-in while the baggage carts catch up, while a one-flight charter still waits until every bag is aboard.",
+                "ja": "対話を開いた直後、MCP（Model Context Protocol、AI を外部ツールへ接続するためのプロトコル）サーバーの一つが遅い、または止まっていても、最初のターンまで入口で止まらなくなった。対話セッションでは MCP サーバーを背景で読み込む。一方、ヘッドレス実行と一回限りの実行は待機を続け、唯一のスクリプト実行が完全なツール一式を見られるようにする。接続が切れた後に戻っても、MCP は完全な再認証を強制しない。搭乗手続きを先に始め、手荷物カートが後から追いつく空港のようなものだ。ただし一便だけのチャーター機は、全荷物を積むまで待つ。",
+                "ko": "대화형 채팅을 막 열었을 때 MCP(Model Context Protocol, AI를 외부 도구에 연결하는 규약) 서버 하나가 느리거나 멈춰 있어도 첫 차례가 함께 입구에서 멈추지 않는다. 대화형 작업에서는 MCP 서버를 뒤에서 불러온다. 다만 헤드리스 실행과 한 번만 실행하는 작업은 계속 기다려, 유일한 스크립트 차례가 전체 도구 모음을 볼 수 있게 한다. 연결이 끊겼다가 돌아와도 MCP는 인증을 처음부터 다시 하라고 강요하지 않는다. 공항에서 수하물 차가 뒤따라오는 동안 승객 수속을 먼저 시작하는 모습과 같다. 단 한 번만 나는 전세기는 모든 짐을 실을 때까지 기다린다."
               },
-              "original": "Added a `copyOnSelect` setting (default on, toggleable in `/settings`) that controls whether releasing a mouse text-selection auto-copies it to the system clipboard in the TUI's altscreen rendering mode; disable it to stop the automatic copy on release — useful when the auto-copy is unwanted or corrupts certain payloads."
+              "original": "Improved interactive startup so a slow or hanging MCP server no longer stalls the first agent turn, loading MCP servers in the background for the interactive session while headless and one-shot runs keep blocking so their single scripted turn still sees the full toolset.\nFixed MCP servers forcing a full re-authentication after a dropped connection."
             },
             {
               "title": {
-                "zh-TW": "常用串接指令核准一次就夠",
-                "zh-CN": "常用复合命令批准一次就够",
-                "en": "Approve a familiar chained command once, not every time",
-                "ja": "いつもの連結コマンドは一度の許可で済む",
-                "ko": "자주 쓰는 연결 명령은 한 번만 허용하면 된다"
+                "zh-TW": "核准過的指令不再重複敲門，暫存目錄可直接寫入",
+                "zh-CN": "批准过的命令不再重复敲门，临时目录可直接写入",
+                "en": "Approved commands stop asking again, and temp files can be written",
+                "ja": "許可済みコマンドは再確認せず、一時フォルダにも書き込める",
+                "ko": "허용한 명령은 다시 묻지 않고 임시 폴더에도 쓸 수 있다"
               },
               "body": {
-                "zh-TW": "你每天都要更新專案，輸入 `git fetch && git rebase` 後又得重複核准，流程像同一張通行證每天重新蓋章。現在可以把這條完全相同的串接指令存成「永遠允許」規則。下次再跑同一條指令時，不必再等，權限確認不會重跳。它認的是整串命令，不是看到 `git` 就一概放行；因此常用流程少一步，其他不同命令仍各自檢查。",
-                "zh-CN": "你每天都要更新项目，输入 `git fetch && git rebase` 后又得重复批准，流程像同一张通行证每天重新盖章。现在可以把这条完全相同的复合命令存成「永远允许」规则。下次再跑同一条命令时，权限确认不会重跳。它认的是整串命令，不是看到 `git` 就一概放行；因此常用流程少一步，其他不同命令仍各自检查。",
-                "en": "When you update a project every day, approving `git fetch && git rebase` again and again feels like getting the same pass stamped from scratch. You can now save that exact chained command as an always-allow rule. The next time you run the identical command, the permission prompt stays away. The rule recognizes the whole chain, not every command that happens to begin with `git`; your routine loses a step while different commands still receive their own check.",
-                "ja": "毎日プロジェクトを更新し、`git fetch && git rebase` を打つたびに許可し直すのは、同じ通行証に毎日あらためて判を押すようなものだ。この完全に同じ連結コマンドは、常に許可する規則として保存できるようになった。次回も同じコマンドを実行するなら、権限確認は再び出ない。`git` で始まるものをまとめて通すのではなく、連結した命令全体を見分けるため、いつもの手順だけが一段減り、別の命令はそれぞれ確認される。",
-                "ko": "매일 프로젝트를 업데이트하며 `git fetch && git rebase`를 입력할 때마다 다시 허용하는 일은 같은 통행증에 매일 도장을 새로 찍는 것과 같다. 이제 이 완전히 같은 연결 명령을 항상 허용하는 규칙으로 저장할 수 있다. 다음에 같은 명령을 실행하면 권한 확인이 다시 뜨지 않는다. `git`으로 시작하는 모든 명령을 통과시키는 것이 아니라 연결된 명령 전체를 알아본다. 그래서 익숙한 절차만 한 단계 줄고, 다른 명령은 각각 확인한다."
+                "zh-TW": "同一段對話裡，你已核准過的指令樣式，之後遇到相同樣式不必每次再按一次允許。這份核准會記住到對話結束；不是把所有指令都放行，而是只讓符合已核准模式的後續指令通過。另一個常見卡點也拿掉了：預設可用的系統暫存目錄，現在連建立或更新檔案都包含在權限裡，不會只因要寫檔又跳出詢問。這像進出大樓的訪客證，警衛記得今天已查過的通行類型；而原本可進卻不能放東西的置物櫃，終於配了鑰匙。",
+                "zh-CN": "同一段对话里，已批准过的命令样式，之后遇到相同样式不必每次再按一次允许。这份批准会记住到对话结束；不是把所有命令都放行，而是只让符合已批准模式的后续命令通过。另一个常见卡点也拿掉了：默认可用的系统临时目录，现在连创建或更新文件都包含在权限里，不会只因要写文件又跳出询问。这像进出大楼的访客证，保安记得今天已查过的通行类型；而原本可进却不能放东西的储物柜，终于配了钥匙。",
+                "en": "Within one conversation, a command pattern you have already approved no longer makes you press Allow again when that pattern appears later. The approval lasts for the conversation; it does not open the gate to every command, only later commands matching the approved pattern. Another common interruption is gone too: the default system temporary directory now includes permission to create and update files, not only read them. It is like a visitor badge: security remembers the kind of entry checked today, while a locker you could open but not put anything into finally gets its key.",
+                "ja": "同じ会話の中で、すでに許可したコマンドのパターンは、後で同じパターンが現れても毎回「許可」を押させなくなった。許可はその会話の終了まで覚えられる。ただし全コマンドを通すのではなく、許可済みの型に合う後続コマンドだけを通す。もう一つのよくある中断も消えた。標準で使えるシステムの一時フォルダは、読み取りだけでなくファイルの作成と更新も許可に含むため、書き込みだけで確認が出ない。今日確認済みの入館種類を警備員が覚える来客証と、開けても物を入れられなかったロッカーに鍵が付くことに似ている。",
+                "ko": "한 대화 안에서 이미 허용한 명령 형태는 나중에 같은 형태가 나와도 매번 허용을 누르게 하지 않는다. 이 허용은 대화가 끝날 때까지 기억된다. 모든 명령을 통과시키는 것이 아니라, 허용한 형태에 맞는 뒤의 명령만 통과시킨다. 자주 끊기던 다른 지점도 사라졌다. 기본으로 쓸 수 있는 시스템 임시 폴더는 읽기뿐 아니라 파일을 만들고 고치는 권한까지 포함하므로, 파일을 쓰는 일만으로 다시 묻지 않는다. 오늘 확인한 출입 종류를 경비원이 기억하는 방문증과, 열 수는 있지만 물건을 넣지는 못하던 사물함에 열쇠가 생기는 모습과 같다."
               },
-              "original": "Improved compound-command permissions so an exact chained command (such as `git fetch && git rebase`) can be saved as an allow-always rule and no longer re-prompts on the next identical run."
+              "original": "Improved permission grants so a pattern approved at a prompt is recorded for the rest of the conversation, letting later commands that match it run without prompting again.\nImproved the default system temporary-directory grant to cover writes as well as reads, so agents no longer trigger a permission prompt when creating or updating files there."
+            },
+            {
+              "title": {
+                "zh-TW": "掛鉤不再把工作卡死，也只在該出場時出場",
+                "zh-CN": "钩子不再把工作卡死，也只在该出场时出场",
+                "en": "Hooks stop trapping work and fire only when they should",
+                "ja": "フックが作業を閉じ込めず、必要な場面だけで動く",
+                "ko": "훅이 작업을 가두지 않고 필요한 때만 실행된다"
+              },
+              "body": {
+                "zh-TW": "替自動化流程裝了停止掛鉤（hook，特定事件發生時被觸發的小程式）後，萬一它每次都要求繼續，工作不會再被困到永遠。連續續跑次數到達你設定的上限後，這個掛鉤便不能再阻擋，該輪會正常結束。`PostToolUse` 掛鉤也修正了：它以前連使用者輸入和模型回覆這些非工具步驟都會觸發，還因此忽略原本設定的匹配條件；現在只照該照的條件動作。像舞台監督以前讓謝幕演員一再回台，戲散不了場，還把觀眾說話當成燈光提示；現在謝幕有次數上限，提示也只認對的暗號。",
+                "zh-CN": "给自动化流程装了停止钩子（hook，特定事件发生时被触发的小程序）后，万一它每次都要求继续，工作不会再被困到永远。连续续跑次数到达设置的上限后，这个钩子便不能再阻挡，该轮会正常结束。`PostToolUse` 钩子也修正了：它以前连用户输入和模型回复这些非工具步骤都会触发，还因此忽略原本设置的匹配条件；现在只按该按的条件动作。像舞台监督以前让谢幕演员一再回台，戏散不了场，还把观众说话当成灯光提示；现在谢幕有次数上限，提示也只认对的暗号。",
+                "en": "After you add a stop hook (a small program triggered by a particular event) to an automated flow, it can no longer trap work forever if it asks to continue every time. Once consecutive continuations reach your configured limit, that hook can no longer block and the turn ends normally. `PostToolUse` hooks are fixed too: they used to fire on non-tool steps such as user input and model replies, then ignore their configured matchers. They now act only under the right conditions. It is like a stage manager who kept calling curtain-call actors back and mistook audience chatter for a lighting cue; now curtain calls have a limit and cues require the right signal.",
+                "ja": "自動化の流れに停止フック（hook、特定の出来事で起動する小さなプログラム）を付けた後、それが毎回続行を求めても作業を永久に閉じ込められなくなった。連続する続行回数が設定した上限に達すると、そのフックはもうブロックできず、ターンは通常どおり終わる。`PostToolUse` フックも直った。以前はユーザー入力やモデルの返答といったツールではない手順でも発火し、その結果として設定済みの一致条件を無視していた。今は正しい条件でだけ動く。終演の俳優を何度も舞台へ呼び戻し、客席の話し声まで照明の合図と取り違える舞台監督が、謝幕回数と正しい合図を覚えたようなものだ。",
+                "ko": "자동 흐름에 중지 훅(hook, 특정 일이 일어날 때 실행되는 작은 프로그램)을 붙인 뒤, 그것이 매번 계속하라고 해도 작업을 끝없이 가둘 수 없게 됐다. 연속으로 이어 가는 횟수가 설정한 한도에 닿으면 그 훅은 더 이상 막을 수 없고 차례는 정상적으로 끝난다. `PostToolUse` 훅도 고쳐졌다. 예전에는 사용자 입력과 모델 답변처럼 도구가 아닌 단계에서도 실행되어, 설정한 일치 조건을 무시했다. 이제는 맞는 조건에서만 움직인다. 막이 내린 배우를 계속 무대로 불러내고 관객의 말소리까지 조명 신호로 착각하던 무대 감독이, 이제는 커튼콜 횟수와 올바른 신호를 아는 모습과 같다."
+              },
+              "original": "Fixed stop hooks that always block hanging the agent forever; after a configurable number of consecutive continuations, the hook can no longer block and the turn ends normally.\nFixed `PostToolUse` hooks firing on non-tool steps such as user input and model responses, which also caused them to ignore their configured matchers."
+            },
+            {
+              "title": {
+                "zh-TW": "貼上內容可整塊刪除，成品畫面回得正確",
+                "zh-CN": "粘贴内容可整块删除，成品画面回得正确",
+                "en": "Pasted blocks delete cleanly and artifact views return correctly",
+                "ja": "貼り付けた塊をまとめて消せ、成果物画面にも正しく戻る",
+                "ko": "붙여 넣은 덩어리는 한꺼번에 지우고 결과물 화면도 제대로 돌아온다"
+              },
+              "body": {
+                "zh-TW": "一次貼進很長內容後，如果輸入框把它收成一個折疊的貼上區塊，現在按刪除會整塊消失。以前畫面上會一個字一個字地刪，留下看得到的碎片，送出時卻仍把完整內容交出去，讓人難以判斷自己到底刪掉了什麼。成品檢視器也一起修好：從編輯畫面回來時，程式碼的語法上色不會消失；離開成品細節時，也會回到正確面板。像撕掉便利貼時終於整張撕下，不會桌上殘一小角、抽屜裡還藏著原件；看完展品也能回到剛才那個展廳。",
+                "zh-CN": "一次粘进很长内容后，如果输入框把它收成一个折叠的粘贴区块，现在按删除会整块消失。以前画面上会一个字一个字地删，留下看得见的碎片，提交时却仍把完整内容交出去，让人难以判断自己到底删掉了什么。成品查看器也一起修好：从编辑画面回来时，代码的语法高亮不会消失；离开成品详情时，也会回到正确面板。像撕掉便利贴时终于整张撕下，不会桌上残一小角、抽屉里还藏着原件；看完展品也能回到刚才那个展厅。",
+                "en": "After pasting a long piece of text, the input can collapse it into one paste placeholder. Deleting it now removes the whole block. Before, the display removed one character at a time and left a visible fragment, while sending still submitted the full content, making it hard to know what had been deleted. The artifact viewer is fixed as well: syntax highlighting remains when you return from editing, and leaving artifact details returns you to the correct panel. It is like removing a sticky note in one piece instead of leaving a corner on the desk while its original remains hidden in a drawer, then returning to the same gallery after viewing an exhibit.",
+                "ja": "長い内容を貼り付け、入力欄がそれを一つの折り畳まれた貼り付け枠にした場合、削除すると今は塊ごと消える。以前は画面上で一文字ずつ消え、見える断片が残る一方、送信時には全文が送られていたため、何を消したのか分かりにくかった。成果物ビューアーも直った。編集画面から戻ってもコードの構文ハイライトは消えず、成果物の詳細を閉じると正しいパネルへ戻る。付箋を一枚まるごとはがせず机上に端を残し、元の紙は引き出しに隠れたままという状態がなくなり、展示品を見た後にも元の展示室へ戻れるようなものだ。",
+                "ko": "긴 내용을 붙여 넣고 입력칸이 그것을 접힌 붙여 넣기 자리 하나로 만들었을 때, 이제 지우기를 누르면 덩어리 전체가 사라진다. 예전에는 화면에서 한 글자씩 지워져 보이는 조각이 남았지만, 보낼 때는 전체 내용이 그대로 제출되어 무엇을 지웠는지 알기 어려웠다. 결과물 보기 화면도 고쳐졌다. 편집 화면에서 돌아와도 코드의 문법 색칠이 사라지지 않고, 결과물 상세를 나가면 올바른 패널로 돌아간다. 메모지를 한 장으로 떼지 못해 책상에 모서리를 남기고 원본은 서랍에 숨겨 둔 상태가 사라지고, 전시품을 본 뒤에도 원래 전시실로 돌아가는 모습과 같다."
+              },
+              "original": "Fixed deleting into a collapsed paste placeholder removing one character at a time, which left a visible fragment in the prompt while the full pasted content was still submitted; the block is now deleted atomically.\nFixed the artifact viewer losing syntax highlighting when returning from the editor view, and returning to the wrong panel when exiting the artifact detail view."
+            },
+            {
+              "title": {
+                "zh-TW": "串流 JSON 不再列出不存在的工具",
+                "zh-CN": "流式 JSON 不再列出不存在的工具",
+                "en": "Streaming JSON stops listing tools your build does not have",
+                "ja": "ストリーミング JSON がないツールを案内しなくなった",
+                "ko": "스트리밍 JSON이 없는 도구를 목록에 올리지 않는다"
+              },
+              "body": {
+                "zh-TW": "用無頭模式的 `stream-json` 輸出（把執行過程用 JSON 一行行送出的格式）接到自己的程式時，開頭的 `init` 事件現在只會列出你這個版本實際可用的工具。以前它可能先宣告某些工具，實際執行卻找不到，接收端若照那張清單安排工作便會踩空。這次是把起跑線上的工具牌換成正確版本；不是新增工具，而是讓宣告和手上的工具箱一致。像活動場地的入口看板不再列出已拆掉的櫃位，排隊的人不會走到門前才發現那裡什麼都沒有。",
+                "zh-CN": "把无头模式的 `stream-json` 输出（把执行过程用 JSON 一行行送出的格式）接到自己的程序时，开头的 `init` 事件现在只会列出这个版本实际可用的工具。以前它可能先声明某些工具，实际执行却找不到，接收端若照那张清单安排工作便会踩空。这次是把起跑线上的工具牌换成正确版本；不是新增工具，而是让声明和手上的工具箱一致。像活动场地的入口看板不再列出已拆掉的柜位，排队的人不会走到门前才发现那里什么都没有。",
+                "en": "When your program consumes `stream-json` output from a headless run (a format that sends the run as JSON lines), its opening `init` event now lists only tools that are truly available in your build. Before, it could advertise tools that could not be found when work began, leaving a receiver that planned from the list on empty ground. This changes the tool sign at the starting line; it does not add tools, it makes the announcement match the toolbox at hand. Like an event map that no longer lists booths already removed, so visitors do not queue up only to find nothing at the door.",
+                "ja": "ヘッドレス実行の `stream-json` 出力（実行の経過を JSON の行として送る形式）を自分のプログラムで受け取る場合、最初の `init` イベントはそのビルドで実際に使えるツールだけを列挙するようになった。以前は使えないツールまで案内し、受信側がその一覧を頼りに作業を組むと空振りしていた。これは開始地点のツール表示を正す変更であり、ツールを追加するものではない。手元の道具箱と案内を一致させる。会場入口の案内板から撤去済みの売り場を消し、来場者が扉の前まで並んで何もないと気付かないようにするのと同じだ。",
+                "ko": "헤드리스 실행의 `stream-json` 출력(실행 과정을 JSON 한 줄씩 보내는 형식)을 자신의 프로그램에서 받을 때, 처음의 `init` 이벤트는 이제 이 빌드에서 실제로 쓸 수 있는 도구만 나열한다. 예전에는 쓸 수 없는 도구도 있다고 알렸고, 받는 쪽이 그 목록으로 일을 짜면 헛걸음을 했다. 시작선의 도구 표지를 바로잡는 변경이며 도구를 새로 더하는 것은 아니다. 안내와 손에 든 도구 상자를 맞춘다. 행사장 입구 안내판에서 이미 없어진 부스를 지워, 사람들이 문 앞까지 줄을 섰다가 아무것도 없음을 알게 하지 않는 것과 같다."
+              },
+              "original": "Fixed the headless `stream-json` `init` event advertising tools that are not available in your build."
             }
           ]
         }
@@ -894,72 +949,38 @@
       "id": "usage",
       "name": "Usage",
       "latest": {
-        "version": "0.29.9",
+        "version": "0.29.10",
         "raw": {
-          "version": "0.29.9",
-          "period": "2026-07-29",
+          "version": "0.29.10",
+          "period": "2026-07-31",
           "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-          "fetched_at": "2026-07-30",
+          "fetched_at": "2026-07-31",
           "entries": [
-            "**The panel can now be placed anywhere on screen**: it was an `NSPopover`, which AppKit anchors to the status item and dismisses the moment focus moves elsewhere, so where it sat was never yours to choose. It is now a borderless floating panel: drag it from any empty spot, and it reopens where you left it. It stays put when another app takes focus — a second click on the menu bar icon, or Escape, closes it. Rounded corners and the drop shadow came free with the popover and are now drawn by the window itself. Dragging travels over the existing JS bridge: an injected script reports a mousedown that landed outside any interactive or scrollable element, and the window hands the gesture to `performWindowDragWithEvent:` so the system drives it. Resizing pins the top-left corner, because a window's origin is its bottom-left and the panel would otherwise appear to jump every time its height tracked a fresh content measurement.",
-            "**The AI Talent Market panel no longer collapses into a squashed strip**: the panel intermittently opened at roughly the height of its own header, cutting off the team list. The dynamic content-height probe releases the layout's height constraints before measuring, and this panel builds its list as an absolutely positioned layer inside a `flex: 1` body — with the constraints released, that body collapsed to zero and the probe reported little more than the header, which the clamp then rounded up to the minimum panel height. Whether it happened came down to measurement timing, hence the intermittency. Panels now carry a switch for the probe, and this one — a fixed-height design that scrolls internally and never needed measuring — opts out.",
-            "**Dismissing the switch-panel menu no longer closes the panel**: opening \"Switch Panel\" and then clicking the panel itself, pressing Escape, or clicking away closed the whole panel. A transient popover was already gone by the time the menu took focus, so closing it was merely cleanup; the floating panel survives the menu, which turned the same cleanup into a mistouch that threw the panel away."
+            "**Nothing changes on screen in this release — it is housekeeping on the menu bar code.** `menubar.py` had reached 2485 lines, creeping past 2000 for the third time after being split apart twice. The icon and alert helpers moved into a new `menubar_chrome.py`, and the state constructors joined `menubar_state.py`, taking the file down to 2230. Only module-level functions moved: PyObjC binds `AppDelegate` methods by selector name, so relocating one would silently stop the matching control from working. `_popover_size` was split rather than moved, because it ends in `NSMakeSize` and `menubar_state.py` has to stay importable without the ObjC runtime for its projections to be unit-testable — the arithmetic moved as `popover_dimensions()` and a three-line shell stayed behind.",
+            "**The growth policy behind that cleanup is now enforced by CI rather than by discipline.** `scripts/check_file_size.py` fails the build when a guarded file passes its ceiling. The rule had been written in CLAUDE.md all along; nothing checked it, and the file grew back twice. Lower a ceiling when a cut lands, never raise it to go green.",
+            "**CLAUDE.md's module map lists only modules with a gotcha.** Half its rows restated what opening the file would tell you, and three separate rows repeated the same stdlib-only constraint. It went from 24 rows to 12."
           ]
         },
         "curated": {
-          "version": "0.29.9",
-          "period": "2026-07-29",
+          "version": "0.29.10",
+          "period": "2026-07-31",
           "items": [
             {
               "title": {
-                "zh-TW": "面板能隨你擺放，切換視窗也不會消失",
-                "zh-CN": "面板可随你摆放，切换窗口也不会消失",
-                "en": "Put the panel where you want, and keep it there",
-                "ja": "パネルを好きな場所へ置き、ほかのアプリに切り替えても残せる",
-                "ko": "패널을 원하는 곳에 놓고 다른 앱을 봐도 그대로 둔다"
+                "zh-TW": "看不見的整理：選單列程式分家，尺寸規則自動把關",
+                "zh-CN": "看不见的整理：菜单栏代码分家，尺寸规则自动把关",
+                "en": "Invisible housekeeping: menu bar code gets divided up and size limits get enforced",
+                "ja": "見えない整理：メニューバーのコードを分け、サイズ制限を自動で守る",
+                "ko": "보이지 않는 정리: 메뉴 막대 코드를 나누고 크기 제한을 자동으로 지킨다"
               },
               "body": {
-                "zh-TW": "想把用量面板挪到螢幕邊角，現在直接拖曳空白處就行。它不再只能黏在選單列圖示旁、別的 app 取得焦點就收起，而是無邊框的浮動面板：放到哪裡，下次就從哪裡打開，圓角和陰影也照留著。檢查其他 app 時它仍待在原處；再按一次選單列圖示或按 Escape 才會關。拖曳不會搶走按鈕與捲動區的操作，內容高度變動時也固定左上角，因此不會像量尺從底端拉長般跳來跳去。",
-                "zh-CN": "想把用量面板挪到屏幕边角，现在直接拖动空白处就行。它不再只能黏在菜单栏图标旁、别的 app 获得焦点就收起，而是无边框的浮动面板：放到哪里，下次就从哪里打开，圆角和阴影也照样保留。查看其他 app 时它仍待在原处；再按一次菜单栏图标或按 Escape 才会关闭。拖动不会抢走按钮与滚动区的操作，内容高度变化时也固定左上角，因此不会像尺子从底端拉长般跳来跳去。",
-                "en": "Want the usage panel in a screen corner? Drag any empty spot on it. It is no longer a popover stuck to the menu-bar icon that vanishes when another app gets focus; it is a borderless floating panel that reopens where you left it, with its rounded corners and shadow intact. It stays put while you check another app, and closes only when you click the menu-bar icon again or press Escape. Dragging leaves buttons and scrollable areas alone, while resizing holds the top-left corner still so the panel does not jump like a ruler stretching from its bottom edge.",
-                "ja": "使用量パネルを画面の隅へ置きたいなら、何もない場所をそのままドラッグすればよい。メニューバーのアイコンにしか留まれず、別のアプリにフォーカスが移ると閉じる一時的な表示ではなくなった。枠のないフローティングパネルとなり、置いた場所で再び開き、角丸と影も残る。他のアプリを確認してもそこに留まり、メニューバーのアイコンをもう一度押すか Escape を押したときだけ閉じる。ドラッグはボタンやスクロール領域を奪わず、高さが変わっても左上を固定するため、下端から伸びる定規のように飛び跳ねないのである。",
-                "ko": "사용량 패널을 화면 구석에 놓고 싶다면 빈 곳을 그대로 끌면 된다. 다른 앱이 초점을 받으면 닫히고 메뉴 막대 아이콘에만 붙어 있던 임시 창이 아니라, 테두리 없는 떠 있는 패널이 되었다. 놓은 자리에서 다시 열리고 둥근 모서리와 그림자도 남는다. 다른 앱을 확인해도 제자리에 있으며, 메뉴 막대 아이콘을 한 번 더 누르거나 Escape를 눌러야 닫힌다. 끌기는 버튼과 스크롤 영역을 건드리지 않고, 높이가 바뀌어도 왼쪽 위를 고정하므로 아래쪽에서 늘어나는 자처럼 패널이 펄쩍 뛰지 않는다."
+                "zh-TW": "這版選單列畫面不變，整理藏在牆裡。`menubar.py` 已膨脹到 2,485 行，第三次超過 2,000 行。圖示與警示的輔助程式搬到 `menubar_chrome.py`，狀態建立程式移至 `menubar_state.py`，主檔降至 2,230 行。只移動檔案直屬函式。PyObjC（讓 Python 接上 macOS Objective-C 的橋樑）靠 `AppDelegate` 的方法名稱連接控制項，搬動它會令對應控制項失靈；`_popover_size` 則拆成計算函式，留三行外殼，讓無 ObjC 執行環境的單元測試仍能跑。接著，CI（自動檢查流程）開始替檔案尺寸守門，超限就讓建置失敗；切割檔案時降上限，別為通過檢查抬高它。CLAUDE.md 的模組地圖從 24 列縮到 12 列，只留會踩雷的說明。像整理屋內管線，表面不變，日後維修不必再越鑿越大。",
+                "zh-CN": "打开这版后，菜单栏不会多长出按钮或画面；这是一场藏在墙里的整理。原本的 `menubar.py` 已膨胀到 2,485 行，第三次超过 2,000 行。这次把图标与提醒的辅助程序搬到 `menubar_chrome.py`，状态创建程序放进 `menubar_state.py`，让主文件降到 2,230 行。只移动直接写在文件里的函数。PyObjC（让 Python 接上 macOS Objective-C 的桥梁）靠 `AppDelegate` 方法名称连接控件，搬动它会让对应控件悄悄失灵；`_popover_size` 则拆成计算函数，留下三行外壳，让不加载 ObjC 运行环境的单元测试仍能运行。接着，CI（每次修改都自动检查的流程）开始替文件尺寸守门，超过上限就让构建失败；切割文件时要降上限，不能为了通过检查把它抬高。最后，CLAUDE.md 的模块地图从 24 行缩到 12 行，只留真正会踩坑的说明。像整理房子里的管线，住的人看不见新摆设，日后维修却不会再把墙越凿越大。",
+                "en": "Nothing new appears in the menu bar in this release; the work is behind the wall. `menubar.py` had grown to 2,485 lines and crossed 2,000 for the third time. Icon and alert helpers now live in `menubar_chrome.py`, while state constructors moved to `menubar_state.py`, bringing the original file down to 2,230 lines. Only file-level functions moved: PyObjC, the bridge between Python and macOS Objective-C, connects controls through `AppDelegate` method names, so moving one would silently break its control. `_popover_size` was split into a calculation function with a three-line shell left behind, keeping `menubar_state.py` testable without the ObjC runtime. CI, the automatic check run on changes, now fails a build when a guarded file exceeds its limit; after a cut, lower the limit rather than raising it to pass. CLAUDE.md's module map also shrank from 24 rows to 12, keeping only warnings that are not obvious from opening each module. It is like reorganizing plumbing: no new fixture appears, but later repairs need not keep breaking through a larger wall.",
+                "ja": "この版でメニューバーに新しいボタンや画面は現れない。壁の中で行う整理である。`menubar.py` は 2,485 行まで膨らみ、2,000 行を超えるのは三度目だった。アイコンと警告の補助関数を `menubar_chrome.py` へ、状態を作る関数を `menubar_state.py` へ移し、元のファイルを 2,230 行に減らした。移したのはファイル直下の関数だけである。PyObjC は Python と macOS の Objective-C をつなぐ橋であり、`AppDelegate` のメソッド名で操作部品を結ぶため、それを移すと対応する部品が黙って動かなくなる。`_popover_size` は計算関数に分け、三行の殻を残したので、ObjC の実行環境なしでも `menubar_state.py` を単体テストできる。CI は変更ごとに自動確認する仕組みであり、対象ファイルが上限を超えるとビルドを失敗させる。分割したら上限を下げ、通すために上げない。CLAUDE.md のモジュール地図も 24 行から 12 行へ縮め、開けば分かる説明を外した。家の配管を整理するように、見た目は変わらなくても後の修理で壁を余計に壊さずに済むのである。",
+                "ko": "이번 판을 열어도 메뉴 막대에 새 버튼이나 화면이 생기지는 않는다. 벽 안쪽에서 하는 정리다. `menubar.py`는 2,485줄까지 불어나 세 번째로 2,000줄을 넘겼다. 아이콘과 알림 보조 함수는 `menubar_chrome.py`로, 상태를 만드는 함수는 `menubar_state.py`로 옮겨 원래 파일을 2,230줄까지 줄였다. 파일 맨 위에 직접 쓴 함수만 옮겼다. PyObjC는 Python과 macOS의 Objective-C를 잇는 다리이며 `AppDelegate` 메서드 이름으로 조작 부품을 연결하므로, 그것을 옮기면 해당 부품이 소리 없이 작동을 멈춘다. `_popover_size`는 계산 함수로 나누고 세 줄짜리 껍데기를 남겨 ObjC 실행 환경 없이도 `menubar_state.py`를 단위 테스트할 수 있게 했다. CI는 변경 때마다 자동 검사하는 절차로, 대상 파일이 한도를 넘으면 빌드를 실패시킨다. 파일을 나눴다면 한도를 낮추며, 통과하려고 올리지는 않는다. CLAUDE.md의 모듈 지도도 24줄에서 12줄로 줄여 파일을 열면 알 수 있는 설명을 뺐다. 집 배관을 정리하듯 겉모습은 같아도 나중 수리 때 벽을 더 크게 뜯지 않게 한다."
               },
-              "original": "**The panel can now be placed anywhere on screen**: it was an `NSPopover`, which AppKit anchors to the status item and dismisses the moment focus moves elsewhere, so where it sat was never yours to choose. It is now a borderless floating panel: drag it from any empty spot, and it reopens where you left it. It stays put when another app takes focus — a second click on the menu bar icon, or Escape, closes it. Rounded corners and the drop shadow came free with the popover and are now drawn by the window itself. Dragging travels over the existing JS bridge: an injected script reports a mousedown that landed outside any interactive or scrollable element, and the window hands the gesture to `performWindowDragWithEvent:` so the system drives it. Resizing pins the top-left corner, because a window's origin is its bottom-left and the panel would otherwise appear to jump every time its height tracked a fresh content measurement."
-            },
-            {
-              "title": {
-                "zh-TW": "AI 人才市集面板不再縮成一條",
-                "zh-CN": "AI 人才市场面板不再缩成一条",
-                "en": "The AI Talent Market panel no longer squashes itself flat",
-                "ja": "AI Talent Market のパネルが細い一列に潰れなくなった",
-                "ko": "AI Talent Market 패널이 납작한 줄 하나로 찌그러지지 않는다"
-              },
-              "body": {
-                "zh-TW": "AI 人才市集面板有時一打開只剩標題那一條，隊伍清單像被折進抽屜底部；現在不會了。問題不在資料消失，而是它量高度時暫時放開限制，內部採固定高度、自己捲動的清單剛好被量成零高；又因量測時間不同，才會時好時壞。新版讓各面板決定是否參加這個自動量測。人才市集本來就該固定高度、在裡面捲動，現在跳過自動量測，打開就能看到完整隊伍清單。",
-                "zh-CN": "AI 人才市场面板有时一打开只剩标题那一条，队伍清单像被折进抽屉底部；现在不会了。问题不在数据消失，而是它量高度时暂时放开限制，内部采用固定高度、自己滚动的清单刚好被量成零高；又因测量时间不同，才会时好时坏。新版让各面板决定是否参加这个自动测量。人才市场本来就该固定高度、在里面滚动，现在跳过测量，打开就能看到完整清单。",
-                "en": "The AI Talent Market panel sometimes opened as little more than its header, as if the team list had been folded into the bottom of a drawer. That list was not gone: while the app measured content height, it temporarily released layout constraints, and this fixed-height, internally scrolling list could collapse to zero. Timing made the failure intermittent. Panels can now opt out of that automatic measurement. AI Talent Market was always meant to keep a fixed height and scroll inside it, so it skips the measurement and opens with the full list visible.",
-                "ja": "AI Talent Market のパネルを開くと、時々見出し一行だけになり、チーム一覧が引き出しの底へ折り畳まれたように消えていた。データが消えたのではない。高さを測る間にレイアウトの制限を一時的に外すと、固定の高さで内部スクロールするこの一覧は高さゼロまで縮むことがあった。測定のタイミング次第だったため、起きたり起きなかったりしたのである。今後は各パネルがこの自動測定に参加するか選べる。AI Talent Market は元から固定の高さで中をスクロールする設計なので、測定を飛ばし、完全な一覧を表示して開く。",
-                "ko": "AI Talent Market 패널은 가끔 제목 줄만 남아 팀 목록이 서랍 바닥으로 접혀 들어간 듯 보였다. 데이터가 사라진 것은 아니다. 앱이 내용 높이를 잴 때 배치 제한을 잠시 풀면, 고정 높이 안에서 스스로 스크롤하는 이 목록이 높이 0으로 접힐 수 있었다. 측정 순간에 따라 달라져서 간헐적으로 나타난 문제였다. 이제 각 패널은 이 자동 측정에 참여할지 고를 수 있다. AI Talent Market은 원래 고정 높이 안에서 스크롤하도록 만든 패널이므로 측정을 건너뛰고 전체 목록을 보인 채 열린다."
-              },
-              "original": "**The AI Talent Market panel no longer collapses into a squashed strip**: the panel intermittently opened at roughly the height of its own header, cutting off the team list. The dynamic content-height probe releases the layout's height constraints before measuring, and this panel builds its list as an absolutely positioned layer inside a `flex: 1` body — with the constraints released, that body collapsed to zero and the probe reported little more than the header, which the clamp then rounded up to the minimum panel height. Whether it happened came down to measurement timing, hence the intermittency. Panels now carry a switch for the probe, and this one — a fixed-height design that scrolls internally and never needed measuring — opts out."
-            },
-            {
-              "title": {
-                "zh-TW": "切換面板選單收起時，不再連面板一起關",
-                "zh-CN": "切换面板菜单收起时，不再连面板一起关",
-                "en": "Closing the Switch Panel menu no longer closes the panel too",
-                "ja": "Switch Panel メニューを閉じても、パネルまで閉じなくなった",
-                "ko": "Switch Panel 메뉴를 닫아도 패널까지 함께 닫히지 않는다"
-              },
-              "body": {
-                "zh-TW": "點開「切換面板」選單後，想回去看面板卻把整張面板關掉的烏龍沒了。以前選單打開時，原本的彈出式選單已經消失；清理它的動作卻誤把浮動面板當成也該收掉的東西。因此你按 Escape、點面板或點到別處，選單消失的同時面板也消失。現在清理只會關選單，浮動面板仍會安穩地繼續留在原處，像收起工具抽屜旁的小選單，桌上的工作紙不會一起被掃走。",
-                "zh-CN": "点开“切换面板”菜单后，想回去看面板却把整张面板关掉的乌龙没了。以前菜单打开时，原本的弹出式菜单已经消失；清理它的动作却误把浮动面板当成也该收掉的东西。因此你按 Escape、点面板或点到别处，菜单消失的同时面板也消失。现在清理只会关菜单，浮动面板会留着，像收起工具抽屉旁的小菜单，桌上的工作纸不会一起被扫走。",
-                "en": "The awkward moment when opening the “Switch Panel” menu made the whole panel disappear is gone. Previously, the temporary popover was already finished once the menu took focus, but its cleanup treated the floating panel as something to dismiss too. So pressing Escape, clicking the panel, or clicking elsewhere hid both the menu and the panel. Now cleanup closes only the menu. The floating panel stays, like folding away the little menu beside a tool drawer without sweeping the papers off your desk.",
-                "ja": "「Switch Panel」メニューを開いた後、パネルへ戻ろうとしてパネル全体まで消してしまう事故がなくなった。以前はメニューにフォーカスが移る時点で一時的なポップオーバーはすでに役目を終えていたが、その後始末がフローティングパネルまで閉じる対象として扱っていた。そのため Escape を押す、パネルをクリックする、ほかの場所をクリックすると、メニューと同時にパネルも消えた。今は後始末が閉じるのはメニューだけである。道具箱脇の小さなメニューを畳んでも、机上の作業用紙まで掃き落とさないようなものである。",
-                "ko": "“Switch Panel” 메뉴를 연 뒤 패널로 돌아가려다 패널 전체를 닫아 버리던 일이 사라졌다. 예전에는 메뉴가 초점을 받을 때 임시 팝오버가 이미 제 역할을 마쳤는데, 그 뒷정리가 떠 있는 패널까지 닫을 대상으로 여겼다. 그래서 Escape를 누르거나 패널을 누르거나 다른 곳을 누르면 메뉴와 패널이 함께 사라졌다. 이제 뒷정리는 메뉴만 닫는다. 도구 서랍 옆의 작은 메뉴를 접어도 책상 위 작업지를 쓸어 버리지는 않는 것과 같다."
-              },
-              "original": "**Dismissing the switch-panel menu no longer closes the panel**: opening \"Switch Panel\" and then clicking the panel itself, pressing Escape, or clicking away closed the whole panel. A transient popover was already gone by the time the menu took focus, so closing it was merely cleanup; the floating panel survives the menu, which turned the same cleanup into a mistouch that threw the panel away."
+              "original": "**Nothing changes on screen in this release — it is housekeeping on the menu bar code.** `menubar.py` had reached 2485 lines, creeping past 2000 for the third time after being split apart twice. The icon and alert helpers moved into a new `menubar_chrome.py`, and the state constructors joined `menubar_state.py`, taking the file down to 2230. Only module-level functions moved: PyObjC binds `AppDelegate` methods by selector name, so relocating one would silently stop the matching control from working. `_popover_size` was split rather than moved, because it ends in `NSMakeSize` and `menubar_state.py` has to stay importable without the ObjC runtime for its projections to be unit-testable — the arithmetic moved as `popover_dimensions()` and a three-line shell stayed behind.\n**The growth policy behind that cleanup is now enforced by CI rather than by discipline.** `scripts/check_file_size.py` fails the build when a guarded file passes its ceiling. The rule had been written in CLAUDE.md all along; nothing checked it, and the file grew back twice. Lower a ceiling when a cut lands, never raise it to go green.\n**CLAUDE.md's module map lists only modules with a gotcha.** Half its rows restated what opening the file would tell you, and three separate rows repeated the same stdlib-only constraint. It went from 24 rows to 12."
             }
           ]
         }
@@ -1551,130 +1572,159 @@
       "id": "gh_cli",
       "name": "GitHub CLI",
       "latest": {
-        "version": "2.96.0",
+        "version": "2.97.0",
         "raw": {
-          "version": "2.96.0",
-          "period": "2026-07-02",
-          "source_url": "https://github.com/cli/cli/releases/tag/v2.96.0",
+          "version": "2.97.0",
+          "period": "2026-07-31",
+          "source_url": "https://github.com/cli/cli/releases/tag/v2.97.0",
           "entries": [
-            "Allow `gh release download` without authentication on public repositories by @BagToad in [#13723](https://github.com/cli/cli/pull/13723)",
-            "Detect additional third-party coding agents by @BagToad in [#13722](https://github.com/cli/cli/pull/13722)",
-            "Support `antigravity-cli` and `antigravity2.0` in `gh skill` by @BagToad in [#13784](https://github.com/cli/cli/pull/13784)",
-            "fix: show checks summary when all checks were cancelled by @s3onghyun in [#13679](https://github.com/cli/cli/pull/13679)",
-            "fix(skills): install universal agent to `~/.agents/skills` by @toller892 in [#13681](https://github.com/cli/cli/pull/13681)",
-            "fix(skills): honor `--dir` without agent prompt by @happysnaker in [#13766](https://github.com/cli/cli/pull/13766)",
-            "Fix concurrent map writes in codespace port forwarding by @williammartin in [#13313](https://github.com/cli/cli/pull/13313)",
-            "Use `int64` for GitHub database IDs by @williammartin in [#13403](https://github.com/cli/cli/pull/13403)",
-            "Pin reusable triage workflows to a commit SHA by @BagToad in [#13705](https://github.com/cli/cli/pull/13705)",
-            "Add security disclosure guidance to `AGENTS.md` by @BagToad in [#13720](https://github.com/cli/cli/pull/13720)",
-            "Clarify `--clone` boolean flag behaviour in `gh repo fork` help by @BagToad in [#13786](https://github.com/cli/cli/pull/13786)",
-            "Fix flaky `TestHuhPrompterMultiSelectWithSearchPersistence` on slow architectures by @pdostal in [#13675](https://github.com/cli/cli/pull/13675)",
-            "docs(search): add examples for multiple qualifiers by @happysnaker in [#13756](https://github.com/cli/cli/pull/13756)",
-            "docs: fix broken anchor link in release-process-deep-dive by @patrickwehbe in [#13688](https://github.com/cli/cli/pull/13688)",
-            "docs: fix broken install command and link/grammar errors by @patrickwehbe in [#13690](https://github.com/cli/cli/pull/13690)",
-            "docs: fix duplicated word in primer README by @s3onghyun in [#13677](https://github.com/cli/cli/pull/13677)",
-            "chore(deps): bump github.com/microsoft/dev-tunnels from 0.1.19 to 0.1.27 by @dependabot in [#13708](https://github.com/cli/cli/pull/13708)",
-            "chore(deps): bump actions/checkout from 6.0.3 to 7.0.0 by @dependabot in [#13703](https://github.com/cli/cli/pull/13703)",
-            "chore(deps): bump github.com/google/go-containerregistry from 0.21.6 to 0.21.7 by @dependabot in [#13702](https://github.com/cli/cli/pull/13702)",
-            "chore(deps): bump actions/setup-go from 6.4.0 to 6.5.0 by @dependabot in [#13740](https://github.com/cli/cli/pull/13740)",
-            "chore(deps): bump actions/attest from 4.1.0 to 4.1.1 by @dependabot in [#13754](https://github.com/cli/cli/pull/13754)",
-            "chore(deps): bump goreleaser/goreleaser-action from 7.2.2 to 7.2.3 by @dependabot in [#13759](https://github.com/cli/cli/pull/13759)",
-            "chore(deps): bump golangci/golangci-lint-action from 9.2.1 to 9.3.0 by @dependabot in [#13779](https://github.com/cli/cli/pull/13779)",
-            "@patrickwehbe made their first contribution in https://github.com/cli/cli/pull/13688",
-            "@s3onghyun made their first contribution in https://github.com/cli/cli/pull/13679",
-            "@toller892 made their first contribution in https://github.com/cli/cli/pull/13681",
-            "@happysnaker made their first contribution in https://github.com/cli/cli/pull/13756"
+            "Add name-based resolution to `gh project item-edit` by @zwick in [#13807](https://github.com/cli/cli/pull/13807)",
+            "Add named field columns to `gh project item-list` by @zwick in [#13823](https://github.com/cli/cli/pull/13823)",
+            "Add Grok skill host support by @tommaso-moro in [#13864](https://github.com/cli/cli/pull/13864)",
+            "Replace Windsurf with Devin in `gh skill` agents by @tommaso-moro in [#13987](https://github.com/cli/cli/pull/13987)",
+            "Gracefully handle failed GitHub verifier initialization caused by a missing trusted root by @malancas in [#13624](https://github.com/cli/cli/pull/13624)",
+            "Bump keyring operation timeout from 3s to 60s so interactive unlock prompts have time to complete by @kofuk in [#13787](https://github.com/cli/cli/pull/13787)",
+            "Fix skill picker label wrapping by @tommaso-moro in [#13967](https://github.com/cli/cli/pull/13967)",
+            "Bump Go to 1.26.5 by @github-actions[bot] in [#13817](https://github.com/cli/cli/pull/13817)",
+            "Add `OWNER/REPO` format hint to the `gh search --repo` flag by @BagToad in [#13922](https://github.com/cli/cli/pull/13922)",
+            "Present by-name `item-edit` as the first-class project flow in docs by @Solaris-star in [#13927](https://github.com/cli/cli/pull/13927)",
+            "Add a macOS keyring security doc by @williammartin in [#13960](https://github.com/cli/cli/pull/13960)",
+            "Add a code review agent skill by @BagToad in [#14003](https://github.com/cli/cli/pull/14003)",
+            "Establish a pull request template for scale by @BagToad in [#14004](https://github.com/cli/cli/pull/14004)",
+            "Add an agentic issue-triage workflow by @lukewar in [#13777](https://github.com/cli/cli/pull/13777)",
+            "Use the Actions token for Copilot inference in the issue-triage workflow by @tidy-dev in [#13830](https://github.com/cli/cli/pull/13830)",
+            "Refresh the issue-triage agentic workflow to gh-aw v0.83.1 by @alondahari in [#13949](https://github.com/cli/cli/pull/13949)",
+            "Add a dependabot-triage agentic workflow by @williammartin in [#13985](https://github.com/cli/cli/pull/13985)",
+            "Harden the deployment workflow by @niik in [#13780](https://github.com/cli/cli/pull/13780)",
+            "Replace `SITE_DEPLOY_PAT` with the gh-cli-site-deployer App by @williammartin in [#13492](https://github.com/cli/cli/pull/13492)",
+            "Group CodeQL Dependabot updates by @williammartin in [#13943](https://github.com/cli/cli/pull/13943)",
+            "Remove a dead CODEOWNERS rule for the non-existent `pkg/cmd/release/attestation/` by @kobihikri in [#13886](https://github.com/cli/cli/pull/13886)",
+            "Fix typos in code and documentation by @pstoeckle in [#13940](https://github.com/cli/cli/pull/13940)",
+            "Fix duplicated-word typos in comments by @SORBELLOSTEFANIE in [#13900](https://github.com/cli/cli/pull/13900)",
+            "chore(deps): bump charm.land/lipgloss/v2 from 2.0.4 to 2.0.5 by @dependabot in [#13790](https://github.com/cli/cli/pull/13790)",
+            "chore(deps): bump google.golang.org/grpc from 1.81.1 to 1.82.0 by @dependabot in [#13789](https://github.com/cli/cli/pull/13789)",
+            "chore(deps): bump https://github.com/klauspost/compress from 1.18.6 to 1.19.0 by @dependabot in [#13791](https://github.com/cli/cli/pull/13791)",
+            "chore(deps): bump charm.land/bubbletea/v2 from 2.0.7 to 2.0.8 by @dependabot in [#13800](https://github.com/cli/cli/pull/13800)",
+            "chore(deps): bump golang.org/x/text from 0.38.0 to 0.39.0 by @dependabot in [#13812](https://github.com/cli/cli/pull/13812)",
+            "chore(deps): bump golang.org/x/sys from 0.46.0 to 0.47.0 by @dependabot in [#13821](https://github.com/cli/cli/pull/13821)",
+            "chore(deps): bump github/codeql-action/analyze from 4.36.2 to 4.36.3 by @dependabot in [#13801](https://github.com/cli/cli/pull/13801)",
+            "chore(deps): bump github/gh-aw-actions/setup from 0.81.6 to 0.82.2 by @dependabot in [#13832](https://github.com/cli/cli/pull/13832)",
+            "chore(deps): bump charm.land/bubbles/v2 from 2.1.0 to 2.1.1 by @dependabot in [#13813](https://github.com/cli/cli/pull/13813)",
+            "chore(deps): bump golang.org/x/sync from 0.21.0 to 0.22.0 by @dependabot in [#13822](https://github.com/cli/cli/pull/13822)",
+            "chore(deps): bump github/gh-aw-actions/setup from 0.82.2 to 0.82.3 by @dependabot in [#13843](https://github.com/cli/cli/pull/13843)",
+            "chore(deps): bump actions/cache/restore from 5.0.5 to 6.1.0 by @dependabot in [#13841](https://github.com/cli/cli/pull/13841)",
+            "chore(deps): bump golang.org/x/crypto from 0.53.0 to 0.54.0 by @dependabot in [#13867](https://github.com/cli/cli/pull/13867)",
+            "chore(deps): bump github/codeql-action/analyze from 4.36.3 to 4.37.0 by @dependabot in [#13869](https://github.com/cli/cli/pull/13869)",
+            "chore(deps): bump github/codeql-action/upload-sarif from 4.36.2 to 4.37.0 by @dependabot in [#13868](https://github.com/cli/cli/pull/13868)",
+            "chore(deps): bump github/codeql-action/init from 4.36.3 to 4.37.1 by @dependabot in [#13870](https://github.com/cli/cli/pull/13870)",
+            "chore(deps): bump https://github.com/yuin/goldmark from 1.8.2 to 1.8.4 by @dependabot in [#13888](https://github.com/cli/cli/pull/13888)",
+            "chore(deps): bump https://github.com/sigstore/sigstore-go from 1.2.1 to 1.2.2 by @dependabot in [#13842](https://github.com/cli/cli/pull/13842)",
+            "chore(deps): bump github/gh-aw-actions/setup from 0.82.3 to 0.82.8 by @dependabot in [#13877](https://github.com/cli/cli/pull/13877)",
+            "chore(deps): bump actions/setup-go from 6.5.0 to 7.0.0 by @dependabot in [#13933](https://github.com/cli/cli/pull/13933)",
+            "chore(deps): bump google.golang.org/grpc from 1.82.0 to 1.82.1 by @dependabot in [#13934](https://github.com/cli/cli/pull/13934)",
+            "chore(deps): bump actions/setup-node from 6.4.0 to 7.0.0 by @dependabot in [#13936](https://github.com/cli/cli/pull/13936)",
+            "chore(deps): bump actions/attest from 4.1.1 to 4.2.0 by @dependabot in [#13935](https://github.com/cli/cli/pull/13935)",
+            "chore(deps): bump https://github.com/mattn/go-isatty from 0.0.22 to 0.0.23 by @dependabot in [#13937](https://github.com/cli/cli/pull/13937)",
+            "chore(deps): bump github/gh-aw-actions/setup from 0.82.8 to 0.82.13 by @dependabot in [#13938](https://github.com/cli/cli/pull/13938)",
+            "chore(deps): bump actions/checkout from 7.0.0 to 7.0.1 by @dependabot in [#13941](https://github.com/cli/cli/pull/13941)",
+            "chore(deps): bump github/codeql-action/upload-sarif from 4.37.0 to 4.37.1 by @dependabot in [#13942](https://github.com/cli/cli/pull/13942)",
+            "chore(deps): bump https://github.com/gabriel-vasile/mimetype from 1.4.13 to 1.4.14 by @dependabot in [#13944](https://github.com/cli/cli/pull/13944)",
+            "chore(deps): bump nodeselector/setup-apple-codesign from ab275d0 to 309922b by @dependabot in [#13878](https://github.com/cli/cli/pull/13878)",
+            "chore(deps): bump https://github.com/klauspost/compress from 1.19.0 to 1.19.1 by @dependabot in [#13950](https://github.com/cli/cli/pull/13950)",
+            "chore(deps): bump github/gh-aw-actions/setup from 0.82.13 to 0.82.14 by @dependabot in [#13951](https://github.com/cli/cli/pull/13951)",
+            "chore(deps): bump the codeql-actions group with 3 updates by @dependabot in [#13965](https://github.com/cli/cli/pull/13965)",
+            "chore(deps): bump https://github.com/mattn/go-isatty from 0.0.23 to 0.0.24 by @dependabot in [#13977](https://github.com/cli/cli/pull/13977)",
+            "chore(deps): bump the codeql-actions group with 3 updates by @dependabot in [#13978](https://github.com/cli/cli/pull/13978)",
+            "chore(deps): bump https://github.com/gabriel-vasile/mimetype from 1.4.14 to 1.4.15 by @dependabot in [#13976](https://github.com/cli/cli/pull/13976)",
+            "chore(deps): bump github/gh-aw-actions/setup from 0.83.1 to 0.83.2 by @dependabot in [#13979](https://github.com/cli/cli/pull/13979)",
+            "chore(deps): bump github/gh-aw-actions/setup-cli from 0.83.1 to 0.83.2 by @dependabot in [#13980](https://github.com/cli/cli/pull/13980)",
+            "chore(deps): bump actions/checkout from 6 to 7 by @dependabot in [#13981](https://github.com/cli/cli/pull/13981)",
+            "chore(deps): bump github/gh-aw-actions/setup from 0.83.2 to 0.83.3 by @dependabot in [#13995](https://github.com/cli/cli/pull/13995)",
+            "chore(deps): bump github/gh-aw-actions/setup-cli from 0.83.2 to 0.83.3 by @dependabot in [#13996](https://github.com/cli/cli/pull/13996)",
+            "chore(deps): bump github/gh-aw-actions/setup-cli from 0.83.3 to 0.83.4 by @dependabot in [#14018](https://github.com/cli/cli/pull/14018)",
+            "@lukewar made their first contribution in https://github.com/cli/cli/pull/13777",
+            "@niik made their first contribution in https://github.com/cli/cli/pull/13780",
+            "@kofuk made their first contribution in https://github.com/cli/cli/pull/13787",
+            "@zwick made their first contribution in https://github.com/cli/cli/pull/13807",
+            "@kobihikri made their first contribution in https://github.com/cli/cli/pull/13886",
+            "@pstoeckle made their first contribution in https://github.com/cli/cli/pull/13940",
+            "@Solaris-star made their first contribution in https://github.com/cli/cli/pull/13927",
+            "@SORBELLOSTEFANIE made their first contribution in https://github.com/cli/cli/pull/13900",
+            "@alondahari made their first contribution in https://github.com/cli/cli/pull/13949"
           ],
-          "fetched_at": "2026-07-15"
+          "fetched_at": "2026-07-31"
         },
         "curated": {
-          "version": "2.96.0",
-          "period": "2026-07-02",
+          "version": "2.97.0",
+          "period": "2026-07-31",
           "items": [
             {
               "title": {
-                "zh-TW": "免登入下載公開專案的發布檔",
-                "zh-CN": "免登录下载公开项目的发布档",
-                "en": "Download public releases without authentication",
-                "ja": "ログイン不要で公開プロジェクトのリリースをダウンロード",
-                "ko": "로그인 없이 공개 프로젝트 배포 파일 다운로드"
+                "zh-TW": "用名稱改 Project 項目，清單欄位也看得到名字",
+                "zh-CN": "用名称改 Project 项目，清单字段也看得到名字",
+                "en": "Edit Project items by name and see named fields in lists",
+                "ja": "名前で Project 項目を編集し、一覧で名前付きフィールドを表示",
+                "ko": "이름으로 Project 항목을 고치고 목록에서 이름 있는 필드를 본다"
               },
               "body": {
-                "zh-TW": "你是不是常在沒有登入帳號的乾淨電腦上，只想快速下載某個公開專案的安裝檔，卻被登入提示卡住？以往即使你想抓取的軟體是放在完全公開的專案中，執行命令時，系統還是會硬性要求進行 authentication（驗證程序，確認使用者身分的程序）才能下載。現在這個不方便的門檻被移除了，只要是公開專案，任何人都可以免登入直接把發布檔抓下來。這就像走進免費開放的市立圖書館拿一份導覽手冊，以前警衛還會擋在門口硬要你掏出借書證來登記，現在只要是公開擺在架上的東西，你推開門就能直接拿走。當你在新主機上需要快速抓取公開安裝檔時，這正是你輸入 `gh release download` 的時刻，保證一路暢通。",
-                "zh-CN": "你是不是常在没有登录账号的干净电脑上，只想快速下载某个公开项目的安装包，却被登录提示卡住？以往即使你想抓取的软件是放在完全公开的项目中，运行命令时，系统还是会硬性要求进行 authentication（验证程序，确认用户身份的程序）才能下载。现在这个不方便的门槛被移除了，只要是公开项目，任何人都可以免登录直接把发布文件抓下来。这就像走进免费开放的市立图书馆拿一份导览手册，以前警卫还会挡在门口硬要你掏出借书证来登记，现在只要是公开摆在架上的东西，你推开门就能直接拿走。当你在新主机上需要快速抓取公开安装包时，这正是你运行 `gh release download` 的时候，保证一路畅通。",
-                "en": "Have you ever tried to quickly fetch a release installer from a public repository on a clean system, only to be blocked by login prompts? Previously, even when a tool was hosted in a completely public project, trying to grab it would trigger a mandatory authentication (verification process confirming your identity) flow. We have now removed this hurdle, allowing anonymous access to all public releases. It is like walking into a public library to grab a brochure: the guard used to stubbornly demand your library card just to take a free leaflet, but now you can just walk in and take it. When you need to fetch a public installer on a new machine, that is when to run `gh release download` and download it without any hassle.",
-                "ja": "アカウント設定をしていない綺麗な PC から、公開プロジェクトのリリースファイルを急いで取得しようとして、ログイン画面に邪魔されたことはないだろうか。以前は、対象のプロジェクトが誰にでも開かれているものであっても、コマンド実行時に authentication（認証、本人であることを確認する手続き）が強制された。今回この不便な制限が解除され、公開リポジトリのリリースは誰でもログインなしで保存できるようになった。図書館で例えれば、案内パンフレットを1枚もらうだけで図書カードの提示を求めてきた警備員がいなくなり、棚から自由に持ち帰れるようになったようなものである。新規サーバーで公開リリースを入手したいときこそ、`gh release download` を実行する瞬間である。",
-                "ko": "로그인을 안 한 새 컴퓨터에서 공개 프로젝트의 릴리스 파일만 빠르게 받고 싶은데 로그인 창이 나타나 막혔던 적이 있는가? 이전에는 해당 도구가 공개된 저장소에 있더라도 명령어를 쓸 때 authentication(인증, 본인 확인을 거치는 절차)이 필수로 요구됐다. 이제 이 문턱이 사라져서 공개된 프로젝트라면 로그인 없이 누구나 배포 파일을 직접 가져올 수 있다. 도서관에서 안내 책자를 하나 집을 때 대출증을 확인하던 경비원이 없어져 누구나 자유롭게 들고 갈 수 있게 된 것과 같다. 새 장비에서 공개 설치 파일을 즉시 받아야 할 때가 바로 `gh release download`를 실행할 순간이다."
+                "zh-TW": "你在 GitHub Project（把工作拆成卡片和欄位的管理看板）裡找待辦事項，不必先翻出那串難記的 ID 了。`gh project item-edit` 現在能依名稱找到項目；像整理「修登入頁」這張卡時，可直接用它的名字指定對象。`gh project item-list` 也能把具名欄位列出來，清單不再只像一排沒有標籤的抽屜。搜尋某個儲存庫時，`gh search --repo` 會提示 `OWNER/REPO` 格式，文件也把依名稱編輯列為主要做法。",
+                "zh-CN": "你在 GitHub Project（把工作拆成卡片和字段的管理看板）里找待办事项，不必先翻出那串难记的 ID 了。`gh project item-edit` 现在能按名称找到项目；比如整理“修登录页”这张卡时，可直接用它的名字指定对象。`gh project item-list` 也能列出具名字段，清单不再只像一排没有标签的抽屉。搜索某个仓库时，`gh search --repo` 会提示 `OWNER/REPO` 格式，文档也把按名称编辑列为主要做法。",
+                "en": "When you are looking for a task in a GitHub Project, you no longer have to dig up its hard-to-remember ID first. `gh project item-edit` can now resolve an item by name, so you can target a card such as “Fix login page” by its name. `gh project item-list` can show named field columns too, rather than a row of unlabeled drawers. `gh search --repo` now hints at the `OWNER/REPO` format, and the docs present name-based editing as the main Project flow.",
+                "ja": "GitHub Project でタスクを探すとき、覚えにくい ID を先に掘り出さなくてよくなった。`gh project item-edit` は項目名から対象を解決できるため、「ログイン画面を直す」のようなカードを名前で指定できる。`gh project item-list` では名前付きフィールドの列も表示でき、一覧がラベルのない引き出しの列ではなくなる。`gh search --repo` には `OWNER/REPO` 形式のヒントが出て、文書も名前での編集を中心の手順として示す。",
+                "ko": "GitHub Project에서 할 일을 찾을 때 외우기 힘든 ID부터 꺼내 볼 필요가 없어졌다. `gh project item-edit`가 이제 이름으로 항목을 찾아 주므로 “로그인 페이지 고치기” 같은 카드를 이름으로 지정할 수 있다. `gh project item-list`는 이름 붙은 필드 열도 보여 주어 목록이 라벨 없는 서랍 줄처럼 보이지 않는다. `gh search --repo`에는 `OWNER/REPO` 형식 힌트가 나오고, 문서도 이름으로 편집하는 흐름을 중심으로 안내한다."
               },
-              "original": "Allow `gh release download` without authentication on public repositories by @BagToad in [#13723](https://github.com/cli/cli/pull/13723)"
+              "original": "Add name-based resolution to `gh project item-edit` by @zwick in [#13807](https://github.com/cli/cli/pull/13807)\nAdd named field columns to `gh project item-list` by @zwick in [#13823](https://github.com/cli/cli/pull/13823)\nAdd `OWNER/REPO` format hint to the `gh search --repo` flag by @BagToad in [#13922](https://github.com/cli/cli/pull/13922)\nPresent by-name `item-edit` as the first-class project flow in docs by @Solaris-star in [#13927](https://github.com/cli/cli/pull/13927)\n@zwick made their first contribution in https://github.com/cli/cli/pull/13807\n@Solaris-star made their first contribution in https://github.com/cli/cli/pull/13927"
             },
             {
               "title": {
-                "zh-TW": "廣納更多 AI 代理工具，技能安裝更聽話",
-                "zh-CN": "广纳更多 AI 代理工具，技能安装更听话",
-                "en": "More AI agents supported and smarter skill installation",
-                "ja": "対応 AI エージェントの拡大と賢いスキルインストール",
-                "ko": "더 많은 AI 에이전트 지원 및 똑똑해진 스킬 설치"
+                "zh-TW": "`gh skill` 接上 Grok，代理清單換成 Devin",
+                "zh-CN": "`gh skill` 接上 Grok，代理列表换成 Devin",
+                "en": "`gh skill` adds Grok and swaps Windsurf for Devin",
+                "ja": "`gh skill` が Grok に対応し、Windsurf を Devin に差し替え",
+                "ko": "`gh skill`이 Grok을 지원하고 Windsurf 대신 Devin을 쓴다"
               },
               "body": {
-                "zh-TW": "你正在為 AI 代理工具配置新的擴充能力，卻因為指令一直彈出不必要的提問而感到心煩？這次更新擴大了支援，讓 `gh skill` 指令能自動偵測更多第三方的 coding agents（寫程式碼代理，能協助撰寫程式碼的 AI 助手），並完整支援 `antigravity-cli` 與 `antigravity2.0`。此外，通用技能的預設安裝路徑也更正為 `~/.agents/skills`；更棒的是，如果你已經指定了安裝目錄參數，系統就不會再彈出冗餘的 prompt（互動提示，指程式在終端機中要求使用者輸入或選擇的畫面），會直接遵守你的選擇。這就像買了一支萬用遙控器，它學會了最新電視的頻率，而且當你指著電視按開關時，它不會再跳出選單囉唆地問你要遙控哪台設備。當你想自訂路徑且不想被打擾，這正是你使用 `gh skill` 指令的時刻。",
-                "zh-CN": "你正在为 AI 代理工具配置新的扩充能力，却因为指令一直弹出不必要的提问而感到心烦？这次更新扩大了支持，让 `gh skill` 指令能自动侦测更多第三方的 coding agents（写代码代理，能协助撰写代码的 AI 助手），并完整支持 `antigravity-cli` 与 `antigravity2.0`。此外，通用技能的默认安装路径也更正为 `~/.agents/skills`；更棒的是，如果你已经指定了安装目录参数，系统就不会再弹出冗余的 prompt（互动提示，指程序在终端中要求用户输入或选择的画面），会直接尊重你的选择。这就像买了一支万能遥控器，它学会了最新电视的频率，而且当你指着电视按开关时，它不会再弹出菜单啰唆地问你要遥控哪台设备。当你想自定义路径且不想被打扰，这正是你使用 `gh skill` 指令的时候。",
-                "en": "Are you setting up custom capabilities for your AI helper, only to be annoyed by redundant terminal questions? This update expands the reach of the `gh skill` command to detect more third-party coding agents (AI assistants that help you write code) and officially support `antigravity-cli` and `antigravity2.0`. Under the hood, universal skills are now correctly routed to `~/.agents/skills`. Best of all, if you specify the installation path directly, the system will honor it without prompting (asking questions via terminal menu dialogs). It is like using a universal remote that supports the latest TVs; when you point it at the screen and press power, it no longer pops up a menu asking which device you wish to control. When you want a silent, customized install, that is when to run `gh skill`.",
-                "ja": "AI アシスタントに新しい能力を追加したいのに、コマンドから余計な確認質問が何度も飛んできて煩わしく思ったことはないだろうか。今回 `gh skill` コマンドが拡張され、より多くのサードパーティ製 coding agents（コーディングエージェント、プログラムの記述を支援する AI 助手）を検出できるようになり、`antigravity-cli` と `antigravity2.0` にも対応した。また、スキルファイルの標準保存先が `~/.agents/skills` に修正された。何より、パラメータでフォルダを指定した際は、余計な prompt（プロンプト、操作を一時停止して回答を求める案内）を出さずに指示通り動くようになった。最新テレビに対応した万能リモコンのようなもので、電源を押したときに余計なメニュー画面が出なくなった。パスを直接指定して静かにインストールしたいときこそ、`gh skill` コマンドを実行する瞬間である。",
-                "ko": "AI 조수에게 새로운 기능을 더해주려는데, 명령어에서 불필요한 질문을 자꾸 던져 답답했던 적이 있는가? 이번 변경으로 `gh skill` 명령어가 더 많은 coding agents(코딩 에이전트, 코드 작성을 돕는 AI 도우미)를 찾아내며, `antigravity-cli`와 `antigravity2.0`도 공식 지원한다. 또한 공용 스킬의 기본 설치 위치가 `~/.agents/skills`로 수정됐다. 무엇보다 경로 파라미터를 입력하면 불필요한 prompt(프롬프트, 화면에 선택 항목을 띄워 입력을 요구하는 안내) 창 없이 지시를 바로 따른다. 최신 TV 주파수를 배운 만능 리모컨 같아서, 전원을 누를 때 기기를 고르라는 잔소리를 하지 않는 셈이다. 경로를 직접 지정해 조용히 설치하고 싶을 때가 바로 `gh skill`을 입력할 순간이다."
+                "zh-TW": "想讓 AI 代理幫忙檢視程式碼時，`gh skill` 的選項更新了。它新增 Grok 的 skill host 支援，也把代理清單中的 Windsurf 換成 Devin；選擇畫面過長的標籤換行問題一併修好。專案還加入 code review agent skill，也就是給代理做程式碼審查用的操作說明。像替工具箱添了新轉接頭，現在能接 Grok；舊的 Windsurf 插槽則改標 Devin，拿取時不會再被斷行的標籤絆住。",
+                "zh-CN": "想让 AI 代理帮忙检查代码时，`gh skill` 的选项更新了。它新增 Grok 的 skill host 支持，也把代理列表中的 Windsurf 换成 Devin；选择画面过长的标签换行问题一并修好。项目还加入 code review agent skill，也就是给代理做代码审查用的操作说明。像给工具箱添了新转接头，现在能接 Grok；旧的 Windsurf 插槽则改标 Devin，拿取时不会再被断行的标签绊住。",
+                "en": "If you use AI agents to review code, `gh skill` has refreshed its choices. It adds support for Grok as a skill host and replaces Windsurf with Devin in its agent list; labels that wrapped awkwardly in the picker have also been fixed. The project now includes a code-review agent skill: instructions for an agent doing code review. Think of a toolbox gaining a new adapter for Grok while the old Windsurf slot is relabeled Devin, with no wrapped label getting in the way.",
+                "ja": "AI エージェントにコードレビューを頼むなら、`gh skill` の選択肢が更新された。Grok を skill host として使えるようになり、エージェント一覧の Windsurf は Devin に置き換わった。選択画面で長いラベルが不自然に折り返す問題も直っている。プロジェクトには、コードレビューを行うエージェント向けの手順である code review agent skill も加わった。工具箱に Grok 用の新しい変換アダプターを足し、Windsurf の差込口を Devin と書き換えたような変更である。",
+                "ko": "AI 에이전트에게 코드 검토를 맡긴다면 `gh skill`의 선택지가 바뀌었다. Grok을 skill host로 지원하고 에이전트 목록의 Windsurf는 Devin으로 교체했다. 선택기에서 긴 라벨이 어색하게 줄바꿈되던 문제도 고쳤다. 프로젝트에는 코드 검토를 하는 에이전트용 지침인 code review agent skill도 추가했다. 공구 상자에 Grok용 새 어댑터를 넣고 Windsurf 칸의 이름을 Devin으로 바꾼 셈이며, 줄바꿈된 라벨이 선택을 방해하지 않는다."
               },
-              "original": "Detect additional third-party coding agents by @BagToad in [#13722](https://github.com/cli/cli/pull/13722)\nSupport `antigravity-cli` and `antigravity2.0` in `gh skill` by @BagToad in [#13784](https://github.com/cli/cli/pull/13784)\nfix(skills): install universal agent to `~/.agents/skills` by @toller892 in [#13681](https://github.com/cli/cli/pull/13681)\nfix(skills): honor `--dir` without agent prompt by @happysnaker in [#13766](https://github.com/cli/cli/pull/13766)\n@happysnaker made their first contribution in https://github.com/cli/cli/pull/13756\n@toller892 made their first contribution in https://github.com/cli/cli/pull/13681"
+              "original": "Add Grok skill host support by @tommaso-moro in [#13864](https://github.com/cli/cli/pull/13864)\nReplace Windsurf with Devin in `gh skill` agents by @tommaso-moro in [#13987](https://github.com/cli/cli/pull/13987)\nFix skill picker label wrapping by @tommaso-moro in [#13967](https://github.com/cli/cli/pull/13967)\nAdd a code review agent skill by @BagToad in [#14003](https://github.com/cli/cli/pull/14003)"
             },
             {
               "title": {
-                "zh-TW": "修正 Codespace 轉發當機與 CI 狀態空白",
-                "zh-CN": "修正 Codespace 转发死机与 CI 状态空白",
-                "en": "Fixes for Codespace port forwarding crashes and blank CI summaries",
-                "ja": "Codespace 転送時のクラッシュと CI 状態が空白になるバグを修正",
-                "ko": "Codespace 포워딩 충돌 및 CI 상태가 빈 화면으로 뜨는 문제 해결"
+                "zh-TW": "驗證缺根憑證不再卡死，macOS 解鎖多等一分鐘",
+                "zh-CN": "验证缺根证书不再卡死，macOS 解锁多等一分钟",
+                "en": "Missing verifier roots no longer halt setup; macOS keyring access gets a minute",
+                "ja": "検証用ルート欠落で止まらず、macOS の解錠には 1 分待てる",
+                "ko": "검증 루트가 없어도 멈추지 않고 macOS 잠금 해제는 1분 기다린다"
               },
               "body": {
-                "zh-TW": "你是否遇過雲端開發環境突然崩潰，或是自動化檢查被取消後，狀態欄只顯示一片空白？這次修復專門為這些不穩定的角落提供保護。首先，處理 codespace port forwarding（連接埠轉發，將雲端開發機器的網路連接埠導引至本機的傳輸技術）時，背後因 concurrent map writes（併發寫入衝突，指多個處理程序同時修改同一份內部資料造成的當機錯誤）導致連線崩潰的問題已解決。此外，當 CI checks（自動化檢查）被全部取消時，摘要畫面的空白已被老實顯示的取消通知取代。這就像餐廳裡兩個服務生同時往同個格子上寫點單，紙張撕破導致系統當機的問題被修好了；而且如果整桌退單，看板也會清楚寫明「已取消」而非留下一塊讓人瞎猜的空白黑板。",
-                "zh-CN": "你是否遇过云端开发环境突然崩溃，或是自动化检查被取消后，状态栏只显示一片空白？这次修复专门为这些不稳定的角落提供保护。首先，处理 codespace port forwarding（端口转发，将云端开发机器的网络端口引导至本机的传输技术）时，背后因 concurrent map writes（并发写入冲突，指多个处理程序同时修改同一份内部数据造成的死机错误）导致连线崩溃的问题已解决。此外，当 CI checks（自动化检查）被全部取消时，摘要画面的空白已被老实显示的取消通知取代。这就像餐厅里两个服务员同时往同个格子上写点单，纸张撕破导致系统死机的问题被修好了；而且如果整桌退单，看板也会清楚写明“已取消”而非留下一块让人瞎猜的空白黑板。",
-                "en": "Have you ever had your cloud development environment crash, or been left guessing when cancelled automation runs showed nothing at all? We have hardened these fragile areas. We resolved a crash where codespace port forwarding (connecting network ports of a remote container to your local machine) failed due to concurrent map writes (a data collision error when multiple processes modify the same memory table simultaneously). Additionally, if CI checks (automated checks) are cancelled, the summary screen now reports the status instead of displaying a blank void. It's like a restaurant fixing a glitch where two waiters writing on the same order ticket caused a system crash, and ensuring that if a table cancels, the kitchen screen displays \"Cancelled\" instead of an empty black board.",
-                "ja": "クラウドの開発環境で突然クラッシュしたり、自動テストのキャンセル後に進捗表示が真っ白になって困ったことはないだろうか。今回の修正で、codespace port forwarding（ポート転送、クラウド環境の通信ポートを手元の端末と繋ぐ機能）の並行処理において、concurrent map writes（メモリ同時書き込み衝突、複数の処理が同じデータを同時に変更しようとするクラッシュ）が発生するバグを解消した。また、CI checks（自動チェック）がすべて中止された際も、要約画面に空白結果の表示ではなく事実を表示する。ウェイターが注文票を同時に書き換えてシステムが落ちる問題を解決し、注文が消えたら「取消」と黒板に明記するようにしたようなものである。",
-                "ko": "클라우드 개발 환경이 갑자기 충돌하거나, 자동 테스트 취소 후 상태 창이 텅 비어 답답했던 적이 있는가? 이번 패치는 이런 불안정한 오작동을 해결했다. codespace port forwarding(포트 포워딩, 원격 컨테이너의 포트를 내 컴퓨터로 연결해 주는 기술) 중 concurrent map writes(동시 쓰기 충돌, 여러 프로세스가 메모리 공간을 동시에 고치려다 죽는 현상)로 다운되던 문제를 잡았다. 또한 CI checks(자동 검사)가 취소됐을 때 결과 화면이 빈칸으로 남는 대신 취소 상태를 보여준다. 식당에서 주문서에 주문을 동시에 적다 종이가 찢겨 나가던 오류를 잡고, 손님이 주문을 물렸을 때 칠판을 비워두지 않고 '취소됨'이라고 확실히 적어두는 것과 같다."
+                "zh-TW": "開啟 GitHub CLI 時，驗證器需要的 trusted root（用來確認信任鏈起點的根憑證）若缺失，初始化失敗現在會被妥善處理，不會讓這一步變成死結。macOS 的 keyring（存放登入金鑰的地方）若跳出互動式解鎖提示，等待時間也從 3 秒延到 60 秒。這版還補上 macOS keyring 的安全文件。像進大樓時保全發現名冊少一頁，會改走可處理的流程；而你正翻包找門禁卡，櫃台願意多等一分鐘。",
+                "zh-CN": "打开 GitHub CLI 时，验证器需要的 trusted root（用来确认信任链起点的根证书）若缺失，初始化失败现在会被妥善处理，不会让这一步变成死结。macOS 的 keyring（存放登录密钥的地方）若弹出交互式解锁提示，等待时间也从 3 秒延到 60 秒。这版还补上 macOS keyring 的安全文档。像进大楼时保安发现名册少一页，会改走可处理的流程；而你正翻包找门禁卡，前台愿意多等一分钟。",
+                "en": "When GitHub CLI starts, verifier initialization can fail because a trusted root—the root certificate at the start of a chain of trust—is missing. That failure is now handled gracefully instead of becoming a dead end. On macOS, an interactive keyring access prompt now gets 60 seconds rather than 3 seconds. This release also adds security documentation for the macOS keyring. It is like a guard finding a page missing from a visitor list and following a workable procedure, while the desk gives you a full minute to find your access card.",
+                "ja": "GitHub CLI の起動時、信頼の連鎖の起点となる root certificate である trusted root が欠け、検証器の初期化に失敗することがある。この失敗は今、行き止まりにせず適切に処理される。macOS では keyring の対話式解錠プロンプトを待つ時間が 3 秒から 60 秒になった。macOS keyring の安全に関する文書も加わった。来客名簿の一頁が欠けていても警備員が対応手順へ進み、入館カードを探す人を受付が一分待つような変更である。",
+                "ko": "GitHub CLI를 열 때 신뢰 사슬의 시작점인 root certificate, 즉 trusted root가 없어서 검증기 초기화가 실패할 수 있다. 이제 이 실패를 막다른 길로 만들지 않고 처리한다. macOS에서는 keyring의 대화형 잠금 해제 요청을 3초 대신 60초 기다린다. macOS keyring 보안 문서도 추가했다. 방문자 명단 한 장이 없어도 경비원이 처리 절차로 넘어가고, 출입 카드를 찾는 사람을 안내 데스크가 1분 기다려 주는 변화와 같다."
               },
-              "original": "fix: show checks summary when all checks were cancelled by @s3onghyun in [#13679](https://github.com/cli/cli/pull/13679)\nFix concurrent map writes in codespace port forwarding by @williammartin in [#13313](https://github.com/cli/cli/pull/13313)\n@s3onghyun made their first contribution in https://github.com/cli/cli/pull/13679"
+              "original": "Gracefully handle failed GitHub verifier initialization caused by a missing trusted root by @malancas in [#13624](https://github.com/cli/cli/pull/13624)\nBump keyring operation timeout from 3s to 60s so interactive unlock prompts have time to complete by @kofuk in [#13787](https://github.com/cli/cli/pull/13787)\nAdd a macOS keyring security doc by @williammartin in [#13960](https://github.com/cli/cli/pull/13960)\n@kofuk made their first contribution in https://github.com/cli/cli/pull/13787"
             },
             {
               "title": {
-                "zh-TW": "資料庫識別碼升級與工作流安全性補強",
-                "zh-CN": "数据库识别码升级与工作流安全性补强",
-                "en": "Database ID upgrades and workflow security reinforcement",
-                "ja": "データベース識別子の拡張とワークフローのセキュリティ強化",
-                "ko": "데이터베이스 식별자 확장 및 워크플로 보안성 강화"
+                "zh-TW": "專案自動流程整理：分流 issue、部署與依賴更新",
+                "zh-CN": "项目自动流程整理：分流 issue、部署与依赖更新",
+                "en": "Project automation tidied: issue triage, deployment, and dependency updates",
+                "ja": "プロジェクト自動化を整理：issue 分類、デプロイ、依存関係更新",
+                "ko": "프로젝트 자동화를 정리했다: issue 분류, 배포, 의존성 업데이트"
               },
               "body": {
-                "zh-TW": "當專案資料庫的識別碼數量日益膨脹，或是自動化工作流面臨被惡意修改的安全風險？為了解決底層的潛在危機，系統在多處細節做出了補強。首先，將 database IDs（資料庫識別碼，用來標示每筆資料唯一身分的數字代號）的資料型態升級為更大的 64 位元整數，防止隨著 GitHub 資料量成長而溢位。同時，將可重複使用的 triage workflows（工作流，特定事件觸發時自動執行的指令腳本）固定在特定的 commit SHA，防止工作流遭到篡改，並在說明中澄清了複製指令的行為。這就像將倉庫的舊鎖頭升級，把不夠大的抽屜換成超大保險櫃，並對自動門鎖裝上硬體鎖定，不管資料如何成長或外部如何變化，系統都能牢牢守護一切，不再因老舊漏洞而動搖。",
-                "zh-CN": "当项目数据库的识别码数量日益膨胀，或是自动化工作流面临被恶意修改的安全风险？为了解决底层的潜在危机，系统在多处细节做出了补强。首先，将 database IDs（数据库识别码，用来标示每笔数据唯一身份的数字代号）的数据类型升级为更大的 64 位整数，防止随着 GitHub 数据量增长而溢出。同时，将可重复使用的 triage workflows 固定在特定的 commit SHA，防止工作流遭到篡改，并在说明中澄清了复制指令的行为。这就像将仓库的旧锁头升级，把不够大的抽屉换成超大保险柜，并对自动门锁装上硬件锁定，不管数据如何增长或外部如何变化，系统都能牢牢守护一切，不再因旧漏洞而动摇。",
-                "en": "Are you worried about database identifiers overflowing as records grow, or automated pipelines facing security threats from malicious changes? To address these underlying risks, we have reinforced several security and architectural details. The database IDs are now upgraded to 64-bit integers to prevent truncation on large data sets. Additionally, we pinned reusable triage workflows to a specific commit SHA to lock down their versions against unexpected alterations, and clarified command behavior in help files. It is like replacing shallow storage drawers with a giant vault and adding a physical lock to automated doors; the system stands secure and robust, unaffected by data growth or external tampering.",
-                "ja": "データの増加に伴いデータベースの ID が溢れたり、自動化スクリプトが改ざんされるセキュリティリスクが気になったことはないだろうか。これらのリスクに対処するため、内部構造を強化した。まず、各レコードを一意に識別する database IDs（データベース識別子、データの識別番号）を 64 ビット整数に引き上げ、巨大なデータ量でも溢れないようにした。さらに、再利用可能な triage workflows（ワークフロー）を特定の commit SHA で固定し、予期せぬ改変を防ぐ対策を行い、ヘルプの説明も分かりやすく改善した。引き出しを金庫に変え、自動ドアに物理的な鍵を後付けしたようなものであり、データ量が増えても安全にシステムが機能する。",
-                "ko": "레코드가 쌓이면서 데이터베이스 식별자가 넘칠까 봐 걱정되거나, 자동화 파이프라인이 임의로 조작되는 보안 위협을 느껴본 적이 있는가? 이번 변경으로 몇 가지 중요 부위를 정비했다. 먼저 데이터 레코드를 구분하는 database IDs(데이터베이스 식별자, 자료마다 붙는 고유 번호)의 유형을 64비트 정수로 바꿔서 GitHub 데이터가 커져도 데이터가 깨지지 않게 했다. 아울러 반복해서 쓰이는 triage workflows의 버전을 특정 commit SHA로 묶어 무단 수정되지 않도록 걸어 잠그고 도움말 문구도 가다듬었다. 수납함을 대형 금고로 업그레이드하고 자동문 장치에 수동식 자물쇠를 추가로 단 셈이다."
+                "zh-TW": "這張卡講的是 gh 專案自己的後勤，不是你今天要輸入的新指令。團隊新增 pull request 範本、用代理分流 issue 的 workflow，也新增 Dependabot 的分流流程；issue 分流 workflow 改用 Actions token 做 Copilot 推論，並更新到 gh-aw v0.83.1。部署 workflow 加強，網站部署用的 `SITE_DEPLOY_PAT` 改由 gh-cli-site-deployer App 取代。CodeQL 的 Dependabot 更新會分組處理，Go 與多個函式庫、Actions 也陸續升版；無效的 CODEOWNERS 規則與程式、文件、註解的錯字一併清掉。像倉庫後場重新排班：分貨、交接、補貨都各自有路走，前台的 CLI 使用方式沒有因此多一道手續。",
+                "zh-CN": "这张卡讲的是 gh 项目自己的后勤，不是你今天要输入的新命令。团队新增 pull request 模板、用代理分流 issue 的 workflow，也新增 Dependabot 的分流流程；issue 分流 workflow 改用 Actions token 做 Copilot 推理，并更新到 gh-aw v0.83.1。部署 workflow 加强，网站部署用的 `SITE_DEPLOY_PAT` 改由 gh-cli-site-deployer App 取代。CodeQL 的 Dependabot 更新会分组处理，Go 与多个函数库、Actions 也陆续升级；无效的 CODEOWNERS 规则与代码、文档、注释的错字一并清掉。像仓库后场重新排班：分货、交接、补货都各自有路走，前台的 CLI 使用方式没有因此多一道手续。",
+                "en": "This card is about the gh project's own backstage work, not a new command for you to type today. The team adds a pull-request template, an agentic issue-triage workflow, and a Dependabot-triage workflow; the issue-triage workflow uses the Actions token for Copilot inference and is refreshed to gh-aw v0.83.1. The deployment workflow is hardened, and `SITE_DEPLOY_PAT` is replaced by the gh-cli-site-deployer App. CodeQL Dependabot updates are grouped, while Go, libraries, and Actions receive updates; a dead CODEOWNERS rule and typos in code, docs, and comments are removed. It is like reorganizing a warehouse back room: sorting, handoffs, and restocking each get their own route, without adding a step to the CLI counter.",
+                "ja": "このカードは、今日入力する新コマンドではなく gh プロジェクト自身の裏方作業である。pull request テンプレート、エージェントによる issue 分類 workflow、Dependabot 分類 workflow を加え、issue 分類 workflow は Copilot 推論に Actions token を使い、gh-aw v0.83.1 へ更新した。デプロイ workflow も強化し、`SITE_DEPLOY_PAT` は gh-cli-site-deployer App に置き換えた。CodeQL の Dependabot 更新はまとめて処理し、Go、複数のライブラリー、Actions を更新する。無効な CODEOWNERS 規則と、コード、文書、コメントの誤字も削った。倉庫の裏方を組み直し、仕分け、引き継ぎ、補充にそれぞれ道を作るような変更である。",
+                "ko": "이 카드는 오늘 입력할 새 명령어가 아니라 gh 프로젝트의 뒷일에 관한 내용이다. pull request 템플릿, 에이전트 기반 issue 분류 workflow, Dependabot 분류 workflow를 추가했다. issue 분류 workflow는 Copilot 추론에 Actions token을 쓰고 gh-aw v0.83.1로 갱신했다. 배포 workflow도 강화했으며 `SITE_DEPLOY_PAT`는 gh-cli-site-deployer App으로 교체했다. CodeQL Dependabot 업데이트는 묶어서 처리하고 Go, 여러 라이브러리, Actions도 업데이트한다. 쓸모없는 CODEOWNERS 규칙과 코드, 문서, 주석의 오타도 지웠다. 창고 뒷편을 다시 배치해 분류, 인계, 보충마다 길을 따로 만든 변화와 같다."
               },
-              "original": "Use `int64` for GitHub database IDs by @williammartin in [#13403](https://github.com/cli/cli/pull/13403)\nPin reusable triage workflows to a commit SHA by @BagToad in [#13705](https://github.com/cli/cli/pull/13705)\nAdd security disclosure guidance to `AGENTS.md` by @BagToad in [#13720](https://github.com/cli/cli/pull/13720)\nClarify `--clone` boolean flag behaviour in `gh repo fork` help by @BagToad in [#13786](https://github.com/cli/cli/pull/13786)\nFix flaky `TestHuhPrompterMultiSelectWithSearchPersistence` on slow architectures by @pdostal in [#13675](https://github.com/cli/cli/pull/13675)"
-            },
-            {
-              "title": {
-                "zh-TW": "說明文件優化與依賴套件版本升級",
-                "zh-CN": "帮助文档优化与依赖项版本升级",
-                "en": "Documentation polish and dependency version updates",
-                "ja": "ドキュメントの調整と依存パッケージの更新",
-                "ko": "도움말 문서 개선 및 라이브러리 의존성 업데이트"
-              },
-              "body": {
-                "zh-TW": "你正在為專案尋找更多搜尋範例以提升開發效率，或者想讓部署流程跑得更穩定無誤？為了讓開發者使用更順暢，本次更新在搜尋文件補上了多個 qualifiers（限定符，用來過濾或精準匹配搜尋結果的修飾關鍵字）的實用範例，並修復了發布流程文件裡失效的 anchor link（錨點連結，指向網頁內特定段落的書籤連結）。同時，開發團隊也為多個內部依賴套件進行了版本升級。這就像重新繪製了大樓裡印錯的樓層指引招牌，並順手更換了多個老舊零件。這些微小的保養工作雖然不顯眼，卻能保證每位訪客都不會在大樓中迷路，也讓整座系統運作得更穩定安全。",
-                "zh-CN": "你正在为项目寻找更多搜索范例以提升开发效率，或者想让部署流程跑得更稳定无误？为了让开发者使用更顺畅，本次更新在搜索文档补上了多个 qualifiers（限定符，用来过滤或精准匹配搜索结果的修饰关键字）的实用范例，并修复了发布流程文档里失效的 anchor link（锚点链接，指向网页内特定段落的书签链接）。同时，开发团队也为多个内部依赖项进行了版本升级。这就像重新绘制了大楼里印错的楼层指引招牌，并顺手更换了多个老旧零件。这些微小的保养工作虽然不显眼，却能保证每位访客都不会在大楼中迷路，也让整个系统运行得更稳定安全。",
-                "en": "Are you searching the documents for better query examples, or looking to keep your pipeline builds stable? To keep instructions clear, we added practical examples using multiple qualifiers and fixed a broken anchor link in the release guide. Additionally, several build and environment dependencies were updated. It is like fixing spelling mistakes on floor guide maps and swapping out standard elevator parts. Although these maintenance steps are small, they prevent visitors from getting lost and keep the whole building operating safely.",
-                "ja": "ドキュメントから便利な検索例を探したり、ビルドやデプロイのプロセスを常に安定させたいと思ったことはないだろうか。利用時の混乱を防ぐため、複数の qualifiers（修飾子、検索結果を絞り込むためのキーワード）を指定する具体例を追加し、開発ガイド内のリンク切れしていた anchor link（アンカーリンク、ページ内の特定箇所へジャンプするしおり）を修復した。同時に、各種ツールやライブラリのバージョンも更新された。案内看板のスペルミスを直し、エレベーターの消耗品を交換するような作業である。地味な保守ではあるが、利用者の迷子を防ぎ、ビルド全体を安定させる。",
-                "ko": "문서에서 더 유용한 검색 예시를 찾고 있거나, 빌드와 배포 과정을 안정적으로 유지하고 싶은가? 사용상의 혼란을 방지하기 위해 여러 qualifiers(한정자, 검색 결과를 필터링하는 조건 키워드)를 조합한 구체적인 검색 예시를 추가하고, 개발 문서 내 끊어져 있던 anchor link(앵커 링크, 페이지의 특정 단락으로 바로 가는 책갈피)를 바로잡았다. 아울러 다수의 내부 라이브러리 의존성도 함께 업데이트했다. 건물의 층별 안내판에 오타를 고치고 엘리베이터의 낡은 부속품을 교체하는 일과 같다. 겉으로 드러나지 않는 소소한 정비이지만 사용자가 길을 잃지 않게 돕고 시스템 빌드 전체를 안정되게 굴려준다."
-              },
-              "original": "docs(search): add examples for multiple qualifiers by @happysnaker in [#13756](https://github.com/cli/cli/pull/13756)\ndocs: fix broken anchor link in release-process-deep-dive by @patrickwehbe in [#13688](https://github.com/cli/cli/pull/13688)\ndocs: fix broken install command and link/grammar errors by @patrickwehbe in [#13690](https://github.com/cli/cli/pull/13690)\ndocs: fix duplicated word in primer README by @s3onghyun in [#13677](https://github.com/cli/cli/pull/13677)\nchore(deps): bump github.com/microsoft/dev-tunnels from 0.1.19 to 0.1.27 by @dependabot in [#13708](https://github.com/cli/cli/pull/13708)\nchore(deps): bump actions/checkout from 6.0.3 to 7.0.0 by @dependabot in [#13703](https://github.com/cli/cli/pull/13703)\nchore(deps): bump github.com/google/go-containerregistry from 0.21.6 to 0.21.7 by @dependabot in [#13702](https://github.com/cli/cli/pull/13702)\nchore(deps): bump actions/setup-go from 6.4.0 to 6.5.0 by @dependabot in [#13740](https://github.com/cli/cli/pull/13740)\nchore(deps): bump actions/attest from 4.1.0 to 4.1.1 by @dependabot in [#13754](https://github.com/cli/cli/pull/13754)\nchore(deps): bump goreleaser/goreleaser-action from 7.2.2 to 7.2.3 by @dependabot in [#13759](https://github.com/cli/cli/pull/13759)\nchore(deps): bump golangci/golangci-lint-action from 9.2.1 to 9.3.0 by @dependabot in [#13779](https://github.com/cli/cli/pull/13779)\n@patrickwehbe made their first contribution in https://github.com/cli/cli/pull/13688"
+              "original": "Bump Go to 1.26.5 by @github-actions[bot] in [#13817](https://github.com/cli/cli/pull/13817)\nEstablish a pull request template for scale by @BagToad in [#14004](https://github.com/cli/cli/pull/14004)\nAdd an agentic issue-triage workflow by @lukewar in [#13777](https://github.com/cli/cli/pull/13777)\nUse the Actions token for Copilot inference in the issue-triage workflow by @tidy-dev in [#13830](https://github.com/cli/cli/pull/13830)\nRefresh the issue-triage agentic workflow to gh-aw v0.83.1 by @alondahari in [#13949](https://github.com/cli/cli/pull/13949)\nAdd a dependabot-triage agentic workflow by @williammartin in [#13985](https://github.com/cli/cli/pull/13985)\nHarden the deployment workflow by @niik in [#13780](https://github.com/cli/cli/pull/13780)\nReplace `SITE_DEPLOY_PAT` with the gh-cli-site-deployer App by @williammartin in [#13492](https://github.com/cli/cli/pull/13492)\nGroup CodeQL Dependabot updates by @williammartin in [#13943](https://github.com/cli/cli/pull/13943)\nRemove a dead CODEOWNERS rule for the non-existent `pkg/cmd/release/attestation/` by @kobihikri in [#13886](https://github.com/cli/cli/pull/13886)\nFix typos in code and documentation by @pstoeckle in [#13940](https://github.com/cli/cli/pull/13940)\nFix duplicated-word typos in comments by @SORBELLOSTEFANIE in [#13900](https://github.com/cli/cli/pull/13900)\nchore(deps): bump charm.land/lipgloss/v2 from 2.0.4 to 2.0.5 by @dependabot in [#13790](https://github.com/cli/cli/pull/13790)\nchore(deps): bump google.golang.org/grpc from 1.81.1 to 1.82.0 by @dependabot in [#13789](https://github.com/cli/cli/pull/13789)\nchore(deps): bump https://github.com/klauspost/compress from 1.18.6 to 1.19.0 by @dependabot in [#13791](https://github.com/cli/cli/pull/13791)\nchore(deps): bump charm.land/bubbletea/v2 from 2.0.7 to 2.0.8 by @dependabot in [#13800](https://github.com/cli/cli/pull/13800)\nchore(deps): bump golang.org/x/text from 0.38.0 to 0.39.0 by @dependabot in [#13812](https://github.com/cli/cli/pull/13812)\nchore(deps): bump golang.org/x/sys from 0.46.0 to 0.47.0 by @dependabot in [#13821](https://github.com/cli/cli/pull/13821)\nchore(deps): bump github/codeql-action/analyze from 4.36.2 to 4.36.3 by @dependabot in [#13801](https://github.com/cli/cli/pull/13801)\nchore(deps): bump github/gh-aw-actions/setup from 0.81.6 to 0.82.2 by @dependabot in [#13832](https://github.com/cli/cli/pull/13832)\nchore(deps): bump charm.land/bubbles/v2 from 2.1.0 to 2.1.1 by @dependabot in [#13813](https://github.com/cli/cli/pull/13813)\nchore(deps): bump golang.org/x/sync from 0.21.0 to 0.22.0 by @dependabot in [#13822](https://github.com/cli/cli/pull/13822)\nchore(deps): bump github/gh-aw-actions/setup from 0.82.2 to 0.82.3 by @dependabot in [#13843](https://github.com/cli/cli/pull/13843)\nchore(deps): bump actions/cache/restore from 5.0.5 to 6.1.0 by @dependabot in [#13841](https://github.com/cli/cli/pull/13841)\nchore(deps): bump golang.org/x/crypto from 0.53.0 to 0.54.0 by @dependabot in [#13867](https://github.com/cli/cli/pull/13867)\nchore(deps): bump github/codeql-action/analyze from 4.36.3 to 4.37.0 by @dependabot in [#13869](https://github.com/cli/cli/pull/13869)\nchore(deps): bump github/codeql-action/upload-sarif from 4.36.2 to 4.37.0 by @dependabot in [#13868](https://github.com/cli/cli/pull/13868)\nchore(deps): bump github/codeql-action/init from 4.36.3 to 4.37.1 by @dependabot in [#13870](https://github.com/cli/cli/pull/13870)\nchore(deps): bump https://github.com/yuin/goldmark from 1.8.2 to 1.8.4 by @dependabot in [#13888](https://github.com/cli/cli/pull/13888)\nchore(deps): bump https://github.com/sigstore/sigstore-go from 1.2.1 to 1.2.2 by @dependabot in [#13842](https://github.com/cli/cli/pull/13842)\nchore(deps): bump github/gh-aw-actions/setup from 0.82.3 to 0.82.8 by @dependabot in [#13877](https://github.com/cli/cli/pull/13877)\nchore(deps): bump actions/setup-go from 6.5.0 to 7.0.0 by @dependabot in [#13933](https://github.com/cli/cli/pull/13933)\nchore(deps): bump google.golang.org/grpc from 1.82.0 to 1.82.1 by @dependabot in [#13934](https://github.com/cli/cli/pull/13934)\nchore(deps): bump actions/setup-node from 6.4.0 to 7.0.0 by @dependabot in [#13936](https://github.com/cli/cli/pull/13936)\nchore(deps): bump actions/attest from 4.1.1 to 4.2.0 by @dependabot in [#13935](https://github.com/cli/cli/pull/13935)\nchore(deps): bump https://github.com/mattn/go-isatty from 0.0.22 to 0.0.23 by @dependabot in [#13937](https://github.com/cli/cli/pull/13937)\nchore(deps): bump github/gh-aw-actions/setup from 0.82.8 to 0.82.13 by @dependabot in [#13938](https://github.com/cli/cli/pull/13938)\nchore(deps): bump actions/checkout from 7.0.0 to 7.0.1 by @dependabot in [#13941](https://github.com/cli/cli/pull/13941)\nchore(deps): bump github/codeql-action/upload-sarif from 4.37.0 to 4.37.1 by @dependabot in [#13942](https://github.com/cli/cli/pull/13942)\nchore(deps): bump https://github.com/gabriel-vasile/mimetype from 1.4.13 to 1.4.14 by @dependabot in [#13944](https://github.com/cli/cli/pull/13944)\nchore(deps): bump nodeselector/setup-apple-codesign from ab275d0 to 309922b by @dependabot in [#13878](https://github.com/cli/cli/pull/13878)\nchore(deps): bump https://github.com/klauspost/compress from 1.19.0 to 1.19.1 by @dependabot in [#13950](https://github.com/cli/cli/pull/13950)\nchore(deps): bump github/gh-aw-actions/setup from 0.82.13 to 0.82.14 by @dependabot in [#13951](https://github.com/cli/cli/pull/13951)\nchore(deps): bump the codeql-actions group with 3 updates by @dependabot in [#13965](https://github.com/cli/cli/pull/13965)\nchore(deps): bump https://github.com/mattn/go-isatty from 0.0.23 to 0.0.24 by @dependabot in [#13977](https://github.com/cli/cli/pull/13977)\nchore(deps): bump the codeql-actions group with 3 updates by @dependabot in [#13978](https://github.com/cli/cli/pull/13978)\nchore(deps): bump https://github.com/gabriel-vasile/mimetype from 1.4.14 to 1.4.15 by @dependabot in [#13976](https://github.com/cli/cli/pull/13976)\nchore(deps): bump github/gh-aw-actions/setup from 0.83.1 to 0.83.2 by @dependabot in [#13979](https://github.com/cli/cli/pull/13979)\nchore(deps): bump github/gh-aw-actions/setup-cli from 0.83.1 to 0.83.2 by @dependabot in [#13980](https://github.com/cli/cli/pull/13980)\nchore(deps): bump actions/checkout from 6 to 7 by @dependabot in [#13981](https://github.com/cli/cli/pull/13981)\nchore(deps): bump github/gh-aw-actions/setup from 0.83.2 to 0.83.3 by @dependabot in [#13995](https://github.com/cli/cli/pull/13995)\nchore(deps): bump github/gh-aw-actions/setup-cli from 0.83.2 to 0.83.3 by @dependabot in [#13996](https://github.com/cli/cli/pull/13996)\nchore(deps): bump github/gh-aw-actions/setup-cli from 0.83.3 to 0.83.4 by @dependabot in [#14018](https://github.com/cli/cli/pull/14018)\n@lukewar made their first contribution in https://github.com/cli/cli/pull/13777\n@niik made their first contribution in https://github.com/cli/cli/pull/13780\n@kobihikri made their first contribution in https://github.com/cli/cli/pull/13886\n@pstoeckle made their first contribution in https://github.com/cli/cli/pull/13940\n@SORBELLOSTEFANIE made their first contribution in https://github.com/cli/cli/pull/13900\n@alondahari made their first contribution in https://github.com/cli/cli/pull/13949"
             }
           ]
         }
