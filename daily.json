@@ -1195,6 +1195,41 @@
       "name": "Usage",
       "versions": [
         {
+          "version": "0.29.14",
+          "period": "2026-08-02",
+          "items": [
+            {
+              "original": "**The panel no longer creeps downward every time you open and close it.** Dragging it into place used to hold for one cycle at most: each reopen landed it a little lower than the last. Two anchors disagreed. The saved position was the window's bottom-left corner, but `setContentSizeKeepingTopLeft_` — added in 0.29.9 precisely so the panel would not appear to jump while resizing — holds the *top* edge. To hold that edge it calls `setFrameOrigin_`, and macOS posts `NSWindowDidMoveNotification` for a programmatic move just as it does for a drag, so `windowDidMove_` recorded a resize as though the user had dragged the window. Every open re-measured the content height, the bottom-left corner dropped by the difference, and that drop was saved as the new position. The anchor is now the top edge on both sides, so resizing cannot change the stored value. Positions saved by earlier versions are read through a migration path and are not reset."
+            },
+            {
+              "original": "**Opening the panel no longer starts short and then stretches.** Two height systems were computing the same number and disagreeing: `popover_dimensions` estimates from a panel's base height by arithmetic (subtract a card when Claude or Codex is hidden, subtract a row when Codex has no data, add for a wrapped status line or an install button), while the script in `panels/dynamic_height.py` measures the rendered content and reports it back. The window opened at the estimate and jumped to the measurement. The gap was widest with cards hidden, where the most terms are subtracted. The measured height is now remembered per panel and used on open, leaving the estimate as a fallback for a panel that has never been measured. The arithmetic constants were deliberately left alone — tuning them is whack-a-mole, since every new UI element needs another adjustment. The panel still adjusts once when the content genuinely changes size."
+            },
+            {
+              "original": "**A state file corrupted into non-UTF-8 bytes no longer raises instead of degrading.** `_load_preferences`, `_load_ping_state` and `_load_last_ping` each catch `OSError` and `json.JSONDecodeError` around a `read_text(encoding=\"utf-8\")` — but a file containing invalid UTF-8 raises `UnicodeDecodeError`, which is a sibling of `JSONDecodeError` under `ValueError`, not a subclass of it. All three are contracted to fall back quietly when their file is unusable, and a half-written or damaged file broke that contract by propagating the exception."
+            },
+            {
+              "original": "**The macOS notification bridge moved out of `menubar.py` into `menubar_notify.py`.** The six module-level functions that talk to `UNUserNotificationCenter` had no reason to live in a 2230-line file. They were not folded into `usage_notifications.py`, which stays free of PyObjC so its decision logic remains testable without the ObjC runtime — these functions call `objc.registerMetaDataForSelector`. The update-dismissal cooldown joined `update_gate.py`, where the other update-timing constants already were. `menubar.py` is down to 2139 lines and its ceiling followed."
+            },
+            {
+              "original": "**`jsonl_utils` and `time_utils` gained direct unit tests.** Both are shared by several loaders and had only incidental coverage through the modules above them. The JSONL reader's tolerance for blank lines, malformed rows and non-object values is now pinned, including the deliberate choice to raise on invalid UTF-8 when no `errors` argument is given — that decision belongs to the caller."
+            }
+          ],
+          "curated": false
+        },
+        {
+          "version": "0.29.13",
+          "period": "2026-08-02",
+          "items": [
+            {
+              "original": "**Removing the Codex status line no longer deletes one that `usage` never installed.** `_unsetup_codex()` only checked whether a `tui.status_line` existed at all, not whether it was ours. Anyone who had configured their own status line and then ran the removal lost it. Worse, a corrupt backup file made the restore path overwrite the config with an empty list and then delete the only backup, losing both at once. Removal now acts only when the status line matches `CODEX_STATUS_LINE` exactly, and an unreadable or wrong-typed backup leaves both the config and the backup untouched."
+            },
+            {
+              "original": "**A corrupt `~/.codex/hooks.json` is no longer treated as an empty one.** `_load_codex_hooks()` returned `{}` for \"file missing\" and \"file exists but won't parse\" alike; terse mode then rebuilt from that empty dict and wrote it back, permanently erasing every Codex hook the user had, with no backup and no message. Codex writing that file while `usage` reads it is enough to trigger this. The unreadable case now aborts before anything is copied or written, so a failed run can no longer leave a half-installed state either."
+            }
+          ],
+          "curated": false
+        },
+        {
           "version": "0.29.12",
           "period": "2026-08-02",
           "items": [
@@ -1206,46 +1241,6 @@
             }
           ],
           "curated": false
-        },
-        {
-          "version": "0.29.11",
-          "period": "2026-08-01",
-          "items": [
-            {
-              "original": "**The report and the terminal's session list now show what each conversation was about.** Claude Code names every conversation and writes that name into its transcript. `usage` had been parsing those names all along and carrying them into the report payload, where the renderer ignored them — the snapshot fixture still read `\"Ignore in current renderer\"`. The HTML report gained a \"What you worked on\" section under the contribution heatmap, and the TUI's recent-session table gained a column, so three rows from the same project are no longer indistinguishable. Titles carry `data-mask`, so the existing project-name masking covers them before a report is shared. Sessions without a title stay blank rather than falling back to the project name, which would read as a title that isn't one."
-            },
-            {
-              "original": "**A rate-limited Antigravity quota probe now waits as long as the server asked, instead of retrying every five minutes.** That probe is the only external API call in the project. It and the token refresh both folded `HTTPError` into the same `except` clause as connection failures, so a 429 reached the caller as a bare `None` — the status code and the `Retry-After` header were discarded together, and the next cache expiry sent another request at a server that had already said to wait. Each now catches `HTTPError` separately, reads `Retry-After` in either the seconds or the HTTP-date form, and holds off until it elapses. A missing or unparseable header falls back to sixty seconds, and the delay is capped at an hour so an oversized value cannot strand the card."
-            },
-            {
-              "original": "**The last minute before a quota resets no longer reads \"0m\".** Under sixty seconds the countdown's minute arithmetic rounds to zero, and the already-expired case printed the same string, so one line meant both \"forty seconds left\" and \"the window has already turned\". The card now reads \"Reset imminent\", in all five languages. The fix sits at the call site rather than in the shared duration formatter, which also renders the \"will run out in\" half of the burn warning — changing it there would have produced \"will run out in reset imminent\"."
-            }
-          ],
-          "curated": false
-        },
-        {
-          "version": "0.29.10",
-          "period": "2026-07-31",
-          "items": [
-            {
-              "title": {
-                "zh-TW": "看不見的整理：選單列程式分家，尺寸規則自動把關",
-                "zh-CN": "看不见的整理：菜单栏代码分家，尺寸规则自动把关",
-                "en": "Invisible housekeeping: menu bar code gets divided up and size limits get enforced",
-                "ja": "見えない整理：メニューバーのコードを分け、サイズ制限を自動で守る",
-                "ko": "보이지 않는 정리: 메뉴 막대 코드를 나누고 크기 제한을 자동으로 지킨다"
-              },
-              "body": {
-                "zh-TW": "這版選單列畫面不變，整理藏在牆裡。`menubar.py` 已膨脹到 2,485 行，第三次超過 2,000 行。圖示與警示的輔助程式搬到 `menubar_chrome.py`，狀態建立程式移至 `menubar_state.py`，主檔降至 2,230 行。只移動檔案直屬函式。PyObjC（讓 Python 接上 macOS Objective-C 的橋樑）靠 `AppDelegate` 的方法名稱連接控制項，搬動它會令對應控制項失靈；`_popover_size` 則拆成計算函式，留三行外殼，讓無 ObjC 執行環境的單元測試仍能跑。接著，CI（自動檢查流程）開始替檔案尺寸守門，超限就讓建置失敗；切割檔案時降上限，別為通過檢查抬高它。CLAUDE.md 的模組地圖從 24 列縮到 12 列，只留會踩雷的說明。像整理屋內管線，表面不變，日後維修不必再越鑿越大。",
-                "zh-CN": "打开这版后，菜单栏不会多长出按钮或画面；这是一场藏在墙里的整理。原本的 `menubar.py` 已膨胀到 2,485 行，第三次超过 2,000 行。这次把图标与提醒的辅助程序搬到 `menubar_chrome.py`，状态创建程序放进 `menubar_state.py`，让主文件降到 2,230 行。只移动直接写在文件里的函数。PyObjC（让 Python 接上 macOS Objective-C 的桥梁）靠 `AppDelegate` 方法名称连接控件，搬动它会让对应控件悄悄失灵；`_popover_size` 则拆成计算函数，留下三行外壳，让不加载 ObjC 运行环境的单元测试仍能运行。接着，CI（每次修改都自动检查的流程）开始替文件尺寸守门，超过上限就让构建失败；切割文件时要降上限，不能为了通过检查把它抬高。最后，CLAUDE.md 的模块地图从 24 行缩到 12 行，只留真正会踩坑的说明。像整理房子里的管线，住的人看不见新摆设，日后维修却不会再把墙越凿越大。",
-                "en": "Nothing new appears in the menu bar in this release; the work is behind the wall. `menubar.py` had grown to 2,485 lines and crossed 2,000 for the third time. Icon and alert helpers now live in `menubar_chrome.py`, while state constructors moved to `menubar_state.py`, bringing the original file down to 2,230 lines. Only file-level functions moved: PyObjC, the bridge between Python and macOS Objective-C, connects controls through `AppDelegate` method names, so moving one would silently break its control. `_popover_size` was split into a calculation function with a three-line shell left behind, keeping `menubar_state.py` testable without the ObjC runtime. CI, the automatic check run on changes, now fails a build when a guarded file exceeds its limit; after a cut, lower the limit rather than raising it to pass. CLAUDE.md's module map also shrank from 24 rows to 12, keeping only warnings that are not obvious from opening each module. It is like reorganizing plumbing: no new fixture appears, but later repairs need not keep breaking through a larger wall.",
-                "ja": "この版でメニューバーに新しいボタンや画面は現れない。壁の中で行う整理である。`menubar.py` は 2,485 行まで膨らみ、2,000 行を超えるのは三度目だった。アイコンと警告の補助関数を `menubar_chrome.py` へ、状態を作る関数を `menubar_state.py` へ移し、元のファイルを 2,230 行に減らした。移したのはファイル直下の関数だけである。PyObjC は Python と macOS の Objective-C をつなぐ橋であり、`AppDelegate` のメソッド名で操作部品を結ぶため、それを移すと対応する部品が黙って動かなくなる。`_popover_size` は計算関数に分け、三行の殻を残したので、ObjC の実行環境なしでも `menubar_state.py` を単体テストできる。CI は変更ごとに自動確認する仕組みであり、対象ファイルが上限を超えるとビルドを失敗させる。分割したら上限を下げ、通すために上げない。CLAUDE.md のモジュール地図も 24 行から 12 行へ縮め、開けば分かる説明を外した。家の配管を整理するように、見た目は変わらなくても後の修理で壁を余計に壊さずに済むのである。",
-                "ko": "이번 판을 열어도 메뉴 막대에 새 버튼이나 화면이 생기지는 않는다. 벽 안쪽에서 하는 정리다. `menubar.py`는 2,485줄까지 불어나 세 번째로 2,000줄을 넘겼다. 아이콘과 알림 보조 함수는 `menubar_chrome.py`로, 상태를 만드는 함수는 `menubar_state.py`로 옮겨 원래 파일을 2,230줄까지 줄였다. 파일 맨 위에 직접 쓴 함수만 옮겼다. PyObjC는 Python과 macOS의 Objective-C를 잇는 다리이며 `AppDelegate` 메서드 이름으로 조작 부품을 연결하므로, 그것을 옮기면 해당 부품이 소리 없이 작동을 멈춘다. `_popover_size`는 계산 함수로 나누고 세 줄짜리 껍데기를 남겨 ObjC 실행 환경 없이도 `menubar_state.py`를 단위 테스트할 수 있게 했다. CI는 변경 때마다 자동 검사하는 절차로, 대상 파일이 한도를 넘으면 빌드를 실패시킨다. 파일을 나눴다면 한도를 낮추며, 통과하려고 올리지는 않는다. CLAUDE.md의 모듈 지도도 24줄에서 12줄로 줄여 파일을 열면 알 수 있는 설명을 뺐다. 집 배관을 정리하듯 겉모습은 같아도 나중 수리 때 벽을 더 크게 뜯지 않게 한다."
-              },
-              "original": "**Nothing changes on screen in this release — it is housekeeping on the menu bar code.** `menubar.py` had reached 2485 lines, creeping past 2000 for the third time after being split apart twice. The icon and alert helpers moved into a new `menubar_chrome.py`, and the state constructors joined `menubar_state.py`, taking the file down to 2230. Only module-level functions moved: PyObjC binds `AppDelegate` methods by selector name, so relocating one would silently stop the matching control from working. `_popover_size` was split rather than moved, because it ends in `NSMakeSize` and `menubar_state.py` has to stay importable without the ObjC runtime for its projections to be unit-testable — the arithmetic moved as `popover_dimensions()` and a three-line shell stayed behind.\n**The growth policy behind that cleanup is now enforced by CI rather than by discipline.** `scripts/check_file_size.py` fails the build when a guarded file passes its ceiling. The rule had been written in CLAUDE.md all along; nothing checked it, and the file grew back twice. Lower a ceiling when a cut lands, never raise it to go green.\n**CLAUDE.md's module map lists only modules with a gotcha.** Half its rows restated what opening the file would tell you, and three separate rows repeated the same stdlib-only constraint. It went from 24 rows to 12."
-            }
-          ],
-          "curated": true
         }
       ]
     },
