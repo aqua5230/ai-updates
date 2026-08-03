@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02",
+  "generated_at": "2026-08-03",
   "tools": [
     {
       "id": "claude_code",
@@ -1195,6 +1195,53 @@
       "name": "Usage",
       "versions": [
         {
+          "version": "0.29.16",
+          "period": "2026-08-02",
+          "items": [
+            {
+              "original": "**The file log is bounded and rotates.** The only log on disk was whatever launchd redirected into `~/Library/Logs/usage/usage.log`, and a redirect has no size limit — for a menu bar app that stays open for months, that file only ever grows. Python now owns a log of its own beside it, capped at 2 MB with three archives kept. Building the handler is best-effort: if the directory cannot be created the app keeps its console output and starts normally, because a logging subsystem must never be the thing that stops the program from running. macOS keeps the `~/Library/Logs/usage/` convention; every other platform writes under `~/.usage/logs/` next to the disk caches, since `~/Library/Logs` means nothing on Windows and `_setup_logging()` runs before the platform branch."
+            },
+            {
+              "original": "**`USAGE_DEBUG` selects subsystems instead of switching everything on.** It was a boolean, so diagnosing one loader meant turning on all forty-odd debug sites and reading the result through the noise. It now takes a comma-separated list — `USAGE_DEBUG=codex_loader,pricing` raises only those two. Prefix matching comes free from Python's logger hierarchy rather than a hand-written comparison: setting `a.b` covers `a.b.c` because that is how logger inheritance already works. `1`, `all` and `*` keep the previous global behaviour."
+            },
+            {
+              "original": "**`--doctor --json` emits the report as data with stable codes.** The report was a block of text, so a user could only screenshot it and the reader had to scan by eye — nothing could compare two reports or decide programmatically which check failed. Each check now carries a fixed code (`hook_state`, `codex_sessions`, …) and one of three states, the process exits non-zero when any check is in error, and the human-readable output is unchanged to the character. Ambiguous cases resolve to `warn` rather than `error`: a false alarm that fails a health check costs more than a missed warning."
+            },
+            {
+              "original": "**The test suite wrote into the developer's real log file.** `tests/test_main.py` exercises `main()`, whose first action is `_setup_logging()` — so the run attached a rotating file handler pointed at the actual `~/Library/Logs/usage/usage-app.log`, and every warning logged by every later test landed in it. One full run deposited 8 KB containing pytest's temporary directory paths, which is worse than noise: it makes the log untrustworthy the day someone reads it for a real diagnosis. An autouse fixture now redirects the log directory to `tmp_path`, matching the existing rule for `cache_quarantine.QUARANTINE_DIR`. Curiously the same class of bug was fixed one version earlier in the Windows tray tests."
+            },
+            {
+              "original": "**`switchPanel_` builds its items through a helper.** A dozen menu entries each repeated the same five to seven lines — allocate the item, set the target, set the state, set the tooltip, add it — and `menubar.py` had two lines left under its ceiling. `menubar_menu.build_menu_item()` absorbs that shape. It lives in a new module rather than in `menubar_state.py`, which stays free of PyObjC. `switchPanel_` itself does not move: an AppDelegate method is bound by selector, and relocating one breaks the binding. The saving is smaller than it looks — 24 lines, not the 80 the line count suggested, because keyword arguments wrap across lines and give much of it back. The gain is the removed repetition, not the arithmetic. Moving the helper out also broke a test that patched `NSMenuItem` on the `menubar` module only; the fix was to patch the helper module too, never to add module-level indirection so the old patch keeps reaching."
+            }
+          ],
+          "curated": false
+        },
+        {
+          "version": "0.29.15",
+          "period": "2026-08-02",
+          "items": [
+            {
+              "original": "**Token estimates no longer undercount CJK text by a factor of four.** Six places in the waste diagnosis converted characters to tokens with `chars // 4`, which is the ASCII ratio. A CJK character is roughly one token, not a quarter of one, so every figure the diagnosis reported for a Chinese, Japanese or Korean file — wasted tokens and the cost derived from them — came out at a quarter of the truth. This project reads its own `i18n.json`, `CLAUDE.md` and `README.zh-TW.md` often enough to hit this on itself. The estimate now counts CJK codepoints as one token each and everything else at four characters per token. No tokenizer dependency was added: this is an offline tool, and pulling in a model-specific tokenizer to chase rounding-level accuracy is not a trade worth making."
+            },
+            {
+              "original": "**A corrupt disk cache is preserved instead of being deleted outright.** All three caches — Antigravity, Codex and history — dealt with an unreadable file by removing it and recomputing. That is the right recovery, but it also destroys the only evidence of what went wrong, so a later report of \"my numbers look off\" has nothing left to inspect. A damaged file is now moved to `~/.usage/quarantine/` first, named with a millisecond timestamp so a second failure cannot overwrite the first, capped at ten files and 5 MB each. A stale `schema_version` is *not* quarantined: that is an ordinary upgrade, and with 32 shards per cache one version bump would flush the whole budget and push the real evidence out. The quarantine helper swallows every error it can hit — it is a side service and must never take the caller down with it."
+            },
+            {
+              "original": "**`--doctor` no longer reports a missing file that the current mode does not use.** The report listed fourteen checks as one flat list, so `forwarder script: [missing]` read as a fault even when the installed mode never needs that script. It is now grouped into `[core]`, `[hook]` and `[optional]`, and the forwarder line says `[not needed in <state> mode]` when that is the case. None of the check logic changed."
+            },
+            {
+              "original": "**Two Windows tray tests wrote into the real `~/.claude/usage-preferences.json`.** Both call `switch_panel()`, which persists through `_save_active_panel_id()`, and neither patched `prefs.PREFERENCES_FILE` — so running the suite silently changed the developer's own active panel."
+            },
+            {
+              "original": "**The documentation parity check covers Simplified Chinese, Japanese and Korean.** `check_doc_parity.py` only compared English against Traditional Chinese, leaving the other three README translations unwatched; `CLAUDE.md` had to carry a note to sync them by hand. Each translation is now compared on its own and the failure message names the file that drifted. The comparison is still a count of `##` headings rather than their text — matching text would force translators to mirror English headings word for word, which is what makes translated docs read badly."
+            },
+            {
+              "original": "**`scripts/install_local.sh` replaces the hand-typed steps for installing a build locally.** Releasing does not touch `/Applications`: the tag drives CI, and the local copy keeps running whatever was already there. That last step lived only in a checklist, and the menu bar once ran a stale build for six versions before anyone noticed. The script checks the build exists, prints both versions, waits for the running app to exit, swaps it, and verifies the installed version matches."
+            }
+          ],
+          "curated": false
+        },
+        {
           "version": "0.29.14",
           "period": "2026-08-02",
           "items": [
@@ -1248,54 +1295,6 @@
                 "ko": "알림을 받거나 공용 파일 읽기 도구를 고치는 사람에게 이번 버전은 화면의 새 단추를 더하지는 않지만, 오류가 숨어들기 쉬운 곳을 정리한다. 앱과 시스템 알림 센터를 잇는 macOS 알림 연결 코드는 커다란 메뉴 막대 파일에서 별도 파일로 옮겼고, 업데이트 알림을 닫은 뒤의 대기 시간도 다른 업데이트 시점을 관리하는 곳으로 모았다. 알림 판단 로직은 macOS 전용 부품에 기대지 않아 그 실행 환경 없이도 시험할 수 있다. 한편 JSONL과 시간을 다루는 공용 도구에는 직접 단위 시험을 더했다. 빈 줄, 망가진 줄, 객체가 아닌 값의 처리를 고정했고, 호출하는 쪽이 오류 처리를 정하지 않았다면 잘못된 UTF-8은 계속 오류로 낸다. 공구함의 자와 드라이버를 하나씩 점검한 뒤 다른 수리를 시작하는 것과 같다."
               },
               "original": "**The macOS notification bridge moved out of `menubar.py` into `menubar_notify.py`.** The six module-level functions that talk to `UNUserNotificationCenter` had no reason to live in a 2230-line file. They were not folded into `usage_notifications.py`, which stays free of PyObjC so its decision logic remains testable without the ObjC runtime — these functions call `objc.registerMetaDataForSelector`. The update-dismissal cooldown joined `update_gate.py`, where the other update-timing constants already were. `menubar.py` is down to 2139 lines and its ceiling followed.\n**`jsonl_utils` and `time_utils` gained direct unit tests.** Both are shared by several loaders and had only incidental coverage through the modules above them. The JSONL reader's tolerance for blank lines, malformed rows and non-object values is now pinned, including the deliberate choice to raise on invalid UTF-8 when no `errors` argument is given — that decision belongs to the caller."
-            }
-          ],
-          "curated": true
-        },
-        {
-          "version": "0.29.13",
-          "period": "2026-08-02",
-          "items": [
-            {
-              "title": {
-                "zh-TW": "移除 usage 不誤刪狀態列，讀壞掛鉤檔就停手",
-                "zh-CN": "移除 usage 不误删状态栏，读坏钩子文件就停手",
-                "en": "Removing usage preserves your status line, and unreadable hooks stop safely",
-                "ja": "usage を外しても状態表示を誤削除せず、壊れたフックファイルには手を出さない",
-                "ko": "usage를 지워도 상태 줄을 잘못 지우지 않고, 읽을 수 없는 훅 파일에는 손대지 않는다"
-              },
-              "body": {
-                "zh-TW": "你曾把自己設定的終端機狀態列（終端機最底下顯示目前狀況的地方）留著，卻在移除 usage 加上的 Codex 狀態列時擔心它一起消失嗎？現在移除動作會逐字核對，只有完全等於 `CODEX_STATUS_LINE` 的那一列才會動；備份檔壞掉或內容型別不對時，設定和備份都原封不動。另一道保護留給掛鉤（特定事件發生時被觸發的小程式）：`~/.codex/hooks.json` 不可讀時，usage 會中止，不再把它當空檔重寫，避免清掉你全部掛鉤，也不會留下半套安裝。像收走租來的衣架，先認準自己的標籤；看不清置物櫃裡的東西，就先不碰。",
-                "zh-CN": "你保留着自己设置的终端状态栏（终端最底下显示当前状况的地方），移除 usage 加上的 Codex 状态栏时，过去可能担心它也会一起消失。现在移除动作会逐字核对，只有完全等于 `CODEX_STATUS_LINE` 的那一行才会动；备份文件损坏或内容类型不对时，设置和备份都会原封不动。另一道保护留给钩子（特定事件发生时被触发的小程序）：`~/.codex/hooks.json` 无法读取时，usage 会中止，不再把它当空文件重写，避免清掉全部钩子，也不会留下半套安装。像收走租来的衣架，先认准自己的标签；看不清储物柜里的东西，就先不碰。",
-                "en": "If you kept your own terminal status line, removing the Codex line added by usage used to risk taking yours with it. Removal now compares the text exactly and touches only a line equal to `CODEX_STATUS_LINE`; if its backup is corrupt or has the wrong type, both the configuration and backup stay untouched. A second safeguard covers hooks (small programs triggered by particular events): when `~/.codex/hooks.json` cannot be read, usage stops instead of treating it as empty and writing it back. That protects every hook and avoids leaving a half-installed state. It is like collecting rented coat hangers only after checking their labels; if you cannot see inside a locker, you leave it alone.",
-                "ja": "自分で設定した端末の状態表示を残しているなら、usage が加えた Codex の状態表示を外す際に、それまで一緒に消えるおそれがあった。今は文字列を完全一致で照合し、`CODEX_STATUS_LINE` と一致する行だけを操作する。バックアップが壊れているか型が違う場合も、設定とバックアップはそのまま残る。もう一つの保護対象はフック（特定の出来事で動く小さなプログラム）である。`~/.codex/hooks.json` を読めないとき、usage は空のファイルと見なして書き戻さず中止するため、全フックを消したり中途半端な導入状態を残したりしない。借りたハンガーを回収するときは自分の札を確かめ、ロッカーの中が見えなければ触らないようなものである。",
-                "ko": "직접 설정한 터미널 상태 줄을 남겨 두었다면, usage가 추가한 Codex 상태 줄을 지울 때 그것까지 함께 사라질 위험이 있었다. 이제 제거 작업은 글자를 정확히 대조해 `CODEX_STATUS_LINE`과 완전히 같은 줄만 건드린다. 백업 파일이 깨졌거나 내용 형식이 맞지 않아도 설정과 백업은 그대로 둔다. 또 다른 보호 장치는 훅(특정 일이 일어날 때 실행되는 작은 프로그램)이다. `~/.codex/hooks.json`을 읽을 수 없으면 usage는 이를 빈 파일로 보고 다시 쓰지 않고 중단하므로, 훅 전체를 지우거나 반쯤 설치된 상태를 남기지 않는다. 빌린 옷걸이를 거둘 때 자기 이름표를 먼저 확인하고, 사물함 안이 보이지 않으면 손대지 않는 것과 같다."
-              },
-              "original": "**Removing the Codex status line no longer deletes one that `usage` never installed.** `_unsetup_codex()` only checked whether a `tui.status_line` existed at all, not whether it was ours. Anyone who had configured their own status line and then ran the removal lost it. Worse, a corrupt backup file made the restore path overwrite the config with an empty list and then delete the only backup, losing both at once. Removal now acts only when the status line matches `CODEX_STATUS_LINE` exactly, and an unreadable or wrong-typed backup leaves both the config and the backup untouched.\n**A corrupt `~/.codex/hooks.json` is no longer treated as an empty one.** `_load_codex_hooks()` returned `{}` for \"file missing\" and \"file exists but won't parse\" alike; terse mode then rebuilt from that empty dict and wrote it back, permanently erasing every Codex hook the user had, with no backup and no message. Codex writing that file while `usage` reads it is enough to trigger this. The unreadable case now aborts before anything is copied or written, so a failed run can no longer leave a half-installed state either."
-            }
-          ],
-          "curated": true
-        },
-        {
-          "version": "0.29.12",
-          "period": "2026-08-02",
-          "items": [
-            {
-              "title": {
-                "zh-TW": "工程人才多 25 位，啟動角色少一步",
-                "zh-CN": "工程人才多 25 位，启动角色少一步",
-                "en": "25 more engineering roles, with fewer steps to launch one",
-                "ja": "エンジニア職が25増え、役割の起動は一手少なくなった",
-                "ko": "엔지니어 역할 25개가 늘고, 실행 단계는 하나 줄었다"
-              },
-              "body": {
-                "zh-TW": "網站缺前端、後台缺 API（讓軟體互相傳資料的介面）專長時，AI Talent Market 新增七組、共 25 個工程角色。角色涵蓋前端、後端、雲端維運、品質、AI、程式維護與應用程式開發；React、Next.js、SQL、Python、Docker、DevOps、Swift、Electron、重構、相依套件與提示詞工程也各有專家。既有的行銷包加入 SEO 角色，電商包加入付款整合角色；每位都有繁中、簡中、英文、日文、韓文人設。挑好角色後，卡片直接顯示「Launch」：未安裝才會先把一個 `.md` 檔寫進 `~/.claude/agents/`，接著啟動；安裝失敗便停下並報錯，不會開空終端機。手動改過的角色仍可按「Restore」還原。像人才仲介先把專長排好，帶你選到人便直接牽線。",
-                "zh-CN": "网站缺前端、后台缺 API（让软件互相传递数据的接口）专长时，AI Talent Market 新增七组、共 25 个工程角色。角色涵盖前端、后端、云端运维、质量、AI、代码维护与应用开发；React、Next.js、SQL、Python、Docker、DevOps、Swift、Electron、重构、依赖包与提示词工程也各有专家。既有营销包加入 SEO 角色，电商包加入支付整合角色；每位都有繁中、简中、英文、日文、韩文人设。挑好角色后，卡片直接显示「Launch」：未安装才会先把一个 `.md` 文件写进 `~/.claude/agents/`，接着启动；安装失败便停下并报错，不会打开空终端。手动改过的角色仍可按「Restore」还原。像人才中介先把专长排好，带你选到人便直接牵线。",
-                "en": "Need someone to build a page, design an API, or untangle a dependency? The AI Talent Market adds 25 engineering roles across seven new packs. They cover frontend, backend, cloud operations, quality, AI, code maintenance, and app development, with specialists in React, Next.js, SQL, Python, Docker, DevOps, Swift, Electron, refactoring, dependencies, and prompt engineering. Marketing also gains SEO, while ecommerce gains payment integration; every role comes with zh-TW, zh-CN, English, Japanese, and Korean personas. After choosing one, its card now says \"Launch\". If needed, it first writes one `.md` file to `~/.claude/agents/`, then starts; a failed install stops and reports its error instead of opening an empty terminal. Hand-edited roles still keep their \"Restore\" button. Think of a recruiter who sorts the specialties first, then introduces you straight to the right person.",
-                "ja": "Web ページのフロントエンドを任せたい、API（ソフトウェア同士が情報を渡す接点）を設計したい。そんなときに AI Talent Market へ七つの新パック、計25のエンジニア職が加わった。フロントエンド、バックエンド、クラウド運用、品質、AI、コード保守、アプリ開発を扱い、React、Next.js、SQL、Python、Docker、DevOps、Swift、Electron、リファクタリング、依存関係、プロンプト設計にも専門家がいる。既存のマーケティングパックには SEO、EC パックには決済統合の役割も加わり、各役割は繁体字中国語、簡体字中国語、英語、日本語、韓国語の人格を備える。役割を選ぶとカードはすぐ「Launch」と表示する。未導入なら `.md` ファイルを `~/.claude/agents/` に一つ書き込んでから起動し、導入に失敗した場合は空の端末を開かず、そこでエラーを知らせる。手で編集した役割の「Restore」は従来どおり使える。専門分野を並べた人材紹介所が、選んだ相手へそのまま取り次ぐようなものだ。",
-                "ko": "웹 페이지의 프런트엔드를 맡기거나 API(소프트웨어끼리 정보를 주고받는 접점)를 설계할 사람이 필요할 때, AI Talent Market에 새 패키지 일곱 개와 엔지니어 역할 25개가 추가됐다. 프런트엔드, 백엔드, 클라우드 운영, 품질, AI, 코드 유지 보수, 앱 개발을 다루며 React, Next.js, SQL, Python, Docker, DevOps, Swift, Electron, 리팩터링, 의존성, 프롬프트 엔지니어링 전문가도 포함한다. 기존 마케팅 패키지에는 SEO 역할이, 전자상거래 패키지에는 결제 통합 역할이 더해졌고, 모든 역할은 zh-TW, zh-CN, 영어, 일본어, 한국어 페르소나를 갖춘다. 역할을 고르면 카드에는 곧바로 \"Launch\"가 보인다. 아직 설치되지 않았다면 `.md` 파일 하나를 `~/.claude/agents/`에 쓴 뒤 시작하며, 설치가 실패하면 빈 터미널을 열지 않고 그 자리에서 오류를 알린다. 손으로 고친 역할의 \"Restore\" 버튼은 그대로다. 전문 분야를 정리한 인재 소개소가 고른 사람에게 바로 연결해 주는 셈이다."
-              },
-              "original": "**The AI Talent Market gained 25 engineering roles across seven new packs.** Frontend, backend, cloud ops, quality, AI, code maintenance and app development — React and Next.js specialists, API designers, SQL and Python pros, cloud architects, Docker and DevOps engineers, Swift and Electron experts, refactoring and dependency specialists, prompt engineers, and more. Every role ships the full zh-TW/zh-CN/en/ja/ko persona set. Two existing packs also absorbed a role each: SEO into marketing, payment integration into ecommerce.\n**Hiring a role is now one click instead of two.** A role card used to show \"Install\", and only after that did it turn into \"Launch\" — but installing is an implementation detail (writing one `.md` file into `~/.claude/agents/`) that no one needed to see. Every card now shows \"Launch\" directly; if the role isn't installed yet, it gets installed first and then starts. A failed install stops there and reports the error rather than opening an empty terminal. The \"Restore\" button for hand-edited roles is unchanged."
             }
           ],
           "curated": true
