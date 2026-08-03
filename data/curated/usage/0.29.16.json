@@ -1,0 +1,74 @@
+{
+  "version": "0.29.16",
+  "period": "2026-08-02",
+  "items": [
+    {
+      "title": {
+        "zh-TW": "日誌會輪替，測試也不再污染真實紀錄",
+        "zh-CN": "日志会轮换，测试也不再污染真实记录",
+        "en": "Logs now rotate, and tests stop polluting the real record",
+        "ja": "ログがローテーションし、テストも本物の記録を汚さなくなった",
+        "ko": "로그가 순환하고 테스트도 실제 기록을 더럽히지 않는다"
+      },
+      "body": {
+        "zh-TW": "電腦常駐幾個月時，日誌檔（log，記錄程式運作過程的文字檔）若只由 launchd 轉存，就會像永遠不換頁的筆記本，只增不減。這個選單列小程式原本由 launchd 轉存輸出到 `~/Library/Logs/usage/usage.log`，沒有大小限制。launchd（macOS 用來在背景啟動程式的服務）只負責轉送。現在 Usage 在旁邊自己管理日誌：每份最多 2 MB，保留三份舊檔；就算建立目錄失敗，也照常啟動並保留主控台輸出。macOS 寫進 `~/Library/Logs/usage/`，其他平台則寫 `~/.usage/logs/`。連測試也改把日誌導去暫存目錄，不會再把測試警告混進真正用來診斷的 `usage-app.log`；Windows 系統匣測試曾在前一版修過同類問題。",
+        "zh-CN": "电脑常驻几个月时，日志文件（log，记录程序运行过程的文本文件）若只由 launchd 转存，就像永远不换页的笔记本，只增不减。launchd（macOS 用来在后台启动程序的服务）原本把输出写进 `~/Library/Logs/usage/usage.log`，没有大小限制。现在 Usage 会在旁边自己管理日志：每份最多 2 MB，保留三份旧文件；即使创建目录失败，也照常启动并保留控制台输出。macOS 写进 `~/Library/Logs/usage/`，其他平台则写 `~/.usage/logs/`。连测试也改把日志导去临时目录，不会再把测试警告混进真正用来诊断的 `usage-app.log`。",
+        "en": "When a computer stays on for months, a log file can become a notebook that never turns a page: it only grows. launchd, macOS's background service launcher, had been redirecting output to `~/Library/Logs/usage/usage.log` with no size limit. Usage now manages its own nearby log: each file is capped at 2 MB and three old copies are retained; even if it cannot create the directory, the app still starts and keeps console output. macOS uses `~/Library/Logs/usage/`; other platforms use `~/.usage/logs/`. Tests now write logs to a temporary directory too, so their warnings no longer mingle with the real `usage-app.log` used for diagnosis.",
+        "ja": "数か月つけっぱなしのコンピューターでは、ログファイル（プログラムの動作を記録するテキスト）が、ページをめくらないノートのように増え続けることがある。macOS のバックグラウンド起動サービスである launchd は、容量制限なしで `~/Library/Logs/usage/usage.log` に出力を書いていた。Usage は今後、隣で自分のログを管理し、1 ファイルを 2 MB までにして古いものを 3 個残す。ディレクトリを作れなくてもアプリは起動し、コンソール出力は残る。macOS は `~/Library/Logs/usage/`、他の環境は `~/.usage/logs/` を使う。テストも一時ディレクトリへ書くため、診断用の本物の `usage-app.log` に警告が混ざらない。",
+        "ko": "몇 달씩 켜 둔 컴퓨터에서는 로그 파일(프로그램 작동 과정을 기록한 텍스트 파일)이 페이지를 넘기지 않는 공책처럼 계속 커질 수 있다. macOS의 백그라운드 실행 서비스인 launchd는 용량 제한 없이 `~/Library/Logs/usage/usage.log`에 출력을 썼다. 이제 Usage는 곁에서 자체 로그를 관리해 파일 하나를 2 MB로 제한하고 이전 파일 세 개를 남긴다. 디렉터리를 만들지 못해도 앱은 정상 시작하며 콘솔 출력은 유지한다. macOS는 `~/Library/Logs/usage/`를, 다른 환경은 `~/.usage/logs/`를 쓴다. 테스트도 임시 디렉터리에 로그를 쓰므로 진단용 실제 `usage-app.log`에 경고가 섞이지 않는다."
+      },
+      "original": "**The file log is bounded and rotates.** The only log on disk was whatever launchd redirected into `~/Library/Logs/usage/usage.log`, and a redirect has no size limit — for a menu bar app that stays open for months, that file only ever grows. Python now owns a log of its own beside it, capped at 2 MB with three archives kept. Building the handler is best-effort: if the directory cannot be created the app keeps its console output and starts normally, because a logging subsystem must never be the thing that stops the program from running. macOS keeps the `~/Library/Logs/usage/` convention; every other platform writes under `~/.usage/logs/` next to the disk caches, since `~/Library/Logs` means nothing on Windows and `_setup_logging()` runs before the platform branch.\n**The test suite wrote into the developer's real log file.** `tests/test_main.py` exercises `main()`, whose first action is `_setup_logging()` — so the run attached a rotating file handler pointed at the actual `~/Library/Logs/usage/usage-app.log`, and every warning logged by every later test landed in it. One full run deposited 8 KB containing pytest's temporary directory paths, which is worse than noise: it makes the log untrustworthy the day someone reads it for a real diagnosis. An autouse fixture now redirects the log directory to `tmp_path`, matching the existing rule for `cache_quarantine.QUARANTINE_DIR`. Curiously the same class of bug was fixed one version earlier in the Windows tray tests."
+    },
+    {
+      "title": {
+        "zh-TW": "除錯可只看指定區塊，不必淹沒所有訊息",
+        "zh-CN": "调试可只看指定部分，不必淹没所有消息",
+        "en": "Debugging can now target selected parts instead of flooding everything",
+        "ja": "デバッグは必要な部分だけ見られ、全メッセージに埋もれない",
+        "ko": "디버그는 필요한 부분만 보고 모든 메시지에 묻히지 않는다"
+      },
+      "body": {
+        "zh-TW": "想查價格載入出了什麼事，卻被四十多處 debug 輸出淹沒嗎？USAGE_DEBUG（除錯開關，用來要求程式多印診斷訊息）不再只是全開或全關。在啟動前的環境變數（給程式的外部設定值）填 `USAGE_DEBUG=codex_loader,pricing`，就只看這兩個子系統；填 `1`、`all` 或 `*`，仍維持原本全部開啟。若填 `a.b`，它也會涵蓋 `a.b.c`，因為 Python 的 logger hierarchy（記錄器會由上層名稱管到下層名稱的結構）本來就這樣繼承。像開演唱會的控台，現在可只打亮兩位表演者，不必把整座舞台的燈全開。",
+        "zh-CN": "想查价格加载出了什么事，却被四十多处 debug 输出淹没吗？USAGE_DEBUG（调试开关，用来要求程序多打印诊断消息）不再只是全开或全关。在启动前的环境变量（给程序的外部设置值）填 `USAGE_DEBUG=codex_loader,pricing`，就只看这两个子系统；填 `1`、`all` 或 `*`，仍保持原本全部开启。若填 `a.b`，它也会涵盖 `a.b.c`，因为 Python 的 logger hierarchy（记录器会由上层名称管到下层名称的结构）本来就这样继承。像演唱会的控台，现在可只打亮两位表演者，不必把整座舞台的灯全开。",
+        "en": "Trying to find out why pricing loaded oddly used to mean drowning in output from more than forty debug sites. `USAGE_DEBUG`, the switch that asks the program to print diagnostic messages, is no longer only all on or all off. Set the environment variable before launch to `USAGE_DEBUG=codex_loader,pricing` and only those two subsystems speak up; `1`, `all`, and `*` still enable everything. Setting `a.b` also covers `a.b.c`, because Python's logger hierarchy already passes settings from a parent name to its children. It is like a concert board that can light only two performers instead of every lamp on the stage.",
+        "ja": "価格の読み込みで何が起きたか調べたいだけなのに、40 か所以上の debug 出力に埋もれていた。診断メッセージを多く出させるスイッチである USAGE_DEBUG は、もう全オンか全オフだけではない。起動前の環境変数に `USAGE_DEBUG=codex_loader,pricing` と入れれば、この二つのサブシステムだけを見る。`1`、`all`、`*` は従来どおり全体を有効にする。`a.b` は `a.b.c` も対象にする。Python の logger hierarchy が親の名前から子へ設定を受け継ぐ仕組みだからである。コンサートの操作卓で、舞台全体ではなく二人だけを照らすようなものだ。",
+        "ko": "가격 로딩에서 무슨 일이 났는지 알아보려면 전에는 마흔 곳이 넘는 debug 출력에 파묻혔다. 진단 메시지를 더 찍게 하는 스위치인 USAGE_DEBUG는 이제 전체 켜기와 끄기만 고르는 기능이 아니다. 실행 전 환경 변수에 `USAGE_DEBUG=codex_loader,pricing`를 넣으면 이 두 하위 시스템만 메시지를 낸다. `1`, `all`, `*`는 여전히 전체를 켠다. `a.b`를 넣으면 `a.b.c`도 포함한다. Python의 logger hierarchy가 상위 이름의 설정을 하위 이름에 물려주기 때문이다. 공연장 조명판에서 무대 전체가 아니라 두 사람만 비추는 모습과 같다."
+      },
+      "original": "**`USAGE_DEBUG` selects subsystems instead of switching everything on.** It was a boolean, so diagnosing one loader meant turning on all forty-odd debug sites and reading the result through the noise. It now takes a comma-separated list — `USAGE_DEBUG=codex_loader,pricing` raises only those two. Prefix matching comes free from Python's logger hierarchy rather than a hand-written comparison: setting `a.b` covers `a.b.c` because that is how logger inheritance already works. `1`, `all` and `*` keep the previous global behaviour."
+    },
+    {
+      "title": {
+        "zh-TW": "健康檢查可交給程式比對，不只剩截圖",
+        "zh-CN": "健康检查可交给程序比对，不只剩截图",
+        "en": "Health checks can now be compared by programs, not just screenshots",
+        "ja": "健全性チェックをスクリーンショットだけでなくプログラムで比較できる",
+        "ko": "상태 점검을 스크린샷뿐 아니라 프로그램으로 비교할 수 있다"
+      },
+      "body": {
+        "zh-TW": "有人請你交出 Usage 的健康檢查結果時，`usage --doctor --json` 現在給的是可讀取的資料，而不只是一段得靠截圖保存的文字。每項檢查都有固定代碼（stable code，讓程式每次都能辨認同一項檢查的名稱），例如 `hook_state`、`codex_sessions`，並標成三種狀態；只要有 `error`，指令就用非零結束碼（告訴其他程式這次執行失敗的數字）結束，其他工具便能比較兩次結果或自動判斷哪項失敗。邊界不清時它選 `warn`，不誤報成 `error`。像健檢表換上固定欄位，電腦和人都能對照。",
+        "zh-CN": "有人请你交出 Usage 的健康检查结果时，`usage --doctor --json` 现在给的是可读取的数据，而不只是一段得靠截图保存的文字。每项检查都有固定代码（stable code，让程序每次都能辨认同一项检查的名称），例如 `hook_state`、`codex_sessions`，并标成三种状态；只要有 `error`，命令就用非零退出码（告诉其他程序这次执行失败的数字）结束，其他工具便能比较两次结果或自动判断哪项失败。边界不清时它选 `warn`，不误报成 `error`。像体检表换上固定字段，电脑和人都能对照。",
+        "en": "When someone asks for Usage's health-check result, `usage --doctor --json` now returns data a program can read rather than a block of text that needs a screenshot. Each check has a stable code, such as `hook_state` or `codex_sessions`, and one of three states. If any check is an `error`, the command ends with a non-zero exit code, so other tools can compare two reports or determine which check failed automatically. When the boundary is unclear, it chooses `warn` instead of falsely calling it an `error`. It is like a medical form with fixed columns: people and computers can both line up the results.",
+        "ja": "Usage の健全性チェック結果を誰かに渡すとき、`usage --doctor --json` は、スクリーンショットが必要な文章の塊ではなく、プログラムが読めるデータを返すようになった。各チェックには `hook_state` や `codex_sessions` のような固定コードと三つの状態がある。どれかが `error` なら、コマンドはゼロ以外の終了コードで終わるため、別のツールが二つの報告を比べたり、失敗した項目を自動判定したりできる。境界が曖昧なら `error` と誤報せず `warn` を選ぶ。固定欄のある健診表なら、人もコンピューターも結果を並べられるのと同じである。",
+        "ko": "누군가 Usage의 상태 점검 결과를 달라고 할 때 `usage --doctor --json`은 이제 스크린샷이 필요한 긴 글 대신 프로그램이 읽을 수 있는 데이터를 돌려준다. 각 점검에는 `hook_state`, `codex_sessions`처럼 고정 코드와 세 가지 상태가 붙는다. 어느 하나가 `error`이면 명령은 0이 아닌 종료 코드로 끝나므로 다른 도구가 두 보고서를 비교하거나 실패한 항목을 자동으로 판단할 수 있다. 경계가 모호하면 `error`로 잘못 알리지 않고 `warn`을 고른다. 고정 칸이 있는 건강검진표라면 사람과 컴퓨터가 모두 결과를 나란히 볼 수 있는 것과 같다."
+      },
+      "original": "**`--doctor --json` emits the report as data with stable codes.** The report was a block of text, so a user could only screenshot it and the reader had to scan by eye — nothing could compare two reports or decide programmatically which check failed. Each check now carries a fixed code (`hook_state`, `codex_sessions`, …) and one of three states, the process exits non-zero when any check is in error, and the human-readable output is unchanged to the character. Ambiguous cases resolve to `warn` rather than `error`: a false alarm that fails a health check costs more than a missed warning."
+    },
+    {
+      "title": {
+        "zh-TW": "選單項目集中組裝，綁定的方法仍留在原地",
+        "zh-CN": "菜单项目集中组装，绑定的方法仍留在原处",
+        "en": "Menu items are assembled in one place while the bound method stays put",
+        "ja": "メニュー項目を一か所で組み立て、結び付いたメソッドは元の場所に残す",
+        "ko": "메뉴 항목은 한곳에서 만들고 연결된 메서드는 원래 자리에 둔다"
+      },
+      "body": {
+        "zh-TW": "維護 macOS 選單列時，麻煩的往往不是加新選項，而是十幾個選項都重複同一套組裝動作。`switchPanel_` 現在交給 `menubar_menu.build_menu_item()` 幫手函式（helper function，把重複步驟集中在一處的小函式）建立項目，建立項目、設定目標、狀態、提示，再加入選單的步驟只寫一次。`switchPanel_` 本身沒有搬家，因為 AppDelegate（macOS 應用程式的協調者）會用 selector 綁定它。selector（依方法名稱連接功能的機制）若失去原方法就會斷掉。這次省下的是 24 行重複內容，不是看起來像 80 行的數字遊戲；舊測試也改為在幫手模組補上 `NSMenuItem` 的替換，不再加模組層級轉接。像把十幾張便條收進同一本簿子，項目仍在原處，只有抄寫不再重複。",
+        "zh-CN": "维护 macOS 菜单栏时，麻烦的往往不是加新选项，而是十几个选项都重复同一套组装动作。`switchPanel_` 现在交给 `menubar_menu.build_menu_item()` 帮手函数（helper function，把重复步骤集中在一处的小函数）建立项目，建立项目、设置目标、状态、提示，再加入菜单的步骤只写一次。`switchPanel_` 本身没有搬家，因为 AppDelegate（macOS 应用程序的协调者）会用 selector 绑定它。selector（依方法名称连接功能的机制）若失去原方法就会断掉。这次省下的是 24 行重复内容，不是看起来像 80 行的数字游戏；旧测试也改为在帮手模块补上 `NSMenuItem` 的替换，不再加模块层级转接。像把十几张便条收进同一本簿子，项目仍在原处，只有抄写不再重复。",
+        "en": "When maintaining a macOS menu bar, the trouble is often not adding a new option but repeating the same assembly steps for a dozen of them. `switchPanel_` now uses `menubar_menu.build_menu_item()`, a helper function that gathers repeated steps in one place, to create the items; target, state, tooltip, and adding the item are written once. `switchPanel_` itself stays where it is because AppDelegate binds it through a selector, the mechanism that connects a feature by method name. Move the original method and that connection breaks. This removes 24 repeated lines, not the 80-line illusion suggested by the count. The old test now also replaces `NSMenuItem` in the helper module instead of adding module-level indirection. It is like gathering a dozen sticky notes into one notebook: the items stay put, but copying stops repeating.",
+        "ja": "macOS のメニューバーを保守するとき、厄介なのは新しい項目を足すことより、十数個の項目に同じ組み立て作業を繰り返すことである。`switchPanel_` は今、重複した手順を一か所に集める helper function である `menubar_menu.build_menu_item()` を使って項目を作る。対象、状態、ツールチップ、メニューへの追加は一度だけ書けばよい。`switchPanel_` 自体は移していない。AppDelegate が selector、つまりメソッド名で機能を結び付ける仕組みを通じてこれを束縛しており、元のメソッドを移すと接続が切れるからである。減ったのは見かけ上の 80 行ではなく、24 行の重複である。古いテストも helper モジュールで `NSMenuItem` を置き換えるようにし、モジュール単位の仲介を足さない。十数枚の付箋を一冊のノートに集めても、項目は元の場所にあり、写し書きだけが減るようなものである。",
+        "ko": "macOS 메뉴 막대를 관리할 때 어려운 일은 새 항목을 더하는 것보다 열두 개가 넘는 항목에 같은 조립 작업을 되풀이하는 데 있다. `switchPanel_`는 이제 반복 단계를 한곳에 모은 helper function인 `menubar_menu.build_menu_item()`로 항목을 만든다. 대상, 상태, 도움말, 메뉴에 넣는 작업은 한 번만 쓴다. `switchPanel_` 자체는 옮기지 않았다. AppDelegate가 selector, 즉 메서드 이름으로 기능을 연결하는 장치로 이를 묶고 있어 원래 메서드를 옮기면 연결이 끊기기 때문이다. 줄어든 것은 줄 수가 보여 주는 80줄이 아니라 중복된 24줄이다. 기존 테스트도 모듈 단계의 우회를 더하지 않고 helper 모듈에서 `NSMenuItem`을 바꾸도록 했다. 열두 장이 넘는 메모지를 한 권의 공책에 모아도 항목은 제자리에 있고 베껴 쓰기만 줄어드는 모습과 같다."
+      },
+      "original": "**`switchPanel_` builds its items through a helper.** A dozen menu entries each repeated the same five to seven lines — allocate the item, set the target, set the state, set the tooltip, add it — and `menubar.py` had two lines left under its ceiling. `menubar_menu.build_menu_item()` absorbs that shape. It lives in a new module rather than in `menubar_state.py`, which stays free of PyObjC. `switchPanel_` itself does not move: an AppDelegate method is bound by selector, and relocating one breaks the binding. The saving is smaller than it looks — 24 lines, not the 80 the line count suggested, because keyword arguments wrap across lines and give much of it back. The gain is the removed repetition, not the arithmetic. Moving the helper out also broke a test that patched `NSMenuItem` on the `menubar` module only; the fix was to patch the helper module too, never to add module-level indirection so the old patch keeps reaching."
+    }
+  ]
+}
