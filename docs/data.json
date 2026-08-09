@@ -816,54 +816,72 @@
       "id": "usage",
       "name": "Usage",
       "latest": {
-        "version": "0.29.18",
+        "version": "0.29.21",
         "raw": {
-          "version": "0.29.18",
-          "period": "2026-08-06",
+          "version": "0.29.21",
+          "period": "2026-08-09",
           "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-          "fetched_at": "2026-08-06",
+          "fetched_at": "2026-08-09",
           "entries": [
-            "**The panel window oscillated between two heights.** Opening it snapped the window once, and it kept flicking back and forth afterwards. A panel's height has two sources: `popover_dimensions()` estimates it in Python from a registered base plus per-card adjustments, and the page measures itself for real once it has been laid out and reports the number back. The measurement is meant to win — it is saved to `NSUserDefaults` and read back by `resolve_panel_size()` on the next pass. It never was. `NSUserDefaults.objectForKey_()` hands PyObjC an Objective-C `__NSDictionaryI`, and `isinstance(value, dict)` on that is `False`, so the guard rejected the saved `{classic: 974}` every single time and fell back to the 1004 estimate. The write path had the same guard and therefore discarded every other panel's saved height whenever one was stored. What made this hard to see is that saving worked while loading did not: `defaults read com.lollapalooza.usage` showed the correct 974 sitting on disk the whole time, so the data looked healthy from the outside. The 30-point gap between the two values happens to equal `status_wrap_extra_height`, which is a coincidence worth ignoring — the estimate being wrong is not what caused the loop; the measurement being rejected is. Both guards now accept `collections.abc.Mapping`. The estimate is still used, but only for panels that can never report a measurement — `ErrorPanelView` has no JavaScript bridge, so waiting for one would leave it at the wrong size forever. The regression test substitutes a `MappingProxyType`, which like `NSDictionary` is a `Mapping` that is not a `dict`; a test double built from a plain `dict` passes whether or not the bug is present.",
-            "**The Japanese and Korean locales shipped sixty-three blank labels each.** Flagged one version earlier and fixed here. Both locales carried all 489 keys, so `test_every_language_has_the_same_keys` compared key sets, found them identical, and passed — while `loading`, `no_data`, `session_title`, `col_time` and `model_breakdown` rendered as empty space for anyone running the app in either language. A present-but-empty value is invisible to a parity check by construction, which is the same blind spot that let fifty-two Simplified Chinese strings sit in the Traditional Chinese locale until last version. Two assertions now close it: no translated value may be blank, and every value's `{placeholder}` set must match English exactly. The second guards a failure the first cannot see — a translation that drops or renames a placeholder does not look wrong in the file, it raises at `format` time in front of the user. Rich markup (`[dim]`), format specs (`{m:02d}`) and command names were left in English."
+            "**Windows quota panels opened taller than their content.** `wintray.py`'s `PANEL_HEIGHTS` still held the numbers from before 64a7c0b recalibrated the Mac panel heights; that commit missed the Windows fallback table, so eight panels rendered 17–24pt too tall for the brief window before the WebView reports its real content height. The numbers now match, with a comment recording where they come from so the next recalibration doesn't miss this table too.",
+            "**Adding a new quota card silently reset everyone's saved card order.** `_valid_quota_card_order()` required the saved order's length to match the current default list exactly, so a newly added card (a fourth quota source, say) made every existing saved order look invalid and quietly fall back to default. It now only rejects duplicate or unknown ids; an order that's missing a newer card gets that card appended instead of the whole preference being discarded.",
+            "**The CLI status line moved to a cooler color palette.** The project name, branch, and metric labels shifted from the original green/blue/magenta mix to a teal-and-blue variant; usage-percentage colors by severity are unchanged."
           ]
         },
         "curated": {
-          "version": "0.29.18",
-          "period": "2026-08-06",
+          "version": "0.29.21",
+          "period": "2026-08-09",
           "items": [
             {
               "title": {
-                "zh-TW": "面板視窗不再忽高忽低",
-                "zh-CN": "面板窗口不再忽高忽低",
-                "en": "Panel windows stop flickering between heights",
-                "ja": "パネルの高さが行ったり来たりしなくなった",
-                "ko": "패널 창 높이가 더는 오락가락하지 않는다"
+                "zh-TW": "Windows 額度面板不再高出一截",
+                "zh-CN": "Windows 配额面板不再高出一截",
+                "en": "Windows quota panels no longer stand too tall",
+                "ja": "Windows の利用枠パネルが不必要に高くならない",
+                "ko": "Windows 할당량 패널이 쓸데없이 높지 않다"
               },
               "body": {
-                "zh-TW": "從選單列打開面板（popover，浮在其他視窗上的小視窗）時，視窗先跳一下又在兩個高度間來回閃動的問題修好了。它原本像服飾店先按尺寸表猜衣服大小，網頁排好版後再量一次實際尺寸；量到的尺寸本該存下來，供下次優先採用，卻被程式誤認為不是可讀的對照資料而丟掉，於是每次又退回舊的預估值。現在讀寫都接受 Mapping（能用鍵查值的對照資料），已量到的高度會留下來；只有不能回報尺寸的錯誤面板，才繼續使用預估值。測試也改用不是一般 dict 的對照資料，確保這個判斷不會再退回舊路。",
-                "zh-CN": "从菜单栏打开面板（popover，浮在其他窗口上的小窗口）时，窗口先跳一下、又在两个高度间来回闪动的问题修好了。它原本像服装店先按尺码表猜衣服大小，网页排好版后再量一次实际尺寸；量到的尺寸本该存下来，供下次优先采用，却被程序误认为不是可读的对照数据而丢掉，于是每次又退回旧的预估值。现在读写都接受 Mapping（能用键查值的对照数据），已量到的高度会留下来；只有不能回报尺寸的错误面板，才继续使用预估值。测试也改用不是普通 dict 的对照数据，确保这个判断不会再退回旧路。",
-                "en": "Opening a panel window from the menu bar no longer makes it snap once and then flicker between two heights. Think of a tailor who first guesses from a size chart, then measures the actual garment after it is laid out. The real measurement should have been saved and used next time, but the app mistook that saved value for unreadable data and threw it away, so it kept falling back to the estimate. Reading and writing now accept a Mapping (key-value data, even when it is not a plain Python dict), preserving measured heights. Only the error panel, which cannot report a measurement, continues to use an estimate. The regression test now uses that non-dict kind of Mapping too.",
-                "ja": "メニューバーからパネル（popover、ほかのウィンドウの上に浮く小さなウィンドウ）を開いたとき、一度跳ねた後に二つの高さを行き来していた問題が直った。服屋がサイズ表で服の大きさを先に予想し、レイアウト後に実寸を測るようなものだ。本来は実測値を保存して次回に優先するはずが、アプリがその保存値を読めないデータと誤認して捨て、毎回予想値へ戻っていた。今は読み書きとも Mapping（キーで値を引ける対応データ）を受け入れるため、実測した高さが残る。測定を報告できないエラーパネルだけは、引き続き予想値を使う。テストも通常の dict ではない Mapping を使うようになった。",
-                "ko": "메뉴 막대에서 패널(popover, 다른 창 위에 떠 있는 작은 창)을 열 때 한 번 튄 뒤 두 높이 사이를 오가던 문제가 고쳐졌다. 옷가게가 치수표로 먼저 옷 크기를 짐작하고, 배치가 끝난 뒤 실측하는 모습과 같다. 실측값은 저장돼 다음번에 먼저 써야 했지만, 앱이 저장된 값을 읽을 수 없는 데이터로 잘못 판단해 버리고 매번 추정값으로 돌아갔다. 이제 읽기와 쓰기 모두 Mapping(키로 값을 찾는 대응 데이터)을 받아들여 실측한 높이가 남는다. 측정값을 보낼 수 없는 오류 패널만 계속 추정값을 쓴다. 테스트도 일반 dict가 아닌 Mapping을 사용하도록 바뀌었다."
+                "zh-TW": "Windows 使用者打開額度面板時，畫面不會再像穿了大一號外套。面板（popover，浮在原畫面上的小視窗）曾沿用舊的高度數字；在網頁內容回報實際高度前，八個面板會高出 17 到 24 點。現在 Windows 的備援高度表已對齊 Mac 的重新校準結果，程式也留下數字來源註記，之後調整不易漏改。就像先拿錯尺寸的相框，照片尺寸一量到才換掉；現在相框一開始就合身。",
+                "zh-CN": "Windows 用户打开配额面板时，画面不会再像穿了大一号外套。面板（popover，浮在原画面上的小窗口）曾沿用旧的高度数字；在网页内容报告实际高度前，八个面板会高出 17 到 24 点。现在 Windows 的默认高度已对齐 Mac 的重新校准结果，程序也留下数字来源注释，之后调整不容易漏改。就像先拿错尺寸的相框，照片尺寸一量到才换掉；现在相框从一开始就合身。",
+                "en": "On Windows, quota panels no longer look like they put on a coat one size too big. The popovers — small panels that float above the main screen — still used old height values, so eight of them stood 17 to 24 points too tall until their web content reported its real height. Their Windows defaults now match Mac's recalibrated values, and a comment records where those numbers came from so a later recalibration is less likely to miss them. It is like starting with the right-sized picture frame instead of swapping it after measuring the photo.",
+                "ja": "Windows で利用枠パネルを開いても、もう一回り大きい服を着たようには見えない。ポップオーバー（popover、元の画面の上に浮く小さなパネル）が古い高さの数値を使っていたため、ウェブ内容が実際の高さを知らせるまで、八つのパネルが 17〜24 ポイント高く表示されていた。Windows の初期値は Mac で再調整した数値にそろい、数値の出所を示すコメントも残った。写真を測ってから額縁を替えるのではなく、最初から寸法の合う額縁を選ぶような変更である。",
+                "ko": "Windows에서 할당량 패널을 열어도 이제 한 치수 큰 옷을 입은 듯 보이지 않는다. 팝오버(popover, 원래 화면 위에 뜨는 작은 패널)가 예전 높이 값을 쓰고 있어서, 웹 내용이 실제 높이를 알리기 전에는 여덟 패널이 17~24포인트 높게 그려졌다. 이제 Windows 기본 높이는 Mac에서 다시 맞춘 값과 같고, 숫자가 나온 곳을 적은 주석도 남겼다. 사진을 재고 나서 액자를 바꾸는 대신 처음부터 맞는 액자를 고르는 것과 같다."
               },
-              "original": "**The panel window oscillated between two heights.** Opening it snapped the window once, and it kept flicking back and forth afterwards. A panel's height has two sources: `popover_dimensions()` estimates it in Python from a registered base plus per-card adjustments, and the page measures itself for real once it has been laid out and reports the number back. The measurement is meant to win — it is saved to `NSUserDefaults` and read back by `resolve_panel_size()` on the next pass. It never was. `NSUserDefaults.objectForKey_()` hands PyObjC an Objective-C `__NSDictionaryI`, and `isinstance(value, dict)` on that is `False`, so the guard rejected the saved `{classic: 974}` every single time and fell back to the 1004 estimate. The write path had the same guard and therefore discarded every other panel's saved height whenever one was stored. What made this hard to see is that saving worked while loading did not: `defaults read com.lollapalooza.usage` showed the correct 974 sitting on disk the whole time, so the data looked healthy from the outside. The 30-point gap between the two values happens to equal `status_wrap_extra_height`, which is a coincidence worth ignoring — the estimate being wrong is not what caused the loop; the measurement being rejected is. Both guards now accept `collections.abc.Mapping`. The estimate is still used, but only for panels that can never report a measurement — `ErrorPanelView` has no JavaScript bridge, so waiting for one would leave it at the wrong size forever. The regression test substitutes a `MappingProxyType`, which like `NSDictionary` is a `Mapping` that is not a `dict`; a test double built from a plain `dict` passes whether or not the bug is present."
+              "original": "**Windows quota panels opened taller than their content.** `wintray.py`'s `PANEL_HEIGHTS` still held the numbers from before 64a7c0b recalibrated the Mac panel heights; that commit missed the Windows fallback table, so eight panels rendered 17–24pt too tall for the brief window before the WebView reports its real content height. The numbers now match, with a comment recording where they come from so the next recalibration doesn't miss this table too."
             },
             {
               "title": {
-                "zh-TW": "日韓語介面不再有空白標籤",
-                "zh-CN": "日韩语界面不再有空白标签",
-                "en": "Japanese and Korean interfaces no longer show blank labels",
-                "ja": "日本語と韓国語の空白ラベルを解消",
-                "ko": "일본어와 한국어 화면의 빈 라벨을 없앴다"
+                "zh-TW": "新增額度卡，原本排序照樣保留",
+                "zh-CN": "新增配额卡，原有排序照样保留",
+                "en": "A new quota card no longer resets your order",
+                "ja": "利用枠カードを追加しても並び順が戻らない",
+                "ko": "새 할당량 카드를 더해도 기존 순서가 돌아가지 않는다"
               },
               "body": {
-                "zh-TW": "日文與韓文介面先前各有 63 個標籤看起來像憑空消失，現在已補上翻譯。檢查原本只核對 489 個文字鍵是否都存在，像倉庫清點到每個紙箱卻沒打開看裡面有沒有東西；因此 `loading`、`no_data`、`session_title`、`col_time` 與 `model_breakdown` 雖有鍵名，畫面仍只留下空白。新檢查會拒絕空字串，也會比對 placeholder（顯示時才填入資料的位置）是否和英文一致；少掉或改名都可能在顯示時出錯。帶格式的標記、格式寫法與指令名稱則維持英文，不會被誤譯。",
-                "zh-CN": "日文与韩文界面先前各有 63 个标签看起来像凭空消失，现在已补上翻译。检查原本只核对 489 个文字键是否都存在，像仓库清点到每个纸箱却没打开看里面有没有东西；因此 `loading`、`no_data`、`session_title`、`col_time` 与 `model_breakdown` 虽有键名，画面仍只留下空白。新检查会拒绝空字符串，也会比对 placeholder（显示时才填入数据的位置）是否和英文一致；少掉或改名都可能在显示时出错。带格式的标记、格式写法与命令名称则保持英文，不会被误译。",
-                "en": "Japanese and Korean users were each seeing 63 labels vanish into blank space; those translations are now filled in. The old check only confirmed that all 489 text keys existed, like counting every box in a warehouse without opening it to see whether it contains anything. That let `loading`, `no_data`, `session_title`, `col_time`, and `model_breakdown` exist as keys yet render blank. New checks reject empty translations and compare every placeholder (a slot filled with data at display time) with English. A missing or renamed placeholder can otherwise fail when the text is formatted. Rich markup, format specifications, and command names remain in English.",
-                "ja": "日本語と韓国語の画面では、それぞれ 63 個のラベルが空白になっていたが、翻訳を補った。以前の検査は 489 個の文字キーがあるかだけを確かめていた。倉庫の箱を数えるだけで、中身を開けて確認しないようなものだ。そのため `loading`、`no_data`、`session_title`、`col_time`、`model_breakdown` はキーとして存在しても、画面では空白になっていた。新しい検査は空の翻訳を拒み、placeholder（表示時にデータを入れる場所）が英語版と一致するかも比べる。欠落や名前変更は表示時の書式処理で失敗するおそれがあるためだ。装飾用の記法、書式指定、コマンド名は英語のまま残す。",
-                "ko": "일본어와 한국어 화면에서는 각각 63개 라벨이 빈칸으로 보였는데, 이제 번역을 채웠다. 이전 검사는 489개 문자 키가 있는지만 확인했다. 창고의 상자 수만 세고 안에 물건이 들었는지는 열어보지 않는 것과 같다. 그래서 `loading`, `no_data`, `session_title`, `col_time`, `model_breakdown`은 키로 존재해도 화면에서는 빈칸이었다. 새 검사는 빈 번역을 거부하고 placeholder(표시할 때 데이터를 넣는 자리)가 영어와 같은지도 비교한다. 빠지거나 이름이 바뀌면 표시 과정의 형식 처리에서 실패할 수 있기 때문이다. 꾸밈 표기, 형식 지정, 명령 이름은 영어로 남긴다."
+                "zh-TW": "你排好額度卡片的順序後，新增來源不會把整份排序洗回預設。額度卡（quota card，顯示各項使用額度的卡片）原先要求已儲存順序的長度和預設清單完全一致；多一張新卡時，舊順序就被當成無效。現在只拒絕重複或不存在的識別碼（id，用來辨認項目的代號）；少掉的新卡會接在原順序最後。像書架多買一本書，不必把整櫃重排，只把新書放到最後。",
+                "zh-CN": "你排好配额卡片的顺序后，新增来源不会把整份排序洗回默认。配额卡（quota card，显示各项使用配额的卡片）原先要求已保存顺序的长度和默认列表完全一致；多一张新卡时，旧顺序就被当成无效。现在只拒绝重复或不存在的识别码（id，用来辨认项目的代号）；少掉的新卡会接在原顺序最后。像书架多买一本书，不必把整柜重排，只把新书放到最后。",
+                "en": "After you arrange your quota cards, adding another source will not wash the whole order back to the default. A quota card is a card showing one usage allowance. Previously, the saved order had to be exactly as long as the default list, so one new card made the old order look invalid. Now only duplicate or unknown ids — identifiers for the cards — are rejected; a newly missing card joins the end of your order. It is like buying one more book for a shelf: you add it at the end instead of rearranging the whole bookcase.",
+                "ja": "利用枠カードの並びを整えた後に新しい利用枠の出所が増えても、並び全体が初期状態へ戻らなくなった。利用枠カード（quota card、項目ごとの利用枠を示すカード）は、以前は保存済みの順番が初期リストと同じ長さでなければ無効と見なされていた。そのため一枚増えるだけで以前の順番が捨てられた。今は重複または存在しない id（項目を見分けるための番号）だけを拒み、新しいカードは元の順番の末尾に足される。本棚に一冊増えたら、棚全部を並べ直さず最後に置くようなものである。",
+                "ko": "할당량 카드 순서를 정해 둔 뒤 새 출처가 더해져도 전체 순서가 기본값으로 돌아가지 않는다. 할당량 카드(quota card, 항목별 사용 할당량을 보여 주는 카드)는 예전에는 저장한 순서의 길이가 기본 목록과 꼭 같아야 했다. 카드가 한 장만 늘어도 기존 순서가 잘못된 것으로 처리된 이유다. 이제는 중복되거나 없는 id(항목을 구별하는 이름)만 거부하고, 새 카드는 기존 순서의 맨 끝에 붙인다. 책장에 책 한 권을 더 샀을 때 책장 전체를 다시 정리하지 않고 마지막에 꽂는 것과 같다."
               },
-              "original": "**The Japanese and Korean locales shipped sixty-three blank labels each.** Flagged one version earlier and fixed here. Both locales carried all 489 keys, so `test_every_language_has_the_same_keys` compared key sets, found them identical, and passed — while `loading`, `no_data`, `session_title`, `col_time` and `model_breakdown` rendered as empty space for anyone running the app in either language. A present-but-empty value is invisible to a parity check by construction, which is the same blind spot that let fifty-two Simplified Chinese strings sit in the Traditional Chinese locale until last version. Two assertions now close it: no translated value may be blank, and every value's `{placeholder}` set must match English exactly. The second guards a failure the first cannot see — a translation that drops or renames a placeholder does not look wrong in the file, it raises at `format` time in front of the user. Rich markup (`[dim]`), format specs (`{m:02d}`) and command names were left in English."
+              "original": "**Adding a new quota card silently reset everyone's saved card order.** `_valid_quota_card_order()` required the saved order's length to match the current default list exactly, so a newly added card (a fourth quota source, say) made every existing saved order look invalid and quietly fall back to default. It now only rejects duplicate or unknown ids; an order that's missing a newer card gets that card appended instead of the whole preference being discarded."
+            },
+            {
+              "title": {
+                "zh-TW": "命令列狀態列換上青綠與藍色",
+                "zh-CN": "命令行状态栏换上青绿与蓝色",
+                "en": "CLI status line gets a teal-and-blue palette",
+                "ja": "コマンドラインのステータス行が青緑と青に変わる",
+                "ko": "명령줄 상태 줄이 청록과 파랑으로 바뀐다"
+              },
+              "body": {
+                "zh-TW": "看命令列（CLI，用文字指令操作的介面）時，專案名稱、分支和數值標籤換成青綠與藍的配色。使用百分比依嚴重程度顯示的顏色沒有改。這不是功能或判斷方式改了，而是同一張儀表板換了表面：你讀到的資訊與警示顏色都照舊，只有原本綠、藍、洋紅混用的幾個標籤改成了新的色調。因此看見青綠與藍時，不代表數值的嚴重程度跟著改變；百分比的顏色規則仍和之前相同。",
+                "zh-CN": "看命令行（CLI，用文字指令操作的界面）时，项目名称、分支和数值标签换成青绿与蓝的配色。使用百分比依严重程度显示的颜色没有改。这不是功能或判断方式变了，而是同一张仪表板换了表面：你读到的信息与警示颜色都照旧，只有原本绿、蓝、洋红混用的几个标签改成了新的色调。",
+                "en": "When you look at the command-line interface, or CLI — the text-based place where you enter commands — project names, branches, and metric labels now use teal and blue. The colors for usage percentages at different severity levels have not changed. This is not a new feature or a new way of judging usage; it is the same dashboard with a different face. Its information and warning colors stay put, while the labels that once mixed green, blue, and magenta take on the new shades.",
+                "ja": "文字でコマンドを入力する画面、コマンドライン（CLI）を見ると、プロジェクト名、ブランチ、指標ラベルが青緑と青の配色になっている。使用率を重大度別に示す色は変わらない。機能や判定方法が変わったのではなく、同じ計器盤の表面を替えた変更である。読める情報と警告の色はそのままに、これまで緑、青、マゼンタを混ぜていたラベルだけが新しい色調になる。",
+                "ko": "글자로 명령을 넣는 명령줄 인터페이스, 즉 CLI를 볼 때 프로젝트 이름, 브랜치, 지표 라벨이 청록과 파랑으로 표시된다. 사용률을 심각도에 따라 보여 주는 색은 바뀌지 않았다. 기능이나 판단 방식이 달라진 것이 아니라 같은 계기판의 겉모습만 바꾼 셈이다. 읽는 정보와 경고 색은 그대로이고, 예전에 초록·파랑·자홍을 섞어 쓴 몇 라벨만 새 색조를 입는다."
+              },
+              "original": "**The CLI status line moved to a cooler color palette.** The project name, branch, and metric labels shifted from the original green/blue/magenta mix to a teal-and-blue variant; usage-percentage colors by severity are unchanged."
             }
           ]
         }
