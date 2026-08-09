@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-08",
+  "generated_at": "2026-08-09",
   "tools": [
     {
       "id": "claude_code",
@@ -968,6 +968,47 @@
       "name": "Usage",
       "versions": [
         {
+          "version": "0.29.21",
+          "period": "2026-08-09",
+          "items": [
+            {
+              "original": "**Windows quota panels opened taller than their content.** `wintray.py`'s `PANEL_HEIGHTS` still held the numbers from before 64a7c0b recalibrated the Mac panel heights; that commit missed the Windows fallback table, so eight panels rendered 17–24pt too tall for the brief window before the WebView reports its real content height. The numbers now match, with a comment recording where they come from so the next recalibration doesn't miss this table too."
+            },
+            {
+              "original": "**Adding a new quota card silently reset everyone's saved card order.** `_valid_quota_card_order()` required the saved order's length to match the current default list exactly, so a newly added card (a fourth quota source, say) made every existing saved order look invalid and quietly fall back to default. It now only rejects duplicate or unknown ids; an order that's missing a newer card gets that card appended instead of the whole preference being discarded."
+            },
+            {
+              "original": "**The CLI status line moved to a cooler color palette.** The project name, branch, and metric labels shifted from the original green/blue/magenta mix to a teal-and-blue variant; usage-percentage colors by severity are unchanged."
+            }
+          ],
+          "curated": false
+        },
+        {
+          "version": "0.29.20",
+          "period": "2026-08-08",
+          "items": [
+            {
+              "original": "**Saving a setting turned a symlinked config file into a regular one.** Every settings write goes through `_atomic_write_text()`, which writes a temporary file and then `os.replace()`s it over the target — the standard way to make sure a crash mid-write cannot leave half a file behind. `os.replace()` does not follow symlinks, though, so for anyone who manages `~/.claude/settings.json` or `~/.codex/config.toml` from a dotfiles repository, the symlink was silently replaced by a plain file: the repository copy stopped receiving updates, nothing warned, and the divergence only showed up the next time those dotfiles were deployed somewhere else. The target is now resolved to its real path before the replace, and the temporary file is created next to that real path rather than next to the link — putting it beside the link would move the rename across filesystems, which fails outright with `Invalid cross-device link` and would have traded one silent breakage for a louder one. The atomic write itself is unchanged. `statusline_settings.py` had grown its own copy of this sequence and now calls the shared helper, so `settings.json`, `config.toml` and `hooks.json` are all covered by one implementation."
+            },
+            {
+              "original": "**The self-heal log could discard settings Claude Code had just written.** `_append_self_heal_log()` reads `settings.json`, appends an entry and writes the whole file back. Claude Code writes the same file, and anything it stored between that read and that write — a newly granted `permissions.allow` entry, for instance — was overwritten by the older copy still held in memory. The window is milliseconds wide, which is exactly why it would have been diagnosed as a mystery rather than as a race. The read-modify-write is now held under a `flock`, reusing the lock helper the status line already uses. It takes its own `usage-settings.lock` rather than sharing the status line's `usage-status.lock`: that one guards a different file written on every message, and sharing it would serialise two unrelated things for no benefit."
+            },
+            {
+              "original": "**A short secret redacted every occurrence of its characters.** `_redact_environment_values()` masks sensitive environment values out of transcripts by substring replacement. Nothing bounded how short a value could be, so an environment variable matching the sensitive-name pattern whose value happened to be `1` turned every `1` in the message into `[REDACTED]` — timestamps, token counts, error codes. Values shorter than eight characters are now skipped; a secret that short is not one worth protecting, and treating it as one destroys the surrounding text."
+            },
+            {
+              "original": "**The vendored instate CLI was bundled and executed without being verified.** `scripts/build_app.sh` downloads the binary from a release when the local `instate` project is not present, then packages it into the `.app` as-is. There was nothing to detect a substituted or corrupted download. The build now pins the expected SHA-256 in `scripts/instate-cli.sha256` and refuses to continue when the downloaded binary does not match, deleting it rather than leaving a suspect file behind for the next run to reuse. The fingerprint is committed to this repository rather than published beside the release asset on purpose: a checksum stored next to the binary can be rewritten by whoever rewrites the binary, which verifies nothing. A download that fails outright still logs a warning and continues — that is a missing panel, not a compromised one."
+            },
+            {
+              "original": "**Three passages of duplicated code were extracted.** The sharded disk caches for Claude and Codex history held sixty-three identical lines, and `codex_disk_cache.py` reached across to import `history_disk_cache.py`'s private serialisers and re-export them under its own `__all__` — a detour that made the real owner of that code impossible to see. Serialisation, shard paths and index, stale-cache removal and the payload read/write now live in `disk_cache_common.py`. The disk-cache lifecycle shared verbatim by all three loaders — the one-time seed check, the throttled flush and the best-effort flush on termination — moved to `disk_cache_lifecycle.py`. The loaders themselves are still three separate modules and stay that way; they parse three unrelated formats, and only the cache plumbing around them was ever the same. In `session_hooks.py`, three pairs of `_is_X_entry`/`_strip_X_hooks` differing only in a marker constant were parameterised, with the six original names kept as thin wrappers. `agy_disk_cache.py` was deliberately left out: it is a single JSON file with no sharding, and forcing it into the shared shape would have meant changing its behaviour to fit. Net 218 lines removed, with no behavioural change."
+            },
+            {
+              "original": "**Dead constants, two unused functions and thirteen orphaned translation keys were removed.** The keys came from renames and from the AI-updates feature moving to its own repository. Finding them took more care than the count suggests: a plain text search over the source reported 159 orphans, of which 146 were false. Keys are frequently assembled at runtime rather than written out — `discussion.html` builds `discussion_status_round1_running` by lowercasing a `SessionStatus` value, and `ui/html_report.py` prepends `report_` to every key it looks up, so four live `report_wrapped_beast_*` entries appear nowhere in the source under their full names. `agy_loader.recent_input_output_tokens()` looks equally dead from inside this repository and was kept: its only caller is a script outside it."
+            }
+          ],
+          "curated": false
+        },
+        {
           "version": "0.29.19",
           "period": "2026-08-06",
           "items": [
@@ -976,105 +1017,6 @@
             }
           ],
           "curated": false
-        },
-        {
-          "version": "0.29.18",
-          "period": "2026-08-06",
-          "items": [
-            {
-              "title": {
-                "zh-TW": "面板視窗不再忽高忽低",
-                "zh-CN": "面板窗口不再忽高忽低",
-                "en": "Panel windows stop flickering between heights",
-                "ja": "パネルの高さが行ったり来たりしなくなった",
-                "ko": "패널 창 높이가 더는 오락가락하지 않는다"
-              },
-              "body": {
-                "zh-TW": "從選單列打開面板（popover，浮在其他視窗上的小視窗）時，視窗先跳一下又在兩個高度間來回閃動的問題修好了。它原本像服飾店先按尺寸表猜衣服大小，網頁排好版後再量一次實際尺寸；量到的尺寸本該存下來，供下次優先採用，卻被程式誤認為不是可讀的對照資料而丟掉，於是每次又退回舊的預估值。現在讀寫都接受 Mapping（能用鍵查值的對照資料），已量到的高度會留下來；只有不能回報尺寸的錯誤面板，才繼續使用預估值。測試也改用不是一般 dict 的對照資料，確保這個判斷不會再退回舊路。",
-                "zh-CN": "从菜单栏打开面板（popover，浮在其他窗口上的小窗口）时，窗口先跳一下、又在两个高度间来回闪动的问题修好了。它原本像服装店先按尺码表猜衣服大小，网页排好版后再量一次实际尺寸；量到的尺寸本该存下来，供下次优先采用，却被程序误认为不是可读的对照数据而丢掉，于是每次又退回旧的预估值。现在读写都接受 Mapping（能用键查值的对照数据），已量到的高度会留下来；只有不能回报尺寸的错误面板，才继续使用预估值。测试也改用不是普通 dict 的对照数据，确保这个判断不会再退回旧路。",
-                "en": "Opening a panel window from the menu bar no longer makes it snap once and then flicker between two heights. Think of a tailor who first guesses from a size chart, then measures the actual garment after it is laid out. The real measurement should have been saved and used next time, but the app mistook that saved value for unreadable data and threw it away, so it kept falling back to the estimate. Reading and writing now accept a Mapping (key-value data, even when it is not a plain Python dict), preserving measured heights. Only the error panel, which cannot report a measurement, continues to use an estimate. The regression test now uses that non-dict kind of Mapping too.",
-                "ja": "メニューバーからパネル（popover、ほかのウィンドウの上に浮く小さなウィンドウ）を開いたとき、一度跳ねた後に二つの高さを行き来していた問題が直った。服屋がサイズ表で服の大きさを先に予想し、レイアウト後に実寸を測るようなものだ。本来は実測値を保存して次回に優先するはずが、アプリがその保存値を読めないデータと誤認して捨て、毎回予想値へ戻っていた。今は読み書きとも Mapping（キーで値を引ける対応データ）を受け入れるため、実測した高さが残る。測定を報告できないエラーパネルだけは、引き続き予想値を使う。テストも通常の dict ではない Mapping を使うようになった。",
-                "ko": "메뉴 막대에서 패널(popover, 다른 창 위에 떠 있는 작은 창)을 열 때 한 번 튄 뒤 두 높이 사이를 오가던 문제가 고쳐졌다. 옷가게가 치수표로 먼저 옷 크기를 짐작하고, 배치가 끝난 뒤 실측하는 모습과 같다. 실측값은 저장돼 다음번에 먼저 써야 했지만, 앱이 저장된 값을 읽을 수 없는 데이터로 잘못 판단해 버리고 매번 추정값으로 돌아갔다. 이제 읽기와 쓰기 모두 Mapping(키로 값을 찾는 대응 데이터)을 받아들여 실측한 높이가 남는다. 측정값을 보낼 수 없는 오류 패널만 계속 추정값을 쓴다. 테스트도 일반 dict가 아닌 Mapping을 사용하도록 바뀌었다."
-              },
-              "original": "**The panel window oscillated between two heights.** Opening it snapped the window once, and it kept flicking back and forth afterwards. A panel's height has two sources: `popover_dimensions()` estimates it in Python from a registered base plus per-card adjustments, and the page measures itself for real once it has been laid out and reports the number back. The measurement is meant to win — it is saved to `NSUserDefaults` and read back by `resolve_panel_size()` on the next pass. It never was. `NSUserDefaults.objectForKey_()` hands PyObjC an Objective-C `__NSDictionaryI`, and `isinstance(value, dict)` on that is `False`, so the guard rejected the saved `{classic: 974}` every single time and fell back to the 1004 estimate. The write path had the same guard and therefore discarded every other panel's saved height whenever one was stored. What made this hard to see is that saving worked while loading did not: `defaults read com.lollapalooza.usage` showed the correct 974 sitting on disk the whole time, so the data looked healthy from the outside. The 30-point gap between the two values happens to equal `status_wrap_extra_height`, which is a coincidence worth ignoring — the estimate being wrong is not what caused the loop; the measurement being rejected is. Both guards now accept `collections.abc.Mapping`. The estimate is still used, but only for panels that can never report a measurement — `ErrorPanelView` has no JavaScript bridge, so waiting for one would leave it at the wrong size forever. The regression test substitutes a `MappingProxyType`, which like `NSDictionary` is a `Mapping` that is not a `dict`; a test double built from a plain `dict` passes whether or not the bug is present."
-            },
-            {
-              "title": {
-                "zh-TW": "日韓語介面不再有空白標籤",
-                "zh-CN": "日韩语界面不再有空白标签",
-                "en": "Japanese and Korean interfaces no longer show blank labels",
-                "ja": "日本語と韓国語の空白ラベルを解消",
-                "ko": "일본어와 한국어 화면의 빈 라벨을 없앴다"
-              },
-              "body": {
-                "zh-TW": "日文與韓文介面先前各有 63 個標籤看起來像憑空消失，現在已補上翻譯。檢查原本只核對 489 個文字鍵是否都存在，像倉庫清點到每個紙箱卻沒打開看裡面有沒有東西；因此 `loading`、`no_data`、`session_title`、`col_time` 與 `model_breakdown` 雖有鍵名，畫面仍只留下空白。新檢查會拒絕空字串，也會比對 placeholder（顯示時才填入資料的位置）是否和英文一致；少掉或改名都可能在顯示時出錯。帶格式的標記、格式寫法與指令名稱則維持英文，不會被誤譯。",
-                "zh-CN": "日文与韩文界面先前各有 63 个标签看起来像凭空消失，现在已补上翻译。检查原本只核对 489 个文字键是否都存在，像仓库清点到每个纸箱却没打开看里面有没有东西；因此 `loading`、`no_data`、`session_title`、`col_time` 与 `model_breakdown` 虽有键名，画面仍只留下空白。新检查会拒绝空字符串，也会比对 placeholder（显示时才填入数据的位置）是否和英文一致；少掉或改名都可能在显示时出错。带格式的标记、格式写法与命令名称则保持英文，不会被误译。",
-                "en": "Japanese and Korean users were each seeing 63 labels vanish into blank space; those translations are now filled in. The old check only confirmed that all 489 text keys existed, like counting every box in a warehouse without opening it to see whether it contains anything. That let `loading`, `no_data`, `session_title`, `col_time`, and `model_breakdown` exist as keys yet render blank. New checks reject empty translations and compare every placeholder (a slot filled with data at display time) with English. A missing or renamed placeholder can otherwise fail when the text is formatted. Rich markup, format specifications, and command names remain in English.",
-                "ja": "日本語と韓国語の画面では、それぞれ 63 個のラベルが空白になっていたが、翻訳を補った。以前の検査は 489 個の文字キーがあるかだけを確かめていた。倉庫の箱を数えるだけで、中身を開けて確認しないようなものだ。そのため `loading`、`no_data`、`session_title`、`col_time`、`model_breakdown` はキーとして存在しても、画面では空白になっていた。新しい検査は空の翻訳を拒み、placeholder（表示時にデータを入れる場所）が英語版と一致するかも比べる。欠落や名前変更は表示時の書式処理で失敗するおそれがあるためだ。装飾用の記法、書式指定、コマンド名は英語のまま残す。",
-                "ko": "일본어와 한국어 화면에서는 각각 63개 라벨이 빈칸으로 보였는데, 이제 번역을 채웠다. 이전 검사는 489개 문자 키가 있는지만 확인했다. 창고의 상자 수만 세고 안에 물건이 들었는지는 열어보지 않는 것과 같다. 그래서 `loading`, `no_data`, `session_title`, `col_time`, `model_breakdown`은 키로 존재해도 화면에서는 빈칸이었다. 새 검사는 빈 번역을 거부하고 placeholder(표시할 때 데이터를 넣는 자리)가 영어와 같은지도 비교한다. 빠지거나 이름이 바뀌면 표시 과정의 형식 처리에서 실패할 수 있기 때문이다. 꾸밈 표기, 형식 지정, 명령 이름은 영어로 남긴다."
-              },
-              "original": "**The Japanese and Korean locales shipped sixty-three blank labels each.** Flagged one version earlier and fixed here. Both locales carried all 489 keys, so `test_every_language_has_the_same_keys` compared key sets, found them identical, and passed — while `loading`, `no_data`, `session_title`, `col_time` and `model_breakdown` rendered as empty space for anyone running the app in either language. A present-but-empty value is invisible to a parity check by construction, which is the same blind spot that let fifty-two Simplified Chinese strings sit in the Traditional Chinese locale until last version. Two assertions now close it: no translated value may be blank, and every value's `{placeholder}` set must match English exactly. The second guards a failure the first cannot see — a translation that drops or renames a placeholder does not look wrong in the file, it raises at `format` time in front of the user. Rich markup (`[dim]`), format specs (`{m:02d}`) and command names were left in English."
-            }
-          ],
-          "curated": true
-        },
-        {
-          "version": "0.29.17",
-          "period": "2026-08-06",
-          "items": [
-            {
-              "title": {
-                "zh-TW": "斷網時的費用估算，終於不再把價格算歪",
-                "zh-CN": "断网时的费用估算，终于不再把价格算歪",
-                "en": "Cost estimates stay accurate when you're offline",
-                "ja": "オフライン時の料金見積もりが正しい価格に戻った",
-                "ko": "인터넷이 끊겨도 비용 추정이 제값을 찾는다"
-              },
-              "body": {
-                "zh-TW": "出門沒網路卻想核對用量花多少錢，螢幕上的數字本該是你的依據，這回卻曾把 Opus 4.6、4.7 算成三倍，還把 Opus 5 算成零元。程式抓不到 LiteLLM 的價格表，或快取（把查過的結果暫存起來直接用）過期時，會改查手寫的備援價格表；它長期沒和目前表格比對，舊價格便一路留著。現在已按快取的 LiteLLM 表校正：4.6、4.7 的每百萬計費文字單位從舊的 $15/$75 改為 $5/$25，Haiku 4.5 也補回少算的兩成，原本缺席的 Opus 5 也不會再回傳 $0。像離線收銀機翻出過期價目表，現在換回正確版本；斷網時更該能信帳單。",
-                "zh-CN": "出门没网络却想核对用量花了多少钱，屏幕上的数字本该是你的依据，这次却曾把 Opus 4.6、4.7 算成三倍，还把 Opus 5 算成零元。程序抓不到 LiteLLM 的价格表，或缓存（把查过的结果暂存起来直接用）过期时，会改查手写的备用价格表；它长期没和当前表格比对，旧价格便一路留着。现在已按缓存的 LiteLLM 表校正：4.6、4.7 的每百万计费文字单位从旧的 $15/$75 改为 $5/$25，Haiku 4.5 也补回少算的两成，原本缺席的 Opus 5 也不会再返回 $0。像离线收银机翻出过期价目表，现在换回正确版本；断网时更该能信账单。",
-                "en": "When you are away from the internet and checking what your usage cost, the number on screen needs to be dependable. It was not: Opus 4.6 and 4.7 were priced at three times their rate, while Opus 5 appeared to cost nothing. If LiteLLM's price table could not be downloaded, or its cache (saved lookup results kept for reuse) had expired, the app used a hand-maintained fallback table that had drifted from the current one. It is now reconciled with LiteLLM's cached table: 4.6 and 4.7 move from $15/$75 to $5/$25 per million billing units, Haiku 4.5 regains its missing twenty percent, and Opus 5 no longer returns $0. Think of an offline checkout pulling out an old price sheet; it now has the right sheet when you need it most.",
-                "ja": "外出先で回線がなく、利用料金を確かめたいとき、画面の数字は頼りにならなければならない。ところが Opus 4.6 と 4.7 は三倍、Opus 5 は無料と計算されていた。LiteLLM の価格表を取得できない、またはキャッシュ（調べた結果を一時保存して再利用する仕組み）が期限切れの場合、手書きの予備価格表を使っていたが、現行表との照合が長く行われず古い価格が残っていた。キャッシュ済み LiteLLM 表と照合し直し、4.6 と 4.7 は百万課金単位あたり $15/$75 から $5/$25 に、Haiku 4.5 の二割不足も直し、抜けていた Opus 5 も $0 を返さなくなった。オフラインのレジが古い値札を出してしまう場面で、正しい値札に替わったようなものである。",
-                "ko": "밖에서 인터넷 없이 사용 요금을 확인할 때 화면 숫자는 믿을 만해야 한다. 하지만 Opus 4.6과 4.7은 세 배로, Opus 5는 무료로 계산되고 있었다. LiteLLM 가격표를 내려받지 못하거나 캐시(찾아본 결과를 잠시 저장해 다시 쓰는 방식)가 만료되면 손으로 적은 예비 가격표를 썼는데, 현재 표와 대조하지 않아 옛 가격이 남아 있었다. 이제 캐시된 LiteLLM 표와 맞춰 4.6과 4.7은 백만 과금 단위당 $15/$75에서 $5/$25로 고쳤고, Haiku 4.5의 부족한 20%와 빠져 있던 Opus 5의 $0 계산도 바로잡았다. 오프라인 계산대가 낡은 가격표를 꺼내던 상황에서 올바른 가격표로 바꾼 셈이다."
-              },
-              "original": "**The offline price table overcharged Opus 4.6 and 4.7 threefold, and valued Opus 5 at nothing.** `_fallback_pricing()` is what the cost estimate falls back on when the LiteLLM table cannot be downloaded or its cache has expired. It is written by hand and nothing ever reconciled it against the live table, so it drifted in silence: `claude-opus-4-6` and `claude-opus-4-7` still carried the Opus 4.1-era $15/$75 per Mtok long after Anthropic dropped Opus to $5/$25, `claude-haiku-4-5-20251001` was twenty percent low, and `claude-opus-5` was missing outright — and a missing key makes `calculate_cost()` return `0.0`, so Opus 5 usage was reported as costing nothing. The corrected figures come from reconciling against the cached LiteLLM table rather than from the changelog: Claude Code 2.1.219 announced Opus 5 at `$10/$50 per Mtok`, but that is the fast-mode price, not the standard one. What makes this class of bug worth naming is when it surfaces — only offline, which is exactly the moment nobody thinks to doubt the number on screen."
-            },
-            {
-              "title": {
-                "zh-TW": "繁中介面混入 52 處簡體字，這次修正",
-                "zh-CN": "繁中界面混入 52 处简体字，这次修正",
-                "en": "Traditional Chinese screens had 52 Simplified Chinese strings mixed in, now fixed",
-                "ja": "繁体字画面に簡体字が52件混入、今回修正",
-                "ko": "번체 중국어 화면에 간체 52개가 섞여 있어 수정했다"
-              },
-              "body": {
-                "zh-TW": "你選繁體中文開啟文字介面（TUI，用文字排成、在終端機操作的畫面）或報表，卻看到「检测到」「时间」這種簡體字，像一本校對到一半的書。問題出在 52 個字串直接從簡中 `zh-CN` 複製過來，沒有轉換。先前靠人工列簡體字清單，只抓到一部分，連「来」和「项」都漏了；這次把每個值交給 OpenCC 的 `s2twp` 逐一轉換，再逐項檢視差異。轉換器想把原本正確的「發送」改成「傳送」等九處，則沒有採用。實際改動的兩個 HTML 測試畫面也只補那兩句，免得連固定的時間與版本都被重生。日文、韓文各有 63 個空字串是尚未翻譯，這次沒有假裝修好它們。",
-                "zh-CN": "你选择繁体中文打开文字界面（TUI，用文字排成、在终端操作的画面）或报告，却看到“检测到”“时间”这类简体字，像一本校对到一半的书。问题出在 52 个字符串直接从简中 `zh-CN` 复制过来，没有转换。此前靠人工列简体字清单，只抓到一部分，连“来”和“项”都漏了；这次把每个值交给 OpenCC 的 `s2twp` 逐一转换，再逐项查看差异。转换器想把原本正确的“發送”改成“傳送”等九处，则没有采用。实际改动的两个 HTML 测试画面也只补那两句，避免连固定的时间和版本都被重新生成。日文、韩文各有 63 个空字符串是尚未翻译，这次没有假装修好它们。",
-                "en": "If you chose Traditional Chinese and opened the text interface (TUI, a screen operated in a terminal with text), you could meet Simplified Chinese such as `检测到` and `时间`—like opening a book only half proofread. Fifty-two strings had been copied from the Simplified Chinese `zh-CN` locale without conversion. A hand-written list of Simplified characters had caught only some of them, missing even `来` and `项`. Every value now went through OpenCC's `s2twp` conversion and each difference was reviewed. Nine suggested replacements, including `發送` to `傳送`, were left alone because the existing text was already correct. Only two changed strings in the HTML test snapshot were patched, preserving its fixed timestamp and version. Japanese and Korean each still have sixty-three empty strings; those are missing translations, not this bug, so they remain for later work.",
-                "ja": "繁体字中国語を選んで文字画面（TUI、端末で文字を使って操作する画面）やレポートを開いたのに、`检测到` や `时间` のような簡体字が見える。校正途中の本を開くような状態である。52 個の文字列が簡体字中国語の `zh-CN` から変換なしでコピーされていた。手作業の簡体字リストでは一部しか見つからず、`来` と `项` まで漏れていたため、全ての値を OpenCC の `s2twp` で変換し、差分を一つずつ確認した。すでに正しい `發送` を `傳送` に替えるなど九件の提案は採用していない。HTML テスト画面では変化した二つの文字列だけを直し、固定された日時と版番号を守った。日本語と韓国語の各 63 個の空文字列は未翻訳であり、今回の対象ではない。",
-                "ko": "번체 중국어를 골라 문자 인터페이스(TUI, 터미널에서 글자로 조작하는 화면)나 보고서를 열었는데 `检测到`, `时间` 같은 간체가 보였다면, 교정하다 만 책을 펼친 꼴이었다. 52개 문자열이 간체 중국어 `zh-CN`에서 변환 없이 복사된 것이 원인이다. 사람이 만든 간체 목록은 일부만 찾아 `来`와 `项`도 놓쳤다. 이제 모든 값을 OpenCC의 `s2twp`로 변환한 뒤 차이를 하나씩 검토했다. 이미 맞는 `發送`을 `傳送`으로 바꾸려는 등 아홉 제안은 받아들이지 않았다. HTML 테스트 화면도 바뀐 두 문자열만 고쳐 고정된 시각과 버전을 보존했다. 일본어와 한국어에 각각 남은 빈 문자열 63개는 오역이 아니라 미번역이므로 이번에는 건드리지 않았다."
-              },
-              "original": "**Fifty-two keys in the Traditional Chinese locale contained Simplified Chinese.** The TUI and report strings had been copied across from `zh-CN` without conversion, so a Traditional Chinese user opening the TUI read `检测到`, `时间`, `来源`, `项目` and `消息`. A hand-written list of Simplified characters found only some of them — it missed `来` and `项` — so every value was instead run through OpenCC's `s2twp` and the differences reviewed one by one. Nine of those differences were the converter overreaching on text that was already correct (`發送`→`傳送`, `吹回`→`吹迴`, `連接詞`→`連線詞`) and were left alone. The golden HTML snapshot was patched for the two strings that actually changed rather than regenerated, because regenerating it would also replace the frozen timestamp and version the test asserts on. The same region of `ja` and `ko` holds sixty-three empty strings each; those are missing translations rather than wrong ones and are left for a separate change."
-            },
-            {
-              "title": {
-                "zh-TW": "選單列更新工作搬家，畫面行為照舊",
-                "zh-CN": "菜单栏更新工作搬家，画面行为照旧",
-                "en": "Menu-bar refresh work moves house without changing behavior",
-                "ja": "メニューバー更新の仕事を移し、動作は変えなかった",
-                "ko": "메뉴 막대 새로고침 일을 옮기되 동작은 바꾸지 않았다"
-              },
-              "body": {
-                "zh-TW": "你會看到選單列照常更新，只是背後那段 203 行的工作搬了家。`menubar.py` 已經拆過又長回來兩次，原先離檔案長度上限只差四行；與其把上限往上推，開發者把背景更新的資料處理拆到 `menubar_refresh.py`，分成 `load_sources()` 和 `build_result()`。畫面相關的三次 `performSelectorOnMainThread` 呼叫與所有 selector（靠名稱找到要執行方法的標記）留在原檔，因為 AppDelegate 的方法就是按名稱綁定，搬走會斷線。新檔透過 `typing.Protocol` 描述需要的 App 介面，完全不載入 PyObjC。像把塞爆的廚房分出備料間：接客的窗口不動，備料移到隔壁，送餐流程仍照原本走。六個更新計時階段、降級路徑的 15 次狀態寫入，以及失敗後避免卡死的保護，都逐行比對確認沒變。",
-                "zh-CN": "这张不是新增按钮：你仍会看到原本的菜单栏更新，只是背后那段 203 行的工作搬了家。`menubar.py` 已经拆过又长回来两次，原先离文件长度上限只差四行；与其把上限往上推，开发者把后台更新的数据处理拆到 `menubar_refresh.py`，分成 `load_sources()` 和 `build_result()`。画面相关的三次 `performSelectorOnMainThread` 调用与所有 selector（靠名称找到要执行方法的标记）留在原文件，因为 AppDelegate 的方法就是按名称绑定，搬走会断线。新文件通过 `typing.Protocol` 描述需要的 App 接口，完全不加载 PyObjC。像把塞爆的厨房分出备料间：接客的窗口不动，备料移到隔壁，送餐流程仍照原本走。六个更新时间阶段、降级路径的 15 次状态写入，以及失败后避免卡死的保护，都逐行对照确认没变。",
-                "en": "This is not a new button: your menu-bar refresh still looks the same, but its 203-line back-room job has moved. `menubar.py` had been split apart twice and then grown again, leaving only four lines below its size limit. Instead of raising that limit, the data work of the background refresh moved to `menubar_refresh.py`, divided into `load_sources()` and `build_result()`. The three `performSelectorOnMainThread` calls and every selector (a name used to locate a method to run) stay in the original file, because AppDelegate methods are bound by name and moving them would break that connection. The new module describes the App it needs through `typing.Protocol` and imports no PyObjC. It is like moving prep work from an overcrowded kitchen into a side room: the service window stays put and meals follow the same path. Six timing stages, fifteen degraded-path state assignments, and the guard against a failed refresh getting stuck were compared line by line.",
-                "ja": "これは新しいボタンではない。メニューバーの更新はこれまで通り見えるが、裏側の 203 行の仕事だけが引っ越した。`menubar.py` は二度分割して再び膨らみ、行数上限まで残り四行だった。上限を上げる代わりに、背景更新のデータ処理を `menubar_refresh.py` へ移し、`load_sources()` と `build_result()` に分けた。画面に関わる三つの `performSelectorOnMainThread` 呼び出しと全 selector（実行するメソッドを名前で探す目印）は元のファイルに残した。AppDelegate のメソッドは名前で結び付くため、移すと接続が切れるからである。新しいモジュールは `typing.Protocol` で必要な App の形を示し、PyObjC を読み込まない。混んだ厨房から下ごしらえを隣室へ移し、受け渡し窓と料理の流れはそのままにするようなものだ。六つの計時段階、低下経路での 15 回の状態代入、失敗時に更新が詰まらない保護も一行ずつ照合した。",
-                "ko": "새 버튼이 생긴 것은 아니다. 메뉴 막대 새로고침은 전과 같이 보이지만, 뒤에서 하던 203줄짜리 일만 이사했다. `menubar.py`는 두 번 쪼갰다가 다시 커졌고 파일 길이 한도까지 네 줄만 남았다. 한도를 올리는 대신 백그라운드 새로고침의 데이터 작업을 `menubar_refresh.py`로 옮겨 `load_sources()`와 `build_result()`로 나눴다. 화면과 관련된 세 번의 `performSelectorOnMainThread` 호출과 모든 selector(실행할 메서드를 이름으로 찾는 표지)는 원래 파일에 남겼다. AppDelegate 메서드는 이름으로 묶여 있어 옮기면 연결이 끊기기 때문이다. 새 모듈은 `typing.Protocol`로 필요한 App 모양을 설명하고 PyObjC를 전혀 불러오지 않는다. 붐비는 주방에서 손질 작업을 옆방으로 옮기되, 음식 나가는 창구와 흐름은 그대로 두는 일과 같다. 여섯 새로고침 시간 단계, 저하 경로의 상태 대입 15회, 실패 뒤 새로고침이 멈추지 않게 하는 보호도 한 줄씩 대조했다."
-              },
-              "original": "**`_refresh_in_background` moved into `menubar_refresh.py`.** At 203 lines it was the largest method in `menubar.py`, which had four lines left under its ceiling — and a ceiling exists on that file precisely because it has been split apart and grown back twice. Only three lines of the method touch PyObjC, the three `performSelectorOnMainThread` calls, and those stay behind along with every selector: an AppDelegate method is bound by name, so relocating one breaks the binding. What moved is the data work between them, split into `load_sources()` and `build_result()`, with the app passed in behind a `typing.Protocol` so the new module imports no PyObjC at all — the same rule that keeps `menubar_state.py` clean. `menubar.py` goes from 2116 lines to 1934 and the ceiling was lowered to match rather than raised, since raising it to get CI green would dismantle the only thing stopping the file from growing back a third time. Behaviour is unchanged, and that was verified rather than assumed: the six `refresh_timing` stages, the fifteen state assignments on the degraded path, and the `submitted`/`finally` guard that keeps a failed refresh from wedging the app were each compared line by line against the original."
-            }
-          ],
-          "curated": true
         }
       ]
     },
