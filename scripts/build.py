@@ -22,6 +22,11 @@ TOOLS = (
 )
 SITE_URL = "https://aqua5230.github.io/ai-updates/"
 LANGUAGES = ("zh-TW", "en", "zh-CN", "ja", "ko")
+PLACEHOLDER_PREFIXES = (
+    "bug fixes and reliability improvements",
+    "no user-facing changes",
+    "published a version-only release",
+)
 
 
 def _load_versions(layer: str, tool_id: str) -> dict[str, dict[str, Any]]:
@@ -123,6 +128,9 @@ def is_placeholder(raw: dict[str, Any], version: str) -> bool:
 
     normalized_version = re.sub(r"^(?:rust[-_])?v(?=\d)", "", version.casefold())
     for entry in nonempty_entries:
+        if entry.casefold().startswith(PLACEHOLDER_PREFIXES):
+            continue
+
         match = re.fullmatch(r"release\s+(.+)", entry, flags=re.IGNORECASE)
         if match is not None:
             entry_version = re.sub(r"\s+", "", match.group(1).casefold())

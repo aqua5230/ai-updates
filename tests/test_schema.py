@@ -4,7 +4,10 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from scripts import build as build_script
+from scripts import auto_curate
 from scripts.build import build, is_placeholder
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -115,6 +118,14 @@ def test_is_placeholder_accepts_empty_and_version_only_entries() -> None:
     assert not is_placeholder(
         {"entries": ["Release 0.144.1", "Fixed standalone installs."]}, "0.144.1"
     )
+
+
+@pytest.mark.parametrize("version", ["2.1.190", "2.1.220", "2.1.226"])
+def test_bug_fix_placeholders_match_between_build_and_auto_curate(version: str) -> None:
+    entries = ["Bug fixes and reliability improvements"]
+
+    assert build_script.is_placeholder({"entries": entries}, version)
+    assert auto_curate.is_placeholder(entries, version)
 
 
 def test_build_filters_placeholder_versions(tmp_path: Path, monkeypatch: Any) -> None:
