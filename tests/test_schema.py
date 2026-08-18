@@ -1,16 +1,29 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 from typing import Any
 
 import pytest
 
-from scripts import build as build_script
 from scripts import auto_curate
+from scripts import build as build_script
 from scripts.build import build, is_placeholder
 
 ROOT = Path(__file__).resolve().parents[1]
+
+_BUILD_OUTPUT_PATHS = [
+    "ai_updates.json",
+    "daily.json",
+    "docs/data.json",
+    "docs/index.html",
+    "docs/sitemap.xml",
+    "docs/robots.txt",
+    "docs/llms.txt",
+    "docs/history",
+    "docs/v",
+]
 
 
 def normalize_payload(payload: Any) -> list[dict[str, Any]] | None:
@@ -76,16 +89,24 @@ def normalize_payload(payload: Any) -> list[dict[str, Any]] | None:
 
 
 def test_build_outputs_pass_golden_validator() -> None:
-    build()
-    payload = json.loads((ROOT / "ai_updates.json").read_text(encoding="utf-8"))
-    normalized = normalize_payload(payload)
+    try:
+        build()
+        payload = json.loads((ROOT / "ai_updates.json").read_text(encoding="utf-8"))
+        normalized = normalize_payload(payload)
 
-    assert normalized is not None
-    assert len(normalized) == 5
-    assert len(payload["tools"]) == 5
-    assert all(len(tool["versions"]) <= 3 for tool in normalized)
-    assert (ROOT / "docs" / "data.json").is_file()
-    assert (ROOT / "daily.json").is_file()
+        assert normalized is not None
+        assert len(normalized) == 5
+        assert len(payload["tools"]) == 5
+        assert all(len(tool["versions"]) <= 3 for tool in normalized)
+        assert (ROOT / "docs" / "data.json").is_file()
+        assert (ROOT / "daily.json").is_file()
+    finally:
+        subprocess.run(
+            ["git", "checkout", "--", *_BUILD_OUTPUT_PATHS], cwd=ROOT, check=False
+        )
+        subprocess.run(
+            ["git", "clean", "-fd", *_BUILD_OUTPUT_PATHS], cwd=ROOT, check=False
+        )
 
 
 def test_is_placeholder_accepts_empty_and_version_only_entries() -> None:
