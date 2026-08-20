@@ -187,7 +187,8 @@ def _description(version: dict[str, Any], language: str = "zh-TW") -> str:
     items = _curated_items(version)
     if items:
         first = items[0]
-        return f"{_localized(first.get('title'), language)} {_localized(first.get('body'), language)}"[:150]
+        body = _strip_analogy_marks(_localized(first.get("body"), language))
+        return f"{_localized(first.get('title'), language)} {body}"[:150]
     raw = version.get("raw")
     entries = raw.get("entries", []) if isinstance(raw, dict) else []
     return " ".join(entry for entry in entries if isinstance(entry, str))[:150]
@@ -225,6 +226,14 @@ def _write_rss_feed(history_tools: list[dict[str, Any]]) -> None:
     tree.write(ROOT / "docs" / "feed.xml", encoding="utf-8", xml_declaration=True)
 
 
+ANALOGY_MARKS = str.maketrans("", "", "⟦⟧")
+
+
+def _strip_analogy_marks(text: str) -> str:
+    """⟦⟧ 是給主站前端抓比喻用的機器標記，不是內文。靜態頁與 RSS 沒有比喻框，照散文顯示但要脫記號。"""
+    return text.translate(ANALOGY_MARKS)
+
+
 def _render_inline_code(text: str) -> str:
     parts = re.split(r"(`[^`]+`)", text)
     return "".join(
@@ -242,6 +251,7 @@ FENCED_CODE_RE = re.compile(
 
 
 def _render_body(text: str) -> str:
+    text = _strip_analogy_marks(text)
     blocks = []
     cursor = 0
     for match in FENCED_CODE_RE.finditer(text):

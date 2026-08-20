@@ -132,3 +132,20 @@ def test_static_page_renders_originals_once_and_keeps_all_languages(
         for language in LANGUAGES:
             assert item["title"][language] in page
             assert item["body"][language] in page
+
+
+def test_static_page_and_feed_strip_analogy_markers() -> None:
+    """⟦⟧ 是給主站前端抓比喻用的機器標記（PLAYBOOK 鐵則 5），靜態頁與 RSS 沒有比喻框，不准漏到讀者眼前。"""
+    html = build_script._render_body("開場。⟦像把書籤夾回原頁。⟧收尾。")
+
+    assert "⟦" not in html and "⟧" not in html
+    assert "像把書籤夾回原頁。" in html
+
+    version = {
+        "curated": {
+            "items": [{"title": {"zh-TW": "標題"}, "body": {"zh-TW": "開場。⟦像書籤。⟧收尾。"}}]
+        }
+    }
+    description = build_script._description(version)
+
+    assert "⟦" not in description and "⟧" not in description
