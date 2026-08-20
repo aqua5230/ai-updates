@@ -6,7 +6,9 @@ from __future__ import annotations
 import json
 import re
 import shutil
-from datetime import date
+import xml.etree.ElementTree as ET
+from datetime import date, datetime, timezone
+from email.utils import format_datetime
 from html import escape
 from pathlib import Path
 from typing import Any
@@ -181,14 +183,46 @@ def _curated_items(version: dict[str, Any]) -> list[dict[str, Any]]:
     return [item for item in curated.get("items", []) if isinstance(item, dict)]
 
 
-def _description(version: dict[str, Any]) -> str:
+def _description(version: dict[str, Any], language: str = "zh-TW") -> str:
     items = _curated_items(version)
     if items:
         first = items[0]
-        return f"{_localized(first.get('title'), 'zh-TW')} {_localized(first.get('body'), 'zh-TW')}"[:150]
+        return f"{_localized(first.get('title'), language)} {_localized(first.get('body'), language)}"[:150]
     raw = version.get("raw")
     entries = raw.get("entries", []) if isinstance(raw, dict) else []
     return " ".join(entry for entry in entries if isinstance(entry, str))[:150]
+
+
+def _rss_pub_date(period: str) -> str:
+    published = datetime.fromisoformat(_period_end_date(period)).replace(tzinfo=timezone.utc)
+    return format_datetime(published, usegmt=True)
+
+
+def _write_rss_feed(history_tools: list[dict[str, Any]]) -> None:
+    rss = ET.Element("rss", {"version": "2.0"})
+    channel = ET.SubElement(rss, "channel")
+    ET.SubElement(channel, "title").text = "AI Updates"
+    ET.SubElement(channel, "link").text = SITE_URL
+    ET.SubElement(channel, "description").text = "Plain-language updates for AI developer tools."
+    ET.SubElement(channel, "language").text = "en"
+
+    for tool in history_tools:
+        versions = tool.get("versions", [])
+        if not versions:
+            continue
+        version = versions[0]
+        version_name = str(version["version"])
+        url = _page_url(str(tool["id"]), version_name)
+        period = str((version.get("curated") or version.get("raw") or {}).get("period", ""))
+        item = ET.SubElement(channel, "item")
+        ET.SubElement(item, "title").text = f"{tool['name']} {version_name}"
+        ET.SubElement(item, "link").text = url
+        ET.SubElement(item, "pubDate").text = _rss_pub_date(period)
+        ET.SubElement(item, "description").text = _description(version, "en")
+
+    tree = ET.ElementTree(rss)
+    ET.indent(tree, space="  ")
+    tree.write(ROOT / "docs" / "feed.xml", encoding="utf-8", xml_declaration=True)
 
 
 def _render_inline_code(text: str) -> str:
@@ -362,6 +396,7 @@ def _write_static_pages(history_tools: list[dict[str, Any]]) -> int:
     )
     (ROOT / "docs" / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}sitemap.xml\n", encoding="utf-8")
     (ROOT / "docs" / "llms.txt").write_text("\n".join(llms_sections) + "\n", encoding="utf-8")
+    _write_rss_feed(history_tools)
     return page_count
 
 
