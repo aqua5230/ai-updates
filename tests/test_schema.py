@@ -5,8 +5,6 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from scripts import build as build_script
 from scripts.build import build, is_placeholder
 
@@ -20,6 +18,7 @@ _BUILD_OUTPUT_PATHS = [
     "docs/sitemap.xml",
     "docs/robots.txt",
     "docs/llms.txt",
+    "docs/feed.xml",
     "docs/history",
     "docs/v",
 ]
