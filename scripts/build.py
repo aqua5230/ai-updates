@@ -7,7 +7,7 @@ import json
 import re
 import shutil
 import xml.etree.ElementTree as ET
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from email.utils import format_datetime
 from html import escape
 from pathlib import Path
@@ -194,7 +194,7 @@ def _description(version: dict[str, Any], language: str = "zh-TW") -> str:
 
 
 def _rss_pub_date(period: str) -> str:
-    published = datetime.fromisoformat(_period_end_date(period)).replace(tzinfo=timezone.utc)
+    published = datetime.fromisoformat(_period_end_date(period)).replace(tzinfo=UTC)
     return format_datetime(published, usegmt=True)
 
 

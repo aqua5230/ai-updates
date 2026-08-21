@@ -1,6 +1,11 @@
 name: Daily update
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "data/curated/**"
+      - "scripts/build.py"
   schedule:
     - cron: "17 1 * * *"
     - cron: "17 5 * * *"
@@ -24,18 +29,20 @@ jobs:
         run: |
           set -o pipefail
           python3 scripts/fetch.py | tee /tmp/ai-updates-new.txt
-      - name: Verify build outputs
-        run: |
-          pip install pytest
-          pytest -q
       - name: Build feeds
         run: python3 scripts/build.py
+      - name: Verify build outputs
+        run: |
+          pip install pytest ruff
+          ruff check scripts tests
+          pytest -q
       - name: Commit changed data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/raw ai_updates.json daily.json \
             docs/data.json docs/history docs/index.html docs/sitemap.xml docs/robots.txt docs/llms.txt docs/v
+          git add docs/feed.xml
           # Decide from what is actually staged: an unrelated dirty file must not
           # make this step attempt an empty commit and fail.
           if git diff --cached --quiet; then
@@ -49,6 +56,10 @@ jobs:
         run: |
           while read -r marker tool_id version; do
             [ "$marker" = "NEW" ] || continue
+            # Version-only prereleases do not need human curation.
+            if python3 -c 'import json,sys; from pathlib import Path; from scripts.build import is_placeholder; p=Path("data/raw")/sys.argv[1]/f"{sys.argv[2]}.json"; d=json.loads(p.read_text()); raise SystemExit(0 if is_placeholder(d, sys.argv[2]) else 1)' "$tool_id" "$version"; then
+              continue
+            fi
             case "$tool_id" in
               claude_code) tool_name="Claude Code" ;;
               codex) tool_name="Codex" ;;
@@ -60,7 +71,12 @@ jobs:
                 tool_name="$tool_id"
                 ;;
             esac
+            issue_title="Review ${tool_name} ${version}"
+            if gh issue list --state all --limit 1000 --json title --jq '.[].title' \
+              | grep -Fqx -- "$issue_title"; then
+              continue
+            fi
             gh issue create \
-              --title "Review ${tool_name} ${version}" \
+              --title "$issue_title" \
               --body "A new official ${tool_name} ${version} changelog was imported. Rewrite and review data/curated/${tool_id}/${version}.json, then merge it to main."
           done < /tmp/ai-updates-new.txt
