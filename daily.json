@@ -1944,47 +1944,184 @@
           "period": "2026-08-24",
           "items": [
             {
-              "original": "**Antigravity quota now raises notifications, the way Claude Code and Codex already did.** The `agy_session` and `agy_weekly` channels were missing from the notification allow-list, so the two Antigravity rows could run to the floor without ever saying so. Antigravity quota is the one source that comes from a network endpoint behind a local cache rather than a file on disk, so `QuotaRowState.available` is hard-coded to `True`; a stale snapshot now passes `available=False` instead, so an expired cache can no longer announce that the quota has run out."
+              "title": {
+                "zh-TW": "Antigravity 額度會提醒，也能提早預警",
+                "zh-CN": "Antigravity 额度会提醒，也能提前预警",
+                "en": "Antigravity quota now notifies and warns ahead",
+                "ja": "Antigravity の利用枠が通知し、事前にも警告する",
+                "ko": "Antigravity 할당량이 알림을 보내고 미리 경고한다"
+              },
+              "body": {
+                "zh-TW": "⟦把 Antigravity 額度想成油表：油用完才亮燈已經太晚，舊讀值更不能冒充油箱已空。⟧ 現在 `agy_session` 和 `agy_weekly` 兩列會發通知，不再因為漏列在通知允許清單而一路耗盡卻沒消息。它們也接上各自的用量追蹤器，會在額度歸零前顯示警告，而不是等到底才沉默。Antigravity 的資料來自經過快取（把查過的結果暫存起來直接用）的網路端點；快取過期時，快照會標成不可用，因而不會誤報額度已用完。預測採用快照自己的 `fetched_at` 時間，而非輪詢當下的時鐘，避免同一份每五分鐘才變動的資料被重複讀取後憑空算出趨勢。兩列使用 3600 秒視窗；原本十分鐘的預設視窗湊不齊 `MIN_FORECAST_SAMPLES`，等同根本無法預測。過期快照也會完全停用預測，與 `agy_window_keeper` 一致。",
+                "zh-CN": "⟦把 Antigravity 额度想成油表：油用完才亮灯已经太晚，旧读数更不能冒充油箱已空。⟧ 现在 `agy_session` 和 `agy_weekly` 两行会发通知，不再因漏列在通知允许清单而一路耗尽却没消息。它们也接上各自的用量追踪器，会在额度归零前显示警告，而不是到底才沉默。Antigravity 的数据来自经过缓存（把查过的结果暂存起来直接使用）的网络端点；缓存过期时，快照会标成不可用，因此不会误报额度已用完。预测采用快照自己的 `fetched_at` 时间，而非轮询当下的时钟，避免同一份每五分钟才变动的数据被重复读取后凭空算出趋势。两行使用 3600 秒窗口；原本十分钟的默认窗口凑不齐 `MIN_FORECAST_SAMPLES`，等同根本无法预测。过期快照也会完全停用预测，与 `agy_window_keeper` 一致。",
+                "en": "⟦Think of Antigravity quota as a fuel gauge: a light that comes on after the tank is empty is too late, and an old reading must not pretend the tank is empty.⟧ The `agy_session` and `agy_weekly` rows now send notifications instead of being omitted from the notification allow-list and running down silently. Each row also has its own usage tracker, so it can warn before quota reaches zero rather than stay quiet until then. Antigravity data comes from a network endpoint behind a local cache, which stores a previously fetched result for reuse. When that cache is stale, its snapshot is marked unavailable, so it cannot announce that quota has run out. Forecasting uses the snapshot's `fetched_at` time instead of the polling clock, preventing repeated reads of a payload that changes only every five minutes from inventing a trend. Both rows use a 3600-second window because the default ten-minute window cannot gather `MIN_FORECAST_SAMPLES`. A stale snapshot also suppresses forecasting, matching `agy_window_keeper`. ",
+                "ja": "⟦Antigravity の利用枠は燃料計のようなものだ。燃料が尽きてからランプが点いても遅く、古い読み取り値が空の燃料タンクを名乗ってはいけない。⟧ `agy_session` と `agy_weekly` の行は、通知の許可リストから漏れて黙ったまま使い切ることがなくなり、通知を出す。各行は専用の使用量トラッカーも持つため、利用枠がゼロになる前に警告する。Antigravity のデータは、取得済みの結果を一時保存して再利用するキャッシュを挟んだネットワーク端点から来る。キャッシュが古いときはスナップショットを利用不可とし、利用枠切れを誤って知らせない。予測はポーリング時の時計ではなく、スナップショット自身の `fetched_at` を使う。五分ごとにしか変わらない同一データを繰り返し読んで、存在しない傾きを作らないためである。両行は 3600 秒の窓を使う。既定の十分の窓では `MIN_FORECAST_SAMPLES` が集まらず、予測できないからである。古いスナップショットでは予測を完全に止め、`agy_window_keeper` とそろえる。",
+                "ko": "⟦Antigravity 할당량은 연료 게이지와 같다. 연료가 바닥난 뒤에 불이 켜지면 늦고, 오래된 수치가 빈 연료통인 척해서도 안 된다.⟧ `agy_session`과 `agy_weekly` 행은 이제 알림 허용 목록에서 빠져 소리 없이 바닥까지 내려가지 않고 알림을 보낸다. 각 행에는 자체 사용량 추적기도 붙어 할당량이 0이 되기 전에 경고한다. Antigravity 데이터는 이미 가져온 결과를 잠시 저장해 다시 쓰는 캐시를 거친 네트워크 끝점에서 온다. 캐시가 오래되면 스냅샷을 사용할 수 없다고 표시하므로 할당량이 소진됐다고 잘못 알리지 않는다. 예측은 폴링할 때의 시계 대신 스냅샷 자체의 `fetched_at` 시간을 쓴다. 오 분마다만 바뀌는 같은 데이터를 반복해서 읽고 없는 추세를 만들어 내지 않기 위해서다. 두 행은 3600초 창을 쓴다. 기본 십 분 창으로는 `MIN_FORECAST_SAMPLES`를 모을 수 없어 예측할 수 없기 때문이다. 오래된 스냅샷은 예측도 완전히 막으며 `agy_window_keeper`와 맞춘다."
+              },
+              "original": "**Antigravity quota now raises notifications, the way Claude Code and Codex already did.** The `agy_session` and `agy_weekly` channels were missing from the notification allow-list, so the two Antigravity rows could run to the floor without ever saying so. Antigravity quota is the one source that comes from a network endpoint behind a local cache rather than a file on disk, so `QuotaRowState.available` is hard-coded to `True`; a stale snapshot now passes `available=False` instead, so an expired cache can no longer announce that the quota has run out.\n**The Antigravity rows now warn before the quota is gone, not after.** They had never been wired to the burn-rate forecast, so their `warning` flag was permanently `False` — Claude and Codex warned ahead of a reset and Antigravity stayed silent until it hit the floor. Both rows now register their own tracker. Samples are timestamped with the snapshot's own `fetched_at` rather than the wall clock, because the Antigravity snapshot only changes every five minutes and polling would otherwise read the same payload again and invent a slope out of it. Both rows use a 3600-second window: at one sample per five minutes the default ten-minute window never collects `MIN_FORECAST_SAMPLES`, which is the same as not forecasting at all. A stale snapshot suppresses the forecast entirely, matching what `agy_window_keeper` already does."
             },
             {
-              "original": "**The Antigravity rows now warn before the quota is gone, not after.** They had never been wired to the burn-rate forecast, so their `warning` flag was permanently `False` — Claude and Codex warned ahead of a reset and Antigravity stayed silent until it hit the floor. Both rows now register their own tracker. Samples are timestamped with the snapshot's own `fetched_at` rather than the wall clock, because the Antigravity snapshot only changes every five minutes and polling would otherwise read the same payload again and invent a slope out of it. Both rows use a 3600-second window: at one sample per five minutes the default ten-minute window never collects `MIN_FORECAST_SAMPLES`, which is the same as not forecasting at all. A stale snapshot suppresses the forecast entirely, matching what `agy_window_keeper` already does."
-            },
-            {
+              "title": {
+                "zh-TW": "usage doctor 能抓出 Codex 歷史搬遷後的歸零",
+                "zh-CN": "usage doctor 能揪出 Codex 历史迁移后的归零",
+                "en": "usage doctor catches Codex history migrations that zero counts",
+                "ja": "usage doctor が Codex 履歴移行による計数ゼロを見つける",
+                "ko": "usage doctor가 Codex 기록 이전으로 인한 집계 0을 찾아낸다"
+              },
+              "body": {
+                "zh-TW": "⟦這像記帳員同時翻閱收據盒與總帳；收據盒空了、總帳卻有交易，便知道資料沒有真的消失。⟧ `usage doctor`（用來檢查使用資料異常的指令）現在會檢查 Codex 的歷史搬遷。Codex 開始寫入 `rollout_migration_state` 這類資料表後，若搬遷完成、工作階段的 `.jsonl` 檔不再寫入，`loaders/codex_loader.py` 會毫無錯誤地回傳零 token（AI 計費與計量的文字單位）數。現在只要 `.jsonl` 在最近七天沒有任何項目，但 `thread_history_1.sqlite` 裡的 `thread_turns` 卻有同一時段資料，檢查便會警告你。這能指出原本悄悄把計數歸零的落差。",
+                "zh-CN": "⟦这像记账员同时翻收据盒和总账：收据盒空了、总账却有交易，就知道数据没有真的消失。⟧ `usage doctor`（用于检查使用数据异常的命令）现在会检查 Codex 的历史迁移。Codex 开始写入 `rollout_migration_state` 这类数据表后，若迁移完成、会话的 `.jsonl` 文件不再写入，`loaders/codex_loader.py` 会毫无错误地返回零 token（AI 计费与计量的文字单位）数。现在只要 `.jsonl` 在最近七天没有任何项目，但 `thread_history_1.sqlite` 里的 `thread_turns` 却有同一时段数据，检查便会警告你。这能指出原本悄悄把计数归零的落差。",
+                "en": "⟦It is like an accountant opening both the receipt box and the ledger: if the box is empty but the ledger has transactions, the records have not truly vanished.⟧ `usage doctor`, a command that checks for problems in usage data, now looks for a Codex history migration. After Codex began writing tables such as `rollout_migration_state`, a completed migration could stop the session `.jsonl` files from being written while `loaders/codex_loader.py` silently returned zero token counts. It now warns when `.jsonl` files contain no entry from the last seven days while `thread_history_1.sqlite` has `thread_turns` from that same window. That exposes a mismatch that used to zero counts without an error.",
+                "ja": "⟦これは帳簿係が領収書箱と元帳を同時に開くようなものだ。箱が空でも元帳に取引があれば、記録が本当に消えたわけではない。⟧ 使用データの異常を調べるコマンドである `usage doctor` は、Codex の履歴移行を検査するようになった。Codex が `rollout_migration_state` のような表を書き始めた後、移行が完了してセッションの `.jsonl` ファイルへの書き込みが止まると、`loaders/codex_loader.py` はエラーなしに token 数をゼロで返していた。今は `.jsonl` に直近七日間の項目がなく、`thread_history_1.sqlite` の `thread_turns` には同じ期間のデータがある場合、警告を出す。これにより、以前は黙って計数をゼロにした食い違いが分かる。",
+                "ko": "⟦장부 담당자가 영수증 상자와 원장을 함께 펼쳐 보는 것과 같다. 상자는 비었는데 원장에 거래가 있으면 기록이 정말 사라진 것은 아니다.⟧ 사용 데이터 이상을 확인하는 명령인 `usage doctor`가 이제 Codex 기록 이전을 검사한다. Codex가 `rollout_migration_state` 같은 표를 쓰기 시작한 뒤 이전이 끝나고 세션 `.jsonl` 파일 작성을 멈추면, `loaders/codex_loader.py`는 오류 없이 token 수를 0으로 돌려주고 있었다. 이제 `.jsonl`에 최근 칠 일의 항목이 없는데 `thread_history_1.sqlite`의 `thread_turns`에는 같은 기간 데이터가 있으면 경고한다. 이로써 예전에는 조용히 집계를 0으로 만들던 불일치를 알 수 있다."
+              },
               "original": "**`usage doctor` now catches a Codex history migration that would silently zero the token counts.** Codex has begun writing tables such as `rollout_migration_state`, and if that migration lands and the `.jsonl` files stop being written, `loaders/codex_loader.py` returns zero without an error anywhere. The check warns when the session `.jsonl` files hold no entry from the last seven days while `thread_history_1.sqlite` does hold `thread_turns` from that window."
             },
             {
+              "title": {
+                "zh-TW": "usage doctor 會核對 Claude 費用是否偏離官方數字",
+                "zh-CN": "usage doctor 会核对 Claude 费用是否偏离官方数字",
+                "en": "usage doctor compares Claude costs with the official figure",
+                "ja": "usage doctor が Claude の費用を公式額と照合する",
+                "ko": "usage doctor가 Claude 비용을 공식 금액과 대조한다"
+              },
+              "body": {
+                "zh-TW": "帳單對不上時，問題可能不在你，而在離線價目表已經過時。⟦這次的 `usage doctor` 像把兩把尺靠在同一塊木板上，讀數差距超過門檻就亮起警示燈。⟧ 它會把 `usage-status.json` 的 `cost.total_cost_usd` 與 usage 自行算出的金額相比。差距同時超過 20% 與 $1 時便會警告。撰寫這項功能的那台機器上，兩者相差 46.4%，原因是價目表把 `claude-opus-5` 標成真實費率的一半。這正是離線備援價目表可能掩蓋的價格漂移。",
+                "zh-CN": "账单对不上时，问题可能不在你，而在离线价目表已经过时。⟦这次的 `usage doctor` 像把两把尺靠在同一块木板上，读数差距超过门槛就亮起警示灯。⟧ 它会把 `usage-status.json` 的 `cost.total_cost_usd` 与 usage 自行算出的金额相比。差距同时超过 20% 和 $1 时便会警告。编写这项功能的那台机器上，两者相差 46.4%，原因是价目表把 `claude-opus-5` 标成真实费率的一半。这正是离线备用价格表可能掩盖的价格漂移。",
+                "en": "When a bill does not match, the problem may be an outdated offline price table rather than you. ⟦Here `usage doctor` is like placing two rulers against the same board and lighting a warning when their readings exceed a threshold.⟧ It compares `cost.total_cost_usd` in `usage-status.json` with the amount usage calculates itself, then warns when the gap is both over 20% and over $1. On the machine where this feature was written, the figures differed by 46.4% because the price table listed `claude-opus-5` at half its real rate. That is the kind of price drift an offline fallback table can hide.",
+                "ja": "請求額が合わないとき、原因はあなたではなく、古くなったオフライン価格表かもしれない。⟦ここでの `usage doctor` は、同じ板に二本の物差しを当て、目盛りの差がしきい値を超えると警告灯を点ける役である。⟧ `usage-status.json` の `cost.total_cost_usd` と usage 自身が計算した金額を比べ、差が 20% を超え、かつ $1 も超えると警告する。この機能を書いた機械では両者の差は 46.4% だった。価格表が `claude-opus-5` を実際の料金の半分としていたためである。これはオフラインのフォールバック価格表が隠しうる料金のずれである。",
+                "ko": "청구 금액이 맞지 않을 때 원인은 당신이 아니라 오래된 오프라인 가격표일 수 있다. ⟦여기서 `usage doctor`는 같은 판자에 자 두 개를 대고 눈금 차이가 기준을 넘으면 경고등을 켜는 역할이다.⟧ `usage-status.json`의 `cost.total_cost_usd`와 usage가 직접 계산한 금액을 비교하고, 차이가 20%를 넘으면서 $1도 넘으면 경고한다. 이 기능을 작성한 기기에서는 두 수치가 46.4% 차이 났다. 가격표가 `claude-opus-5`를 실제 요금의 절반으로 적었기 때문이다. 이는 오프라인 대체 가격표가 숨길 수 있는 가격 변동이다."
+              },
               "original": "**`usage doctor` now reconciles its own Claude cost against the official one.** It compares `cost.total_cost_usd` from `usage-status.json` with the figure usage calculates itself and warns when they differ by more than 20% and more than $1. On the machine this was written on they differed by 46.4%, because the price table listed `claude-opus-5` at half its real rate — exactly the kind of drift the offline fallback table is known to hide."
             },
             {
+              "title": {
+                "zh-TW": "WIN95 與 Newspaper 的專案用量卡不再截掉資料列",
+                "zh-CN": "WIN95 与 Newspaper 的项目用量卡不再截掉数据行",
+                "en": "WIN95 and Newspaper project cards no longer clip rows",
+                "ja": "WIN95 と Newspaper のプロジェクト使用量カードが行を切らない",
+                "ko": "WIN95와 Newspaper 프로젝트 사용량 카드가 행을 자르지 않는다"
+              },
+              "body": {
+                "zh-TW": "WIN95 與 Newspaper 面板上的專案用量卡，現在不會只露出標題列，把底下資料列截掉。面板量自然高度時會暫時把整條 `height: 100%` 改成 `auto`。但兩個面板都把專案卡寫成 `flex: 1`，其彈性基準是零；卡片自己的 `overflow: hidden` 是復古視窗外框所需，卻壓掉可撐開內容的自動最小尺寸。量測時，卡片因此縮成標題列，WIN95 報出 877 像素、Newspaper 報出 876 像素，而結構相同的 Classic 是 923 像素。⟦像量布料時先把被拉緊的橡皮筋鬆開，才不會把整件衣服量短。⟧ 現在量測會暫時把這類可拉伸子項固定為 `flex: 0 0 auto`，量完再還原，因此面板的視覺設計不會改變。",
+                "zh-CN": "WIN95 与 Newspaper 面板上的项目用量卡，现在不会只露出标题行，把底下数据行截掉。面板测量自然高度时会暂时把整条 `height: 100%` 改成 `auto`。但两个面板都把项目卡写成 `flex: 1`，其弹性基准是零；卡片自己的 `overflow: hidden` 是复古窗口外框所需，却压掉可撑开内容的自动最小尺寸。测量时，卡片因此缩成标题行，WIN95 报出 877 像素、Newspaper 报出 876 像素，而结构相同的 Classic 是 923 像素。⟦像量布料时先把被拉紧的橡皮筋松开，才不会把整件衣服量短。⟧ 现在测量会暂时把这类可拉伸子项固定为 `flex: 0 0 auto`，量完再还原，因此面板的视觉设计不会改变。",
+                "en": "Project usage cards on the WIN95 and Newspaper panels no longer show only their title bar while clipping the rows below. To measure natural height, a panel temporarily releases the `height: 100%` chain to `auto`. Yet both panels write the project card as `flex: 1`, whose flex basis is zero, while the card's `overflow: hidden`, needed by retro window chrome, suppresses the automatic content-based minimum size that would keep it open. During measurement the card therefore collapsed to its title bar: WIN95 reported 877 pixels and Newspaper 876, versus 923 for structurally identical Classic. ⟦It is like loosening a stretched elastic before measuring cloth, so the whole garment is not measured too short.⟧ Measurement now temporarily pins stretching children to `flex: 0 0 auto` and restores them afterward, leaving each panel's visual design unchanged.",
+                "ja": "WIN95 と Newspaper のパネルにあるプロジェクト使用量カードは、タイトル行だけを残して下の行を切り取らなくなった。パネルが自然な高さを測る際、`height: 100%` の連鎖を一時的に `auto` にする。しかし両パネルのプロジェクトカードは `flex: 1` であり、そのフレックス基準はゼロである。さらにレトロな窓枠に必要なカード自身の `overflow: hidden` が、内容で開くための自動最小サイズを抑える。測定中にカードはタイトル行まで縮み、WIN95 は 877 ピクセル、Newspaper は 876 ピクセルとなった。構造が同じ Classic は 923 ピクセルである。⟦布を測る前に引き伸ばされたゴムを緩め、服全体を短く測らないようにするのに似ている。⟧ 今は測定中だけ伸びる子要素を `flex: 0 0 auto` に固定し、その後で戻すため、パネルの見た目は変わらない。",
+                "ko": "WIN95와 Newspaper 패널의 프로젝트 사용량 카드는 이제 제목 줄만 남기고 아래 데이터 행을 잘라 내지 않는다. 패널이 자연 높이를 잴 때는 `height: 100%` 연결을 잠시 `auto`로 푼다. 그러나 두 패널의 프로젝트 카드는 `flex: 1`로 쓰였고 그 플렉스 기준은 0이다. 복고 창 테두리에 필요한 카드 자체의 `overflow: hidden`은 내용을 바탕으로 카드를 열어 두는 자동 최소 크기도 막는다. 그래서 측정 중 카드는 제목 줄까지 줄어들었고 WIN95는 877픽셀, Newspaper는 876픽셀을 보고했다. 구조가 같은 Classic은 923픽셀이었다. ⟦천을 재기 전에 팽팽한 고무줄을 풀어 옷 전체를 짧게 재지 않는 것과 같다.⟧ 이제 측정할 때만 늘어나는 자식 요소를 `flex: 0 0 auto`로 고정하고 끝나면 되돌리므로 패널의 시각 디자인은 바뀌지 않는다."
+              },
               "original": "**The project usage card no longer clips its rows on the WIN95 and Newspaper panels.** A panel measures its own natural height by releasing the whole `height: 100%` chain to `auto`. Both panels write their project card as `flex: 1`, which means a flex basis of zero, and the card's own `overflow: hidden` — the retro window chrome depends on it — suppresses the automatic content-based minimum size that would otherwise hold the card open. The card therefore collapsed to its title bar during the measurement, and the reported height was short by exactly the project rows: 877 pixels for WIN95 and 876 for Newspaper against 923 for the structurally identical Classic. The measurement now pins such stretching children to `flex: 0 0 auto` while it measures and restores them afterwards, so no panel's visual design changes."
             },
             {
+              "title": {
+                "zh-TW": "八個模組搬進新套件，專案根目錄少了雜物",
+                "zh-CN": "八个模块搬进新包，项目根目录少了杂物",
+                "en": "Eight modules move into packages, clearing repository root",
+                "ja": "八つのモジュールをパッケージへ移し、リポジトリ直下を整理した",
+                "ko": "여덟 모듈을 패키지로 옮겨 저장소 루트를 정리했다"
+              },
+              "body": {
+                "zh-TW": "八個模組搬離根目錄，行為不變。`burn_rate`、`usage_rate`、`window_keeper`、`agy_window_keeper` 搬進 `quota/`；`time_utils`、`usage_logging`、`usage_lang`、`usage_dir_sweeper` 搬進 `usage_common/`。⟦這像把工作桌上八樣零件分別收進兩個標籤清楚的抽屜，零件不變，不再散在桌面。⟧ 共用工具套件叫 `usage_common`，不用 `common`，`uvx usage-cli` 的進入點會把頂層套件裝進共用的 `site-packages`，`common` 易撞名。未留相容墊片：所有 import 一次更新，`pyproject.toml` 移除八個 `py-modules` 項目並加入兩個套件，`setup_app.py` 也更新。",
+                "zh-CN": "项目根目录少了八个散放的模块，但程序行为不变。`burn_rate`、`usage_rate`、`window_keeper`、`agy_window_keeper` 搬进 `quota/`；`time_utils`、`usage_logging`、`usage_lang`、`usage_dir_sweeper` 搬进 `usage_common/`。⟦这像把工作桌上八样零件分别收进两个标签清楚的抽屉，零件仍是原来那些，只是不再散在桌面。⟧ 共用工具包不用 `common`，而叫 `usage_common`，因为 `uvx usage-cli` 的入口会把顶层包安装进共用的 `site-packages`，`common` 很容易和别人的包撞名。这次没有留下兼容垫片：存储库每一个 import 都一次更新，`pyproject.toml` 移除八个 `py-modules` 项目并加入两个包，`setup_app.py` 也跟着更新。",
+                "en": "The repository root has eight fewer loose modules, while behavior stays unchanged. `burn_rate`, `usage_rate`, `window_keeper`, and `agy_window_keeper` moved into `quota/`; `time_utils`, `usage_logging`, `usage_lang`, and `usage_dir_sweeper` moved into `usage_common/`. ⟦It is like putting eight loose parts from a workbench into two clearly labeled drawers: the parts are unchanged, but no longer scattered across the surface.⟧ The shared utility package is called `usage_common`, not `common`, because the `uvx usage-cli` entry point installs top-level packages into shared `site-packages`, where `common` can easily collide with another package. No compatibility shims remain: every repository import was updated in one pass, `pyproject.toml` dropped eight `py-modules` entries and added the two packages, and `setup_app.py` followed.",
+                "ja": "リポジトリ直下から散在していた八つのモジュールが減ったが、動作は変わらない。`burn_rate`、`usage_rate`、`window_keeper`、`agy_window_keeper` は `quota/` へ移し、`time_utils`、`usage_logging`、`usage_lang`、`usage_dir_sweeper` は `usage_common/` へ移した。⟦作業台に散った八つの部品を、表示の明確な二つの引き出しへ入れるようなものだ。部品は同じでも、台の上に散らばらない。⟧ 共用ユーティリティパッケージを `common` ではなく `usage_common` としたのは、`uvx usage-cli` の入口が最上位パッケージを共用の `site-packages` に入れ、`common` は別のパッケージと衝突しやすいためである。互換用の代替物は残していない。リポジトリ中の全 import を一度に更新し、`pyproject.toml` は八つの `py-modules` 項目を削除して二つのパッケージを追加し、`setup_app.py` も更新した。",
+                "ko": "저장소 루트에 흩어져 있던 모듈이 여덟 개 줄었지만 동작은 바뀌지 않는다. `burn_rate`, `usage_rate`, `window_keeper`, `agy_window_keeper`는 `quota/`로 옮겼고 `time_utils`, `usage_logging`, `usage_lang`, `usage_dir_sweeper`는 `usage_common/`으로 옮겼다. ⟦작업대에 흩어진 여덟 부품을 이름표가 분명한 두 서랍에 넣는 것과 같다. 부품은 그대로지만 더는 작업대에 흩어지지 않는다.⟧ 공용 도구 패키지 이름은 `common`이 아니라 `usage_common`이다. `uvx usage-cli` 진입점이 최상위 패키지를 함께 쓰는 `site-packages`에 설치하고, `common`은 다른 패키지와 이름이 부딪히기 쉽기 때문이다. 호환용 연결 장치는 남기지 않았다. 저장소의 모든 import를 한 번에 고쳤고, `pyproject.toml`에서 여덟 `py-modules` 항목을 빼고 두 패키지를 추가했으며 `setup_app.py`도 바꿨다."
+              },
               "original": "**Eight more modules moved out of the repository root.** `quota/` took `burn_rate`, `usage_rate`, `window_keeper`, and `agy_window_keeper`; `usage_common/` took `time_utils`, `usage_logging`, `usage_lang`, and `usage_dir_sweeper`. The shared-utility package is named `usage_common` rather than `common` because the `uvx usage-cli` entry point installs top-level packages into a shared `site-packages`, where `common` is about the most collision-prone name available. No compatibility shims were left behind — every import in the repository was updated in one pass, `pyproject.toml` dropped the eight `py-modules` entries and added the two packages, and `setup_app.py` followed. Behavior is unchanged."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "0.29.35",
           "period": "2026-08-23",
           "items": [
             {
+              "title": {
+                "zh-TW": "Migration 主題把遷徙路線畫進暮色天空",
+                "zh-CN": "Migration 主题把迁徙路线画进暮色天空",
+                "en": "Migration paints migration routes across a dusk sky",
+                "ja": "Migration テーマが夕暮れの空に渡りの航路を描く",
+                "ko": "Migration 테마가 황혼 하늘에 이동 경로를 그린다"
+              },
+              "body": {
+                "zh-TW": "打開第十四個視覺主題 Migration，面板裡的暮色天空已經有經緯線，三群 V 字鳥群以不同速度橫越天空，翅膀還會動。⟦它像一本攤開的野外觀察手冊：先用格線定出地點，再讓鳥群的飛行把路線畫給你看。⟧每段旅程會以 `ROUTE. 7` 這類路線標籤標出。它延續 Lepidoptera 面板的插畫式野外圖鑑做法，這次換成遷徙畫面來說故事。",
+                "zh-CN": "打开第十四个视觉主题 Migration，面板里的暮色天空已经有经纬线，三群 V 字鸟群以不同速度横越天空，翅膀还会动。⟦它像一本摊开的野外观察手册：先用格线定出地点，再让鸟群的飞行把路线画给你看。⟧每段旅程会以 `ROUTE. 7` 这类路线标签标出。它延续 Lepidoptera 面板的插画式野外图鉴做法，这次换成迁徙画面来讲故事。",
+                "en": "Open Migration, fourteenth visual theme, and a dusk sky appears with a latitude-and-longitude grid. Three V-shaped flocks cross it at different speeds, with moving wings. ⟦It works like an open field guide: grid establishes place, then flying birds draw each journey for you.⟧Route labels such as `ROUTE. 7` identify those journeys. This follows illustrated field-guide approach of Lepidoptera panel, using migration as scene this time.",
+                "ja": "第十四の視覚テーマ Migration を開くと、夕暮れの空に経緯線の格子が現れる。三つの V 字形の鳥の群れが異なる速さで横切り、翼も動く。⟦開いた野外観察図鑑のように、格子が場所を定め、飛ぶ鳥が旅程を描き出す。⟧旅程には `ROUTE. 7` のようなルートラベルが付く。Lepidoptera パネルのイラスト風フィールドガイドという手法を、渡りの場面で受け継いだものである。",
+                "ko": "열네 번째 시각 테마 Migration을 열면 황혼 하늘에 위도와 경도 격자가 나타난다. V자 모양 새 무리 세 떼가 서로 다른 속도로 가로지르고 날개도 움직인다. ⟦펼쳐 둔 야외 관찰 도감처럼 격자가 장소를 잡고, 나는 새가 여정을 그려 낸다.⟧각 여정에는 `ROUTE. 7` 같은 경로 표지가 붙는다. Lepidoptera 패널의 삽화식 야외 도감 접근법을 이동 장면으로 이어 간 것이다."
+              },
               "original": "**Migration is the fourteenth visual theme.** Its dusk sky carries a latitude-and-longitude grid while three V-shaped flocks cross at different speeds, their wings moving as route labels such as `ROUTE. 7` identify the journeys. It follows the Lepidoptera panel's illustrated field-guide approach."
             },
             {
+              "title": {
+                "zh-TW": "README 主題圖集重拍，補齊缺圖也遮住真實資料",
+                "zh-CN": "README 主题图集重拍，补齐缺图也遮住真实数据",
+                "en": "README galleries are rebuilt to complete missing themes and hide real data",
+                "ja": "README のテーマ図集を撮り直し、欠けたテーマと実データを整理した",
+                "ko": "README 테마 갤러리를 다시 만들어 빠진 테마와 실제 데이터를 정리했다"
+              },
+              "body": {
+                "zh-TW": "五份 README（專案說明頁）原本像五張用不同資料填寫的練習卷：照片少了主題又高低不齊，舊圖還是從真實機器手動截圖，讓真實專案名稱和金額帶到公開頁面。⟦五份練習卷皆用同份範例資料重印，版面齊，資料不外洩。⟧標題說有十三張，卻只有十張截圖；`stained_glass` 與 `origami` 沒拍過，`catppuccin` 只有中文版，Antigravity 卡也比舊圖晚出現。現在 `scripts/make_panel_shots.py` 以網站同一份合成展示資料重建截圖。圖集每列三張，較矮面板會把整列推歪，所以才統一按最高面板高度拍攝；比其他面板矮 243 像素的寬型畫面資訊層 `world_cup` 不放進圖集，留下十二張、四列對齊。網站仍各自以原本尺寸呈現十三張。GitHub 會移除 Markdown 裡的腳本與 iframe，所以 README 保留靜態圖片。",
+                "zh-CN": "五份 README 原本像五张用不同资料填写的练习卷：照片少了主题又高低不齐，旧图还是从真实机器手动截图，让真实项目名称和金额带到公开页面。⟦现在像把五份练习卷都用同一套示例数据重印，版面能对齐，也不会把真实项目名称和金额印到公开版本。⟧原来标题说有十三张，却只有十张截图；`stained_glass` 与 `origami` 从未拍过，`catppuccin` 只有中文版，Antigravity 卡也比旧图晚出现。现在 `scripts/make_panel_shots.py` 用网站同一份合成展示数据重建截图。图集每行三张，较矮面板会把整行推歪，所以才统一按最高面板高度拍摄；比其他面板矮 243 像素的宽型 HUD `world_cup` 不放进图集，留下十二张、四行对齐。网站仍把十三张各自按原本大小展示。GitHub 会移除 Markdown 里的脚本与 iframe，所以 README 保留静态图片。",
+                "en": "Five READMEs were like practice sheets filled with different sample data: photos missed themes, failed to line up, and old images were hand-captured from a real machine, carrying real project names and dollar amounts onto public pages. ⟦It is like reprinting five practice sheets with one set of sample data: layouts line up without printing real project names and dollar amounts in public version.⟧Headings claimed thirteen images but showed ten: `stained_glass` and `origami` had never been photographed, `catppuccin` only in Chinese, and old images predated Antigravity card. `scripts/make_panel_shots.py` now rebuilds shots from same synthetic payload used by website. Since galleries put three pictures in each row, a shorter panel pushes whole grid out of line, so all shots use tallest panel height; wide HUD `world_cup`, genuinely 243 pixels shorter, stays out. That leaves twelve images in four even rows. Website still displays all thirteen alone at own size. GitHub strips scripts and iframes from Markdown, so README remains static images.",
+                "ja": "五つの README は異なる資料で埋めた五枚の練習用紙のようで、テーマの写真が欠け、高さもそろわなかった。古い画像も実機から手作業で撮ったもので、実在のプロジェクト名と金額を公開ページに出していた。⟦今は五枚の練習用紙を同じ一組のサンプルデータで刷り直すように、配置がそろい、実在のプロジェクト名と金額を公開版へ刷らずに済む。⟧見出しは十三枚としていたのにスクリーンショットは十枚だけで、`stained_glass` と `origami` は未撮影、`catppuccin` は中国語版だけであり、古い画像は Antigravity カードより前のものであった。`scripts/make_panel_shots.py` がウェブサイトと同じ合成デモデータから撮り直す。図集は一行に三枚置き、低いパネルが図集全体の配置を崩すため、すべて最も背の高いパネルの高さで撮影する。他より 243 ピクセル低い横長 HUD の `world_cup` は図集から外れ、十二枚が四つの均等な行に並ぶ。ウェブサイトでは十三枚すべてを各自の大きさで表示する。GitHub は Markdown 内のスクリプトと iframe を除くため、README は静止画像のままである。",
+                "ko": "다섯 README는 서로 다른 자료로 채운 연습지 다섯 장 같아서 테마 사진이 빠지고 높이도 맞지 않았다. 옛 이미지도 실제 기계에서 손으로 캡처한 것이어서 실제 프로젝트 이름과 달러 금액을 공개 페이지에 드러냈다. ⟦이제 연습지 다섯 장을 같은 예시 데이터 한 세트로 다시 인쇄하듯 배치는 가지런해지고 실제 프로젝트 이름과 달러 금액을 공개본에 인쇄하지 않아도 된다.⟧제목은 열세 장이라 했지만 스크린샷은 열 장뿐이었다. `stained_glass`와 `origami`는 촬영된 적이 없었고 `catppuccin`은 중국어판만 있었으며 옛 이미지는 Antigravity 카드보다 앞선 것이었다. `scripts/make_panel_shots.py`가 웹사이트와 같은 합성 데모 데이터로 사진을 다시 만든다. 갤러리는 한 줄에 세 장을 놓고, 낮은 패널이 전체 격자 배치를 어그러뜨리므로 모두 가장 높은 패널 높이로 촬영한다. 다른 패널보다 243픽셀 낮은 넓은 HUD `world_cup`은 갤러리에서 빠지고, 열두 장이 네 줄로 고르게 놓인다. 웹사이트는 열세 장 모두를 각각 원래 크기로 보여 준다. GitHub는 Markdown 안의 스크립트와 iframe을 제거하므로 README는 정적 이미지로 남는다."
+              },
               "original": "**The README theme galleries are rebuilt from synthetic data and now line up.** All five READMEs listed ten screenshots under a heading that said thirteen — `stained_glass` and `origami` had never been photographed, `catppuccin` only in Chinese. The old images were also hand-captured from a real machine, so they carried actual project names and dollar amounts onto a public page, and predated the Antigravity card entirely. Every shot is now regenerated by `scripts/make_panel_shots.py` from the same synthetic payload the website uses. The galleries place three images per row, so a panel that is shorter than its neighbours pushes the whole grid out of line; the shots are therefore all captured at the tallest panel's height, and `world_cup` — a wide HUD that is genuinely 243 pixels shorter than the rest — sits this gallery out. Twelve images, four even rows. All thirteen are still on the website, where each one is shown alone at its own size. GitHub strips scripts and iframes from Markdown, so the README stays static images."
             },
             {
+              "title": {
+                "zh-TW": "網站圖集改播十三個活面板，語言也會跟著切換",
+                "zh-CN": "网站图集改播十三个活面板，语言也会跟着切换",
+                "en": "Website gallery runs all thirteen live panels and switches their language",
+                "ja": "ウェブサイトの図集が十三の生きたパネルを表示し、言語も切り替わる",
+                "ko": "웹사이트 갤러리가 열세 개의 살아 있는 패널을 띄우고 언어도 바꾼다"
+              },
+              "body": {
+                "zh-TW": "網站上的主題牆從十張靜態截圖，改成能直接看的十三個真實面板。⟦這像車站的即時看板：能看見列車實際狀態，但在看板上按按鈕不會讓列車轉軌。⟧原先 `origami`、`stained_glass` 沒有圖，`catppuccin` 只顯示中文，於是「十三個主題」實際只看到十個。現在網站把面板網頁原碼放進框架，餵入手寫的展示資料；主題清單從 `panels.all_panels()` 取得。新增第十四個時，執行 `scripts/make_panel_demo.py` 即會出現在網站，不必再記得補拍兩張圖。網站選語言時，既有 `applyLang()` 也會把切換交給面板，因此五種語言都會一起變。面板只供展示，網頁沒有原生端能回應 Switch Panel 與 Quit 按鈕。舊截圖留在 `docs/`，README 仍連到它們。",
+                "zh-CN": "网站上的主题墙从十张静态截图，改成能直接看的十三个真实面板。⟦这像车站的即时看板：能看见列车实际状态，但在看板上按按钮不会让列车转轨。⟧原先 `origami`、`stained_glass` 没有图，`catppuccin` 只显示中文，于是“十三个主题”实际只看到十个。现在网站把真实的面板 HTML 放进框架，喂入手写的展示数据；主题清单从 `panels.all_panels()` 取得。新增第十四个时，运行 `scripts/make_panel_demo.py` 就会出现在网站，不必再记得补拍两张图。网站选择语言时，既有 `applyLang()` 也会把切换交给面板，因此五种语言都会一起变。面板只供展示，网页没有原生端能回应 Switch Panel 与 Quit 按钮。旧截图留在 `docs/`，README 仍链接到它们。",
+                "en": "Theme wall on website moves from ten static screenshots to thirteen real panels you can view directly. ⟦It is like station's live departure board: you can see actual train status, but pressing its buttons will not make train switch tracks.⟧`origami` and `stained_glass` had no image, while `catppuccin` showed only Chinese, so thirteen themes meant ten visible themes. Website now puts real panel HTML into frame with hand-written demo payload, and gets theme list from `panels.all_panels()`. When fourteenth panel arrives, running `scripts/make_panel_demo.py` places it on site without remembering two more photos. Existing `applyLang()` also passes site language choice to panel, so all five languages change together. Panel is display-only: no native side on web page can answer Switch Panel or Quit buttons. Old screenshots remain in `docs/`, and READMEs still link to them.",
+                "ja": "ウェブサイトのテーマ壁は、十枚の静止スクリーンショットから直接見られる十三の実際のパネルへ変わった。⟦駅の発車案内板のように実際の列車の状態は見えるが、そこにあるボタンを押しても列車を別の線路へ移すことはできない。⟧`origami` と `stained_glass` には画像がなく、`catppuccin` は中国語だけだったため、十三テーマと書いても見えるのは十テーマだった。今は実際のパネル HTML を手書きのデモデータとともにフレームへ入れ、テーマ一覧は `panels.all_panels()` から得る。第十四のパネルは `scripts/make_panel_demo.py` を実行すればサイトに現れ、二枚の写真を追加で撮る必要がない。既存の `applyLang()` がサイトの言語選択をパネルにも渡すため、五言語がともに切り替わる。パネルは表示専用であり、ウェブページには Switch Panel と Quit のボタンに答えるネイティブ側がない。古いスクリーンショットは `docs/` に残り、README も引き続きそこへリンクする。",
+                "ko": "웹사이트의 테마 벽은 정적 스크린샷 열 장에서 직접 볼 수 있는 실제 패널 열세 개로 바뀐다. ⟦역의 실시간 안내판처럼 실제 열차 상태는 볼 수 있지만, 안내판의 버튼을 눌러도 열차가 다른 선로로 바뀌지는 않는다.⟧`origami`와 `stained_glass`에는 이미지가 없었고 `catppuccin`은 중국어만 보였으므로, 열세 테마라는 말과 달리 보이는 것은 열 개였다. 이제 웹사이트는 실제 패널 HTML을 손으로 쓴 데모 데이터와 함께 프레임에 넣고, 테마 목록은 `panels.all_panels()`에서 가져온다. 열네 번째 패널은 `scripts/make_panel_demo.py`를 실행하면 사이트에 나타나므로 사진 두 장을 더 찍을 일을 기억할 필요가 없다. 기존 `applyLang()`도 사이트의 언어 선택을 패널에 넘겨 다섯 언어가 함께 바뀐다. 패널은 표시 전용이며 웹페이지에는 Switch Panel과 Quit 버튼에 응답할 네이티브 쪽이 없다. 옛 스크린샷은 `docs/`에 남고 README도 계속 그것을 연결한다."
+              },
               "original": "**The website now shows all thirteen panels, live, instead of ten screenshots.** The gallery held ten static images; `origami` and `stained_glass` had never been photographed at all, and `catppuccin` only in Chinese — so the page showed ten themes under a heading that said thirteen. It now renders the real panel HTML in a frame with a hand-written demo payload, and the theme list comes from `panels.all_panels()`, so a fourteenth panel appears on the site by running `scripts/make_panel_demo.py` rather than by remembering to take two more screenshots. Picking a language on the site switches the panel too, in all five languages, because the site's existing `applyLang()` forwards to it. The panel is display-only — its Switch Panel and Quit buttons have no native side to answer them on a web page. The old screenshots stay in `docs/`; the READMEs still link to them."
             },
             {
+              "title": {
+                "zh-TW": "Stained Glass 加入萬花筒般的反向旋轉",
+                "zh-CN": "Stained Glass 加入万花筒般的反向旋转",
+                "en": "Stained Glass gains counter-rotation like a kaleidoscope",
+                "ja": "Stained Glass に万華鏡のような逆回転が加わる",
+                "ko": "Stained Glass에 만화경 같은 반대 회전이 더해진다"
+              },
+              "body": {
+                "zh-TW": "Stained Glass 面板原本的光線掃過效果還在，畫面卻開始多了一層轉動。⟦轉動萬花筒時，玻璃碎片會朝相反方向繞行，光也會跟著折射的節奏移動；這次的更新正是在面板裡補上那個變化。⟧分層碎片由 `kaleidoscopeTurn` 反向旋轉，光線掃過則由 `kaleidoscopeSweep` 接著走。原有的 `sunlightSweep` 保留，面板的識別碼和名稱也不變，所以這是既有 Stained Glass 的視覺升級，不是另一個新主題。",
+                "zh-CN": "Stained Glass 面板原有的光线扫过效果还在，画面却开始多了一层转动。⟦转动万花筒时，玻璃碎片会朝相反方向绕行，光也会跟着折射的节奏移动；这次更新正是在面板里补上这个变化。⟧分层碎片由 `kaleidoscopeTurn` 反向旋转，光线扫过则由 `kaleidoscopeSweep` 接着走。原有的 `sunlightSweep` 保留，面板的标识和名称也不变，所以这是既有 Stained Glass 的视觉升级，不是另一个新主题。",
+                "en": "Stained Glass keeps its existing light sweep, but scene now gains another layer of motion. ⟦When kaleidoscope turns, glass fragments circle in opposite directions and light follows rhythm of refraction; update adds that change to panel.⟧Layered fragments counter-rotate through `kaleidoscopeTurn`, while light sweep follows through `kaleidoscopeSweep`. Existing `sunlightSweep` remains, as do panel's id and name, so this upgrades existing Stained Glass visually rather than creating another theme.",
+                "ja": "Stained Glass パネルでは既存の光の掃引が残り、画面に新たな回転の層が加わる。⟦万華鏡を回すとガラス片が逆向きに巡り、光も屈折のリズムに沿って動くが、今回の更新はその変化をパネルへ加える。⟧層になった断片は `kaleidoscopeTurn` により逆回転し、光の掃引は `kaleidoscopeSweep` が続ける。既存の `sunlightSweep`、パネルの ID、名称はいずれも残るため、新テーマではなく既存 Stained Glass の視覚的な改善である。",
+                "ko": "Stained Glass 패널은 기존 빛 훑기 효과를 남기면서 화면에 움직임 한 겹을 더한다. ⟦만화경을 돌리면 유리 조각은 반대 방향으로 돌고 빛은 굴절의 리듬을 따라 움직이는데, 이번 업데이트가 패널에 더한 변화가 바로 이것이다.⟧겹친 조각은 `kaleidoscopeTurn`으로 반대 회전하고 빛 훑기는 `kaleidoscopeSweep`가 이어 간다. 기존 `sunlightSweep`와 패널 식별자 및 이름은 그대로이므로, 새 테마가 아니라 기존 Stained Glass의 시각적 개선이다."
+              },
               "original": "**Stained Glass now turns like a kaleidoscope.** The existing `sunlightSweep` remains, while layered fragments counter-rotate through `kaleidoscopeTurn` and the light sweep follows through `kaleidoscopeSweep`; its id and name stay the same, so this is a visual upgrade to the existing panel rather than a new theme."
             },
             {
+              "title": {
+                "zh-TW": "七個模組搬進分區，打包時避開 `setup` 撞名",
+                "zh-CN": "七个模块搬进分区，打包时避开 `setup` 撞名",
+                "en": "Seven modules move into packages to avoid a `setup` naming collision at build time",
+                "ja": "七つのモジュールを分け、パッケージ時の `setup` 衝突を避ける",
+                "ko": "일곱 모듈을 나누고 패키징 때 `setup` 이름 충돌을 피한다"
+              },
+              "body": {
+                "zh-TW": "根目錄少七模組，剩 28 個 Python 檔。⟦拍片前分工：窗戶交場景組、選單列交道具組，安裝交後勤組。⟧`panel_window`、`panel_window_state`→`panels/`，`critter_frames`→`menubar/`；`setup_hook`、`session_hooks`、`statusline_settings`、`login_item` 四模組將 usage 安裝到使用者系統，移入新 `installer/`。`installer/` 不叫 `setup`：根目錄列入 `sys.path`（找模組清單），同名頂層套件會遮住 setuptools、py2app 打包的 `import setup`。僅打包出錯，測試不會發現。四模組循 `__file__` 往上找掛鉤腳本；腳本留根目錄由系統 Python 執行，故多找一層。",
+                "zh-CN": "项目根目录又搬走七个模块，现在只剩二十八个 Python 文件。⟦这像拍片前分工：窗口相关工作交给场景组，菜单栏交给道具组，安装工作交给后勤组。⟧`panel_window` 与 `panel_window_state` 归入 `panels/`，`critter_frames` 归入 `menubar/`；`setup_hook`、`session_hooks`、`statusline_settings`、`login_item` 四个模块负责将 usage 安装到用户的系统，并归入新 `installer/` 包。它不能叫 `setup`：根目录在 Python 的 `sys.path`（寻找模块的位置清单）上，顶层同名包会遮住 setuptools 与 py2app 打包时执行的 `import setup`。这种错误只会在打包时现身，测试不会发现。四个模块原本从 `__file__` 向上找挂钩脚本；脚本仍留在根目录、由系统 Python 执行，因此现在会多往上一层找。",
+                "en": "Project root moves out seven more modules and now holds only 28 Python files. ⟦It is like assigning film crew before a shoot: window work goes to set team, menu-bar work to props team, and installation work to logistics team.⟧`panel_window` and `panel_window_state` join `panels/`; `critter_frames` joins `menubar/`; four modules `setup_hook`, `session_hooks`, `statusline_settings`, and `login_item` install usage into user's system and join new `installer/` package. It cannot be called `setup`: repository root sits on Python's `sys.path` (list of places Python searches for modules), and a top-level package of that name would shadow `import setup` used by setuptools and py2app during packaging. Failure surfaces only when packaging, not in test suite. Four modules used to walk upward from `__file__` for hook scripts; scripts remain at root to run under system Python, so they now walk up one extra level.",
+                "ja": "プロジェクトのルートからさらに七つのモジュールが移され、Python ファイルは二十八個になった。⟦映画を撮る前の分担のように、窓に関する仕事は美術班、メニューバーは小道具班、導入作業は後方支援班へ渡す。⟧`panel_window` と `panel_window_state` は `panels/` に入り、`critter_frames` は `menubar/` に入り、`setup_hook`、`session_hooks`、`statusline_settings`、`login_item` の四つのモジュールは usage を利用者のシステムに導入し、新しい `installer/` パッケージに入る。これは `setup` とは呼べない。リポジトリのルートは Python の `sys.path`（モジュールを探す場所の一覧）にあり、同名の最上位パッケージがあると setuptools と py2app がパッケージ時に行う `import setup` を隠してしまう。この失敗はテストではなくパッケージ時だけに現れる。四つのモジュールは `__file__` から上へたどってフックスクリプトを探していたが、スクリプトはシステム Python で動かすためルートに残るので、今はさらに一段上をたどる。",
+                "ko": "프로젝트 루트에서 모듈 일곱 개를 더 옮겨 Python 파일은 이제 스물여덟 개만 남는다. ⟦영화 촬영 전 역할을 나누듯 창 관련 일은 미술팀에, 메뉴 막대 일은 소품팀에, 설치 일은 지원팀에 맡긴다.⟧`panel_window`와 `panel_window_state`는 `panels/`로, `critter_frames`는 `menubar/`로 들어간다. `setup_hook`, `session_hooks`, `statusline_settings`, `login_item` 네 모듈은 usage를 사용자 시스템에 설치하고 새 `installer/` 패키지로 간다. 이것은 `setup`이라 부를 수 없다. 저장소 루트는 Python의 `sys.path`(Python이 모듈을 찾는 장소 목록)에 있고, 같은 이름의 최상위 패키지가 있으면 setuptools와 py2app이 패키징 때 실행하는 `import setup`을 가리기 때문이다. 이 실패는 테스트가 아니라 패키징할 때만 나타난다. 네 모듈은 `__file__`에서 위로 올라가 훅 스크립트를 찾았는데, 스크립트는 시스템 Python에서 실행하려고 루트에 남으므로 이제 한 단계 더 위로 올라간다."
+              },
               "original": "**Seven more modules moved out of the repository root.** `panel_window` and `panel_window_state` joined `panels/`, `critter_frames` joined `menubar/`, and a new `installer/` package took `setup_hook`, `session_hooks`, `statusline_settings`, and `login_item` — the four modules that install usage into the user's system. The root is down to 28 Python files. The package is named `installer` rather than `setup` because the repository root is on `sys.path` and a top-level `setup` package would shadow the bare `import setup` that setuptools and py2app perform during a build — a failure that only surfaces when packaging, never in the test suite. The four modules that resolve the hook scripts by walking up from `__file__` now walk up one extra level, since those scripts stay at the root to run under the system Python."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "0.29.34",
