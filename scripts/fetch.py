@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import UTC, date, datetime
@@ -15,6 +17,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 RAW_ROOT = ROOT / "data" / "raw"
 USER_AGENT = "aqua5230/ai-updates"
+MAX_ATTEMPTS = 3
+BACKOFF_BASE = 1.0
 CLAUDE_CHANGELOG_URL = (
     "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md"
 )
@@ -30,15 +34,40 @@ VERSION_HEADING = re.compile(r"^##\s+\[?[vV]?([^\]\s]+)\]?(?:\s|$)")
 KEEPACHANGELOG_HEADING = re.compile(
     r"^##\s+\[([^\]]+)\]\s*-\s*(\d{4}-\d{2}-\d{2})\s*$"
 )
+_last_request_url: str | None = None
 
 
-def _request(url: str) -> bytes:
+def _request(
+    url: str,
+    *,
+    attempts: int = MAX_ATTEMPTS,
+    backoff: float = BACKOFF_BASE,
+    sleep: Any = time.sleep,
+) -> bytes:
+    global _last_request_url
+    _last_request_url = url
+    headers = {"Accept": "application/vnd.github+json", "User-Agent": USER_AGENT}
+    if token := os.environ.get("GITHUB_TOKEN"):
+        headers["Authorization"] = f"Bearer {token}"
     request = urllib.request.Request(
         url,
-        headers={"Accept": "application/vnd.github+json", "User-Agent": USER_AGENT},
+        headers=headers,
     )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return response.read()
+    for attempt in range(1, attempts + 1):
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return response.read()
+        except urllib.error.HTTPError as err:
+            if err.code not in {429, 500, 502, 503, 504} or attempt == attempts:
+                raise
+        except urllib.error.URLError:
+            if attempt == attempts:
+                raise
+        except (TimeoutError, ConnectionError):
+            if attempt == attempts:
+                raise
+        sleep(backoff * (2 ** (attempt - 1)))
+    raise RuntimeError("unreachable")
 
 
 def fetch_text(url: str) -> str:
@@ -288,12 +317,17 @@ def fetch_gh_cli(count: int = 20) -> int:
 
 
 def main() -> int:
+    tool_id = "unknown"
     try:
-        fetch_claude()
-        fetch_codex()
-        fetch_agy()
-        fetch_usage()
-        fetch_gh_cli()
+        for next_tool_id, fetcher in (
+            ("claude_code", fetch_claude),
+            ("codex", fetch_codex),
+            ("agy", fetch_agy),
+            ("usage", fetch_usage),
+            ("gh_cli", fetch_gh_cli),
+        ):
+            tool_id = next_tool_id
+            fetcher()
     except (
         OSError,
         UnicodeDecodeError,
@@ -301,7 +335,7 @@ def main() -> int:
         json.JSONDecodeError,
         urllib.error.URLError,
     ) as exc:
-        print(f"fetch failed: {exc}", file=sys.stderr)
+        print(f"fetch failed: {tool_id} {_last_request_url}: {exc}", file=sys.stderr)
         return 1
     return 0
 
