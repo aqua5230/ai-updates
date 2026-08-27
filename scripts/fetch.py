@@ -19,6 +19,7 @@ RAW_ROOT = ROOT / "data" / "raw"
 USER_AGENT = "aqua5230/ai-updates"
 MAX_ATTEMPTS = 3
 BACKOFF_BASE = 1.0
+GITHUB_API_PREFIX = "https://api.github.com/"
 CLAUDE_CHANGELOG_URL = (
     "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md"
 )
@@ -47,7 +48,7 @@ def _request(
     global _last_request_url
     _last_request_url = url
     headers = {"Accept": "application/vnd.github+json", "User-Agent": USER_AGENT}
-    if token := os.environ.get("GITHUB_TOKEN"):
+    if url.startswith(GITHUB_API_PREFIX) and (token := os.environ.get("GITHUB_TOKEN")):
         headers["Authorization"] = f"Bearer {token}"
     request = urllib.request.Request(
         url,
