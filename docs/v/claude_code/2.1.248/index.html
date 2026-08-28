@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude Code 2.1.248 更新白話速報</title>
+  <meta name="description" content="Added `--restricted` (or `CLAUDE_CODE_RESTRICTED=1`): removes the built-in tools that run commands or code and `WebFetch` (unless named in `--tools`),">
+  <link rel="canonical" href="https://aqua5230.github.io/ai-updates/v/claude_code/2.1.248/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Claude Code 2.1.248 更新白話速報">
+  <meta property="og:description" content="Added `--restricted` (or `CLAUDE_CODE_RESTRICTED=1`): removes the built-in tools that run commands or code and `WebFetch` (unless named in `--tools`),">
+  <meta property="og:url" content="https://aqua5230.github.io/ai-updates/v/claude_code/2.1.248/">
+  <meta property="og:image" content="https://aqua5230.github.io/ai-updates/og-image.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Claude Code", "softwareVersion": "2.1.248", "datePublished": "2026-08-27", "releaseNotes": ""}</script>
+  <style>:root{color-scheme:light dark}body{font:16px/1.65 system-ui,sans-serif;max-width:54rem;margin:auto;padding:2rem}article{border-bottom:1px solid #999;padding:1rem 0}article p{white-space:pre-line}h1,h2,h3{line-height:1.25}code{font:.9em "JetBrains Mono",monospace;color:#f0f6fc;background:#0d1117;border-radius:4px;padding:.1em .35em;overflow-wrap:anywhere;word-break:break-word}pre{white-space:pre-wrap;overflow-wrap:anywhere}pre.code-block{font:.85em/1.5 "JetBrains Mono",monospace;color:#f0f6fc;background:#0d1117;border-radius:6px;padding:.75rem}pre.code-block code{font:inherit;background:transparent;padding:0}a{color:LinkText}nav{display:flex;gap:1rem;flex-wrap:wrap}</style>
+</head>
+<body>
+  <header><h1>Claude Code 2.1.248</h1><p>發布日期：2026-08-27</p></header>
+  <main><section><h2>Original changelog</h2><article><pre>Added `--restricted` (or `CLAUDE_CODE_RESTRICTED=1`): removes the built-in tools that run commands or code and `WebFetch` (unless named in `--tools`), keeps file tools inside the working directory, refuses `bypassPermissions`, and ignores user, project and local settings files</pre></article>
+<article><pre>Added `experimental.cacheTtl` (`&quot;5m&quot;` or `&quot;1h&quot;`) to agent frontmatter: a per-agent prompt cache TTL used when no subagent TTL setting is configured</pre></article>
+<article><pre>Added `claude self-hosted-runner --client-label &lt;label&gt;` (or `SELF_HOSTED_RUNNER_CLIENT_LABEL`) to override the label the runner registers with (default: hostname)</pre></article>
+<article><pre>Added server-managed settings diagnostics: a startup warning when the settings fail to load, and a `/doctor` and `/status` line explaining a load failure or why they weren&#x27;t fetched (Bedrock/Vertex/third-party provider, custom `ANTHROPIC_BASE_URL`)</pre></article>
+<article><pre>Added a warning in `/web-setup` when the GitHub CLI token lacks the `workflow` scope, since pushes to very large repositories can be rejected without it</pre></article>
+<article><pre>Added `/usage-credits` for Enterprise organizations billed through AWS Marketplace, self-serve Enterprise, and Enterprise trials, so members can request a higher usage limit from their admin</pre></article>
+<article><pre>Added cross-session messaging (`SendMessage` / `ListAgents`) between sessions on the same machine on Bedrock, Vertex, and Foundry, and when telemetry is disabled</pre></article>
+<article><pre>Fixed a prompt-cache miss (and lost extended-thinking context) roughly once an hour in long sessions, caused by tool definitions being re-rendered after an OAuth token refresh</pre></article>
+<article><pre>Fixed the `ScheduleWakeup` tool definition changing between a session and its `--resume` when the account had entered usage overage, causing a full prompt-cache miss on the resumed session&#x27;s first turn</pre></article>
+<article><pre>Fixed Claude Desktop and Cowork sessions disappearing after 30 days: the transcript cleanup now keeps desktop-written sessions while they are in the app (unless org policy manages retention); the new `desktopSessionCleanupPeriodDays` setting caps the exemption</pre></article>
+<article><pre>Fixed being sent to the login screen when another Claude Code process held the token refresh lock while the session token had expired; the request now fails with a retryable error instead</pre></article>
+<article><pre>Windows: Fixed the `claude agents` list not responding to the keyboard after detaching from a session, or when launched in a terminal tab left in win32-input-mode</pre></article>
+<article><pre>Fixed the recommended Console sign-in in `/login` failing with an OAuth error before showing a sign-in URL on machines where it can&#x27;t be used (for example when `ANTHROPIC_API_KEY` or an API key helper is set); it now falls back to the API-key sign-in</pre></article>
+<article><pre>Fixed model names in `/model` and fast-mode switch notices to render as code, so suffixes like `[1m]` display literally instead of as a link</pre></article>
+<article><pre>Fixed `claude agents` skipping the workspace trust prompt when the `CI` environment variable is set</pre></article>
+<article><pre>Fixed `claude agents` crashing on launch when the PR-status cache held a malformed entry</pre></article>
+<article><pre>Fixed agent view resurrecting a weeks-old background session after the machine was off: such a session now shows as stopped at its real end, and opening it asks before resuming its saved conversation</pre></article>
+<article><pre>Fixed agent view sometimes opening an older conversation, and dropping the typed prompt, when starting a new session</pre></article>
+<article><pre>Fixed `claude agents`: opening a stopped session that you already resumed in another terminal no longer starts a second process on that conversation; the row now says it is open in a terminal</pre></article>
+<article><pre>Fixed `claude agents` and `claude rm` refusing to delete a session (&quot;has commits that are not pushed anywhere&quot;) when its worktree branch was already merged into your checked-out default branch (e.g. local `main`) but not yet pushed</pre></article>
+<article><pre>Fixed background sessions waiting silently when a `PermissionRequest` or `PreToolUse` hook prints an invalid answer: the `claude agents` row now names the hook and the schema error</pre></article>
+<article><pre>Fixed hooks silently treating a stdout `{…}` object that isn&#x27;t valid JSON as plain text; it&#x27;s now reported as a hook error with the parse message</pre></article>
+<article><pre>Fixed `/mcp` listing a project `.mcp.json` entry that declares the claude.ai connector type under the trusted &quot;claude.ai&quot; heading; it now appears under its real scope</pre></article>
+<article><pre>Fixed MCP servers whose `headersHelper` supplies the `Authorization` header falling into OAuth discovery on a 401 instead of re-running the helper and retrying the call as documented</pre></article>
+<article><pre>Fixed `/login` to a Claude apps gateway hanging when the managed-settings security approval dialog was required</pre></article>
+<article><pre>Fixed gateway model discovery (`CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY`) never running when `apiKeyHelper` is the only credential</pre></article>
+<article><pre>Fixed `claude logs` leaving mouse tracking, bracketed paste and the alternate screen switched on in the terminal it was run from</pre></article>
+<article><pre>Fixed the trust dialog&#x27;s list of repo permission rules showing a garbled character when a long rule was cut off in the middle of an emoji</pre></article>
+<article><pre>Fixed the permission mode indicator staying hidden behind the &quot;Press Ctrl-C again to exit&quot; hint when you press shift+tab right after ctrl+c</pre></article>
+<article><pre>Fixed `/ultrareview` and locally seeded cloud sessions uploading uncommitted edits to `prod.env`-style and `*.tfvars` files, or to editor swap, temp, and backup copies of credential files (e.g. `key.pem.tmp`, `id_rsa.swo`); they now stay on your machine</pre></article>
+<article><pre>Fixed Remote Control sessions occasionally never showing a permission prompt or the latest messages on the connected device after the CLI silently reconnected</pre></article>
+<article><pre>Fixed cloud sessions occasionally failing at startup when the container&#x27;s session credentials were not yet readable</pre></article>
+<article><pre>Fixed `claude remote-control` rejecting its own flags (e.g. `--spawn`, `--name`) when a global flag or a wrapper-injected option precedes the subcommand</pre></article>
+<article><pre>Fixed startup warnings (e.g. &quot;N MCP servers need authentication&quot;) rendering one column right of the rest of the transcript</pre></article>
+<article><pre>Fixed a backgrounded worktree session losing its checkout: the background session now holds the worktree&#x27;s lock while it runs, so cleanup and `git worktree remove` leave it alone</pre></article>
+<article><pre>Fixed @-mentions of other sessions not matching names typed with non-Latin characters (for example Korean entered through an IME)</pre></article>
+<article><pre>Fixed an invalid `crossSessionInbound` value being silently ignored: it now warns and holds cross-session messages (user settings) or refuses them (managed settings) until fixed</pre></article>
+<article><pre>Fixed rate-limit, usage, and fast-mode messages telling you to run `/usage-credits` when that command isn&#x27;t available for your organization (e.g. hidden with `DISABLE_EXTRA_USAGE_COMMAND`)</pre></article>
+<article><pre>[VSCode] Fixed a chat tab getting stuck on &quot;No conversation found&quot; when its session was never saved; it now starts a new conversation instead</pre></article>
+<article><pre>Improved the Workflow tool&#x27;s prompt footprint: its description is now about 1k tokens instead of 5.7k, with the script-writing reference moved into a bundled `workflow-authoring` skill</pre></article>
+<article><pre>Improved the prompt-footer PR badge to check GitHub less often while the pull request is unchanged; a push or a `gh pr` command still refreshes it right away</pre></article>
+<article><pre>Improved managed settings: client-side timeout, MCP startup-mode, and stream-watchdog env vars no longer trigger the settings-approval prompt</pre></article>
+<article><pre>Improved `/ultrareview &lt;PR#&gt;` to check before launch that the GitHub account connected to your Claude account can access the repository, and to explain how to fix it, instead of failing after the cloud session starts</pre></article>
+<article><pre>Improved cross-session messaging: falls back to a private per-user `/tmp` directory when the default one can&#x27;t be used, and the notice and `/status` name the directory to fix</pre></article>
+<article><pre>Changed shift+enter in the agent view dispatch input to insert a newline (matching the prompt); ctrl+enter now dispatches and attaches</pre></article>
+<article><pre>Changed `/loop`: self-paced dynamic mode and the no-prompt autonomous default are now always available, including on Bedrock/Vertex/Foundry</pre></article>
+<article><pre>Changed Anthropic telemetry export failures to log at debug level as `[Anthropic telemetry]` instead of `[3P telemetry] OTEL diag error`, so they are not mistaken for your OTel collector failing</pre></article>
+<article><pre>Changed cross-session messaging in Linux user namespaces: root-equivalent trust for unmapped owners is limited to canonical system directories</pre></article>
+<article><pre>Changed `SendMessage` from a subagent to another session: the result now notes that any reply is delivered to the parent session&#x27;s conversation, not to the subagent</pre></article></section></main>
+  <footer><nav><a href="https://aqua5230.github.io/ai-updates/#claude_code/2.1.248">回到互動版</a><a href="https://aqua5230.github.io/ai-updates/v/claude_code/2.1.247/">上一版</a></nav></footer>
+</body>
+</html>
