@@ -145,6 +145,11 @@ def parse_keepachangelog(text: str) -> list[tuple[str, str, list[str]]]:
             finish_version()
             version, period = match.groups()
             continue
+        if line.startswith("## "):
+            finish_version()
+            version = None
+            period = None
+            continue
         if version is None:
             continue
         if line.startswith(("- ", "* ")):

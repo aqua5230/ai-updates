@@ -22,6 +22,19 @@ def test_parse_claude_changelog_fixture() -> None:
     ]
 
 
+def test_parse_keepachangelog_stops_at_non_version_heading() -> None:
+    text = """## [1.2.3] - 2026-07-13
+- Shipped one feature.
+
+## Migration notes
+- This is guidance, not a release entry.
+"""
+
+    assert fetch.parse_keepachangelog(text) == [
+        ("1.2.3", "2026-07-13", ["Shipped one feature."])
+    ]
+
+
 def test_parse_codex_releases_fixture() -> None:
     payload = json.loads((FIXTURES / "codex_releases.json").read_text(encoding="utf-8"))
 
