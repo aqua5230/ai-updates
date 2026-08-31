@@ -84,6 +84,65 @@ def test_release_body_entries_ignores_changelog_pr_list() -> None:
     ]
 
 
+def test_release_body_entries_stops_at_whats_changed() -> None:
+    body = """## Security
+A security vulnerability has been fixed.
+
+## Support worktrees in `pr checkout`
+Users can now check out a pull request into a git worktree.
+
+## Add semantic search to `search issues`
+The command now supports semantic search.
+
+## What's Changed
+* Add --worktree flag to gh pr checkout by @tidy-dev
+* Set GH_EXTENSION=1 when gh invokes an extension by @williammartin
+"""
+
+    entries = fetch._release_body_entries(body)
+
+    assert entries == [
+        """## Security
+A security vulnerability has been fixed.
+
+## Support worktrees in `pr checkout`
+Users can now check out a pull request into a git worktree.
+
+## Add semantic search to `search issues`
+The command now supports semantic search."""
+    ]
+    assert "Add --worktree flag" not in entries[0]
+
+
+def test_release_body_entries_keeps_codex_categories_before_changelog() -> None:
+    body = """## New Features
+
+- Added a configurable grace period for discovering tools from optional MCP servers.
+- Extensions can now inspect or replace MCP tool results before they reach the model.
+- Plugin catalogs now combine per-repository configuration.
+
+## Bug Fixes
+
+- Preserved restored permission profiles across TUI turns.
+
+## Chores
+
+- Added telemetry for escalated stdin reviews.
+
+## Changelog
+
+- #41183 Account subagent token usage toward root goal budgets @copyberry
+"""
+
+    assert fetch._release_body_entries(body) == [
+        "Added a configurable grace period for discovering tools from optional MCP servers.",
+        "Extensions can now inspect or replace MCP tool results before they reach the model.",
+        "Plugin catalogs now combine per-repository configuration.",
+        "Preserved restored permission profiles across TUI turns.",
+        "Added telemetry for escalated stdin reviews.",
+    ]
+
+
 def test_parse_agy_changelog() -> None:
     assert parse_agy_changelog("1.2.3:\n· Added one thing.\n· Fixed another.\n") == [
         ("1.2.3", ["Added one thing.", "Fixed another."])
@@ -105,6 +164,56 @@ def test_raw_record_is_never_overwritten(tmp_path: Path, monkeypatch) -> None:
     assert json.loads((tmp_path / "tool" / "1.0.0.json").read_text())["entries"] == [
         "Original"
     ]
+
+
+@pytest.mark.parametrize("version", ["../evil", "a/b"])
+def test_write_raw_rejects_unsafe_version(
+    tmp_path: Path, monkeypatch, version: str
+) -> None:
+    monkeypatch.setattr(fetch, "RAW_ROOT", tmp_path)
+    record = {"version": version}
+
+    with pytest.raises(ValueError) as exc_info:
+        fetch._write_raw("tool", record)
+
+    assert "tool" in str(exc_info.value)
+    assert version in str(exc_info.value)
+
+
+@pytest.mark.parametrize("version", ["1.2.3", "0.143.0-alpha.38"])
+def test_write_raw_accepts_safe_versions(
+    tmp_path: Path, monkeypatch, version: str
+) -> None:
+    monkeypatch.setattr(fetch, "RAW_ROOT", tmp_path)
+
+    assert fetch._write_raw("tool", {"version": version})
+    assert (tmp_path / "tool" / f"{version}.json").exists()
+
+
+def test_main_continues_after_single_fetcher_failure(monkeypatch, capsys) -> None:
+    calls: list[str] = []
+    failure = urllib.error.URLError("offline")
+
+    def fail() -> int:
+        calls.append("claude_code")
+        fetch._last_request_url = "https://example.invalid/claude"
+        raise failure
+
+    def succeed(tool_id: str) -> int:
+        calls.append(tool_id)
+        return 0
+
+    monkeypatch.setattr(fetch, "fetch_claude", fail)
+    monkeypatch.setattr(fetch, "fetch_codex", lambda: succeed("codex"))
+    monkeypatch.setattr(fetch, "fetch_agy", lambda: succeed("agy"))
+    monkeypatch.setattr(fetch, "fetch_usage", lambda: succeed("usage"))
+    monkeypatch.setattr(fetch, "fetch_gh_cli", lambda: succeed("gh_cli"))
+
+    assert fetch.main() == 1
+    assert calls == ["claude_code", "codex", "agy", "usage", "gh_cli"]
+    assert capsys.readouterr().err == (
+        "fetch failed: claude_code https://example.invalid/claude: <urlopen error offline>\n"
+    )
 
 
 def test_request_retries_connection_reset_then_succeeds(monkeypatch) -> None:

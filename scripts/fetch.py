@@ -35,6 +35,12 @@ VERSION_HEADING = re.compile(r"^##\s+\[?[vV]?([^\]\s]+)\]?(?:\s|$)")
 KEEPACHANGELOG_HEADING = re.compile(
     r"^##\s+\[([^\]]+)\]\s*-\s*(\d{4}-\d{2}-\d{2})\s*$"
 )
+VERSION_COMPONENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+RELEASE_BODY_STOP_HEADINGS = {
+    "## changelog",
+    "## what's changed",
+    "## new contributors",
+}
 _last_request_url: str | None = None
 
 
@@ -191,7 +197,7 @@ def parse_github_releases(payload: Any) -> list[dict[str, Any]]:
 def _release_body_entries(body: str) -> list[str]:
     lines: list[str] = []
     for line in body.splitlines():
-        if line.strip().lower() == "## changelog":
+        if line.strip().lower() in RELEASE_BODY_STOP_HEADINGS:
             break
         lines.append(line)
     body = "\n".join(lines)
@@ -229,14 +235,22 @@ def _release_dates(url: str) -> dict[str, str]:
 
 
 def _write_raw(tool_id: str, record: dict[str, Any]) -> bool:
-    path = RAW_ROOT / tool_id / f"{record['version']}.json"
+    version = record["version"]
+    if (
+        not isinstance(version, str)
+        or not VERSION_COMPONENT.fullmatch(version)
+        or version in {".", ".."}
+        or ".." in version
+    ):
+        raise ValueError(f"invalid version for {tool_id}: {version!r}")
+    path = RAW_ROOT / tool_id / f"{version}.json"
     if path.exists():
         return False
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
-    print(f"NEW {tool_id} {record['version']}")
+    print(f"NEW {tool_id} {version}")
     return True
 
 
@@ -323,27 +337,27 @@ def fetch_gh_cli(count: int = 20) -> int:
 
 
 def main() -> int:
-    tool_id = "unknown"
-    try:
-        for next_tool_id, fetcher in (
-            ("claude_code", fetch_claude),
-            ("codex", fetch_codex),
-            ("agy", fetch_agy),
-            ("usage", fetch_usage),
-            ("gh_cli", fetch_gh_cli),
-        ):
-            tool_id = next_tool_id
+    failures: list[tuple[str, str | None, Exception]] = []
+    for tool_id, fetcher in (
+        ("claude_code", fetch_claude),
+        ("codex", fetch_codex),
+        ("agy", fetch_agy),
+        ("usage", fetch_usage),
+        ("gh_cli", fetch_gh_cli),
+    ):
+        try:
             fetcher()
-    except (
-        OSError,
-        UnicodeDecodeError,
-        ValueError,
-        json.JSONDecodeError,
-        urllib.error.URLError,
-    ) as exc:
-        print(f"fetch failed: {tool_id} {_last_request_url}: {exc}", file=sys.stderr)
-        return 1
-    return 0
+        except (
+            OSError,
+            UnicodeDecodeError,
+            ValueError,
+            json.JSONDecodeError,
+            urllib.error.URLError,
+        ) as exc:
+            failures.append((tool_id, _last_request_url, exc))
+    for tool_id, url, exc in failures:
+        print(f"fetch failed: {tool_id} {url}: {exc}", file=sys.stderr)
+    return 1 if failures else 0
 
 
 if __name__ == "__main__":
