@@ -66,7 +66,7 @@ uv run ruff check scripts tests
 uv run pytest -q
 ```
 
-注意：執行 `pytest` 前必須先執行 `git add -A`，因為 `tests/test_schema.py` 的黃金輸出驗證跑完後會對 build 產物執行 `git checkout` 與 `git clean`，未提交的改動會被無聲清掉。
+測試會 build 到暫存目錄，不會寫入工作區，所以上面兩個指令用什麼順序跑都安全。
 
 若 Antigravity 公開來源無法使用，可改由已安裝的 CLI 匯入 changelog 輸出：
 

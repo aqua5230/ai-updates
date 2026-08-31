@@ -66,7 +66,7 @@ uv run ruff check scripts tests
 uv run pytest -q
 ```
 
-Note: Run `git add -A` before running `pytest`. Golden output verification in `tests/test_schema.py` performs `git checkout` and `git clean` on build artifacts after completion, which will silently discard uncommitted changes.
+The test suite builds into a temporary directory and never writes to the working tree, so the two commands above are safe to run in any order.
 
 If the public Antigravity source is unavailable, import changelog output from an installed CLI instead:
 
