@@ -1,28 +1,14 @@
 from __future__ import annotations
 
 import json
-import subprocess
+import shutil
 from pathlib import Path
 from typing import Any
 
 from scripts import build as build_script
-from scripts.build import build, is_placeholder
+from scripts.build import BUILD_OUTPUTS, is_placeholder
 
 ROOT = Path(__file__).resolve().parents[1]
-
-_BUILD_OUTPUT_PATHS = [
-    "ai_updates.json",
-    "daily.json",
-    "docs/data.json",
-    "docs/index.html",
-    "docs/sitemap.xml",
-    "docs/robots.txt",
-    "docs/llms.txt",
-    "docs/feed.xml",
-    "docs/history",
-    "docs/v",
-]
-
 
 def normalize_payload(payload: Any) -> list[dict[str, Any]] | None:
     """Golden validator copied from usage/analyzer/ai_updates_loader.py::_normalize_payload."""
@@ -86,25 +72,46 @@ def normalize_payload(payload: Any) -> list[dict[str, Any]] | None:
     return tools or None
 
 
-def test_build_outputs_pass_golden_validator() -> None:
-    try:
-        build()
-        payload = json.loads((ROOT / "ai_updates.json").read_text(encoding="utf-8"))
-        normalized = normalize_payload(payload)
+def _configure_real_data_build(tmp_path: Path, monkeypatch: Any) -> None:
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    shutil.copy2(ROOT / "docs" / "index.html", docs / "index.html")
+    monkeypatch.setattr(build_script, "ROOT", tmp_path)
+    monkeypatch.setattr(build_script, "DATA", ROOT / "data")
 
-        assert normalized is not None
-        assert len(normalized) == 5
-        assert len(payload["tools"]) == 5
-        assert all(len(tool["versions"]) <= 3 for tool in normalized)
-        assert (ROOT / "docs" / "data.json").is_file()
-        assert (ROOT / "daily.json").is_file()
-    finally:
-        subprocess.run(
-            ["git", "checkout", "--", *_BUILD_OUTPUT_PATHS], cwd=ROOT, check=False
-        )
-        subprocess.run(
-            ["git", "clean", "-fd", *_BUILD_OUTPUT_PATHS], cwd=ROOT, check=False
-        )
+
+def test_build_outputs_pass_golden_validator(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    _configure_real_data_build(tmp_path, monkeypatch)
+
+    build_script.build()
+    payload = json.loads((tmp_path / "ai_updates.json").read_text(encoding="utf-8"))
+    normalized = normalize_payload(payload)
+
+    assert normalized is not None
+    assert len(normalized) == 5
+    assert len(payload["tools"]) == 5
+    assert all(len(tool["versions"]) <= 3 for tool in normalized)
+    assert (tmp_path / "docs" / "data.json").is_file()
+    assert (tmp_path / "daily.json").is_file()
+
+
+def test_build_outputs_match_declared_outputs(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    _configure_real_data_build(tmp_path, monkeypatch)
+
+    build_script.build()
+    actual_outputs = {
+        path.name for path in tmp_path.iterdir() if path.name != "docs"
+    }
+    actual_outputs.update(
+        f"docs/{path.name}" for path in (tmp_path / "docs").iterdir()
+    )
+
+    assert len(BUILD_OUTPUTS) == len(set(BUILD_OUTPUTS))
+    assert actual_outputs == set(BUILD_OUTPUTS)
 
 
 def test_is_placeholder_accepts_empty_and_version_only_entries() -> None:

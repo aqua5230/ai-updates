@@ -22,6 +22,19 @@ TOOLS = (
     ("usage", "Usage"),
     ("gh_cli", "GitHub CLI"),
 )
+# Single source of truth for build outputs; add new outputs only here.
+BUILD_OUTPUTS = (
+    "ai_updates.json",
+    "daily.json",
+    "docs/data.json",
+    "docs/index.html",
+    "docs/feed.xml",
+    "docs/sitemap.xml",
+    "docs/robots.txt",
+    "docs/llms.txt",
+    "docs/history",
+    "docs/v",
+)
 SITE_URL = "https://aqua5230.github.io/ai-updates/"
 LANGUAGES = ("zh-TW", "en", "zh-CN", "ja", "ko")
 PLACEHOLDER_PREFIXES = (
