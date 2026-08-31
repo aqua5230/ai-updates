@@ -16,7 +16,7 @@
 |---|---|---|
 | `claude_code` | Claude Code | `https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md` |
 | `codex` | Codex | GitHub releases API：`https://api.github.com/repos/openai/codex/releases` |
-| `agy` | Antigravity | 本機 `agy changelog`（純文字，格式：`版本號:` 開頭、每則 `· ` 開頭）。CI 上若找得到官方公開來源（網頁或 API）就用；找不到就做 `scripts/sync_agy.py`（本機跑 `agy changelog` 解析後落檔 commit），CI 只處理前兩個工具。 |
+| `agy` | Antigravity | 本機 `agy changelog`（純文字，格式：`版本號:` 開頭、每則 `· ` 開頭）。CI 上若找得到官方公開來源（網頁或 API）就用；找不到就做 `scripts/sync_agy.py`（本機跑 `agy changelog` 解析後落檔 commit），CI 的 daily job 現在五個工具全抓。 |
 | `usage` | Usage | `https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md` |
 | `gh_cli` | GitHub CLI | `https://api.github.com/repos/cli/cli/releases` |
 

@@ -2,7 +2,7 @@
 
 [English](README.md) | 繁體中文
 
-AI Updates 追蹤 Claude Code、Codex 與 Antigravity 的官方 changelog。它保存不可覆寫的官方原文紀錄，支援經人工審核的五語白話速報（zh-TW、zh-CN、en、ja、ko），並產出靜態網站與相容應用程式使用的資料 feed。
+AI Updates 追蹤 Claude Code、Codex、Antigravity、Usage 與 GitHub CLI 的官方 changelog。它保存不可覆寫的官方原文紀錄，支援經人工審核的五語白話速報（zh-TW、zh-CN、en、ja、ko），並產出靜態網站與相容應用程式使用的資料 feed。
 
 ## 網站
 
@@ -14,17 +14,19 @@ https://aqua5230.github.io/ai-updates/
 | --- | --- |
 | Claude Code | [Anthropic Claude Code changelog](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md) |
 | Codex | [OpenAI Codex releases](https://api.github.com/repos/openai/codex/releases) |
-| Antigravity | [Antigravity CLI changelog](https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md) |
+| Antigravity | [Antigravity CLI changelog](https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md)（公開來源不可用時退回本機 `scripts/sync_agy.py`） |
+| Usage | [Usage changelog](https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md) |
+| GitHub CLI | [GitHub CLI releases](https://api.github.com/repos/cli/cli/releases) |
 
 ## 運作方式
 
 `data/raw/` 保存每天匯入的官方 changelog 項目。紀錄以版本為單位寫入，永不覆寫。`data/curated/` 保存這些項目經人工審核後的五語白話版本。
 
-`scripts/build.py` 合併兩個資料層，產出三個檔案：
+`scripts/build.py` 合併兩個資料層，產出以下檔案：
 
 - `ai_updates.json`：供舊版應用程式使用的相容 feed；每個工具最多收錄三個最新的已審版本。
 - `daily.json`：每日 feed；每個工具最多收錄三個最新版本。有白話版本時使用白話內容，否則保留官方原文並標示 `curated: false`。
-- `docs/data.json`：供靜態網站使用的完整歷史，保留 raw 與 curated 紀錄。
+- `docs/data.json`：供靜態網站使用的版本索引；每個工具的完整 raw／curated 歷史放在 `docs/history/<tool_id>.json`，避免網頁首頁一次載入全部歷史。
 
 ## 儲存庫結構
 
@@ -34,7 +36,13 @@ data/
   curated/<tool_id>/<version>.json   # 人工審核的五語紀錄
 docs/
   index.html                         # GitHub Pages 網站
-  data.json                          # 產出的網站資料
+  data.json                          # 產出的網站版本索引
+  history/<tool_id>.json             # 產出的各工具完整歷史
+  v/                                 # 產出的每版靜態頁
+  feed.xml                           # 產出的 RSS feed
+  sitemap.xml                        # 產出的網站地圖
+  robots.txt                         # 產出的 robots.txt
+  llms.txt                           # 產出的 LLM 說明檔
 scripts/
   fetch.py                           # 抓取官方 changelog
   build.py                           # 建立產出 feed
@@ -54,8 +62,11 @@ tests/                               # 測試套件
 ```bash
 python3 scripts/fetch.py
 python3 scripts/build.py
-pytest
+uv run ruff check scripts tests
+uv run pytest -q
 ```
+
+注意：執行 `pytest` 前必須先執行 `git add -A`，因為 `tests/test_schema.py` 的黃金輸出驗證跑完後會對 build 產物執行 `git checkout` 與 `git clean`，未提交的改動會被無聲清掉。
 
 若 Antigravity 公開來源無法使用，可改由已安裝的 CLI 匯入 changelog 輸出：
 

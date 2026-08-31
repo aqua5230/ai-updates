@@ -2,7 +2,7 @@
 
 English | [繁體中文](README.zh-TW.md)
 
-AI Updates tracks the official changelogs for Claude Code, Codex, and Antigravity. It preserves immutable source records, supports human-reviewed plain-language updates in five languages (zh-TW, zh-CN, en, ja, and ko), and publishes feeds for a static website and compatible applications.
+AI Updates tracks the official changelogs for Claude Code, Codex, Antigravity, Usage, and GitHub CLI. It preserves immutable source records, supports human-reviewed plain-language updates in five languages (zh-TW, zh-CN, en, ja, and ko), and publishes feeds for a static website and compatible applications.
 
 ## Website
 
@@ -14,17 +14,19 @@ https://aqua5230.github.io/ai-updates/
 | --- | --- |
 | Claude Code | [Anthropic Claude Code changelog](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md) |
 | Codex | [OpenAI Codex releases](https://api.github.com/repos/openai/codex/releases) |
-| Antigravity | [Antigravity CLI changelog](https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md) |
+| Antigravity | [Antigravity CLI changelog](https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md) (falls back to local `scripts/sync_agy.py` if public source is unavailable) |
+| Usage | [Usage changelog](https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md) |
+| GitHub CLI | [GitHub CLI releases](https://api.github.com/repos/cli/cli/releases) |
 
 ## How It Works
 
 `data/raw/` stores daily imports of official changelog entries. Records are written per version and are never overwritten. `data/curated/` holds human-reviewed, plain-language versions of those entries in five languages.
 
-`scripts/build.py` combines both layers into three generated artifacts:
+`scripts/build.py` combines both layers into generated artifacts:
 
 - `ai_updates.json`: compatibility feed for the legacy application, containing up to three latest curated versions per tool.
 - `daily.json`: daily feed containing up to three latest versions per tool; it uses curated content when available and otherwise retains the official source text with `curated: false`.
-- `docs/data.json`: complete history for the static website, retaining both raw and curated records.
+- `docs/data.json`: version index for the static website; complete raw and curated history for each tool is stored in `docs/history/<tool_id>.json` so the homepage does not need to load the full history at once.
 
 ## Repository Layout
 
@@ -34,7 +36,13 @@ data/
   curated/<tool_id>/<version>.json   # Human-reviewed five-language records
 docs/
   index.html                         # GitHub Pages site
-  data.json                          # Generated website data
+  data.json                          # Generated website version index
+  history/<tool_id>.json             # Generated full history per tool
+  v/                                 # Generated per-version static pages
+  feed.xml                           # Generated RSS feed
+  sitemap.xml                        # Generated sitemap
+  robots.txt                         # Generated robots.txt
+  llms.txt                           # Generated LLM reference file
 scripts/
   fetch.py                           # Fetch official changelogs
   build.py                           # Build generated feeds
@@ -54,8 +62,11 @@ Requires Python 3.13. The repository's runtime scripts use only the Python stand
 ```bash
 python3 scripts/fetch.py
 python3 scripts/build.py
-pytest
+uv run ruff check scripts tests
+uv run pytest -q
 ```
+
+Note: Run `git add -A` before running `pytest`. Golden output verification in `tests/test_schema.py` performs `git checkout` and `git clean` on build artifacts after completion, which will silently discard uncommitted changes.
 
 If the public Antigravity source is unavailable, import changelog output from an installed CLI instead:
 
