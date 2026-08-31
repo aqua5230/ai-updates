@@ -30,6 +30,18 @@ PLACEHOLDER_PREFIXES = (
     "published a version-only release",
 )
 
+# 規格定案前的已知債：這些版本的 curated original 與 raw entries 對不齊，
+# 或 period 與 raw 不一致。本次不回頭改資料，只保證新增／修改的資料乾淨。
+# 全量 dry-run（2026-08-31）：319 檔中 292 檔通過，以下 27 檔豁免。
+LEGACY_COVERAGE_EXEMPT = frozenset({
+    "agy/1.0.14", "agy/1.0.16", "agy/1.1.1",
+    "claude_code/2.1.197", "claude_code/2.1.202", "claude_code/2.1.206", "claude_code/2.1.207",
+    "codex/0.140.0", "codex/0.141.0", "codex/0.142.0", "codex/0.142.2", "codex/0.142.3",
+    "codex/0.142.4", "codex/0.143.0-alpha.38", "codex/0.143.0", "codex/0.144.0", "codex/0.144.1",
+    "usage/0.4.0", "usage/0.5.0", "usage/0.6.1", "usage/0.6.3", "usage/0.11.0",
+    "usage/0.11.16", "usage/0.15.7", "usage/0.16.0", "usage/0.26.0", "usage/0.28.1",
+})
+
 
 def _load_versions(layer: str, tool_id: str) -> dict[str, dict[str, Any]]:
     directory = DATA / layer / tool_id
@@ -116,6 +128,78 @@ def _period_end_date(period: str) -> str:
         return start.isoformat()
     end = date(int(match.group(2) or start.year), int(match.group(3)), int(match.group(4)))
     return end.isoformat()
+
+
+def _validate_curated_coverage(
+    tool_id: str,
+    raw_versions: dict[str, dict[str, Any]],
+    curated_versions: dict[str, dict[str, Any]],
+) -> None:
+    for version, curated in curated_versions.items():
+        raw = raw_versions.get(version)
+        if raw is None or f"{tool_id}/{version}" in LEGACY_COVERAGE_EXEMPT:
+            continue
+        # A placeholder release has nothing worth rewriting, so an empty curated
+        # items list legitimately leaves its raw entry uncovered.
+        if is_placeholder(raw, version):
+            continue
+
+        curated_path = DATA / "curated" / tool_id / f"{version}.json"
+        if curated["period"] != raw["period"]:
+            raise ValueError(
+                f"{curated_path}: period {curated['period']!r} does not match "
+                f"raw period {raw['period']!r}"
+            )
+
+        raw_lines = {entry.strip() for entry in raw["entries"] if entry.strip()}
+        original_lines = {
+            line.strip()
+            for item in curated["items"]
+            for line in item["original"].splitlines()
+            if line.strip()
+        }
+        missing_lines = raw_lines - original_lines
+        if missing_lines:
+            raise ValueError(
+                f"{curated_path}: raw entries not covered by original: "
+                f"{sorted(missing_lines)!r}"
+            )
+        extra_lines = original_lines - raw_lines
+        if extra_lines:
+            raise ValueError(
+                f"{curated_path}: original contains lines absent from raw entries: "
+                f"{sorted(extra_lines)!r}"
+            )
+
+
+def _validate_version_metadata(
+    layer: str, tool_id: str, versions: dict[str, dict[str, Any]]
+) -> None:
+    for version, record in versions.items():
+        path = DATA / layer / tool_id / f"{version}.json"
+        try:
+            _version_key(version)
+        except ValueError as error:
+            raise ValueError(f"{path}: invalid version {version!r}") from error
+        try:
+            _period_end_date(record["period"])
+        except ValueError as error:
+            raise ValueError(f"{path}: invalid period {record['period']!r}") from error
+
+
+def _load_and_validate_data() -> dict[
+    str, tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]
+]:
+    loaded = {}
+    for tool_id, _ in TOOLS:
+        raw = _load_versions("raw", tool_id)
+        curated = _load_versions("curated", tool_id)
+        _validate_version_metadata("raw", tool_id, raw)
+        _validate_version_metadata("curated", tool_id, curated)
+        _validate_curated_coverage(tool_id, raw, curated)
+        loaded[tool_id] = (raw, curated)
+    _validate_static_summary_marker()
+    return loaded
 
 
 def is_placeholder(raw: dict[str, Any], version: str) -> bool:
@@ -448,10 +532,9 @@ def build() -> None:
     history_tools: list[dict[str, Any]] = []
     site_tools: list[dict[str, Any]] = []
     daily_tools: list[dict[str, Any]] = []
-    _validate_static_summary_marker()
+    loaded = _load_and_validate_data()
     for tool_id, name in TOOLS:
-        raw = _load_versions("raw", tool_id)
-        curated = _load_versions("curated", tool_id)
+        raw, curated = loaded[tool_id]
         curated_latest = sorted(curated, key=_version_key, reverse=True)[:3]
         app_tools.append(
             {"id": tool_id, "name": name, "versions": [curated[v] for v in curated_latest]}

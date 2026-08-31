@@ -51,6 +51,19 @@ def _configure_build(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[P
     return raw_dir, curated_dir
 
 
+def _write_pair(
+    raw_dir: Path,
+    curated_dir: Path,
+    raw: dict[str, Any],
+    curated: dict[str, Any],
+) -> None:
+    version = raw["version"]
+    (raw_dir / f"{version}.json").write_text(json.dumps(raw), encoding="utf-8")
+    (curated_dir / f"{version}.json").write_text(
+        json.dumps(curated), encoding="utf-8"
+    )
+
+
 def test_version_key_orders_stable_and_prereleases() -> None:
     versions = [
         "0.143.0-alpha.38",
@@ -75,6 +88,104 @@ def test_version_key_orders_stable_and_prereleases() -> None:
         "0.143.0-alpha.3.1",
         "0.28.21",
     ]
+
+
+def test_coverage_rejects_raw_entry_missing_from_original(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    raw_dir, curated_dir = _configure_build(tmp_path, monkeypatch)
+    raw = _raw("1.0.0")
+    raw["entries"] = ["Official entry", "Missing entry"]
+    _write_pair(raw_dir, curated_dir, raw, _curated("1.0.0"))
+
+    with pytest.raises(ValueError, match="raw entries not covered by original.*Missing entry"):
+        build_script._load_and_validate_data()
+
+
+def test_coverage_rejects_original_line_absent_from_raw(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    raw_dir, curated_dir = _configure_build(tmp_path, monkeypatch)
+    curated = _curated("1.0.0")
+    curated["items"][0]["original"] = "Official entry\nInvented entry"
+    _write_pair(raw_dir, curated_dir, _raw("1.0.0"), curated)
+
+    with pytest.raises(
+        ValueError, match="original contains lines absent from raw entries.*Invented entry"
+    ):
+        build_script._load_and_validate_data()
+
+
+def test_coverage_accepts_multiline_original_matching_raw_entries(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    raw_dir, curated_dir = _configure_build(tmp_path, monkeypatch)
+    raw = _raw("1.0.0")
+    raw["entries"] = ["First entry", "Second entry"]
+    curated = _curated("1.0.0")
+    curated["items"][0]["original"] = "  First entry  \n\nSecond entry"
+    _write_pair(raw_dir, curated_dir, raw, curated)
+
+    build_script._load_and_validate_data()
+
+
+def test_coverage_rejects_period_mismatch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    raw_dir, curated_dir = _configure_build(tmp_path, monkeypatch)
+    _write_pair(
+        raw_dir,
+        curated_dir,
+        _raw("1.0.0", "2026-07-08"),
+        _curated("1.0.0", "2026-07-09"),
+    )
+
+    with pytest.raises(ValueError, match="period.*does not match raw period"):
+        build_script._load_and_validate_data()
+
+
+def test_coverage_skips_legacy_exempt_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    raw_dir, curated_dir = _configure_build(tmp_path, monkeypatch)
+    monkeypatch.setattr(build_script, "TOOLS", (("agy", "Antigravity"),))
+    raw = _raw("1.0.14", "2026-07-08")
+    raw["entries"] = ["Raw only"]
+    curated = _curated("1.0.14", "2026-07-09")
+    curated["items"][0]["original"] = "Curated only"
+    _write_pair(raw_dir, curated_dir, raw, curated)
+
+    build_script._load_and_validate_data()
+
+
+def test_build_rejects_invalid_period_without_changing_outputs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    raw_dir, curated_dir = _configure_build(tmp_path, monkeypatch)
+    _write_pair(
+        raw_dir,
+        curated_dir,
+        _raw("1.0.0"),
+        _curated("1.0.0", "bad"),
+    )
+    output_paths = [
+        tmp_path / "ai_updates.json",
+        tmp_path / "daily.json",
+        tmp_path / "docs" / "data.json",
+    ]
+    for index, path in enumerate(output_paths):
+        path.write_text(f"sentinel {index}\n", encoding="utf-8")
+    before = {
+        path: (path.read_bytes(), path.stat().st_mtime_ns) for path in output_paths
+    }
+
+    with pytest.raises(ValueError, match=r"curated/codex/1\.0\.0\.json: invalid period 'bad'"):
+        build_script.build()
+
+    after = {
+        path: (path.read_bytes(), path.stat().st_mtime_ns) for path in output_paths
+    }
+    assert after == before
 
 
 def test_build_rejects_missing_curated_language_before_writing(
