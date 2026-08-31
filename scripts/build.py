@@ -30,16 +30,18 @@ PLACEHOLDER_PREFIXES = (
     "published a version-only release",
 )
 
-# 規格定案前的已知債：這些版本的 curated original 與 raw entries 對不齊，
-# 或 period 與 raw 不一致。本次不回頭改資料，只保證新增／修改的資料乾淨。
-# 全量 dry-run（2026-08-31）：319 檔中 292 檔通過，以下 27 檔豁免。
+# Curated records that predate the spec: their originals do not line up with the
+# raw entries, or their period disagrees with the raw record. The data is left as
+# it is; the check exists to keep new and edited records honest. A full dry-run
+# (2026-08-31) cleared 297 of the 319 curated files, leaving these 22. A version
+# that starts failing does not belong here — fix the data instead.
 LEGACY_COVERAGE_EXEMPT = frozenset({
     "agy/1.0.14", "agy/1.0.16", "agy/1.1.1",
     "claude_code/2.1.197", "claude_code/2.1.202", "claude_code/2.1.206", "claude_code/2.1.207",
     "codex/0.140.0", "codex/0.141.0", "codex/0.142.0", "codex/0.142.2", "codex/0.142.3",
-    "codex/0.142.4", "codex/0.143.0-alpha.38", "codex/0.143.0", "codex/0.144.0", "codex/0.144.1",
-    "usage/0.4.0", "usage/0.5.0", "usage/0.6.1", "usage/0.6.3", "usage/0.11.0",
-    "usage/0.11.16", "usage/0.15.7", "usage/0.16.0", "usage/0.26.0", "usage/0.28.1",
+    "codex/0.143.0", "codex/0.144.0", "codex/0.144.1",
+    "usage/0.5.0", "usage/0.6.1", "usage/0.6.3",
+    "usage/0.11.16", "usage/0.15.7", "usage/0.16.0", "usage/0.28.1",
 })
 
 
@@ -151,7 +153,14 @@ def _validate_curated_coverage(
                 f"raw period {raw['period']!r}"
             )
 
-        raw_lines = {entry.strip() for entry in raw["entries"] if entry.strip()}
+        # Split both sides by line: a release body with no bullets falls back to
+        # one multi-line entry, which no single original line could ever equal.
+        raw_lines = {
+            line.strip()
+            for entry in raw["entries"]
+            for line in entry.splitlines()
+            if line.strip()
+        }
         original_lines = {
             line.strip()
             for item in curated["items"]
