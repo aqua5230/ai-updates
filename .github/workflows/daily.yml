@@ -19,6 +19,13 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+    # The usage compatibility feed has two writers: the sync step below and
+    # sync-usage.yml. A local curation push matches both workflows' path
+    # filters, so without this they race on the same aqua5230/usage HEAD and
+    # the loser fails on non-fast-forward, or wins with a stale checkout.
+    concurrency:
+      group: usage-sync
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
