@@ -293,7 +293,7 @@ def _description(version: dict[str, Any], language: str = "zh-TW") -> str:
     items = _curated_items(version)
     if items:
         first = items[0]
-        body = _strip_analogy_marks(_localized(first.get("body"), language))
+        body = _strip_prose_only(_strip_analogy_marks(_localized(first.get("body"), language)))
         return f"{_localized(first.get('title'), language)} {body}"[:150]
     raw = version.get("raw")
     entries = raw.get("entries", []) if isinstance(raw, dict) else []
@@ -338,6 +338,17 @@ ANALOGY_MARKS = str.maketrans("", "", "⟦⟧")
 def _strip_analogy_marks(text: str) -> str:
     """⟦⟧ 是給主站前端抓比喻用的機器標記，不是內文。靜態頁與 RSS 沒有比喻框，照散文顯示但要脫記號。"""
     return text.translate(ANALOGY_MARKS)
+
+
+def _strip_prose_only(text: str) -> str:
+    """meta description 與 RSS 摘要要單行散文：拿掉三反引號程式碼框，換行壓成空白。
+
+    設定型與指令型卡片會用程式碼框放可照抄的 JSON 或指令，前 150 字截斷剛好切在框裡時，
+    分享預覽與搜尋結果會出現一段裸的三反引號（2026-09-03 發現，當時 claude_code/2.1.216
+    與 gh_cli/2.99.0 都已中招）。頁面內文照原樣渲染程式碼框，只有摘要需要剝掉。
+    """
+    without_fences = re.sub(r"```.*?```", " ", text, flags=re.DOTALL)
+    return re.sub(r"\s+", " ", without_fences).strip()
 
 
 def _render_inline_code(text: str) -> str:
