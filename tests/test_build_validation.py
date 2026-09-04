@@ -8,7 +8,7 @@ import pytest
 
 from scripts import build as build_script
 
-LANGUAGES = ("zh-TW", "zh-CN", "en", "ja", "ko")
+LANGUAGES = ("zh-TW", "en")
 
 
 def _raw(version: str, period: str = "2026-07-08") -> dict[str, Any]:
@@ -194,10 +194,10 @@ def test_build_rejects_missing_curated_language_before_writing(
     raw_dir, curated_dir = _configure_build(tmp_path, monkeypatch)
     (raw_dir / "1.0.0.json").write_text(json.dumps(_raw("1.0.0")), encoding="utf-8")
     curated = _curated("1.0.0")
-    del curated["items"][0]["body"]["ko"]
+    del curated["items"][0]["body"]["en"]
     (curated_dir / "1.0.0.json").write_text(json.dumps(curated), encoding="utf-8")
 
-    with pytest.raises(ValueError, match=r"1\.0\.0\.json.*body\.ko"):
+    with pytest.raises(ValueError, match=r"1\.0\.0\.json.*body\.en"):
         build_script.build()
 
     assert not (tmp_path / "ai_updates.json").exists()

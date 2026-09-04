@@ -36,7 +36,7 @@ BUILD_OUTPUTS = (
     "docs/v",
 )
 SITE_URL = "https://aqua5230.github.io/ai-updates/"
-LANGUAGES = ("zh-TW", "en", "zh-CN", "ja", "ko")
+LANGUAGES = ("zh-TW", "en")
 PLACEHOLDER_PREFIXES = (
     "bug fixes and reliability improvements",
     "no user-facing changes",

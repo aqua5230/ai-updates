@@ -8,7 +8,7 @@ import pytest
 
 from scripts import build as build_script
 
-LANGUAGES = ("zh-TW", "zh-CN", "en", "ja", "ko")
+LANGUAGES = ("zh-TW", "en")
 
 
 def _raw(version: str, entries: list[str]) -> dict[str, Any]:
