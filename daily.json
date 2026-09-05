@@ -10,413 +10,333 @@
           "period": "2026-09-04",
           "items": [
             {
-              "original": "Added an \"Organization policy\" line to `/status` and `claude doctor` that says why your organization's policy could not be loaded, such as a proxy not passing the endpoint through"
-            },
-            {
-              "original": "Added `bashOutputMaxChars` and `taskOutputMaxChars` settings to raise how much command and background-task output Claude receives inline before it is saved to a file, up to 128K characters"
-            },
-            {
-              "original": "Added `--append-subagent-system-prompt-file` to read the subagent system prompt from a file, for prompts too large to pass on the command line"
-            },
-            {
+              "title": {
+                "zh-TW": "技能診斷指令上線，揪出閒置技能與脈絡佔用",
+                "en": "Skill diagnostic command introduced to spot unused skills and context consumption"
+              },
+              "body": {
+                "zh-TW": "⟦整理工具包就像教練定期盤點健身房器材，長期沒人碰又佔走走道的啞鈴就該清出場地。⟧ 當你為 Claude 掛載了五花八門的技能，對話脈絡（context）的容量很快就會吃緊。現在只要輸入 `/skill-doctor`，畫面就會列出目前載入的所有技能中，哪些從頭到尾都沒被呼叫過，以及它們個別佔用了多少 token（AI 處理與計費的文字單位）。當你發現某些擴充根本沒派上用場卻平白吃掉容量，就能依照診斷結果把它們卸載，替重要的對話釋出更多空間。",
+                "en": "⟦Organizing your toolkit is like a coach taking inventory of gym equipment: dumbbells that remain untouched for a long time and block the aisles should be cleared off the floor.⟧ When you load various skills into Claude, conversation context capacity can quickly become strained. Simply typing `/skill-doctor` now displays which of all currently loaded skills have never been invoked, as well as how many tokens each consumes. Once you discover extensions sitting unused while eating up capacity, you can prune them based on the diagnostic results to free up room for important conversations."
+              },
               "original": "Added `/skill-doctor` to show which loaded skills go unused and what they cost in context, so you can prune them"
             },
             {
-              "original": "Fixed typed or pasted characters occasionally landing out of order or being dropped during fast input or key repeat"
+              "title": {
+                "zh-TW": "指令輸出上限拉高至 128K，支援由檔案讀取子代理提示詞",
+                "en": "Command output limit raised to 128K, supporting subagent prompt loading from files"
+              },
+              "body": {
+                "zh-TW": "跑大型建置或查詢長篇日誌時，終端機輸出常因超過預設長度而被截斷存成外置檔案。現在你在設定檔中加入 `bashOutputMaxChars` 或 `taskOutputMaxChars`，就能把終端機指令與背景任務直接回傳給 Claude 的內嵌字數上限拉高，最高支援到 128K 字元：\n```json\n{\n  \"bashOutputMaxChars\": 131072,\n  \"taskOutputMaxChars\": 131072\n}\n```\n此外，當你要指派給子代理的系統提示詞（system prompt）過於龐大、無法塞進單行指令列時，也可以改用 `--append-subagent-system-prompt-file <路徑>` 直接從檔案載入。⟦這有如把貨運小貨車升級成大型貨櫃車，長篇清單不用再拆箱分裝成小紙條，整批資料都能直接載進車廂。⟧",
+                "en": "When running large builds or querying lengthy logs, terminal output is often truncated and saved to an external file because it exceeds the default length. Now, by adding `bashOutputMaxChars` or `taskOutputMaxChars` to your configuration file, you can raise the inline character limit for terminal commands and background tasks returned directly to Claude, supporting up to 128K characters:\n```json\n{\n  \"bashOutputMaxChars\": 131072,\n  \"taskOutputMaxChars\": 131072\n}\n```\nAdditionally, when a system prompt assigned to a subagent is too large to fit on a single command line, you can use `--append-subagent-system-prompt-file <path>` to load it directly from a file. ⟦This is like upgrading from a delivery van to a large freight container truck: instead of unboxing a long manifest into small paper slips, the entire shipment can be loaded directly into the cargo hold.⟧"
+              },
+              "original": "Added `bashOutputMaxChars` and `taskOutputMaxChars` settings to raise how much command and background-task output Claude receives inline before it is saved to a file, up to 128K characters\nAdded `--append-subagent-system-prompt-file` to read the subagent system prompt from a file, for prompts too large to pass on the command line"
             },
             {
-              "original": "Fixed `/add-dir <subdirectory>` printing a false \"couldn't be resolved\" error when the working directory is on a `/net` automount"
+              "title": {
+                "zh-TW": "終端機輸入手感翻修，對齊 Bash 快捷鍵與修復漏字",
+                "en": "Terminal input experience revamped, aligning with Bash shortcuts and fixing dropped characters"
+              },
+              "body": {
+                "zh-TW": "終端機裡的文字輸入與編輯體驗迎來了一批修復。當你快速連打、長按按鍵重複輸入或是整段貼上文字時，字元不再會偶發性掉字或前後順序顛倒；而在輸入框內嵌的 `[Image #N]` 圖片標籤前，緊鄰的前一個字元現在也能順利按退格鍵刪除。同時，輸入列的單字跳轉與刪除快捷鍵全面對齊 Bash 行為：按 Ctrl+W 會往回刪除到前一個空格，Alt+F 與 Alt+D 會精準停在單字結尾，標點符號也會被視為單字分界，而舊有的 `keybindingFlavor` 設定則不再產生作用。⟦這就像換上一支書寫順暢的鋼珠筆，不管寫得多快都不會斷水卡墨，修改詞句時的橡皮擦也能精準擦到邊界。⟧",
+                "en": "The text input and editing experience in the terminal has received a batch of fixes. Characters no longer occasionally drop or swap order when typing rapidly, holding down a key to repeat input, or pasting text blocks. The character immediately preceding an inline `[Image #N]` image chip in the input box can now also be smoothly removed using the Backspace key. Meanwhile, word navigation and deletion shortcuts in the prompt input fully align with Bash behavior: pressing Ctrl+W deletes backward to the previous whitespace, Alt+F and Alt+D stop precisely at word endings, punctuation is treated as a word boundary, and the legacy `keybindingFlavor` setting no longer has any effect. ⟦This is like switching to a smooth-writing rollerball pen that never skips or blobs no matter how fast you write, while an eraser cleanly wipes up to the boundary when modifying words.⟧"
+              },
+              "original": "Fixed typed or pasted characters occasionally landing out of order or being dropped during fast input or key repeat\nFixed being unable to delete the character immediately before an inline `[Image #N]` chip in the prompt input\nChanged the prompt's word-editing keys to match Bash: Ctrl+W deletes back to whitespace, Alt+F and Alt+D stop at word end, punctuation separates words; `keybindingFlavor` no longer has any effect"
             },
             {
-              "original": "Fixed the Bedrock setup wizard hanging when AWS or an AWS credential helper never responds (it now times out with a clear error), and its model checks failing behind a TLS-inspecting proxy"
+              "title": {
+                "zh-TW": "收緊危險刪檔防護，自動模式禁止未授權圖表上傳",
+                "en": "Dangerous file deletion safeguards tightened, auto mode blocks unauthorized diagram uploads"
+              },
+              "body": {
+                "zh-TW": "⟦把整份講義印在公開影印店的取件網址上，店員會當成講義已經送出店外；碎紙單就算寫在引號裡或用代號，也一樣要再確認才准動手。⟧ 針對高風險的刪除指令，危險 `rm` 安全提示現在擴大攔截範圍，即使 `rm -rf` 寫在雙引號包覆的 `sh -c` 腳本內，或是帶有位置參數（positional parameters，如指令後方代入的變數代號），都會確實跳出確認提示。若連結把內容打包進公開圖表繪製網站的 URL，自動模式會視為上傳到該站，除非你主動要求，否則不再自動放行。",
+                "en": "⟦Printing an entire handout onto the pickup URL of a public copy shop makes the clerk treat the handout as already sent outside; shredding orders must also be re-confirmed before executing, even if written inside quotes or using aliases.⟧ For high-risk deletion commands, the dangerous-`rm` safety prompt has expanded its interception scope: a confirmation prompt now reliably pops up even if `rm -rf` is inside a double-quoted `sh -c` script or involves positional parameters. If a link packages content into the URL of a public diagram rendering site, auto mode treats it as an upload to that site and will no longer auto-approve it unless you explicitly requested it."
+              },
+              "original": "Improved the dangerous-`rm` safety prompt to also catch `rm -rf` on positional parameters and inside double-quoted `sh -c` scripts\nChanged auto mode to treat a link that packs content into a public diagram renderer's URL as an upload to that site: no longer auto-approved unless you asked for it"
             },
             {
-              "original": "Fixed cloud sessions discarding a plugin synced from claude.ai when managed settings force-enable it in `enabledPlugins`, then falling back to a marketplace clone that could fail"
+              "title": {
+                "zh-TW": "遠端操控同步修復，狀態顯示與離線佇列精準更新",
+                "en": "Remote Control sync fixes: accurate status displays and offline queue updates"
+              },
+              "body": {
+                "zh-TW": "透過手機或瀏覽器使用遠端操控（Remote Control）時，多項跨裝置狀態同步問題已全面修正。現在終端機切換權限模式，或是行動端連入終端機工作階段時，不會再顯示過期的權限狀態；從手機停止運作或執行 `/clear` 指令後，按鈕與旋轉載入圖示會即時歸位，不再卡在忙碌中。使用 `/teleport` 拉取的工作階段不會再重複附加到雲端對話紀錄，自訂的精力等級（effort level）也能正確呈現在網頁上。在 Windows 企業代理伺服器環境下的事件串流已修復，若向另一台離線機器的工作階段發送 `SendMessage`，系統也會明確告知訊息已進入佇列等候重連。⟦這有如拿著對講機指揮總部作業，雙方的狀態訊號隨時同步，發給離線人員的留言也會妥善留在收件箱中等待簽收。⟧",
+                "en": "When using Remote Control from a phone or browser, multiple cross-device status synchronization issues have been thoroughly resolved. Switching permission modes in the terminal or attaching to a terminal session from a mobile device no longer displays a stale permission status. After stopping a run or executing a `/clear` command from a phone, buttons and loading spinners now reset immediately instead of remaining stuck in a busy state. Sessions pulled via `/teleport` are no longer redundantly appended to cloud conversation history, and custom effort levels now reflect correctly on the web. Event streaming under Windows enterprise proxy environments has been fixed, and sending `SendMessage` to a session on an offline machine now clearly informs you that the message is queued awaiting reconnection. ⟦This is like directing headquarters operations via walkie-talkie: status signals remain synchronized on both ends, while messages sent to offline personnel stay safely in their inbox waiting for acknowledgement.⟧"
+              },
+              "original": "Fixed Remote Control showing a stale permission mode when a phone, browser, or claude.ai app attaches to a terminal session or after the mode changes in the terminal\nFixed Remote Control sessions showing as still working (stuck spinner and Stop button) after stopping a turn from a connected phone or browser, or after a local slash command like `/clear`\nFixed Remote Control uploading a session pulled with `/teleport` into the connected session, which appeared appended to the original on phone and web\nFixed Remote Control's inbound event stream failing behind TLS-inspecting corporate proxies on native Windows\nFixed Remote Control sessions showing the default effort level on claude.ai when the effort comes from settings\nFixed `SendMessage` to an offline Remote Control session on another machine reading as delivered; the result now says delivery is queued until that machine reconnects"
             },
             {
-              "original": "Fixed being unable to delete the character immediately before an inline `[Image #N]` chip in the prompt input"
+              "title": {
+                "zh-TW": "企業閘道管理強化，組織政策診斷與登入規範更清楚",
+                "en": "Enterprise gateway management enhanced with clearer organization policy diagnostics and login rules"
+              },
+              "body": {
+                "zh-TW": "⟦門牌後黏了樓層號要拆出真門號；門牌讀不出來就拒收，紙本與電子改同一套格式。⟧ `/status` 與 `claude doctor` 新增組織政策行，代理攔阻政策載入失敗會標原因。受信任代理在 `X-Forwarded-For` 附加通訊埠時，閘道會修正客戶端 IP；有 access list 時無法判讀的項目回 403。閘道曾叫 Desktop 用 JSON 匯出 OpenTelemetry，CLI 用 protobuf 時只收 protobuf 的收集器會拒收 Desktop 資料，已對齊。載入受管設定遭拒時改說該組織可能未啟用服務，而非叫你重登入。`forceLoginMethod: \"gateway\"` 鎖定時忽略殘留 API key 或 claude.ai 登入並要求 `/login`；Bedrock、Vertex AI 與 Foundry 工作階段不受影響。",
+                "en": "⟦When a floor number is attached behind a house number, the true address must be parsed out; if the address is unreadable, it is rejected, while paper and electronic formats are unified into the same standard.⟧ `/status` and `claude doctor` add an Organization policy line that marks the reason when proxy blocking causes policy loading to fail. When a trusted proxy appends a port to `X-Forwarded-For`, the gateway corrects the client IP, and unreadable entries return 403 when an access list is configured. The gateway previously told Desktop to export OpenTelemetry as JSON while the CLI used protobuf, causing protobuf-only collectors to reject Desktop data; these have now been aligned. When loading managed settings is denied, the message now states that the organization may not have enabled the service instead of advising a re-login. When locked by `forceLoginMethod: \"gateway\"`, leftover API keys or claude.ai logins are ignored to require `/login`, while Bedrock, Vertex AI, and Foundry sessions remain unaffected."
+              },
+              "original": "Added an \"Organization policy\" line to `/status` and `claude doctor` that says why your organization's policy could not be loaded, such as a proxy not passing the endpoint through\nFixed Claude apps gateway client IP when a trusted proxy appends a port to `X-Forwarded-For`; with an access list set, an unreadable entry now gets 403\nFixed Claude apps gateway telling Claude Desktop to export OpenTelemetry as JSON even when the terminal CLI uses protobuf, so protobuf-only collectors rejected Desktop's data\nChanged a Claude apps gateway 403 on the managed settings load (at startup or after `/login`) to say Claude Code may not be enabled for the organization, instead of advising a new sign-in\nChanged machines whose managed settings pin `forceLoginMethod: \"gateway\"` to ignore a leftover API key or claude.ai login and ask for `/login`; Bedrock, Vertex AI, and Foundry sessions are unaffected"
             },
             {
-              "original": "Fixed resuming a session losing hook output and other context around parallel tool calls, which changed the resumed request"
+              "title": {
+                "zh-TW": "雲端驗證流程加速，清楚顯示模型名稱且連線不卡死",
+                "en": "Cloud authentication accelerated, clearly displaying model names and preventing connection hangs"
+              },
+              "body": {
+                "zh-TW": "設定 Bedrock 時，若 AWS 憑證（credential，證明你是合法使用者的金鑰）輔助程式無回應，引導精靈不會再無限期卡住，而是會在逾時後印出明確錯誤，並修正了在安全檢驗代理伺服器後的檢查失敗。`gcpAuthRefresh` 在憑證仍有效、只是檢查稍慢時，不會再於啟動時打開瀏覽器；設定 `GOOGLE_APPLICATION_CREDENTIALS` 也不會再反覆搜尋專案或啟動額外行程。啟動時抓 claude.ai 連接器若逾時，整個工作階段都會看不見它們，CLI 改在背景重試。`/model` 選單與 VS Code 模型膠囊在辨識得出時，會顯示名稱而非 Bedrock、Vertex AI 或 LLM gateway 的原始 ID。⟦這好比拿著跨國貴賓卡登機，櫃台能直接辨識你的身分並快速放行，遇到連線延遲也會在後台自動補驗，不必每次都把你叫去重辦手續。⟧",
+                "en": "During Bedrock setup, if an AWS credential helper fails to respond, the setup wizard no longer hangs indefinitely but prints a clear error upon timeout, while also fixing check failures behind TLS-inspecting proxies. `gcpAuthRefresh` no longer opens a browser at startup when Google credentials are still valid but checks are slightly slow, and configuring `GOOGLE_APPLICATION_CREDENTIALS` avoids repeatedly searching for projects or spawning extra processes. When fetching claude.ai connectors at startup times out, which previously made them invisible for the entire session, the CLI now retries in the background. The `/model` picker and VS Code model pill now display recognizable model names instead of raw Bedrock, Vertex AI, or LLM gateway IDs when identified. ⟦This is like boarding with an international VIP card: the counter immediately recognizes your identity for quick clearance, while background verification runs automatically during connection delays instead of repeatedly calling you over to reapply.⟧"
+              },
+              "original": "Fixed the Bedrock setup wizard hanging when AWS or an AWS credential helper never responds (it now times out with a clear error), and its model checks failing behind a TLS-inspecting proxy\nFixed `gcpAuthRefresh` opening a browser at startup when the Google credential check was slow, even though the credential was still valid\nFixed claude.ai connectors staying absent for the whole session when the startup connector fetch timed out — the CLI now retries in the background\nImproved the `/model` picker and the VS Code model pill to show a model's name instead of its raw Bedrock, Vertex AI, or LLM gateway ID when Claude Code recognizes it\nImproved startup on Google Vertex AI when `GOOGLE_APPLICATION_CREDENTIALS` is set: API client creation no longer re-runs Google Cloud project discovery or spawns extra `gcloud` processes"
             },
             {
-              "original": "Fixed Remote Control showing a stale permission mode when a phone, browser, or claude.ai app attaches to a terminal session or after the mode changes in the terminal"
+              "title": {
+                "zh-TW": "工作階段恢復不掉訊，多代理協作快取與外掛同步修復",
+                "en": "Session resume preserves context, fixing multi-agent collaboration cache and plugin syncing"
+              },
+              "body": {
+                "zh-TW": "中斷後重新接續工作階段時，系統現在能更忠實還原當時的上下文。以前恢復工作階段時，平行工具呼叫旁的掛鉤（hook，特定事件發生時被觸發的小程式）輸出常會遺失，現在已能完整保留；使用 `claude -p --resume` 若遇到紀錄檔內的工作階段識別碼損壞，也會自動配發新識別碼安全重啟。在多代理協作中，隊友代理在第二輪不會再重複廣播初始技能，確保前綴完整並命中快取（cache，把查過的結果暫存起來直接用）；背景代理若無法喚醒，也不會再陷入迴圈空轉消耗 CPU。此外，剛送出提示詞立刻按下停止現在能確實中斷執行，雲端工作階段強制啟用已同步的外掛時，也不會再錯誤降級至市集備援版本。⟦這就像接力賽交棒，跑者換人時能精準接過寫滿備忘的交接棒，不用重新宣告身分，遇到突發狀況也能立刻煞車。⟧",
+                "en": "When resuming an interrupted session, the system now more faithfully restores the context from that point. Previously, hook outputs around parallel tool calls were often lost when resuming a session, but they are now fully preserved. Running `claude -p --resume` with a corrupted session ID in the transcript will automatically assign a fresh session ID for a safe restart. In multi-agent collaboration, teammate agents no longer re-broadcast initial skills on the second turn, ensuring prefix integrity and hitting the cache. If a background agent fails to wake up, it no longer enters a tight loop burning CPU. Furthermore, clicking stop right after sending a prompt now reliably halts execution, and cloud sessions force-enabling synced plugins will no longer erroneously fall back to marketplace clones. ⟦This is like passing the baton in a relay race: the next runner smoothly takes the note-covered baton without re-announcing their identity, and can brake immediately if an unexpected event occurs.⟧"
+              },
+              "original": "Fixed resuming a session losing hook output and other context around parallel tool calls, which changed the resumed request\nFixed `claude -p --resume <file>` adopting a malformed session ID recorded in the transcript; it now resumes under a fresh session ID instead\nFixed SDK and cloud sessions ignoring a Stop or interrupt sent just after the first prompt, before the turn had started; the turn now stops instead of running to completion\nFixed sustained high CPU usage when a background agent could not be resumed and its wake-up was retried in a tight loop\nFixed in-process agent-team teammates re-sending their first-turn tool and skill announcements on the second turn, which changed the request prefix and missed the prompt cache\nFixed cloud sessions discarding a plugin synced from claude.ai when managed settings force-enable it in `enabledPlugins`, then falling back to a marketplace clone that could fail"
             },
             {
-              "original": "Fixed Remote Control sessions showing as still working (stuck spinner and Stop button) after stopping a turn from a connected phone or browser, or after a local slash command like `/clear`"
+              "title": {
+                "zh-TW": "終端機進度指示精準回報，文字串流加速且計量不浪費",
+                "en": "Terminal progress indicator reports accurately, accelerating text streaming and avoiding wasted metering"
+              },
+              "body": {
+                "zh-TW": "⟦月台資訊看板在列車還在進站時不能亮「已離站」，轉乘等候的倒數也要跟公告上限同一套，不能自己再加一輪。⟧ 在 iTerm2、Ghostty 或 ConEmu 等終端機中，進度指示器以前會在背景工作流程或代理仍在運作時提早把工作階段標記為完成，現在已修正為如實反映背景狀態。文字串流輸出時，排版引擎不再對已繪製完成的區塊重複運算，大幅提升了長篇回覆的顯示流暢度，也修復了容器方向切換時區塊高度異常的罕見錯誤。當你執行 `/context` 查看容量，若遠端計量服務無法連線，系統會改用本機演算法估算 token（AI 處理與計費的文字單位），不再額外呼叫小型模型浪費資源。遇到 API 無回應標頭時，重試會等到 `API_TIMEOUT_MS`（預設 10 分鐘）為止，不再另等 3 分鐘，提示訊息會說明可改 `API_TIMEOUT_MS`。",
+                "en": "⟦A platform information board must not display \"Departed\" while the train is still pulling into the station, and transfer wait countdowns must follow the posted ceiling rather than adding an extra round on their own.⟧ In terminals like iTerm2, Ghostty, or ConEmu, the progress indicator previously marked sessions as finished prematurely while background workflows or agents were still running; it has now been fixed to faithfully reflect background status. During text streaming, the layout engine no longer recalculates already-rendered blocks, significantly improving rendering smoothness for long responses and fixing a rare glitch where block height corrupted when containers switched directions. When running `/context` to check capacity, if the remote token-counting API is unavailable, the system switches to local estimation instead of making extra small-model requests. When the API sends no response headers, retries wait up to `API_TIMEOUT_MS` (10 minutes by default) instead of adding another 3 minutes, with messages explaining that `API_TIMEOUT_MS` can be adjusted."
+              },
+              "original": "Fixed the terminal progress indicator (iTerm2, Ghostty, ConEmu) showing the session as finished while a background workflow or agent was still running\nFixed a rare layout glitch where a box could render with the wrong height after its container switched between row and column direction\nImproved streaming performance: already-rendered blocks are no longer re-checked by layout on each update\nImproved handling when the API sends no response headers: the retry now waits up to `API_TIMEOUT_MS` (10 minutes by default) instead of another 3 minutes, and the messages say what to change\nChanged `/context` token counting to use a local estimate when the token-counting API is unavailable, instead of extra small-model requests"
             },
             {
-              "original": "Fixed SDK and cloud sessions ignoring a Stop or interrupt sent just after the first prompt, before the turn had started; the turn now stops instead of running to completion"
+              "title": {
+                "zh-TW": "跨工具協作修復，自動掛載目錄與用量查詢更穩定",
+                "en": "Cross-tool collaboration fixes: automount directory handling and usage queries stabilized"
+              },
+              "body": {
+                "zh-TW": "掛載在 `/net` automount 網路目錄下執行 `/add-dir` 加入子資料夾時，系統不再會誤報找不到路徑；當同一台電腦安裝多個版本時，高版本的功能旗標也不會再錯誤干擾舊版本。當用量端點被限流，或剛啟動就打開時，`/usage` 與 VS Code 用量面板不再丟掉特定模型的每週額度列。桌面版與網頁版在僅監聽產物（artifact）更新時，狀態也不會再錯誤卡在忙碌中。此外，桌面版 Cowork 工作階段中透過 Chrome 擴充上傳檔案的錯誤已排除，背景執行的指令若輸出外掛安裝提示，也能正確被系統辨識，不會把原始的 `<claude-code-hint>` 標籤洩漏到對話框裡。⟦這宛如在多工工地整頓各組機具，圖紙路徑標註清晰，讓不同的協作工具各司其職且不互相打架。⟧",
+                "en": "When running `/add-dir` to add a subdirectory while mounted under a `/net` automount directory, the system no longer falsely reports that the path could not be resolved. On machines with multiple versions installed, feature flags gated to newer versions no longer mistakenly affect older versions. When the usage endpoint is rate-limited or accessed immediately after startup, `/usage` and the VS Code usage panel no longer drop weekly limit rows for specific models. Desktop and web sessions no longer stay incorrectly busy when only watching artifacts for updates. In addition, file upload failures via the Chrome extension in Desktop Cowork sessions have been resolved, and plugin install hints output by background commands are now properly recognized without leaking raw `<claude-code-hint>` tags into the conversation. ⟦This is like organizing equipment across a multi-trade construction site: blueprints and pathways are clearly marked so that different collaborating tools work in harmony without clashing.⟧"
+              },
+              "original": "Fixed `/add-dir <subdirectory>` printing a false \"couldn't be resolved\" error when the working directory is on a `/net` automount\nFixed feature flags gated to a newer version occasionally applying to an older Claude Code version running on the same machine\nFixed `/usage` and the VS Code usage panel dropping a model-specific weekly limit row when the usage endpoint is rate limited or when opened right after startup\nFixed Desktop and web showing a session as busy while it only watches an artifact for updates\nFixed Claude in Chrome `file_upload` failing with \"paths: expected array, received undefined\" in local Cowork sessions run from the Claude Desktop app\nFixed plugin install hints from CLIs run in background Bash commands: they are now detected, and the raw `<claude-code-hint>` tag no longer leaks into the conversation"
             },
             {
-              "original": "Fixed Remote Control uploading a session pulled with `/teleport` into the connected session, which appeared appended to the original on phone and web"
+              "title": {
+                "zh-TW": "[VSCode] 介面內建樣式精靈，直接新增與管理 MCP 伺服器",
+                "en": "[VSCode] Built-in style walkthrough added, directly create and manage MCP servers"
+              },
+              "body": {
+                "zh-TW": "在 VS Code 擴充套件中自訂輸出風格與工具整合變得更加直覺。Output styles 選單新增了「建立自訂樣式」引導流程，能帶你一步步撰寫自訂輸出樣式檔，完成後立刻列在選單中隨選即用。針對 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器管理，對話框中現在直接提供了新增表單與刪除按鈕，你再也不用手動切出編輯器去修改設定檔，就能在介面內隨時加入或卸載各類外部工具伺服器。⟦這如同在畫架旁直接加裝模組化置物盒，想換筆刷或顏料伸手就能裝上，不必每次都離開座位去工具箱翻找。⟧",
+                "en": "Customizing output styles and tool integrations in the VS Code extension has become much more intuitive. The Output styles menu adds a \"Build a custom style\" walkthrough that guides you step-by-step to write a custom output style file and lists it immediately for instant use. For MCP server management, the dialog now provides an Add server form and Remove button directly, allowing you to add or remove external tool servers inside the IDE without manually switching out to edit configuration files. ⟦This is like attaching a modular organizer right beside your easel: whenever you want to swap brushes or paints, you can reach out and attach them without leaving your seat to rummage through a toolbox.⟧"
+              },
+              "original": "[VSCode] Added a \"Build a custom style\" walkthrough to the Output styles menu that writes a custom output style file and lists it right away\n[VSCode] Added an Add server form and a Remove action to the MCP servers dialog, so MCP servers can be added and removed without leaving the IDE"
             },
             {
-              "original": "Fixed Remote Control's inbound event stream failing behind TLS-inspecting corporate proxies on native Windows"
+              "title": {
+                "zh-TW": "[VSCode] 工作階段清單標示強化，支援封存與分頁修復",
+                "en": "[VSCode] Session list indicators enhanced, supporting archiving and tab fixes"
+              },
+              "body": {
+                "zh-TW": "⟦管理多個工作階段就像整理辦公室公文夾，哪些案件正在其他部門借閱中、哪些該歸檔，都該有清楚的視覺標記。⟧ 工作階段清單現在為終端機、其他視窗或桌面版開啟中的工作階段標上空心圓圈，不再看起來像已關閉；右鍵選單加入了「封存工作階段」（Archive session）功能，解除封存也有了專屬圖示。隨視窗還原的分頁在重新命名時，輸入框會正確帶出當前名稱而非一片空白；清單中已摺疊的分類在面板載入時不會再短暫閃爍展開，修正背景分頁識別碼時選取列的高亮也不會卡死。透過快速鍵或連結重新開啟分頁時，Claude 分頁也會精準回到既有的編輯器分組中。",
+                "en": "⟦Managing multiple sessions is like organizing office folders: which cases are currently on loan to other departments and which should be archived must have clear visual markers.⟧ The session list now marks sessions open in a terminal, another window, or Claude Desktop with a hollow ring so they no longer appear closed. The right-click menu adds \"Archive session\", while Unarchive gets its own icon. When renaming a tab restored with the window, the input box correctly populates with the current name instead of opening blank. Collapsed sections in the list no longer briefly flash expanded when the panel loads, and the active-row highlight no longer freezes when correcting an unfocused tab's session ID. Reopening tabs via shortcuts or links now accurately places Claude tabs back into their existing editor group."
+              },
+              "original": "[VSCode] Added a hollow ring in the session list for sessions open in a terminal, another VS Code window, or Claude Desktop, so they no longer look closed\n[VSCode] Added \"Archive session\" to the session list's right-click menu and gave Unarchive its own icon\n[VSCode] Fixed the session tab's Rename box opening empty for a tab restored with the window; it now starts with the current name\n[VSCode] Fixed collapsed sections in the session list panel briefly showing expanded each time the panel loaded\n[VSCode] Fixed the session list's active-row highlight going stale when an unfocused Claude tab's session ID is corrected\n[VSCode] Fixed Cmd/Ctrl+Shift+T reopen and deep-link opens placing the Claude tab outside the Claude editor group when a Claude tab has focus"
             },
             {
-              "original": "Fixed Remote Control sessions showing the default effort level on claude.ai when the effort comes from settings"
+              "title": {
+                "zh-TW": "[VSCode] 提問與授權提示支援摺疊，排隊對話框不再殘留文字",
+                "en": "[VSCode] Question and permission prompts support folding, queued dialogs no longer retain text"
+              },
+              "body": {
+                "zh-TW": "互動介面上的各類提示卡片迎來了更流暢的操作體驗。權限與提問對話框現在新增了摺疊按鈕，讓你不用關閉提示就能瀏覽後方遮住的對話內容，提示旁的空白區域也能直接滾動對話歷史。連續排隊的授權對話框不會再殘留上一個提示打進去的文字，也避免了因連點而誤觸授權；焦點檢視（Focus view）中已結束的工具呼叫不再錯誤顯示為執行中。以 Claude.ai 或主控台（Console）帳號登入時，重載面板後等待回答的問題卡片會正常重現；使用 `/btw` 插話提問時，先前工作階段的歷史紀錄也不會再因視窗重載或設定檔出錯而被洗掉。⟦這如同在服務櫃台前加裝透明活動板，既能隨時掀開查看底下的文件明細，叫號處理業務時也不會把上一位顧客留下的便條紙混進下一張表單。⟧",
+                "en": "Interactive prompt cards now offer a smoother operational experience. Permission and question prompts add a fold button so you can view underlying conversation content without dismissing the prompt, while the blank space beside the prompt can directly scroll conversation history. Successive queued permission dialogs no longer retain text typed into the previous prompt, preventing accidental approvals from rapid double-clicking. Completed tool calls in Focus view no longer mistakenly show as running. When signed in with a Claude.ai or Console account, pending question cards reappear properly after reloading the panel. When asking side questions with `/btw`, previous session history is no longer overwritten by window reloads or configuration errors. ⟦This is like installing a transparent movable flap at a service counter: you can lift it anytime to inspect document details underneath, and calling the next ticket will not mix notes left by the previous customer into the next form.⟧"
+              },
+              "original": "[VSCode] Added a fold button to permission and question prompts so the conversation behind them can be read without dismissing them; the space beside the prompt now scrolls the conversation\n[VSCode] Fixed Focus view showing a tool call as still running after Claude had moved on, such as while a question waited for your answer\n[VSCode] Fixed the next queued permission prompt keeping text typed on the previous prompt and accepting an immediate second click\n[VSCode] Fixed `/btw` side-question history from earlier sessions being overwritten when a question is asked right after a window reload or while a settings file has errors\n[VSCode] Fixed the pending question card not reappearing after the Claude panel reloads when signed in with a Claude.ai or Console account"
             },
             {
-              "original": "Fixed `gcpAuthRefresh` opening a browser at startup when the Google credential check was slow, even though the credential was still valid"
+              "title": {
+                "zh-TW": "[VSCode] 雲端工作階段遷移修復，分組與多視窗同步更穩定",
+                "en": "[VSCode] Cloud session migration fixes: grouping and multi-window sync stabilized"
+              },
+              "body": {
+                "zh-TW": "⟦跨裝置切換開發環境就像在不同會議室之間移動白板，任何未完的討論都該原樣帶入新空間。⟧ 從網頁版傳送（teleport）工作階段至本機時，若雲端關閉時恰好有提問中斷，系統不會再將其誤判為拒絕；將網頁工作階段加入分組時，也不會再同時出現在兩個群組中。清單開的分頁重載後不跳回舊工作階段；Web 開的分頁重載後不重跑 teleport、不留白。設定「Enable Remote Control for all sessions」會立刻套用到其他 VS Code 視窗。Open 篩選器能對上從 claude.ai 續接、分頁仍記在 web session 的項目，篩選選單區塊加上螢幕報讀標籤。「Start new session in this group」在 New conversation 後不再丟掉群組；sidebar 未讀清單載入前就結束的工作階段，不再缺未讀點。",
+                "en": "⟦Switching development environments across devices is like moving a whiteboard between conference rooms: any unfinished discussion should be brought intact into the new space.⟧ When teleporting a session from the web to a local machine, questions interrupted as the cloud session shuts down are no longer misinterpreted as declined. Adding a web session to a group will no longer cause it to appear in two groups simultaneously. Tabs opened from the list do not jump back to older sessions after reloading, while tabs opened from web sessions do not re-run teleport or stay blank after reloads. Setting \"Enable Remote Control for all sessions\" applies immediately to other VS Code windows. The Open filter properly matches items continued from claude.ai whose tabs remain recorded under web sessions, with filter menu sections labeled for screen readers. \"Start new session in this group\" no longer loses its group after New conversation, and sessions ending before the sidebar unread list loads no longer miss their unread dot."
+              },
+              "original": "[VSCode] Fixed a session teleported from Claude Code on the web treating a question that was cut off when the cloud session shut down as declined\n[VSCode] Fixed the session tab's \"Add to group\" putting a session opened from Claude Code on the Web in two groups; it now moves the entry the session list shows\n[VSCode] Fixed a tab opened from the session list jumping back to that session, and a tab opened from a Web session restarting its teleport or staying empty, after VS Code reloads the tab's view\n[VSCode] Fixed \"Enable Remote Control for all sessions\" so flipping it also applies right away to sessions open in other VS Code windows\n[VSCode] Fixed the session list's Open filter for sessions continued from claude.ai whose tab was still recorded under the web session, and labeled the filter menu's sections for screen readers\n[VSCode] Fixed \"Start new session in this group\" losing the group after New conversation, and a missing unread dot for a session that finished before the sidebar's unread list loaded"
             },
             {
-              "original": "Fixed claude.ai connectors staying absent for the whole session when the startup connector fetch timed out — the CLI now retries in the background"
-            },
-            {
-              "original": "Fixed sustained high CPU usage when a background agent could not be resumed and its wake-up was retried in a tight loop"
-            },
-            {
-              "original": "Fixed feature flags gated to a newer version occasionally applying to an older Claude Code version running on the same machine"
-            },
-            {
-              "original": "Fixed `/usage` and the VS Code usage panel dropping a model-specific weekly limit row when the usage endpoint is rate limited or when opened right after startup"
-            },
-            {
-              "original": "Fixed `claude -p --resume <file>` adopting a malformed session ID recorded in the transcript; it now resumes under a fresh session ID instead"
-            },
-            {
-              "original": "Fixed the terminal progress indicator (iTerm2, Ghostty, ConEmu) showing the session as finished while a background workflow or agent was still running"
-            },
-            {
-              "original": "Fixed a rare layout glitch where a box could render with the wrong height after its container switched between row and column direction"
-            },
-            {
-              "original": "Fixed Claude apps gateway client IP when a trusted proxy appends a port to `X-Forwarded-For`; with an access list set, an unreadable entry now gets 403"
-            },
-            {
-              "original": "Fixed Claude apps gateway telling Claude Desktop to export OpenTelemetry as JSON even when the terminal CLI uses protobuf, so protobuf-only collectors rejected Desktop's data"
-            },
-            {
-              "original": "Fixed Desktop and web showing a session as busy while it only watches an artifact for updates"
-            },
-            {
-              "original": "Fixed Claude in Chrome `file_upload` failing with \"paths: expected array, received undefined\" in local Cowork sessions run from the Claude Desktop app"
-            },
-            {
-              "original": "Fixed `SendMessage` to an offline Remote Control session on another machine reading as delivered; the result now says delivery is queued until that machine reconnects"
-            },
-            {
-              "original": "Fixed plugin install hints from CLIs run in background Bash commands: they are now detected, and the raw `<claude-code-hint>` tag no longer leaks into the conversation"
-            },
-            {
-              "original": "Fixed in-process agent-team teammates re-sending their first-turn tool and skill announcements on the second turn, which changed the request prefix and missed the prompt cache"
-            },
-            {
-              "original": "Improved the `/model` picker and the VS Code model pill to show a model's name instead of its raw Bedrock, Vertex AI, or LLM gateway ID when Claude Code recognizes it"
-            },
-            {
-              "original": "Improved startup on Google Vertex AI when `GOOGLE_APPLICATION_CREDENTIALS` is set: API client creation no longer re-runs Google Cloud project discovery or spawns extra `gcloud` processes"
-            },
-            {
-              "original": "Improved streaming performance: already-rendered blocks are no longer re-checked by layout on each update"
-            },
-            {
-              "original": "Improved the dangerous-`rm` safety prompt to also catch `rm -rf` on positional parameters and inside double-quoted `sh -c` scripts"
-            },
-            {
-              "original": "Improved handling when the API sends no response headers: the retry now waits up to `API_TIMEOUT_MS` (10 minutes by default) instead of another 3 minutes, and the messages say what to change"
-            },
-            {
-              "original": "Changed a Claude apps gateway 403 on the managed settings load (at startup or after `/login`) to say Claude Code may not be enabled for the organization, instead of advising a new sign-in"
-            },
-            {
-              "original": "Changed machines whose managed settings pin `forceLoginMethod: \"gateway\"` to ignore a leftover API key or claude.ai login and ask for `/login`; Bedrock, Vertex AI, and Foundry sessions are unaffected"
-            },
-            {
-              "original": "Changed auto mode to treat a link that packs content into a public diagram renderer's URL as an upload to that site: no longer auto-approved unless you asked for it"
-            },
-            {
-              "original": "Changed the prompt's word-editing keys to match Bash: Ctrl+W deletes back to whitespace, Alt+F and Alt+D stop at word end, punctuation separates words; `keybindingFlavor` no longer has any effect"
-            },
-            {
-              "original": "Changed `/context` token counting to use a local estimate when the token-counting API is unavailable, instead of extra small-model requests"
-            },
-            {
-              "original": "[VSCode] Added a \"Build a custom style\" walkthrough to the Output styles menu that writes a custom output style file and lists it right away"
-            },
-            {
-              "original": "[VSCode] Added an Add server form and a Remove action to the MCP servers dialog, so MCP servers can be added and removed without leaving the IDE"
-            },
-            {
-              "original": "[VSCode] Added a hollow ring in the session list for sessions open in a terminal, another VS Code window, or Claude Desktop, so they no longer look closed"
-            },
-            {
-              "original": "[VSCode] Added a fold button to permission and question prompts so the conversation behind them can be read without dismissing them; the space beside the prompt now scrolls the conversation"
-            },
-            {
-              "original": "[VSCode] Added \"Archive session\" to the session list's right-click menu and gave Unarchive its own icon"
-            },
-            {
-              "original": "[VSCode] Fixed a session teleported from Claude Code on the web treating a question that was cut off when the cloud session shut down as declined"
-            },
-            {
-              "original": "[VSCode] Fixed the session tab's Rename box opening empty for a tab restored with the window; it now starts with the current name"
-            },
-            {
-              "original": "[VSCode] Fixed collapsed sections in the session list panel briefly showing expanded each time the panel loaded"
-            },
-            {
-              "original": "[VSCode] Fixed Focus view showing a tool call as still running after Claude had moved on, such as while a question waited for your answer"
-            },
-            {
-              "original": "[VSCode] Fixed the session list's active-row highlight going stale when an unfocused Claude tab's session ID is corrected"
-            },
-            {
-              "original": "[VSCode] Fixed Cmd/Ctrl+Shift+T reopen and deep-link opens placing the Claude tab outside the Claude editor group when a Claude tab has focus"
-            },
-            {
-              "original": "[VSCode] Fixed the session tab's \"Add to group\" putting a session opened from Claude Code on the Web in two groups; it now moves the entry the session list shows"
-            },
-            {
-              "original": "[VSCode] Fixed the model picker showing models an organization has since disabled until the window was reloaded twice"
-            },
-            {
-              "original": "[VSCode] Fixed a tab opened from the session list jumping back to that session, and a tab opened from a Web session restarting its teleport or staying empty, after VS Code reloads the tab's view"
-            },
-            {
-              "original": "[VSCode] Fixed `/btw` side-question history from earlier sessions being overwritten when a question is asked right after a window reload or while a settings file has errors"
-            },
-            {
-              "original": "[VSCode] Fixed the pending question card not reappearing after the Claude panel reloads when signed in with a Claude.ai or Console account"
-            },
-            {
-              "original": "[VSCode] Fixed claude.ai-only features staying visible in a window's other Claude panels after one panel picked up a third-party provider from a settings file"
-            },
-            {
-              "original": "[VSCode] Fixed the sign-in screen appearing despite the Disable Login Prompt setting when Claude Code reports no login or a request fails for lack of one"
-            },
-            {
-              "original": "[VSCode] Fixed the next queued permission prompt keeping text typed on the previous prompt and accepting an immediate second click"
-            },
-            {
-              "original": "[VSCode] Fixed install-plugin links opening the Claude sidebar without the install dialog in a window where only the session list had been shown"
-            },
-            {
-              "original": "[VSCode] Fixed the sidebar usage meter staying empty on a new window until the Account & usage dialog was opened, and a 0% usage limit being left out of the meter"
-            },
-            {
-              "original": "[VSCode] Fixed \"Start new session in this group\" losing the group after New conversation, and a missing unread dot for a session that finished before the sidebar's unread list loaded"
-            },
-            {
-              "original": "[VSCode] Fixed the editor tab badge showing unread during a running turn or missing on a tab opened from the session list, and \"Add Session Tab to Group\" doing nothing for an archived session"
-            },
-            {
-              "original": "[VSCode] Fixed \"Enable Remote Control for all sessions\" so flipping it also applies right away to sessions open in other VS Code windows"
-            },
-            {
-              "original": "[VSCode] Fixed the session list's Open filter for sessions continued from claude.ai whose tab was still recorded under the web session, and labeled the filter menu's sections for screen readers"
-            },
-            {
-              "original": "[VSCode] Changed the model picker to one flat list of every model, with rows kept for older model spellings listed last"
+              "title": {
+                "zh-TW": "[VSCode] 模型選單整併為單一清單，用量指示與登入防護修復",
+                "en": "[VSCode] Model menu consolidated into flat list, usage indicators and login guards fixed"
+              },
+              "body": {
+                "zh-TW": "模型選擇器與側邊欄狀態管理在此次更新中進行了整頓。模型選單現在改為平整的單一清單，舊有名稱寫法統一排在最後，且能即時隱藏公司已停用的模型。若設定了停用登入提示，介面就不會再於未登入時強行跳出登入畫面；當某個面板切換至第三方模型供應商時，其他面板也不會再殘留官方專屬功能。新視窗側邊欄的用量計量表現在一開就能正常顯示，不再漏掉零用量上限；此外外掛安裝連結能正確喚起確認對話框，分頁標籤在執行中不會再誤亮未讀徽章，封存的工作階段也能順利加入分組。⟦這好比餐廳重新整理總菜單，下架品項一目了然，服務生也不會拿著舊通行證向已免檢的客人反覆查驗身分。⟧",
+                "en": "The model picker and sidebar state management have been overhauled in this update. The model menu is now a flat single list where legacy spellings are placed last, while immediately hiding models disabled by an organization. If the Disable Login Prompt setting is enabled, the interface no longer forces a sign-in screen when not logged in. When one panel switches to a third-party model provider, other panels no longer retain official-only features. The sidebar usage meter in a new window renders properly right upon opening without missing a 0% usage limit. Furthermore, plugin install links correctly trigger confirmation dialogs, tab badges no longer mistakenly illuminate unread during a running turn, and archived sessions can be successfully added to groups. ⟦This is like a restaurant reorganizing its master menu: discontinued items are clear at a glance, and servers will not repeatedly challenge exempt guests using outdated access passes.⟧"
+              },
+              "original": "[VSCode] Fixed the model picker showing models an organization has since disabled until the window was reloaded twice\n[VSCode] Fixed claude.ai-only features staying visible in a window's other Claude panels after one panel picked up a third-party provider from a settings file\n[VSCode] Fixed the sign-in screen appearing despite the Disable Login Prompt setting when Claude Code reports no login or a request fails for lack of one\n[VSCode] Fixed install-plugin links opening the Claude sidebar without the install dialog in a window where only the session list had been shown\n[VSCode] Fixed the sidebar usage meter staying empty on a new window until the Account & usage dialog was opened, and a 0% usage limit being left out of the meter\n[VSCode] Fixed the editor tab badge showing unread during a running turn or missing on a tab opened from the session list, and \"Add Session Tab to Group\" doing nothing for an archived session\n[VSCode] Changed the model picker to one flat list of every model, with rows kept for older model spellings listed last"
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "2.1.260",
           "period": "2026-09-03",
           "items": [
             {
-              "original": "Added a diff panel that opens beside the conversation in fullscreen mode and shows your uncommitted changes as Claude edits; toggle it with `/diff`"
-            },
-            {
-              "original": "Added a likely cause for prompt-cache misses (e.g. tool definitions or system prompt changed, idle past the TTL) to `/cost` and the status line's `prompt_cache` field"
-            },
-            {
-              "original": "Added `/reload-plugins` to headless sessions, so it appears in the Claude Code Desktop and SDK command lists"
-            },
-            {
-              "original": "Added a text form of `/advisor` (`/advisor`, `/advisor <model>`, `/advisor off`) for the desktop app, Remote Control, and other headless (`-p`/Agent SDK) sessions"
-            },
-            {
-              "original": "Added `oidc.scope_on_refresh` to the Claude apps gateway for IdPs that return an id_token on refresh only when asked for `openid` again"
-            },
-            {
-              "original": "Added Claude apps gateway support for newer Claude Desktop keys in `desktop` policy blocks, including `userPluginMarketplacesEnabled` and `userPluginUploadsEnabled`"
-            },
-            {
-              "original": "Fixed `Edit`/`Write`/`Read` permission rules whose path contains parentheses being dropped as invalid or ignored by the Bash sandbox, which left \"read-only\" folders writable"
-            },
-            {
-              "original": "Fixed one file permission rule with an uncompilable pattern (e.g. an unclosed `[`) making every file edit fail with `Invalid regular expression`; such a deny rule now guards the literal path it spells"
-            },
-            {
-              "original": "Fixed Bash permission checks auto-approving zsh commands that hide a command substitution in a REPORTTIME, REPORTMEMORY or DIRSTACKSIZE assignment; these now prompt for approval"
-            },
-            {
-              "original": "Fixed Bedrock model discovery, token counting and AWS SSO/STS credential calls failing with \"unable to get local issuer certificate\" when the corporate root CA is only in the OS certificate store"
-            },
-            {
-              "original": "Fixed `permissions.blockReadsOutsideWorkingDirectories` on macOS hiding the user's git config from sandboxed git and hiding a worktree-isolated sub-agent's own checkout"
-            },
-            {
-              "original": "Fixed managed settings not loading for claude.ai Enterprise/Team users who also had a leftover API key from an earlier `/login`"
-            },
-            {
-              "original": "Fixed `/status` listing a signed-in claude.ai account and a configured API key as if both were in effect; the credential not in use is now marked"
-            },
-            {
-              "original": "Fixed managed `skillOverrides` entries keyed on a bundled skill's alias (e.g. `checkup` for `/doctor`) not applying, and `Skill(name)` deny rules not covering a nested skill listed as `<dir>:name`"
-            },
-            {
-              "original": "Fixed `model: fable` agents ignoring the `[1m]` tag on an `ANTHROPIC_DEFAULT_FABLE_MODEL` pin and silently running with a 200K context window"
-            },
-            {
-              "original": "Fixed the `/model` picker not showing Fable 5.1 for organizations that can use it, which was only accepted when typed as `/model claude-fable-5-1`"
-            },
-            {
-              "original": "Fixed prompt caching on Claude Fable 5.1 not covering the context attached after tool results, so it was re-sent as uncached input on every tool-call turn"
-            },
-            {
-              "original": "Fixed model switching staying blocked for the rest of the session after a plugin hook load failure; each switch now re-checks and the refusal names the cause"
-            },
-            {
-              "original": "Fixed model switching being blocked for the session when an organization-managed plugin's marketplace could not be loaded"
-            },
-            {
-              "original": "Fixed SDK-provided MCP servers (e.g. Desktop connectors) sometimes missing from the first turn and only appearing on the next one"
-            },
-            {
-              "original": "Fixed Claude in Chrome tools failing with \"Not connected\" mid-task in cloud-hosted claude.ai sessions when a connector was added or removed"
-            },
-            {
-              "original": "Fixed flags, joined emoji and accented letters splitting across wrapped lines, and stale text staying on screen when a flag or joined emoji falls in the terminal's last two columns (now shown as `…`)"
-            },
-            {
-              "original": "Fixed Remote Control accepting a model pick that is not a valid model name; it is now refused with an error instead of failing on the next message"
-            },
-            {
-              "original": "Fixed `/rewind` and `--rewind-files` reporting success when checkpoint backup files were missing and nothing was actually restored"
-            },
-            {
-              "original": "Fixed `/rewind` leaving stale file-read tracking from the rewound-away turns, which caused \"File unchanged since last read\" stubs and full-file re-injection after external edits"
-            },
-            {
-              "original": "Fixed `-p --resume`/`--continue` (as used by the desktop app) failing on every retry once a session's worktree directory lost its git metadata; it now fails once, then resumes without the worktree"
-            },
-            {
-              "original": "Fixed a subagent that resumed another agent via SendMessage never being woken by that agent's completion (the notification went to the main conversation instead)"
-            },
-            {
-              "original": "Fixed agent teams: an in-process teammate's transcript losing messages, or going blank, during long API retry waits (e.g. under `CLAUDE_CODE_RETRY_WATCHDOG`) as retry notices evicted real messages"
-            },
-            {
-              "original": "Fixed a session that moved to the background appearing twice in ListAgents (once as a phantom \"interactive\" twin with the same name) and receiving SendMessage deliveries in the viewer"
-            },
-            {
-              "original": "Fixed intermittent \"task output swap refused\" errors when many sessions share a project directory"
-            },
-            {
-              "original": "Fixed Ctrl+Z in fullscreen leaving the shell on the alternate screen, drawn over the paused interface"
-            },
-            {
-              "original": "Fixed Workflow tool subagents being restarted as stalled while a long context compaction was still in progress"
-            },
-            {
-              "original": "Fixed plugins from a URL marketplace failing to install with \"marketplace entry path does not stay inside the marketplace directory\" when a host app (e.g. Claude Desktop) stores it as a directory"
-            },
-            {
-              "original": "Fixed an extra browser tab opening when an artifact is published in a session you're driving from claude.ai, the desktop app, or mobile (Remote Control)"
-            },
-            {
-              "original": "Fixed the Artifact tool's first call failing with an \"Invalid tool parameters\" validation error in some Cowork sessions"
-            },
-            {
-              "original": "Fixed IDE line selections being dropped when running a skill or slash command (the \"N lines selected\" context now reaches Claude)"
-            },
-            {
-              "original": "Fixed repository detection for GitLab projects in nested subgroups (e.g. `gitlab.com/group/subgroup/project`)"
-            },
-            {
-              "original": "Fixed `owner/repo#123` issue references in rendered output linking to github.com when working in a GitLab repository; they now link to the gitlab.com issue"
-            },
-            {
-              "original": "Glob/Grep: Fixed the search path being probed on disk before the permission check; a missing path is now reported after permission is decided, as Read does"
-            },
-            {
-              "original": "Reverted the 2.1.259 change applying `Read()` deny rules to Bash arguments; it denied `npm run build` under a `Read(./**/build/**)` rule in every mode and made `cd … && grep` prompt even in auto mode"
-            },
-            {
-              "original": "Improved structured output: Workflow `agent({schema})` rejects a JSON Schema that can never be satisfied up front, and retry-cap errors now include the last validation failure"
-            },
-            {
-              "original": "Improved deleting a background session whose worktree has unpushed commits: the message now names the branch and commit count, and deleting again discards the worktree"
-            },
-            {
-              "original": "Improved the Claude apps gateway's refresh-failure log to name the step that failed"
-            },
-            {
-              "original": "Improved idle CPU usage of non-interactive (`-p` / SDK) sessions"
-            },
-            {
-              "original": "Improved the Claude apps gateway on Amazon Bedrock: input tokens for an aborted request are now counted with AWS's free CountTokens API (grant `bedrock:CountTokens`) instead of a one-token request"
-            },
-            {
-              "original": "Improved the settings error for rules such as `Edit(C:\\dir\\(name)\\**)`, where `\\(` is read as an escaped parenthesis rather than a path separator, to suggest an unambiguous spelling"
-            },
-            {
-              "original": "Improved auto-compact for 1M-context models: Opus and Fable sessions now compact shortly before the 1M-token limit, and recovery compaction on very large contexts no longer times out at 10 minutes"
-            },
-            {
-              "original": "Improved `/ultrareview` and `claude ultrareview` to wait up to 45 minutes (previously 30) for long-running cloud reviews"
-            },
-            {
-              "original": "Improved `/effort` on Claude Fable 5.1 so changing effort mid-session no longer invalidates the prompt cache"
-            },
-            {
-              "original": "Updated the bundled `claude-api` skill so its Go, Java, and C# samples use current-generation model IDs, and clarified that cheaper worker or sub-agent models should be current-generation too"
-            },
-            {
-              "original": "Changed `ctrl+l` / `cmd+k` in fullscreen mode to clear the transcript view like a terminal `clear`; scroll up to see earlier messages"
-            },
-            {
-              "original": "Changed permission rules with text after the closing parenthesis (e.g. `Bash(ls) x`), which never matched anything, to be reported as invalid settings instead of being silently ignored"
-            },
-            {
-              "original": "Changed server-managed settings so a managed CLAUDE.md (`claudeMd`) no longer triggers the security approval dialog; hooks, shell-command, sandbox, and unsafe `env` settings still require approval"
-            },
-            {
-              "original": "Changed Claude in Chrome to follow your organization's Claude in Chrome admin setting; when an admin turns it off, `--chrome`, `/chrome` and the browser tools are unavailable"
-            },
-            {
-              "original": "Changed Claude apps gateway to send `orgPluginSettings` in the list form read by Claude Desktop 1.15200.0 and later; older desktops ignore it"
-            },
-            {
-              "original": "Changed Claude apps gateway to also refuse to start, naming the field, when a `desktop` policy misspells a field in a nested object of a `managedMcpServers` or `orgPluginSettings` entry"
-            },
-            {
-              "original": "Changed commands typed at the `!` bash-mode prompt to run outside the sandbox even when strict sandbox mode (`sandbox.allowUnsandboxedCommands: false`) is on, like typing into your own terminal"
-            },
-            {
-              "original": "Changed self-hosted runner `--kill-session-after-min` to release a session that is only waiting on its user (paused, resumable on the next message) instead of killing it and reporting a failure"
-            },
-            {
-              "original": "Removed the one-hour time limit on background commands started by subagents; they now run until they exit or are stopped, matching the main session"
-            },
-            {
-              "original": "[VSCode] Added the selected effort level to the footer model pill, fixed a stale effort level after switching models, and returned the footer pills to their earlier compact size"
-            },
-            {
-              "original": "[VSCode] Added Open and Closed to the session list's status filter menu"
-            },
-            {
-              "original": "[VSCode] Fixed the welcome screen disappearing in a new session when Remote Control turns on automatically"
-            },
-            {
-              "original": "[VSCode] Fixed the session history picker loading a session a second time when it is already open in another tab; it now switches to that tab"
-            },
-            {
-              "original": "[VSCode] Fixed the session tab's Rename command silently doing nothing while the tab's view was reloading; it now always applies"
-            },
-            {
-              "original": "[VSCode] Fixed a half-finished message, an empty tool card or an extra \"Thought for\" line staying on screen after Claude Code retried a dropped response"
-            },
-            {
-              "original": "[VSCode] Fixed \"Enable Remote Control for all sessions\" not applying to a session tab that was still starting when the toggle was flipped"
+              "title": {
+                "zh-TW": "全螢幕比對面板上線，終端機畫面清爽不殘留",
+                "en": "Fullscreen diff panel launches, keeping the terminal screen clean without artifacts"
+              },
+              "body": {
+                "zh-TW": "⟦就像在工作桌旁加裝一面可隨時收折的雙面鏡，一邊對話一邊就能看到最新改動的模樣。⟧在全螢幕模式下寫程式，現在可以輸入 `/diff` 開啟或關閉側邊的比對面板，即時查看 Claude 編輯時尚未提交的變更。當終端機畫面太滿時，按下 `ctrl+l` 或 `cmd+k` 就能清空畫面，想查閱歷史訊息只要往上捲動即可。此外，在全螢幕下按 `Ctrl+Z` 暫停不會再把外層 shell 畫面錯位畫在暫停介面上，國旗圖示、組合表情符號與重音字母在換行或行末最後兩格時也不會再破版或留下殘影。",
+                "en": "⟦Like mounting a foldable two-way mirror beside your desk so you can see the latest changes while having a conversation.⟧ When coding in fullscreen mode, you can now enter `/diff` to toggle a side-by-side diff panel and inspect uncommitted changes in real time as Claude edits. When the terminal screen gets crowded, pressing `ctrl+l` or `cmd+k` clears the transcript view, and you can scroll up to view earlier messages. In addition, pressing `Ctrl+Z` in fullscreen to pause no longer misrenders the outer shell screen onto the paused interface, and flag icons, joined emoji, or accented letters will no longer break layout or leave stale artifacts when wrapping or falling in the terminal's last two columns."
+              },
+              "original": "Added a diff panel that opens beside the conversation in fullscreen mode and shows your uncommitted changes as Claude edits; toggle it with `/diff`\nChanged `ctrl+l` / `cmd+k` in fullscreen mode to clear the transcript view like a terminal `clear`; scroll up to see earlier messages\nFixed Ctrl+Z in fullscreen leaving the shell on the alternate screen, drawn over the paused interface\nFixed flags, joined emoji and accented letters splitting across wrapped lines, and stale text staying on screen when a flag or joined emoji falls in the terminal's last two columns (now shown as `…`)"
+            },
+            {
+              "title": {
+                "zh-TW": "無頭模式支援顧問指令，遙控操作更省資源",
+                "en": "Headless mode supports advisor commands, making remote operations more resource-efficient"
+              },
+              "body": {
+                "zh-TW": "透過桌面端 App、Remote Control 或以 `-p` 參數執行的無頭模式（headless，沒有終端機視窗／視覺介面的執行模式）工作階段，現在能直接使用純文字形式的顧問指令。你可以輸入 `/advisor`、`/advisor <model>`、`/advisor off` 三種文字形式。同時，無頭環境也新增了 `/reload-plugins` 來重新載入外掛，因此會出現在 Claude Code Desktop 與 SDK 指令清單。如果遠端輸入了不存在的模型名稱，系統會在當下直接報錯拒絕，避免等到下一則訊息才崩潰。非互動模式（`-p` / SDK）工作階段的閒置時處理器用量改善。⟦這有如幫遠端遙控器補齊實體按鍵與省電待機功能，指令輸入錯誤時也會立刻亮燈示警。⟧",
+                "en": "Sessions running in headless mode via the desktop app, Remote Control, or the `-p` flag can now directly use text-based advisor commands. You can enter three text forms: `/advisor`, `/advisor <model>`, and `/advisor off`. At the same time, headless environments add `/reload-plugins` to reload plugins, making it available in the Claude Code Desktop and SDK command lists. If an invalid model name is entered remotely, the system now refuses it with an error immediately instead of crashing on the next message. Idle CPU usage has also improved for non-interactive (`-p` / SDK) sessions. ⟦This is like equipping a remote control with physical buttons and a power-saving standby mode, while flashing a warning light instantly whenever an invalid command is entered.⟧"
+              },
+              "original": "Added `/reload-plugins` to headless sessions, so it appears in the Claude Code Desktop and SDK command lists\nAdded a text form of `/advisor` (`/advisor`, `/advisor <model>`, `/advisor off`) for the desktop app, Remote Control, and other headless (`-p`/Agent SDK) sessions\nFixed Remote Control accepting a model pick that is not a valid model name; it is now refused with an error instead of failing on the next message\nImproved idle CPU usage of non-interactive (`-p` / SDK) sessions"
+            },
+            {
+              "title": {
+                "zh-TW": "Fable 5.1 快取全面升級，百萬脈絡壓縮不逾時",
+                "en": "Fable 5.1 caching fully upgraded, 1M context compaction no longer times out"
+              },
+              "body": {
+                "zh-TW": "⟦長文像貼了標籤的文件櫃，內容沒變就不必整箱搬出來重算。⟧\n\n```\nprompt_cache  # status line 欄位\nmodel: fable  # 代理設定\nANTHROPIC_DEFAULT_FABLE_MODEL  # 綁定\n/model claude-fable-5-1  # 完整指令\n```\n\n輸入 `/cost`，或查看 status line（狀態列）的 `prompt_cache` 欄位時，快取未命中會標出原因，例如 tool definitions、system prompt 變更，或閒置超過 TTL。Claude Fable 5.1 先前沒把工具結果後的脈絡納入提示詞快取，所以每輪 tool-call 曾當未快取輸入重送；現在會納入。中途改 `/effort` 不再讓快取失效。上列 `model: fable` 代理不會再忽略綁定上的 `[1m]` 而默默改用 200K。組織若能用 Fable 5.1，`/model` 選單會顯示它；先前只能打上列完整指令。Opus 與 Fable 工作階段會在接近 100 萬 token（文字單位）上限前壓縮，極大脈絡時救援壓縮不再 10 分鐘超時。",
+                "en": "⟦A long text is like a labeled filing cabinet—as long as the contents don't change, there's no need to unpack the entire box to recalculate.⟧\n\n```\nprompt_cache  # status line field\nmodel: fable  # agent setting\nANTHROPIC_DEFAULT_FABLE_MODEL  # pin\n/model claude-fable-5-1  # full command\n```\n\nWhen running `/cost` or checking the `prompt_cache` field in the status line, cache misses now indicate the likely cause, such as changes to tool definitions, system prompt modifications, or idling past the TTL. Claude Fable 5.1 previously did not include the context attached after tool results in prompt caching, causing it to be re-sent as uncached input on every tool-call turn; it is now included. Changing `/effort` mid-session no longer invalidates the prompt cache. The `model: fable` agents listed above will no longer ignore the `[1m]` tag on pins and silently fall back to 200K. If an organization has access to Fable 5.1, the `/model` picker now displays it; previously it had to be typed as the full command above. Opus and Fable sessions now compact shortly before reaching the 1M token limit, and recovery compaction on very large contexts no longer times out at 10 minutes."
+              },
+              "original": "Added a likely cause for prompt-cache misses (e.g. tool definitions or system prompt changed, idle past the TTL) to `/cost` and the status line's `prompt_cache` field\nFixed `model: fable` agents ignoring the `[1m]` tag on an `ANTHROPIC_DEFAULT_FABLE_MODEL` pin and silently running with a 200K context window\nFixed the `/model` picker not showing Fable 5.1 for organizations that can use it, which was only accepted when typed as `/model claude-fable-5-1`\nFixed prompt caching on Claude Fable 5.1 not covering the context attached after tool results, so it was re-sent as uncached input on every tool-call turn\nImproved auto-compact for 1M-context models: Opus and Fable sessions now compact shortly before the 1M-token limit, and recovery compaction on very large contexts no longer times out at 10 minutes\nImproved `/effort` on Claude Fable 5.1 so changing effort mid-session no longer invalidates the prompt cache"
+            },
+            {
+              "title": {
+                "zh-TW": "權限規則精準解析括號，路徑比對嚴防破口",
+                "en": "Permission rules accurately parse parentheses, tightening path matching against loopholes"
+              },
+              "body": {
+                "zh-TW": "路徑含括號的 `Edit`、`Write` 或 `Read` 權限規則，以前曾被當成無效丟掉，或被 Bash 沙盒忽略，唯讀資料夾因此可寫。若出現未閉合中括號等無法編譯的正規表達式（regex，用符號比對字串的語法），所有檔案編輯都會報 `Invalid regular expression`。現在此類拒絕規則會退回保護其字面路徑。若在括號後誤加多餘文字（例如 `Bash(ls) x`），系統會直接回報設定無效而非默默忽略。Windows 例 `Edit(C:\\dir\\(name)\\**)` 裡的 `\\(` 會被讀成跳脫括號而非路徑分隔，錯誤訊息會建議明確寫法。此外，Glob 與 Grep 工具現在會先確認權限，才回報路徑是否存在。⟦食譜寫「高湯（雞骨或蔬菜）」時，括號裡的替代食材不該讓整份菜單從廚房消失。⟧",
+                "en": "Permission rules for `Edit`, `Write`, or `Read` whose paths contain parentheses were previously dropped as invalid or ignored by the Bash sandbox, leaving read-only folders writable. If an uncompilable regex pattern appears, such as an unclosed bracket, every file edit fails with `Invalid regular expression`. Deny rules of this kind now fall back to guarding their literal paths. If extra text is mistakenly appended after the closing parenthesis, such as `Bash(ls) x`, the system now directly reports an invalid setting instead of silently ignoring it. For Windows examples like `Edit(C:\\dir\\(name)\\**)` where `\\(` is read as an escaped parenthesis rather than a path separator, the error message now suggests an unambiguous spelling. In addition, the Glob and Grep tools now check permissions before reporting whether a path exists. ⟦When a recipe specifies \"broth (chicken or vegetable),\" the alternative ingredients in parentheses should not make the entire menu disappear from the kitchen.⟧"
+              },
+              "original": "Fixed `Edit`/`Write`/`Read` permission rules whose path contains parentheses being dropped as invalid or ignored by the Bash sandbox, which left \"read-only\" folders writable\nFixed one file permission rule with an uncompilable pattern (e.g. an unclosed `[`) making every file edit fail with `Invalid regular expression`; such a deny rule now guards the literal path it spells\nGlob/Grep: Fixed the search path being probed on disk before the permission check; a missing path is now reported after permission is decided, as Read does\nImproved the settings error for rules such as `Edit(C:\\dir\\(name)\\**)`, where `\\(` is read as an escaped parenthesis rather than a path separator, to suggest an unambiguous spelling\nChanged permission rules with text after the closing parenthesis (e.g. `Bash(ls) x`), which never matched anything, to be reported as invalid settings instead of being silently ignored"
+            },
+            {
+              "title": {
+                "zh-TW": "手動指令跳脫沙盒束縛，精準攔截隱藏替換",
+                "en": "Manual commands run outside the sandbox, accurately intercepting hidden substitutions"
+              },
+              "body": {
+                "zh-TW": "你在終端機以驚嘆號 `!` 開頭輸入的命令，即使嚴格沙盒 `sandbox.allowUnsandboxedCommands: false` 開著，也會在沙盒外執行，就如同自己開啟終端機鍵入一樣。\n\n```\n{\"sandbox\":{\"allowUnsandboxedCommands\":false}}\npermissions.blockReadsOutsideWorkingDirectories\nREPORTTIME\nREPORTMEMORY\nDIRSTACKSIZE\n```\n\n先前將 `Read()` 拒絕規則套到 Bash 參數的改動，曾在 `Read(./**/build/**)` 規則下於每個模式拒絕 `npm run build`，連自動模式的 `cd … && grep` 也會問；現已撤回，不再如此。macOS 開啟上列阻擋鍵時，沙盒 Git 不再讀不到使用者 git 設定檔，工作樹（worktree，Git 讓同一專案平行開多份副本的功能）隔離子代理也能存取自己的檢出目錄。zsh 若把指令替換藏在上列三個參數賦值裡，現在會要求核准。⟦自己在工作檯親手鍵入的步驟該直接做，工單備註裡偷偷夾帶的附加指令則要先問過才行。⟧",
+                "en": "Commands you enter at the terminal prompt starting with an exclamation mark `!` will run outside the sandbox even when strict sandbox mode `sandbox.allowUnsandboxedCommands: false` is enabled, just like typing directly into your own terminal.\n\n```\n{\"sandbox\":{\"allowUnsandboxedCommands\":false}}\npermissions.blockReadsOutsideWorkingDirectories\nREPORTTIME\nREPORTMEMORY\nDIRSTACKSIZE\n```\n\nThe previous change applying `Read()` deny rules to Bash arguments—which denied `npm run build` under a `Read(./**/build/**)` rule in every mode and prompted for `cd … && grep` even in auto mode—has been reverted and no longer behaves this way. On macOS, enabling the blocking key listed above no longer prevents sandboxed Git from reading the user's git config, and worktree-isolated subagents can now access their own checkout directories. If zsh hides a command substitution inside assignments to the three parameters listed above, it now prompts for approval. ⟦Steps typed by hand on your own workbench should execute directly, while extra instructions smuggled into work order notes must ask for permission first.⟧"
+              },
+              "original": "Fixed Bash permission checks auto-approving zsh commands that hide a command substitution in a REPORTTIME, REPORTMEMORY or DIRSTACKSIZE assignment; these now prompt for approval\nFixed `permissions.blockReadsOutsideWorkingDirectories` on macOS hiding the user's git config from sandboxed git and hiding a worktree-isolated sub-agent's own checkout\nReverted the 2.1.259 change applying `Read()` deny rules to Bash arguments; it denied `npm run build` under a `Read(./**/build/**)` rule in every mode and made `cd … && grep` prompt even in auto mode\nChanged commands typed at the `!` bash-mode prompt to run outside the sandbox even when strict sandbox mode (`sandbox.allowUnsandboxedCommands: false`) is on, like typing into your own terminal"
+            },
+            {
+              "title": {
+                "zh-TW": "企業憑證無礙登入，受控檔案免重複核准",
+                "en": "Enterprise credentials log in smoothly, managed files bypass repeated approvals"
+              },
+              "body": {
+                "zh-TW": "⟦公司人事系統裡正式員工與舊外包是兩組帳號，不該被舊的那組卡住；公佈欄上已核准的內規也不必每次再簽一次。⟧企業身分登入與伺服器託管設定在這次更新中變得更加清晰穩定。當公司的根憑證授權單位僅安裝在作業系統憑證庫時，AWS Bedrock 的模型偵測、token（AI 處理與計費的文字單位）計算與 AWS SSO/STS 呼叫不再因找不到發行憑證而失敗。使用 claude.ai 企業版或團隊版的成員，即使殘留先前 `/login` 留下的 API 金鑰，也能正常載入託管設定；輸入 `/status` 時會明確標示哪一組憑證正在生效、哪一組未被使用。伺服器下發的受控 CLAUDE.md，鍵名為 `claudeMd`，不再觸發安全核准對話框。掛鉤（hook，特定事件發生時被觸發的小程式）、Shell 指令、沙盒與不安全的 `env` 設定仍須核准。",
+                "en": "⟦In a corporate HR system, full-time employees and former contractors have separate accounts and shouldn't get blocked by the old ones, just as approved internal rules on the bulletin board don't need to be re-signed every time.⟧ Enterprise identity login and server-managed settings are clearer and more stable in this update. When a corporate root CA is installed only in the OS certificate store, AWS Bedrock model discovery, token counting, and AWS SSO/STS calls no longer fail due to missing issuer certificates. Members using claude.ai Enterprise or Team plans can now load managed settings normally even if a leftover API key from an earlier `/login` remains; running `/status` clearly marks which credential is in effect and which is unused. Server-managed CLAUDE.md files under the key `claudeMd` no longer trigger the security approval dialog. Hooks, shell commands, sandbox settings, and unsafe `env` configurations still require approval."
+              },
+              "original": "Fixed Bedrock model discovery, token counting and AWS SSO/STS credential calls failing with \"unable to get local issuer certificate\" when the corporate root CA is only in the OS certificate store\nFixed managed settings not loading for claude.ai Enterprise/Team users who also had a leftover API key from an earlier `/login`\nFixed `/status` listing a signed-in claude.ai account and a configured API key as if both were in effect; the credential not in use is now marked\nChanged server-managed settings so a managed CLAUDE.md (`claudeMd`) no longer triggers the security approval dialog; hooks, shell-command, sandbox, and unsafe `env` settings still require approval"
+            },
+            {
+              "title": {
+                "zh-TW": "閘道支援桌面政策，自動阻擋巢狀欄位拼錯",
+                "en": "Gateway supports Desktop policies, automatically blocking misspelled nested fields"
+              },
+              "body": {
+                "zh-TW": "閘道支援下列鍵：\n\n```\noidc.scope_on_refresh  # 範圍鍵\nuserPluginMarketplacesEnabled  # Desktop 鍵\nuserPluginUploadsEnabled  # Desktop 鍵\norgPluginSettings  # 清單格式\n```\n\n身分提供者若須再要 `openid` 才會在更新時給識別令牌，可設定 `oidc.scope_on_refresh`。更新失敗日誌也會具名失敗步驟。Bedrock 被中斷的請求改用 AWS 免費 CountTokens API 計算輸入 token，需授予 IAM `bedrock:CountTokens`，而非改送只含一個 token 的請求。兩把 Desktop 鍵寫在 `desktop` 政策區塊。`orgPluginSettings` 改以清單格式傳送，供 Claude Desktop 1.15200.0 起讀取；舊版忽略。若 `desktop` 政策在 MCP（外部工具協定）的 `managedMcpServers` 或 `orgPluginSettings` 巢狀物件拼錯欄位，啟動時會拒絕並指出該欄位。⟦欄位名拼錯就送不出，會標出錯格。⟧",
+                "en": "The gateway now supports the following keys:\n\n```\noidc.scope_on_refresh  # scope key\nuserPluginMarketplacesEnabled  # Desktop key\nuserPluginUploadsEnabled  # Desktop key\norgPluginSettings  # list format\n```\n\nFor identity providers that only return an ID token on refresh when requested for `openid` again, `oidc.scope_on_refresh` can be configured. Refresh failure logs also name the step that failed. Aborted requests on Bedrock now use AWS's free CountTokens API to count input tokens—requiring IAM `bedrock:CountTokens`—instead of sending a request containing only a single token. The two Desktop keys are placed in the `desktop` policy block. `orgPluginSettings` is now sent in list format for Claude Desktop 1.15200.0 and later to read; older versions ignore it. If a `desktop` policy misspells a field in a nested object under `managedMcpServers` or `orgPluginSettings`, startup is refused and the exact field is identified. ⟦If a field name is misspelled, it cannot be submitted, and the incorrect entry will be marked.⟧"
+              },
+              "original": "Added `oidc.scope_on_refresh` to the Claude apps gateway for IdPs that return an id_token on refresh only when asked for `openid` again\nAdded Claude apps gateway support for newer Claude Desktop keys in `desktop` policy blocks, including `userPluginMarketplacesEnabled` and `userPluginUploadsEnabled`\nImproved the Claude apps gateway's refresh-failure log to name the step that failed\nImproved the Claude apps gateway on Amazon Bedrock: input tokens for an aborted request are now counted with AWS's free CountTokens API (grant `bedrock:CountTokens`) instead of a one-token request\nChanged Claude apps gateway to send `orgPluginSettings` in the list form read by Claude Desktop 1.15200.0 and later; older desktops ignore it\nChanged Claude apps gateway to also refuse to start, naming the field, when a `desktop` policy misspells a field in a nested object of a `managedMcpServers` or `orgPluginSettings` entry"
+            },
+            {
+              "title": {
+                "zh-TW": "外掛載入不再卡死模型，瀏覽器連線更穩固",
+                "en": "Plugin loading no longer freezes model switching, browser connection stabilizes"
+              },
+              "body": {
+                "zh-TW": "外掛掛鉤（hook，特定事件發生時被觸發的小程式）或組織外掛市集載入失敗時，切換模型不再把整段工作階段鎖死；每次切換都會重新檢查並標註拒絕原因。由 SDK 提供的 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器不再於第一輪對話缺席，例如 `Desktop connectors`。雲端託管的 claude.ai 工作階段在增減連接器時，Claude in Chrome 工具不再於中途跳出 `Not connected`。若組織管理員關閉此功能，`--chrome`、`/chrome` 與瀏覽器工具會一併停用。從網址市集安裝外掛時，若主機應用程式（例如 Claude Desktop）把市集存成目錄，先前會失敗並出現：\n\n```\nmarketplace entry path does not stay inside the marketplace directory\n```\n\n⟦這就像音響擴大機更換訊號源時，即使某個外接插頭鬆脫，也不會導致整台機器永久死鎖而無法切換頻道。⟧",
+                "en": "When a plugin hook or organization plugin marketplace fails to load, switching models no longer locks the entire session; each switch now re-checks and states the reason for refusal. SDK-provided MCP servers, such as `Desktop connectors`, no longer miss the first turn of conversation. When adding or removing connectors in cloud-hosted claude.ai sessions, Claude in Chrome tools no longer fail mid-task with `Not connected`. If an organization admin turns off this feature, `--chrome`, `/chrome`, and browser tools are disabled altogether. When installing plugins from a URL marketplace where the host application (such as Claude Desktop) stores the marketplace as a directory, it previously failed with:\n\n```\nmarketplace entry path does not stay inside the marketplace directory\n```\n\n⟦This is like switching input sources on an audio amplifier: even if an external plug comes loose, the entire device will not permanently freeze and prevent changing channels.⟧"
+              },
+              "original": "Fixed model switching staying blocked for the rest of the session after a plugin hook load failure; each switch now re-checks and the refusal names the cause\nFixed model switching being blocked for the session when an organization-managed plugin's marketplace could not be loaded\nFixed SDK-provided MCP servers (e.g. Desktop connectors) sometimes missing from the first turn and only appearing on the next one\nFixed Claude in Chrome tools failing with \"Not connected\" mid-task in cloud-hosted claude.ai sessions when a connector was added or removed\nFixed plugins from a URL marketplace failing to install with \"marketplace entry path does not stay inside the marketplace directory\" when a host app (e.g. Claude Desktop) stores it as a directory\nChanged Claude in Chrome to follow your organization's Claude in Chrome admin setting; when an admin turns it off, `--chrome`, `/chrome` and the browser tools are unavailable"
+            },
+            {
+              "title": {
+                "zh-TW": "代理團隊通知精準送達，結構化輸出提早防呆",
+                "en": "Agent team notifications route accurately, structured output adds early safeguards"
+              },
+              "body": {
+                "zh-TW": "⟦在大型專案團隊中，各工種之間的傳令與交接必須精準到位，才不會因為聯絡簿被洗掉或回報送錯辦公室而造成混亂。⟧當子代理透過 SendMessage 喚醒另一個代理時，對方完成後的通知現在會正確送回給發起喚醒的子代理，不再誤送到主工作階段。代理團隊在 API 長時間重試等待時（例如處於 `CLAUDE_CODE_RETRY_WATCHDOG`），對話紀錄不會再被重試通知擠掉而洗白。執行工作流時，如果子代理正在進行長時間的脈絡壓縮，不會再被誤判為停滯而遭粗暴重啟。結構化輸出方面，Workflow 的 `agent({schema})` 若遇到永遠無法滿足的 JSON Schema，會事先拒絕；達到重試上限時也會附上最後一次驗證錯誤。子代理啟動的背景指令取消了 1 小時限制，會執行到自己結束或被停止為止，並對齊主工作階段。",
+                "en": "⟦In a large project team, handoffs and messages between different roles must be delivered accurately to prevent confusion from a wiped contact book or reports sent to the wrong office.⟧ When a subagent wakes another agent via SendMessage, the completion notification is now correctly sent back to the subagent that initiated the wake-up, rather than mistakenly delivered to the main session. During long API retry waits (such as under `CLAUDE_CODE_RETRY_WATCHDOG`), agent team transcripts are no longer evicted or wiped blank by retry notices. When running workflows, if a subagent is undergoing long context compaction, it is no longer misidentified as stalled and abruptly restarted. For structured output, Workflow's `agent({schema})` now rejects unsatisfiable JSON Schemas up front, and errors hitting the retry limit will include the last validation failure. The 1-hour time limit on background commands started by subagents has been removed; they now run until they exit or are stopped, matching the main session."
+              },
+              "original": "Fixed a subagent that resumed another agent via SendMessage never being woken by that agent's completion (the notification went to the main conversation instead)\nFixed agent teams: an in-process teammate's transcript losing messages, or going blank, during long API retry waits (e.g. under `CLAUDE_CODE_RETRY_WATCHDOG`) as retry notices evicted real messages\nFixed Workflow tool subagents being restarted as stalled while a long context compaction was still in progress\nImproved structured output: Workflow `agent({schema})` rejects a JSON Schema that can never be satisfied up front, and retry-cap errors now include the last validation failure\nRemoved the one-hour time limit on background commands started by subagents; they now run until they exit or are stopped, matching the main session"
+            },
+            {
+              "title": {
+                "zh-TW": "背景工作階段防幽靈重影，工作樹安全清點防手滑",
+                "en": "Background sessions prevent ghost twins, worktree deletions safely guard unpushed commits"
+              },
+              "body": {
+                "zh-TW": "移至背景的工作階段不會再於 `ListAgents` 出現同名的 `interactive` 幽靈分身，檢視器也不再收到它的 `SendMessage`。多個工作階段共用同一個專案目錄時偶發的輸出交換錯誤也已修復。刪除帶有未推送提交的工作樹（worktree，Git 讓同一專案平行開多份副本的功能）背景工作階段時，第一次會報出分支名稱與提交數量，再執行一次刪除才會丟掉該工作樹。以 `-p --resume` 或 `--continue` 接續若遺失 Git 詮釋資料，失敗一次後會跳過工作樹繼續執行。自託管 runner 若設定了 `--kill-session-after-min`，遇到純粹等待使用者輸入的暫停狀態時會和平釋放，不會強制終止並報錯。⟦就像管理共用辦公區的臨時座位，分身不會重疊登記；桌上還有未歸檔文件會先清點，等候主人回覆也不會被直接清空。⟧",
+                "en": "Sessions moved to the background no longer appear in `ListAgents` as a phantom `interactive` twin with the same name, and the viewer will no longer receive its `SendMessage` deliveries. Intermittent output swap errors when multiple sessions share the same project directory have also been fixed. When deleting a background session whose worktree has unpushed commits, the first attempt reports the branch name and commit count, and deleting again discards the worktree. Resuming with `-p --resume` or `--continue` when Git metadata is lost will fail once, then proceed without the worktree. If a self-hosted runner is configured with `--kill-session-after-min`, encountering a paused state that is purely waiting for user input will release the session peacefully instead of killing it and reporting a failure. ⟦Just like managing hot desks in a shared office: duplicate identities are never registered twice, desks with unfiled documents are inventoried first, and waiting for an owner's reply won't trigger an immediate wipe.⟧"
+              },
+              "original": "Fixed `-p --resume`/`--continue` (as used by the desktop app) failing on every retry once a session's worktree directory lost its git metadata; it now fails once, then resumes without the worktree\nFixed a session that moved to the background appearing twice in ListAgents (once as a phantom \"interactive\" twin with the same name) and receiving SendMessage deliveries in the viewer\nFixed intermittent \"task output swap refused\" errors when many sessions share a project directory\nImproved deleting a background session whose worktree has unpushed commits: the message now names the branch and commit count, and deleting again discards the worktree\nChanged self-hosted runner `--kill-session-after-min` to release a session that is only waiting on its user (paused, resumable on the next message) instead of killing it and reporting a failure"
+            },
+            {
+              "title": {
+                "zh-TW": "歷史回溯確實驗證備份，GitLab 連結不再誤指 GitHub",
+                "en": "History rewind verifies backups reliably, GitLab links no longer point to GitHub"
+              },
+              "body": {
+                "zh-TW": "當你想透過 `/rewind` 或 `--rewind-files` 回溯專案狀態時，系統現在有了更嚴格的確認機制。若檢查點備份檔案遺失導致實際上未還原任何內容，系統不會再虛報成功；回溯後也不會殘留舊回合的讀取紀錄，避免外部修改檔案後發生誤判或重複塞入整個檔案。在遠端或桌面 App 工作階段中發布產出物時，不會再無故多彈出一個瀏覽器分頁，協作工作階段中產出物工具首次呼叫的參數驗證錯誤也已修正。針對使用 GitLab 的開發者，巢狀子群組的專案現在能被正確辨識為 GitLab 存放庫，終端機顯示的議題編號連結（例如 `owner/repo#123`）也會精確連往 gitlab.com 而非誤連至 GitHub。⟦這就像在記事本上按復原鍵，系統會確實檢查底稿存檔，不再假裝已經還原，也不會把隔壁頁的筆記目錄給搞混。⟧",
+                "en": "When rewinding project state via `/rewind` or `--rewind-files`, the system now includes stricter verification mechanisms. If checkpoint backup files are missing and nothing is actually restored, the system no longer falsely reports success, nor does it leave stale file-read tracking from rewound turns—preventing misjudgments or full-file re-injections after external edits. Publishing an artifact in a remote or desktop app session no longer opens an unnecessary extra browser tab, and parameter validation errors on the first artifact tool call in collaboration sessions have been resolved. For developers using GitLab, projects in nested subgroups are now properly recognized as GitLab repositories, and issue reference links in the terminal (such as `owner/repo#123`) link accurately to gitlab.com rather than mistakenly to GitHub. ⟦Like pressing undo in a notebook: the system verifies the draft backup instead of pretending it restored, without mixing up the note catalog on adjacent pages.⟧"
+              },
+              "original": "Fixed `/rewind` and `--rewind-files` reporting success when checkpoint backup files were missing and nothing was actually restored\nFixed `/rewind` leaving stale file-read tracking from the rewound-away turns, which caused \"File unchanged since last read\" stubs and full-file re-injection after external edits\nFixed an extra browser tab opening when an artifact is published in a session you're driving from claude.ai, the desktop app, or mobile (Remote Control)\nFixed the Artifact tool's first call failing with an \"Invalid tool parameters\" validation error in some Cowork sessions\nFixed repository detection for GitLab projects in nested subgroups (e.g. `gitlab.com/group/subgroup/project`)\nFixed `owner/repo#123` issue references in rendered output linking to github.com when working in a GitLab repository; they now link to the gitlab.com issue"
+            },
+            {
+              "title": {
+                "zh-TW": "技能精準保留選取行數，雲端審查等候更寬裕",
+                "en": "Skills preserve selected line counts accurately, cloud review wait window extended"
+              },
+              "body": {
+                "zh-TW": "⟦在編輯器裡呼叫專屬助理就像用螢光筆標出重點交給專家，選取的行數會原封不動交到對方手中。⟧IDE 選取的行數在觸發技能（skill）或斜線指令時不會再遺失，Claude 能收到 `N lines selected` 這句脈絡。受控設定的 `skillOverrides` 若以內建技能別名為鍵（例如用 `checkup` 覆寫 `/doctor`）已能正常生效，`Skill(name)` 拒絕規則也完整涵蓋了 `<目錄>:名稱` 形式的巢狀技能。內建的 `claude-api` 技能範例已更新 Go、Java 與 C# 程式碼至最新世代模型識別碼，並說明較便宜的 worker 或子代理模型也應採用新世代模型。雲端審查指令 `/ultrareview` 與 `claude ultrareview` 的等候時間上限從 30 分鐘延長至 45 分鐘。",
+                "en": "⟦Calling a dedicated assistant in your editor is like highlighting key sections for an expert—the exact lines you selected reach their hands untouched.⟧ IDE line selections are no longer lost when triggering a skill or slash command, allowing Claude to receive the `N lines selected` context. Managed `skillOverrides` entries keyed on a bundled skill's alias—such as overriding `/doctor` with `checkup`—now apply properly, and `Skill(name)` deny rules fully cover nested skills written in the `<dir>:name` format. The bundled `claude-api` skill examples have updated their Go, Java, and C# code to current-generation model IDs, clarifying that cheaper worker or subagent models should also use current-generation models. The maximum wait time for cloud review commands `/ultrareview` and `claude ultrareview` has been extended from 30 minutes to 45 minutes."
+              },
+              "original": "Fixed managed `skillOverrides` entries keyed on a bundled skill's alias (e.g. `checkup` for `/doctor`) not applying, and `Skill(name)` deny rules not covering a nested skill listed as `<dir>:name`\nFixed IDE line selections being dropped when running a skill or slash command (the \"N lines selected\" context now reaches Claude)\nImproved `/ultrareview` and `claude ultrareview` to wait up to 45 minutes (previously 30) for long-running cloud reviews\nUpdated the bundled `claude-api` skill so its Go, Java, and C# samples use current-generation model IDs, and clarified that cheaper worker or sub-agent models should be current-generation too"
+            },
+            {
+              "title": {
+                "zh-TW": "VS Code 頁尾顯示努力程度，回應重試不留殘影",
+                "en": "VS Code footer displays effort level, retrying responses leaves no artifacts"
+              },
+              "body": {
+                "zh-TW": "VS Code 擴充套件在介面顯示與工作階段管理上變得更加俐落。底部的模型標籤現在會直接顯示目前選擇的努力程度，切換模型後數值不再停留在舊狀態，且標籤尺寸已恢復為原本的緊湊大小。工作階段清單的狀態篩選選單中，新增了 Open 與 Closed 兩個選項，方便你快速分類與尋找專案。此外，Claude Code 對 `dropped response` 重試後，畫面不再留下半截訊息、空白工具卡或多餘的 `Thought for` 行。⟦就像把儀表板重新擦拭乾淨，開關檔位一目了然，重試後也不會留下半截殘缺的草稿。⟧",
+                "en": "The VS Code extension brings cleaner interface rendering and session management. The model pill in the footer now directly displays the currently selected effort level, no longer retaining a stale value after switching models, and pill dimensions have returned to their earlier compact size. In the session list's status filter menu, Open and Closed options have been added for faster project categorization and searching. In addition, after Claude Code retries a `dropped response`, the screen no longer leaves behind half-finished messages, empty tool cards, or an extra `Thought for` line. ⟦Just like wiping the dashboard clean so gear settings are clear at a glance, with no half-written drafts left behind after a retry.⟧"
+              },
+              "original": "[VSCode] Added the selected effort level to the footer model pill, fixed a stale effort level after switching models, and returned the footer pills to their earlier compact size\n[VSCode] Added Open and Closed to the session list's status filter menu\n[VSCode] Fixed a half-finished message, an empty tool card or an extra \"Thought for\" line staying on screen after Claude Code retried a dropped response"
+            },
+            {
+              "title": {
+                "zh-TW": "VS Code 智慧切換開啟分頁，遠端設定即時套用",
+                "en": "VS Code smartly switches open tabs, remote settings apply immediately"
+              },
+              "body": {
+                "zh-TW": "在 VS Code 中操作多個分頁與遠端控制時的體驗更加順暢。在歷史工作階段選擇器中點選已在其他分頁開啟的工作階段時，編輯器會直接切換到該分頁，不再重複載入同一份對話。在分頁畫面重新整理期間執行重新命名（Rename）指令，系統現在會確實套用新名稱，不再無聲失效。新開啟工作階段時若自動啟動 Remote Control，歡迎畫面不會再莫名消失。此外，若在分頁剛啟動的當下切換「為所有工作階段啟用 Remote Control」，該設定現在能正確套用到正在初始化的分頁中。⟦好比辦公桌上的文件夾標籤與切換器，翻閱已打開的卷宗會直接引導至該分頁，新開的檔案盒也不會因為剛啟動就漏接全域開關。⟧",
+                "en": "Working across multiple tabs and Remote Control in VS Code is now smoother. Selecting a session from the session history picker that is already open in another tab directly switches to that tab instead of loading the same conversation a second time. Executing the Rename command while a tab view is reloading now reliably applies the new name instead of silently doing nothing. When opening a new session where Remote Control starts automatically, the welcome screen no longer inexplicably disappears. Furthermore, toggling \"Enable Remote Control for all sessions\" right as a tab is launching now properly applies to the initializing tab. ⟦Like folder tabs and switchers on a desk: looking up an already opened file directs you straight to that tab, and a newly opened file box won't miss the global switch just because it was starting up.⟧"
+              },
+              "original": "[VSCode] Fixed the welcome screen disappearing in a new session when Remote Control turns on automatically\n[VSCode] Fixed the session history picker loading a session a second time when it is already open in another tab; it now switches to that tab\n[VSCode] Fixed the session tab's Rename command silently doing nothing while the tab's view was reloading; it now always applies\n[VSCode] Fixed \"Enable Remote Control for all sessions\" not applying to a session tab that was still starting when the toggle was flipped"
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "2.1.259",
