@@ -1,0 +1,94 @@
+{
+  "version": "1.1.27",
+  "period": "2026-09-05",
+  "items": [
+    {
+      "title": {
+        "zh-TW": "`/model` 支援單次提問切換，輸入提示與啟動選單全面修正",
+        "en": "`/model` Supports Single-Prompt Model Switching with Comprehensive Fixes to Input Hints and Startup Menus"
+      },
+      "body": {
+        "zh-TW": "對話進行到一半想換個模型問一句話，現在不必更改整體設定。⟦像向主治醫師看診時，中途請隔壁專科專家進診間單獨看一張片子，問完立即回到主治醫師，不必重新辦理轉院手續。⟧新指令 `/model <name> <prompt>` 讓你用另一個模型跑單次提問，結束後工作階段（你與 AI 進行對話的一段連線）自動切回原本模型，完全不影響已儲存的預設值。寫完程式想打 `/model gemini-3.8-flash 檢查資安漏洞` 諮詢其他觀點，這正是使用時機。此外，輸入 `/model` 時會即時浮現 `[model]` 參數提示，不開求助說明也能知道用法。若工作階段已在該模型，指令改為回報 `Model already set to <name>` 而非誤報切換。在工作階段啟動完成前輸入不帶參數的 `/model`，現在也會正常開啟模型挑選器。",
+        "en": "You no longer need to change your global settings when you want to switch models for a single question mid-conversation. ⟦It is like consulting your primary physician and having a specialist step into the examination room just to review a single scan, immediately returning to your primary physician once done without undergoing hospital transfer procedures.⟧ The new `/model <name> <prompt>` command lets you run a single prompt on another model, automatically returning the session to its original model afterward without affecting your saved defaults. If you finish writing code and want to run `/model gemini-3.8-flash 檢查資安漏洞` to consult another perspective, this is the exact use case. In addition, typing `/model` now displays a real-time `[model]` argument hint so you know how to use it without opening help. If the session is already using that model, the command now reports `Model already set to <name>` instead of falsely reporting a switch. Running `/model` without arguments before the session finishes starting up also now properly opens the model picker."
+      },
+      "original": "Added `/model <name> <prompt>`, which runs a single prompt on another model and then returns the session to the model it was using, so you can consult a different model mid-conversation without disturbing your saved default.\nImproved `/model` to show a `[model]` argument hint as you type, so the command's arguments are discoverable without opening help.\nChanged `/model <name>` to report `Model already set to <name>` when the session is already using that model, instead of reporting a switch that did not happen.\nFixed `/model` with no argument doing nothing when run before the session had finished starting up, so it now opens the model picker."
+    },
+    {
+      "title": {
+        "zh-TW": "Markdown 自訂代理支援 `agents` 清單，直接宣告相依子代理路徑",
+        "en": "Custom Markdown Agents Support `agents` List to Directly Declare Dependent Subagent Paths"
+      },
+      "body": {
+        "zh-TW": "替專案設計多代理協作時，自訂代理現在能直接宣告自己專屬的下層幫手。在定義代理的 Markdown 檔案開頭，檔案標頭（frontmatter，用三條橫線包夾的設定區塊）新增了 `agents` 清單。你可以直接列出該代理依賴的各個子代理，並完全比照 `skills` 技能的定位方式，自由使用工作區相對路徑、絕對路徑或代理相對路徑：\n\n```\n---\nagents:\n  - ./researcher.md       # 代理相對路徑\n  - subagents/verifier.md # 工作區相對路徑\n  - /global/audit.md      # 絕對路徑\n---\n```\n\n當你撰寫一份資安稽核代理，希望它自動叫出專門查閱程式碼的輔助幫手，只要在定義檔開頭寫好這份清單，系統就會精準載入依賴項目。⟦好比主廚在宴席菜單頂端註明各道菜餚專屬的備料助手與冷盤學徒，後廚依名冊在開工前配齊人手，不必等客人入座後才手忙腳亂到處調派支援。⟧",
+        "en": "When designing multi-agent collaboration for a project, custom agents can now directly declare their own subordinate helpers. The Markdown frontmatter at the beginning of an agent definition file has added an `agents` list. You can directly list the subagents this agent depends on, using workspace-relative paths, absolute paths, or agent-relative paths just like `skills`:\n\n```\n---\nagents:\n  - ./researcher.md       # Agent-relative path\n  - subagents/verifier.md # Workspace-relative path\n  - /global/audit.md      # Absolute path\n---\n```\n\nWhen creating a security audit agent that needs to automatically invoke a dedicated code inspection helper, simply declaring this list at the top of the definition file ensures the system accurately loads the dependencies. ⟦Like a head chef listing dedicated prep assistants and cold-dish apprentices at the top of a banquet menu so the kitchen can staff up before work begins, rather than scrambling to dispatch helpers after guests are seated.⟧"
+      },
+      "original": "Added an `agents` list to custom agent Markdown frontmatter, letting an agent declare the subagents it depends on using the same workspace-relative, absolute, and agent-relative path rules as `skills`."
+    },
+    {
+      "title": {
+        "zh-TW": "狀態列與視窗標題腳本新增 `conversation_title`，即時同步對話重新命名",
+        "en": "Status Line and Window Title Scripts Add `conversation_title` to Synchronize Renamed Conversations in Real Time"
+      },
+      "body": {
+        "zh-TW": "想要在螢幕邊界隨時掌握當前對話，自訂腳本現在能取得更豐富的資訊。⟦如同會議室門口掛著的數位名牌，只要發起人更改專案名稱，螢幕隨即同步換上新標題，讓走進門的人一目了然。⟧傳遞給自訂狀態列（終端機最底下的即時資訊列）與視窗標題腳本的 JSON 酬載中，新增了 `conversation_title` 欄位。你的腳本可以直接讀取該欄位來顯示當前進行中的對話名稱，即使中途為對話重新命名，介面也能立即跟進最新標題，不再停留在舊名稱或預設代號：\n\n```\n{\n  \"conversation_title\": \"重構登入模組\"\n}\n```\n\n當你同時開啟多個終端機視窗處理不同專案，只要腳本讀取這個新欄位，就能清楚辨認每個視窗正在進行的任務主題。",
+        "en": "Custom scripts can now retrieve richer information to help you track active conversations at the screen edge at any time. ⟦Like a digital nameplate outside a conference room that instantly updates when the organizer renames the project, giving anyone walking in immediate clarity.⟧ The JSON payload passed to custom status line and window title scripts now includes a `conversation_title` field. Your scripts can directly read this field to display the active conversation's name, picking up renames immediately rather than staying stuck on old names or default identifiers:\n\n```\n{\n  \"conversation_title\": \"Refactor login module\"\n}\n```\n\nWhen running multiple terminal windows across different projects, having your script read this new field makes it easy to identify the task topic in each window."
+      },
+      "original": "Added a `conversation_title` field to the JSON payload passed to custom status line and window title scripts, so they can show the active conversation's name and pick up renames immediately."
+    },
+    {
+      "title": {
+        "zh-TW": "無頭與列印模式 `-p` 執行加固，未授權動作明確列出且紀錄完整落盤",
+        "en": "Hardened Execution for Headless and Print Mode `-p`: Unauthorized Actions Explicitly Listed and Records Flushed to Disk"
+      },
+      "body": {
+        "zh-TW": "把 AI 放入自動化排程背景執行，最怕工具被拒絕時毫無動靜、或者紀錄沒寫完就中途斷線。⟦宛如派出全自動無人採樣車，遇到未經授權的管制區域時不再裝作沒事直接略過，而是在日誌中白紙黑字寫明被拒絕的地點，且返航時一定等所有檢測數據完整寫入隨身碟才關閉電源。⟧以 `-p` 參數跑 headless（無頭模式，沒有終端機視窗的執行模式）時，過去系統若遇到未獲授權的工具動作，會默默跳過不執行；現在程式結束時會明確列出被拒絕的動作名稱，並在 JSON 輸出中標記為 `denied_actions`。此外，列印模式以前在工作階段尚未完成關閉前就過早退出，容易導致末尾的對話歷史紀錄還沒寫入磁碟就被丟棄；現在會確實等待工作階段完整落盤後才退出。",
+        "en": "When running AI in background automated schedules, the worst issues are silent tool rejections or dropped records due to premature disconnections. ⟦Like an autonomous sampling rover that, when encountering an unauthorized restricted zone, no longer skips past it silently but clearly logs the refused location in writing, and always waits for all telemetry to flush to storage before powering off on its return.⟧ When running headless with `-p`, the system previously skipped unauthorized tool actions silently; it now ends with a notice naming the refused actions and reports them as `denied_actions` in the JSON output. In addition, print mode previously exited before the session finished shutting down, which could drop trailing conversation history before it reached disk; it now properly waits for the session to finish writing to disk before exiting."
+      },
+      "original": "Fixed headless runs with `-p` silently skipping tool actions they were not permitted to take, which now end with a notice naming the refused actions and report them as `denied_actions` in the JSON output.\nFixed print mode (`-p`) exiting before the session finished shutting down, which could drop the run's trailing conversation history before it reached disk."
+    },
+    {
+      "title": {
+        "zh-TW": "MCP 工具呼叫嚴格核對規格，虛構參數主動拒絕並修正",
+        "en": "MCP Tool Calls Strictly Validate Schemas, Actively Rejecting and Correcting Invented Parameters"
+      },
+      "body": {
+        "zh-TW": "讓 AI 連接外部伺服器執行專屬工具，傳入參數的檢驗標準現在變得更加嚴密。過去呼叫 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器時，如果 AI 自行虛構了該伺服器規格架構中從未宣告過的額外參數，舊版系統往往會默默丟棄這些多餘參數而不提示，導致呼叫行為偏離預期。現在底層驗證機制已修正，遇到規格外的虛構參數會主動予以拒絕並要求修正，確保每次工具呼叫都嚴格符合定義。⟦這就像去銀行臨櫃填寫匯款單，如果填表人自作主張在空白處多勾選了規格從未印製的自創項目，櫃員不會裝作沒看見直接劃掉，而是會當場退單並指引你填寫合規欄位。⟧",
+        "en": "Validation standards for passing arguments have become much stricter when connecting AI to external servers for dedicated tools. When calling MCP (Model Context Protocol) servers in the past, if the AI invented extra arguments never declared in the server's schema, the system often silently dropped them without notice, causing unexpected behavior. The underlying validation mechanism is now fixed to actively reject and correct invented parameters outside the schema, ensuring every tool call strictly matches definitions. ⟦Like filling out a bank transfer slip where, if the applicant checks custom options never printed on the form, the teller will not silently cross them out, but will reject the slip on the spot and guide you to fill out valid fields.⟧"
+      },
+      "original": "Fixed tool calls to MCP servers accepting arguments the server's own schema never declared, so an invented parameter is now rejected and corrected instead of being silently dropped."
+    },
+    {
+      "title": {
+        "zh-TW": "設定面板詳述輸出詳細度，初始引導畫面按鍵提示全面標準化",
+        "en": "Settings Panel Details Verbosity Levels, and Onboarding Key Hints Are Fully Standardized"
+      },
+      "body": {
+        "zh-TW": "在終端機調整設定或初次登入時，畫面引導變得更加貼合你的使用習慣。⟦猶如在科技展廳的觸控機台前瀏覽，每當手勢移到不同選項，旁邊的動態看板就會詳細解釋功能差異，且按鈕背光會自動配合展廳色調，遇到單一通道時更會主動收起多餘的方向提示。⟧開啟 `/settings` 設定面板時，游標移到各個 Verbosity 詳細度選項上，畫面會即時展開說明文字。它會詳細描述工具呼叫、終端指令與思考推導是完整展開顯示，還是濃縮進 token（AI 處理與計費的文字單位）計量表中。此外，帳號登入與 Google Cloud 設定引導畫面全面改用命令列標準樣式的按鍵提示，能完全跟隨你的終端配色與自訂鍵位綁定，當畫面上只有單一選項可選時，系統也會主動隱藏多餘的方向導覽提示。",
+        "en": "On-screen guidance fits your habits much better when tweaking settings in the terminal or logging in for the first time. ⟦Like browsing a touchscreen kiosk in a tech showroom where highlighting different options prompts a dynamic billboard to explain functional differences, button backlights adapt to showroom colors, and navigation arrows hide when only a single path exists.⟧ When opening the `/settings` panel, highlighting each Verbosity option now expands explanatory text in real time. It describes in detail whether tool calls, terminal commands, and thoughts are shown in full or collapsed into a token metrics table. In addition, sign-in and Google Cloud setup screens now use standard styled CLI key hints that follow your terminal color scheme and custom keybindings, dropping navigation hints when only one option is available."
+      },
+      "original": "Improved the `/settings` panel so each Verbosity option explains itself as you highlight it, describing whether tool calls, commands, and thoughts are shown in full or collapsed into a token metrics table.\nImproved the sign-in and Google Cloud setup screens to use the CLI's standard styled key hints, which follow your color scheme and keybindings and drop the navigation hint when only one option is available."
+    },
+    {
+      "title": {
+        "zh-TW": "Vim 常規模式解開 `?` 按鍵衝突，行內搜尋與替換指令順暢運作",
+        "en": "Vim Normal Mode Resolves `?` Key Conflict, Restoring Inline Search and Replace Operators"
+      },
+      "body": {
+        "zh-TW": "習慣在終端機開啟 Vim 鍵位的工程師，現在於輸入列進行行內定位時不再誤觸彈出視窗。過去在 Vim Normal mode（Vim 編輯器的常規命令模式）下，只要輸入框內已經包含文字，按下 `?` 鍵就會錯誤地觸發快速鍵面板跳出，導致 `f?`、`t?` 以及 `df?` 等字元搜尋與替換操作符號全面失靈。現在這項按鍵攔截問題已經修復，當輸入列已有文字時，這些搜尋與替換指令都能順暢運作；只有在輸入列完全空白的待機狀態下，按下 `?` 才會如常開啟快速鍵說明。⟦彷彿在打字機上編修文件，當滾筒夾著稿紙且正在編輯時，按下特殊標點會精確執行行內字元搜尋、跳位與替換，只有在完全抽空稿紙的待機狀態下，同一個按鍵才會化身為叫出操作手冊的呼叫鈴。⟧",
+        "en": "Engineers used to Vim keybindings in the terminal will no longer accidentally trigger popup panels during inline navigation in the prompt. Previously in Vim Normal mode, pressing `?` while the prompt already contained text incorrectly opened the shortcuts panel, breaking character-search and replace operators such as `f?`, `t?`, and `df?`. This key intercept issue is now fixed so that search and replace commands work smoothly when the prompt has text; pressing `?` only opens shortcut help when the prompt is completely empty. ⟦Like editing on a typewriter where pressing a punctuation key performs precise inline character search, jumping, and replacement while paper is loaded, and only acts as a service bell summoning the manual when the roller is completely empty.⟧"
+      },
+      "original": "Fixed `?` in Vim Normal mode opening the shortcuts panel while the prompt already contained text, so character-search and replace operators such as `f?`, `t?`, and `df?` work; `?` still opens shortcuts on an empty prompt."
+    },
+    {
+      "title": {
+        "zh-TW": "已授權存取工作區外檔案時，讀寫跨對話產物不再跳多餘確認",
+        "en": "Reading and Writing Cross-Conversation Artifacts No Longer Prompts for Redundant Approval When Workspace Access Is Granted"
+      },
+      "body": {
+        "zh-TW": "跨對話調閱過往產出的分析文件，不必再被重複彈出的確認視窗打斷工作節奏。當使用者在對話中已經明確核准代理存取工作區以外的檔案路徑，後續若代理需要讀取或寫入另一段對話所產生的產物（artifact，獨立生成的各類文件或程式碼）檔案，過去系統仍會反覆彈出多餘的授權詢問對話框，中斷連續操作；現在這項重複提示已被徹底修復，只要先前已放行外部路徑，代理就能順暢讀寫其他對話的產物。⟦恰似入住全包式度假村，既然手腕上已經配戴了通行全區的識別手環，走進隔壁活動中心借閱其他房客留下的共享桌遊時，櫃檯就不該要求你再次出示護照並重複簽名。⟧",
+        "en": "Retrieving past analysis documents across conversations no longer interrupts your workflow with repeated confirmation popups. Once you explicitly allow an agent access to file paths outside your workspace, the system previously still prompted repeatedly for approval whenever the agent read or wrote artifact files created by another conversation; this redundant prompt is now fixed so the agent smoothly accesses artifacts from other conversations once external paths have been permitted. ⟦Like staying at an all-inclusive resort where wearing an all-access wristband means the front desk should not ask for your passport and signature again when you borrow board games from the recreation center next door.⟧"
+      },
+      "original": "Fixed a redundant approval prompt when the agent reads or writes another conversation's artifact files after you have already allowed access to files outside your workspace."
+    }
+  ]
+}
