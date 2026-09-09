@@ -10,167 +10,179 @@
           "period": "2026-09-08",
           "items": [
             {
+              "title": {
+                "zh-TW": "自訂閘道連線修復，未公開變數不再誤擋請求",
+                "en": "Custom gateway connection fixed, undocumented variable no longer falsely blocks requests"
+              },
+              "body": {
+                "zh-TW": "如果你透過代理伺服器（替使用者轉發請求的中繼主機）連線 Claude，在 2.1.265 版可能遇到請求全部失敗。這是因為未記載的環境變數（開程式前預先設定的控制參數） `CLAUDE_CODE_USE_GATEWAY` 出現回歸異常。過去除非同時設定 `ANTHROPIC_BASE_URL` 與 `ANTHROPIC_AUTH_TOKEN`，否則它會被忽略；前一版卻單獨強制要求雲端閘道登入，導致搭配一般 API 金鑰、`apiKeyHelper` 或自訂標頭時每次請求都失敗。現在 2.1.266 版已修復，單獨存在時再次被忽略，你無須修改任何設定即可正常使用。\n\n```\n# 2.1.265 曾因單獨設定此未公開環境變數而強制要求雲端閘道登入：\nexport CLAUDE_CODE_USE_GATEWAY=true\n\n# 過去與現在：除非同時設定以下兩者，否則該變數會被忽略：\nexport ANTHROPIC_BASE_URL=\"https://gateway.example.com\"\nexport ANTHROPIC_AUTH_TOKEN=\"your-token\"\n\n# 搭配以下任一驗證時，前一版每次發出請求都會報錯：\n# 1. API 金鑰（API key）\n# 2. apiKeyHelper\n# 3. 自訂驗證標頭（custom auth headers）\n# 錯誤：Not signed in to the Cloud gateway\n```\n\n⟦這好比音響上的擴大機開關，原廠線材沒插齊時會自動忽略，前一版卻擅自鎖死專屬驗證導致放不出聲音，如今修復後恢復靜默。⟧",
+                "en": "If you connect to Claude through a proxy server, all your requests may have failed in version 2.1.265. This was caused by a regression with the undocumented environment variable `CLAUDE_CODE_USE_GATEWAY`. Previously, it was ignored unless both `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN` were set; however, the previous version forced Cloud gateway sign-in on its own, causing every request to fail when paired with a standard API key, `apiKeyHelper`, or custom auth headers. Version 2.1.266 has now fixed this so the variable is ignored again when set alone, allowing normal use without changing any settings.\n\n```\n# In 2.1.265, setting this undocumented environment variable alone forced Cloud gateway sign-in:\nexport CLAUDE_CODE_USE_GATEWAY=true\n\n# Previously and now: the variable is ignored unless both of the following are set:\nexport ANTHROPIC_BASE_URL=\"https://gateway.example.com\"\nexport ANTHROPIC_AUTH_TOKEN=\"your-token\"\n\n# When paired with any of the following authentication methods, the previous version errored on every request:\n# 1. API key\n# 2. apiKeyHelper\n# 3. Custom auth headers\n# Error: Not signed in to the Cloud gateway\n```\n\n⟦This is like an amplifier switch on an audio system that is automatically ignored when original cables are not fully plugged in; the previous version arbitrarily locked into proprietary authentication and produced no sound, but now it returns to staying silent after the fix.⟧"
+              },
               "original": "Fixed a 2.1.265 regression affecting LLM-gateway and proxy setups: the undocumented `CLAUDE_CODE_USE_GATEWAY` environment variable, previously ignored unless `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN` were both set, began forcing Cloud-gateway sign-in on its own in 2.1.265, so configurations that set it alongside an API key, `apiKeyHelper`, or custom auth headers failed every request with \"Not signed in to the Cloud gateway\". The variable on its own is ignored again; no configuration change is needed"
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "2.1.265",
           "period": "2026-09-08",
           "items": [
             {
-              "original": "Added `user.email` and `user.groups` to the telemetry Claude Desktop and Cowork send through a Claude apps gateway, matching terminal sessions"
-            },
-            {
+              "title": {
+                "zh-TW": "外掛目錄支援整批載入，執行中增刪子資料夾動態生效",
+                "en": "Plugin Directory Supports Batch Loading with Dynamic Hot-Reloading for Subfolders"
+              },
+              "body": {
+                "zh-TW": "如果你平常習慣自行開發多套擴充功能，過去每次啟動命令列時都得逐一指定外掛路徑。⟦這好比在展示架上加裝多格活動收納匣，只要把裝有說明清單的小抽屜放進去就會自動啟用，中途抽換或添補也不必拆開展示架。⟧現在 `--plugin-dir` 參數直接支援指向包含多個外掛的父資料夾。只要其下的每個子資料夾具備清單檔案（記錄外掛名稱與規格的說明文件），系統啟動時就會自動識別並載入全部擴充套件。更方便的是，在程式執行運作途中，若你在該目錄下新增或移除子資料夾，變更都會被即時動態偵測並直接生效，省下反覆重開對話的麻煩。",
+                "en": "If you regularly develop multiple extensions, you previously had to specify each plugin path individually whenever starting the command line. ⟦This is like adding a multi-slot modular organizer to a display rack, where slotting in small drawers with manifest cards automatically enables them, and swapping or adding drawers midway requires no disassembly of the rack.⟧ Now, the `--plugin-dir` flag directly supports pointing to a parent folder containing multiple plugins. As long as each child folder inside has a manifest file (a specification document recording plugin metadata), the system automatically discovers and loads all extensions on startup. Even better, adding or removing child folders under that directory while running is dynamically detected and applied immediately, saving you from repeatedly restarting sessions."
+              },
               "original": "Added support for pointing `--plugin-dir` at a folder of plugins: each child folder with a manifest loads, and children added or removed while running are picked up"
             },
             {
-              "original": "Added a 1 GB cap on tool results saved to disk; the in-conversation preview says when a saved file was truncated"
+              "title": {
+                "zh-TW": "外掛路徑檢查防護補強，市集資訊與安裝清單更完整",
+                "en": "Plugin Path Containment Checks Hardened with More Complete Marketplace Details and Lists"
+              },
+              "body": {
+                "zh-TW": "管理外掛時的安全驗證與市集清單呈現，在這版獲得全面修正。在 macOS 與 Linux 上，路徑含有反斜線的外掛不再繞過符號連結（指向目標路徑的捷徑檔案）安全檢查。名稱開頭為雙點號的資料夾，也不會再被誤判為超出外掛根目錄。若遇到作業系統無法檢查的元件目錄（例如符號連結無限循環），過去會被默默略過，現在會於 `/plugin` 明確回報錯誤碼。在資訊顯示方面，若外掛中繼資料只寫在 `plugin.json`，市集探索清單與 `claude plugin list --json --available` 會完整顯示描述與名稱；已安裝分頁和 `claude plugin details` 則優先採用市集登記資訊，並以檔案補齊缺漏欄位。⟦整體審查好比商業大樓嚴格查驗各進駐商家的登記捷徑與門牌，並將專櫃招牌統整更新，缺漏資訊也能自動對照底冊補齊。⟧",
+                "en": "Security validation and marketplace listing displays when managing plugins have received comprehensive fixes in this release. On macOS and Linux, plugins with paths containing backslashes no longer bypass symlink containment checks. Folders whose names start with two dots are no longer mistakenly refused as outside the plugin root. If the OS cannot check a component folder (such as a symlink loop), it is now explicitly reported with an error code in `/plugin` instead of being silently skipped. Regarding information display, marketplace discovery listings and `claude plugin list --json --available` now fully display descriptions and names for plugins whose metadata lives only in `plugin.json`. Meanwhile, the Installed tab and `claude plugin details` prioritize marketplace registry entries, filling any missing fields from `plugin.json`. ⟦The entire audit is like a commercial building strictly vetting registration shortcuts and unit numbers for every merchant while updating tenant signage and automatically filling in missing directory details against master records.⟧"
+              },
+              "original": "Fixed a plugin path containing a backslash bypassing the symlink containment check on macOS and Linux\nFixed plugin directories whose names begin with two dots being wrongly refused as outside the plugin root\nFixed a plugin's default component folder that the OS cannot check, such as a symlink loop, being silently skipped; it is now reported in `/plugin` with the error code\nFixed `/plugin` Discover/Browse and `claude plugin list --json --available` showing no description or display name for marketplace plugins whose metadata lives only in their `plugin.json`\nChanged plugin display metadata to prefer the marketplace entry over `plugin.json` on the Installed tab and `claude plugin details`, filling gaps from `plugin.json`"
             },
             {
-              "original": "Fixed resuming a foreground-spawned subagent changing its tool list and system prompt prefix, which broke prompt-cache reuse for that agent"
+              "title": {
+                "zh-TW": "子代理提示前綴維持固定，快取命中率提升且工具中斷不重寫",
+                "en": "Subagent Prompt Prefixes Locked for Higher Cache Reuse and Interrupted Tool Calls Preserved"
+              },
+              "body": {
+                "zh-TW": "多代理人協作與接續執行工作時，提示詞的快取機制現在更加可靠。⟦這如同研究員交接時維持相同開場索引，前言與工具清單固定不動便能重複查閱現有筆記，遇到意外停電也會在未完成的紀錄旁夾上中斷書籤。⟧先前恢復前景生成的子代理人時，工具清單與系統提示詞前綴常會變動，導致快取（把算過的資料暫存起來供後續直接取用）無法重用。隊友代理人與恢復後的子代理人，也會在後續回合將 `SubagentStart` 掛鉤（特定事件觸發時執行的自動程式）與預載技能移出前綴，同樣破壞快取效益。現在這些前綴結構已全數鎖定固定位置。此外，若前次行程在工具執行途中無預警終止，恢復時不再重寫最後一道提示詞，而是完整保留該次工具呼叫並標記為中斷。",
+                "en": "Prompt caching mechanisms are now far more reliable during multi-agent collaboration and resumed workflows. ⟦This is like researchers maintaining an identical index upon handover, keeping the preamble and tool catalog fixed so existing notes can be reused while bookmarking interrupted entries during an unexpected outage.⟧ Previously, resuming a foreground-spawned subagent would alter its tool list and system prompt prefix, breaking prompt-cache reuse. Agent teammates and resumed subagents also moved `SubagentStart` hook context and preloaded skills out of the prompt prefix on later turns, similarly destroying cache benefits. Now, all these prefix structures remain locked in place. In addition, if a previous process died unexpectedly while a tool was running, resuming no longer rewrites the final prompt, but instead fully retains the tool call and marks it as interrupted."
+              },
+              "original": "Fixed resuming a foreground-spawned subagent changing its tool list and system prompt prefix, which broke prompt-cache reuse for that agent\nFixed agent teammates and resumed subagents moving SubagentStart hook context and preloaded skills out of the prompt prefix on later turns, which broke prompt-cache reuse\nFixed resume after the previous process died while a tool was running: the last prompt is no longer rewritten, and the interrupted tool call is kept and marked interrupted"
             },
             {
-              "original": "Fixed agent teammates and resumed subagents moving SubagentStart hook context and preloaded skills out of the prompt prefix on later turns, which broke prompt-cache reuse"
+              "title": {
+                "zh-TW": "工作流面板支援展開呼叫細節，分支技能串流與容器復原更明確",
+                "en": "Workflows Panel Unfolds Tool Calls with Clearer Forked Skill Streaming and Container Recovery"
+              },
+              "body": {
+                "zh-TW": "執行多步驟的工作流與分支技能時，進度追蹤與異常診斷變得清楚直接。在 `/workflows` 代理人詳細資訊面板中，各項工具呼叫現在會清晰標記為執行中、失敗或已完成，若子代理人附帶工作清單也會同步呈現，按下 Enter 鍵還能直接展開查看呼叫參數與執行結果。當使用分支技能（以 `context: fork` 在獨立背景分支執行的技能）時，其起始提示詞，以及搭配 `--forward-subagent-text` 產生的對話回合，現在都會以進度事件正確串流至 `stream-json` 輸出。如果工作流容器重啟且執行日誌遺失，系統會直接回報明確錯誤訊息，不再盲目重跑每一個代理人。⟦整個過程宛如在現代化工廠中控室加裝多色燈號顯示器，各工作站進度一目了然，遇到履歷遺失也會直接報警停機，避免重覆生產。⟧",
+                "en": "Progress tracking and diagnostics have become much clearer when running multi-step workflows and forked skills. In the `/workflows` agent detail panel, individual tool calls are now clearly marked as running, failed, or done, displaying any subagent task lists and letting you press Enter to unfold calls with their inputs and results. When using forked skills (running in an isolated background branch with `context: fork`), kickoff prompts and text turns generated with `--forward-subagent-text` now stream properly as progress events to `stream-json` output. If a workflow container restarts and its run journal is missing, the system now fails with a clear error instead of blindly rerunning every agent. ⟦The entire experience is like fitting a modern factory control room with multi-color status lights that display each workstation's progress while triggering an alarm and stopping lines if audit logs go missing, preventing duplicate production.⟧"
+              },
+              "original": "Fixed forked skills (`context: fork`) not streaming their kickoff prompt and, with `--forward-subagent-text`, their text turns as progress events in stream-json\nFixed resuming a workflow run after its container restarted; a resume whose run journal is missing now fails with a clear error instead of rerunning every agent\nImproved `/workflows` agent detail: tool calls are marked running, failed or done, the subagent's task list is shown when it has one, and Enter unfolds the listed calls with their inputs and results"
             },
             {
-              "original": "Fixed resume after the previous process died while a tool was running: the last prompt is no longer rewritten, and the interrupted tool call is kept and marked interrupted"
+              "title": {
+                "zh-TW": "企業閘道遙測直連收集器，補齊身分欄位且轉發不再暫停",
+                "en": "Enterprise Gateway Telemetry Exports Directly to Collectors with Identity Fields and Unpaused Relays"
+              },
+              "body": {
+                "zh-TW": "企業管理者透過閘道收集稽核資訊時，傳輸穩定度與身分欄位獲得顯著增強。Claude Desktop 與 Cowork 透過應用程式閘道傳送遙測資料時，現在補上了 `user.email` 與 `user.groups` 兩項欄位，與終端機工作階段的記錄規格保持一致。當閘道的受管設定中透過 `OTEL_EXPORTER_OTLP_ENDPOINT` 指定了收集器位址，閘道工作階段會直接將 OpenTelemetry 遙測數據匯出至該收集器，不再繞經閘道轉發；未指定收集器的工作階段則繼續走轉發路線。此外，過去轉發器在拒絕少數格式錯誤或過大的封包後，會將所有後續轉發暫停 30 秒，這項停頓問題如今已被修復。⟦這有如企業郵務室為各部門包裹貼上完整的員工名條，在設有直達專車時直接發車，不再因單件包裹超重而把整條輸送帶扣留半分鐘。⟧",
+                "en": "Transmission stability and identity metadata have been significantly enhanced when administrators collect audit data via gateways. Telemetry sent by Claude Desktop and Cowork through an apps gateway now includes `user.email` and `user.groups` fields, matching the recording specs of terminal sessions. When gateway managed settings specify a collector endpoint via `OTEL_EXPORTER_OTLP_ENDPOINT`, gateway sessions export OpenTelemetry data directly to that collector instead of routing through the gateway relay, while sessions without a named collector continue using the relay. Furthermore, an issue where the relay paused all forwarding for 30 seconds after rejecting a few malformed or oversized payloads has now been resolved. ⟦This is like an enterprise mailroom labeling departmental packages with full employee rosters and dispatching dedicated direct shuttles when available, rather than halting the entire conveyor belt for half a minute over a single overweight parcel.⟧"
+              },
+              "original": "Added `user.email` and `user.groups` to the telemetry Claude Desktop and Cowork send through a Claude apps gateway, matching terminal sessions\nFixed the Claude apps gateway's OTLP telemetry relay pausing all forwarding to a collector for 30 seconds after it rejected a few payloads as malformed or too large\nChanged Claude apps gateway sessions to export OpenTelemetry directly to a collector the gateway's managed settings name in `OTEL_EXPORTER_OTLP_ENDPOINT`, instead of through the gateway's relay; sessions without a named collector still use the relay"
             },
             {
-              "original": "Fixed `/model opusplan[1m]` being rejected with \"Model not found\""
+              "title": {
+                "zh-TW": "受管設定強制啟動閘道登入，精準辨識子目錄代理人權限",
+                "en": "Managed Settings Enforce Gateway Login on Startup with Accurate Subdirectory Agent Scoping"
+              },
+              "body": {
+                "zh-TW": "在由企業受管設定規範的環境中，登入流程與權限界定變得更加嚴格一致。⟦這就像在企業大樓門禁加裝專用管制閘門，訪客從踏入大廳起就必須以公司證件感應通行，隨身舊訪客貼紙一律失效，樓層借調時也不會查錯權限名冊。⟧凡是在受管設定中配置了 `forceLoginGatewayUrl` 的電腦，啟動時便會直接建立應用程式閘道工作階段，行為等同於 `forceLoginMethod: \"gateway\"`；殘留的 claude.ai 登入狀態或 API 金鑰一概不予採用。在此類由受管設定導向閘道的工作階段中，重新執行 `/login` 不再誤報未設定閘道網址。此外，使用 `/add-dir <subdirectory>` 載入子目錄時，若受管設定僅將技能鎖定在外掛，系統不再拒絕載入該目錄的代理人，反之在僅鎖定代理人時也不會錯誤承諾提供代理人。",
+                "en": "Login flows and permission boundaries are now strictly aligned in environments governed by enterprise managed settings. ⟦This is like installing dedicated security turnstiles at corporate building entrances, requiring visitors to swipe company badges from the moment they step into the lobby, invalidating leftover visitor passes, and checking accurate permission registries during inter-floor transfers.⟧ Machines with `forceLoginGatewayUrl` configured in managed settings now start directly as apps gateway sessions, behaving just like `forceLoginMethod: \"gateway\"`, while leftover claude.ai logins or API keys are discarded. Re-running `/login` in these gateway sessions no longer falsely reports that no gateway URL is configured. Additionally, when loading subdirectories via `/add-dir <subdirectory>`, the system no longer refuses to load subdirectory agents when managed settings lock only skills to plugins, nor does it mistakenly promise agents when only agents are locked."
+              },
+              "original": "Fixed `/add-dir <subdirectory>` refusing to load a subdirectory's agents when managed settings lock only skills to plugins, and promising agents when only agents are locked\nFixed `/login` showing \"no gateway URL is configured\" when re-run in a session that signed in to a Claude apps gateway set by managed settings\nChanged machines with `forceLoginGatewayUrl` in managed settings to be Claude apps gateway sessions from startup, like `forceLoginMethod: \"gateway\"`; a leftover claude.ai login or API key is not used"
             },
             {
-              "original": "Fixed syntax-highlighted code in permission prompts and messages sometimes omitting a character after a Ruby `?`, Erlang `$`, or Perl `$` sigil"
+              "title": {
+                "zh-TW": "遠端操控與背景工作階段穩定性升級，工作目錄切換跨回合保留",
+                "en": "Remote Control and Background Session Stability Upgraded with Persistent Working Directories Across Turns"
+              },
+              "body": {
+                "zh-TW": "遠端操控與背景工作階段的操作連貫性，在此版大幅改善。非互動式工作階段（如 `-p` 搭配 stream-json、Agent SDK 與雲端環境）不再於每則訊息重設工作目錄，`cd` 指令現在跨回合持續保留。遠端控制工作階段不再於最後訊息送達前搶先發出結束信號，避免應用程式提早顯示已完成。透過遠端控制執行 `/clear` 時，不再苦等 `SessionStart` 掛鉤（啟動時觸發的腳本）與終端機對話框。背景工作階段（`--bg`）不再因訊息剛好在閒置逾時前抵達而於回合中途被關閉。遠端沙箱在等待連接器核准或登入連結時不再持續保持活躍。在更新權杖（身分驗證令牌）時關閉 VS Code 或 SDK 工作階段，後續也不再要求重新登入。⟦這猶如遠距遙控探勘車作業，發話通道不提早切斷，更換坐標後也不會每回合被硬拉回原點。⟧",
+                "en": "Operational continuity for Remote Control and background sessions has improved significantly in this release. Non-interactive sessions (such as `-p` with stream-json, Agent SDK, and cloud sessions) no longer reset their working directory on every message, allowing `cd` commands to persist across turns. Remote Control sessions no longer send an early end-of-turn signal before the final message arrives, preventing the app from prematurely showing the reply as finished. Running `/clear` via Remote Control no longer waits on `SessionStart` hooks or open terminal dialogs before completing. Background sessions (`--bg`) are no longer retired mid-turn when a message arrives just before the idle timeout. Remote sandboxes no longer stay alive while waiting for connector approvals or sign-in links. Furthermore, closing VS Code or SDK sessions while refreshing authentication tokens no longer forces a re-login. ⟦This is like operating a remote exploration rover where voice channels never cut off early and updated coordinates are not snapped back to the origin on every round.⟧"
+              },
+              "original": "Fixed VS Code and SDK sessions occasionally requiring re-login when a session was closed while refreshing its token\nFixed Remote Control sessions sending the end-of-turn signal before the reply's last message, which could show a reply as finished in the Claude app before its last part arrived\nFixed background (`--bg`) sessions occasionally being retired mid-turn when a message arrived just before the idle timeout\nFixed `/clear` from Remote Control waiting on SessionStart hooks and on open terminal dialogs before completing\nFixed non-interactive sessions (`-p` with stream-json input, Agent SDK, cloud sessions) resetting the shell working directory at each new user message; a `cd` now persists across turns\nFixed remote sessions keeping their sandbox container alive while a connector approval or sign-in link waits for you"
             },
             {
-              "original": "Fixed the fullscreen transcript jumping by one row whenever the slash-command or @-file suggestion list opened or closed"
+              "title": {
+                "zh-TW": "MCP 支援傳統傳輸協議備援，延遲授權註冊且修正連線狀態",
+                "en": "MCP Supports Legacy Transport Fallback with Deferred Client Registration and Fixed Connection States"
+              },
+              "body": {
+                "zh-TW": "外部工具的連線交握與身分驗證機制，在本次更新中變得更具彈性。對於配置為 `http` 協定、卻只支援傳統 HTTP+SSE 傳輸架構的 MCP（讓 AI 連接外部工具的通訊協定）伺服器，過去往往永遠無法連線，現在會依照規格自動切換至 SSE 作為連線備援。在安全註冊方面，連線至需要登入的遠端伺服器時，系統不再預先註冊 OAuth 用戶端，而是等到你實際點選驗證時才發起註冊。此外，在雲端工作階段中，部分外部連接器伺服器若對不支援的請求回應 HTTP 401，先前會讓介面誤顯示為尚未登入，即便你在網頁版早已完成綁定；這項錯誤標示也已修正。⟦這宛如前往跨國商務櫃台辦理業務，雙方通訊埠能自動切換傳統備援線路，專屬通行證也只在確認臨櫃辦理時才現場印製。⟧",
+                "en": "Connection handshakes and authentication mechanisms for external tools have become much more flexible. For MCP servers configured as `http` that only speak the legacy HTTP+SSE transport architecture, which previously failed to connect entirely, the system now automatically falls back to SSE as described in the specification. For secure registration, connecting to remote servers that require sign-in no longer registers OAuth clients in advance, but instead waits until you actually authenticate. In addition, cloud sessions previously showed some external connector servers as requiring login if they responded to unsupported requests with HTTP 401, even if you were already connected on the web; this misleading status has now been fixed. ⟦This is like visiting an international business desk where communication ports switch automatically to legacy backup lines and personalized access passes are printed on demand only when you arrive at the counter.⟧"
+              },
+              "original": "Fixed MCP servers configured as `http` that only speak the legacy HTTP+SSE transport never connecting; Claude Code now falls back to SSE as the MCP spec describes\nFixed some claude.ai connectors in cloud sessions showing as needing authentication even though they are connected in claude.ai (servers that answer an unsupported request with HTTP 401)\nImproved remote MCP servers that need sign-in: Claude Code no longer registers an OAuth client with them until you actually authenticate"
             },
             {
-              "original": "Fixed a plugin path containing a backslash bypassing the symlink containment check on macOS and Linux"
+              "title": {
+                "zh-TW": "工具輸出寫入增設 1 GB 上限，嚴格驗證工件發布並防禦惡意指令",
+                "en": "Tool Output Disk Writes Capped at 1 GB with Stricter Artifact Publishing and Malicious Prompt Defense"
+              },
+              "body": {
+                "zh-TW": "工具輸出存檔防護與工件安全性，在這一版築起了更嚴謹的防線。當外部工具執行的輸出結果過於龐大時，寫入磁碟的暫存檔案現在新增了 1 GB 上限；若檔案內容遭到截斷，對話視窗內的預覽區塊會主動標註已截斷警示，避免硬碟空間被無止境耗盡。在工件（由 AI 生成並可獨立展示或發布的程式與文件）管理方面，發布時若指定了連接器根本沒有提供的工具名稱，若宣稱的工具完全不存在會直接拒絕發布，部分不存在時則會跳出警告。此外，當讀取他人撰寫的工件時，摘要流程現在會將頁面內容視為未受信任的資料，主動標記其中暗藏的指令，而不是把那些指令原樣轉述出去，有效防範提示詞注入攻擊。⟦整個防護機制就像快遞驗收處為超大貨物設置重裝上限，核驗發行手續上的印章授權，並對外來信件裡的夾帶便條嚴加把關。⟧",
+                "en": "Tool output persistence safeguards and artifact security have been significantly reinforced in this release. When external tool outputs are exceedingly large, saved disk files now have a 1 GB cap; if contents are truncated, in-conversation previews explicitly display truncation notices to prevent disk space exhaustion. For artifact management, publishing now strictly validates declared tools against connectors: publication is refused if none of the declared tools exist, and warned if only some are missing. Furthermore, when reading artifacts written by others, the summarization process now treats page content as untrusted data, actively flagging embedded instructions rather than relaying them to guard against prompt injection attacks. ⟦The entire defensive setup is like a freight intake depot imposing weight caps on oversized cargo, validating stamp authorizations on clearance papers, and scrutinizing enclosed notes in external mail.⟧"
+              },
+              "original": "Added a 1 GB cap on tool results saved to disk; the in-conversation preview says when a saved file was truncated\nFixed artifact publish accepting connector tool names the connector doesn't expose; the publish is now refused when none of the declared tools exist, and warned when only some don't\nImproved the Artifact tool's read of an artifact someone else wrote: the summary now treats the page as untrusted content and flags embedded instructions rather than relaying them"
             },
             {
-              "original": "Fixed plugin directories whose names begin with two dots being wrongly refused as outside the plugin root"
+              "title": {
+                "zh-TW": "圖片處理改用內建引擎，超限錯誤清楚標註成因與解法",
+                "en": "Image Processing Moves to Built-in Engine with Specific Causes and Fixes for Size Limit Errors"
+              },
+              "body": {
+                "zh-TW": "在終端機中處理圖片時，底層架構變得更加輕量俐落。⟦這好比隨身相機改用機身自帶的解碼晶片直接讀圖，不再把精密模組拆到暫存托盤上拼裝，遇到超大相片時也能具體指出尺寸過大並建議縮圖。⟧命令列介面現在全面改用執行階段的內建圖片功能，不再於每次啟動時將原生二進位模組解壓縮至暫存目錄，有效精簡了磁碟寫入負擔與檔案殘留。同時，當載入的圖片超出限制而無法解碼時，過去錯誤提示往往只單純引述上限規範；現在訊息會明確指出失敗的根本原因，並提供相應的修改排查建議，方便你快速調整圖片規格並繼續對話。",
+                "en": "Underlying architecture for handling images in the terminal is now much lighter and cleaner. ⟦This is like a compact camera reading images directly using its built-in decoding chip rather than disassembling precision modules onto temporary trays, while also pinpointing oversized photos and suggesting how to downscale them.⟧ The CLI now fully utilizes the runtime's built-in image features, no longer extracting native binary modules to temporary directories on startup, which reduces disk write overhead and leftover files. Meanwhile, when an image exceeding size limits cannot be decoded, error messages now state the underlying cause and provide troubleshooting suggestions instead of merely citing the limits, letting you quickly adjust image dimensions and continue your session."
+              },
+              "original": "Improved the error shown when an image over the size limits cannot be decoded: it now names the cause and how to fix it instead of only citing the limit\nChanged image processing to use the runtime's built-in image support; the CLI no longer extracts a native image module to the temp directory"
             },
             {
-              "original": "Fixed VS Code and SDK sessions occasionally requiring re-login when a session was closed while refreshing its token"
+              "title": {
+                "zh-TW": "Git 工作樹支援平行檢出，沙箱檔案讀寫與權限說明修復",
+                "en": "Git Worktrees Support Parallel Checkout with Fixes for Sandbox File Access and Permission Wording"
+              },
+              "body": {
+                "zh-TW": "本版針對檔案讀寫、版本控管與權限設定進行了多項底層改善。在大型專案中執行 `--worktree` 建立工作樹（Git 平行建立的多份專案副本）時，Git 2.32 以上版本支援平行檢出，大幅縮短啟動耗時。重啟曾讀取大量檔案的歷史工作階段，讀取速度也顯著提升。在 Windows 環境下，修正了於 AppContainer 或受限令牌沙箱中，檔案讀寫與編輯遭全面拒絕的錯誤。此外，內部檢查 Git 狀態與差異時，不再受到工作樹內巢狀專案配置的過濾規則干擾。授權選單中針對 `.claude` 目錄的權限說明文字也重新修訂，清楚標明其效果為允許在該工作階段內編輯專案 `.claude` 或使用者主目錄 `~/.claude` 下的檔案。⟦整套流程好似大型圖書館同步調閱多套館藏副本，清理不同樓層的檢查規則，並把調閱清單的通行權限說明得一清二楚。⟧",
+                "en": "This release brings multiple low-level improvements to file access, version control, and permission settings. When creating worktrees via `--worktree` in large repositories, Git 2.32+ now checks them out in parallel, drastically reducing startup time. Resuming long sessions that previously read numerous files is also noticeably faster. On Windows, an issue where Read, Write, and Edit operations were completely rejected inside AppContainer or restricted-token sandboxes has been resolved. In addition, internal Git status and diff checks are no longer disrupted by clean filters configured in nested repositories within the working tree. Permission wording for the `.claude` folder has also been revised, clearly explaining that it allows editing files in the project's `.claude` directory or `~/.claude` for that session. ⟦The workflow is like a large library retrieving multiple collection copies in parallel, cleaning up inspection rules across floors, and clearly outlining access permissions on checkout slips.⟧"
+              },
+              "original": "Fixed Claude Code's own git status and diff probes running clean filters configured by a nested repository inside the working tree\nWindows: Fixed Read, Write and Edit refusing every file (\"symlink resolution changed after permission was checked\") when running inside an AppContainer or restricted-token sandbox\nImproved `--worktree` startup on large repositories: the new worktree is now checked out in parallel (git 2.32+)\nImproved the time to resume long sessions that read many files\nUpdated the `.claude` folder permission option to say what it actually allows: editing files in the project's `.claude` folder (or `~/.claude`) for the session"
             },
             {
-              "original": "Fixed Remote Control sessions sending the end-of-turn signal before the reply's last message, which could show a reply as finished in the Claude app before its last part arrived"
+              "title": {
+                "zh-TW": "斜線指令支援完整搜尋清單，雙鍵快捷鍵寬限延長且排版穩定",
+                "en": "Slash Commands Expand to Full Search Lists with Extended Two-Key Shortcut Windows and Layout Polish"
+              },
+              "body": {
+                "zh-TW": "終端機的日常互動與指令清單體驗，在此版迎來細緻的排版與手感調校。在文字輸入中途鍵入斜線指令時，現在會以完整清單展開所有符合項目（在全螢幕以外模式可按 Tab 鍵展開），且外掛技能直接打簡短名稱就能找到。在 tmux 等多工環境下，兩鍵組合快捷鍵若第二個按鍵相隔超過 1 秒，過去會靜默取消，現在改為等待 3 秒並於逾時時跳出提示。全螢幕對話紀錄不再因為選單開合而上下晃動一行。切換 `/config` 分頁時對話框高度保持固定。授權確認訊息不再吃掉特有語法符號後的字元。恢復工作階段時未完成的背景工作也改以簡短狀態列顯示，不再被落落長的內部指示洗版。⟦這宛若演奏家踩踏快速曲目踏板，容許節奏微調且跳出警示，樂譜面板也穩固如初不再隨意跳行。⟧",
+                "en": "Everyday terminal interactions and command menu handling have received thorough layout and responsiveness refinements in this release. Typing slash commands mid-prompt now displays matching results in a full list (which can be opened with Tab outside fullscreen), and plugin skills can be found directly by their bare names. In multitasking environments like tmux, two-key shortcuts whose second key arrives more than 1 second later now wait 3 seconds and display a timeout notice instead of cancelling silently. Fullscreen transcripts no longer jump by a row when menus open or close. Dialog heights remain stable when switching tabs in `/config`. Permission prompts no longer drop characters following specific syntax sigils. Resumed sessions now display unfinished background tasks as concise status lines rather than cluttering the screen with lengthy internal instructions. ⟦This is like a musician operating fast-tempo pedals where slight timing gaps trigger helpful cues while the sheet music stand remains rock-solid without shifting lines.⟧"
+              },
+              "original": "Fixed syntax-highlighted code in permission prompts and messages sometimes omitting a character after a Ruby `?`, Erlang `$`, or Perl `$` sigil\nFixed the fullscreen transcript jumping by one row whenever the slash-command or @-file suggestion list opened or closed\nFixed two-key keyboard shortcuts cancelling silently when the second key arrived more than a second later, as happens inside tmux; they now wait 3 seconds and show a notice when they time out\nFixed the `/config` dialog changing height when switching between its tabs\nFixed resumed sessions showing long model-facing recovery instructions in \"background task didn't finish\" notices instead of a short status line\nImproved slash commands typed mid-prompt: matches now show in a list (Tab opens it outside fullscreen) instead of a single suggestion, and a plugin skill is now found by its bare name"
             },
             {
-              "original": "Fixed background (`--bg`) sessions occasionally being retired mid-turn when a message arrived just before the idle timeout"
+              "title": {
+                "zh-TW": "模型切換支援特定代號，顧問工具決策固定且精準回報錯誤",
+                "en": "Model Switching Supports Specific Target Names with Stable Advisor Decisions and Accurate Error Reporting"
+              },
+              "body": {
+                "zh-TW": "切換模型規格與顧問機制時的判定邏輯，現在運作得更加穩定明確。⟦這如同委任專業顧問公司，合約窗口一旦確認就不會在每次發案時反覆改派，更換名單時也會主動寄發通知信。⟧過去顧問工具及其指示內容常因不同請求的模型而逐次重做決定；如今系統只會做一次判定，並在規則變動時於對話中主動公告。指令支援方面，輸入 `/model opusplan[1m]` 不再被誤判為模型不存在。若因設定檔無法寫入而導致預設模型儲存失敗，`/model` 不會再假裝已儲存成功，而是會如實告知儲存失敗及其原因。此外，內建的 `claude-api` 技能同步更正了錯誤代碼文件，清楚指明模型存取失敗會回傳 404，不支援的測試版標頭則回傳 400，而非先表記錄的 403。",
+                "en": "Decision logic when switching models and configuring advisor behaviors is now significantly more stable and transparent. ⟦This is like hiring a consulting firm where assigned account representatives remain fixed rather than being reshuffled with every new request, sending formal notices whenever staffing rules change.⟧ Previously, the advisor tool and its instructions were re-decided per request based on that request's model; decisions are now made once and announced directly in conversation whenever they change. In terms of commands, typing `/model opusplan[1m]` is no longer rejected with \"Model not found\". If saving a default model fails due to unwritable configuration files, `/model` no longer falsely claims success, but instead reports the failure and its underlying cause. In addition, the built-in `claude-api` skill reference documentation has been corrected: model access failures return 404 and unavailable beta headers return 400, rather than the previously documented 403."
+              },
+              "original": "Fixed `/model opusplan[1m]` being rejected with \"Model not found\"\nFixed the advisor tool and its instructions being re-decided per request from the request's model; the decision is now made once and announced in the conversation when it changes\nFixed `/model` claiming a model was \"saved as your default\" when the settings file couldn't be written; it now says the save failed and why\nFixed the `claude-api` skill's error-code reference: model access failures return 404 and unavailable beta headers return 400, not 403"
             },
             {
-              "original": "Fixed Claude Code's own git status and diff probes running clean filters configured by a nested repository inside the working tree"
-            },
-            {
-              "original": "Fixed the advisor tool and its instructions being re-decided per request from the request's model; the decision is now made once and announced in the conversation when it changes"
-            },
-            {
-              "original": "Fixed artifact publish accepting connector tool names the connector doesn't expose; the publish is now refused when none of the declared tools exist, and warned when only some don't"
-            },
-            {
-              "original": "Fixed `/add-dir <subdirectory>` refusing to load a subdirectory's agents when managed settings lock only skills to plugins, and promising agents when only agents are locked"
-            },
-            {
-              "original": "Fixed two-key keyboard shortcuts cancelling silently when the second key arrived more than a second later, as happens inside tmux; they now wait 3 seconds and show a notice when they time out"
-            },
-            {
-              "original": "Fixed forked skills (`context: fork`) not streaming their kickoff prompt and, with `--forward-subagent-text`, their text turns as progress events in stream-json"
-            },
-            {
-              "original": "Fixed a plugin's default component folder that the OS cannot check, such as a symlink loop, being silently skipped; it is now reported in `/plugin` with the error code"
-            },
-            {
-              "original": "Fixed the Claude apps gateway's OTLP telemetry relay pausing all forwarding to a collector for 30 seconds after it rejected a few payloads as malformed or too large"
-            },
-            {
-              "original": "Fixed `/plugin` Discover/Browse and `claude plugin list --json --available` showing no description or display name for marketplace plugins whose metadata lives only in their `plugin.json`"
-            },
-            {
-              "original": "Fixed `/login` showing \"no gateway URL is configured\" when re-run in a session that signed in to a Claude apps gateway set by managed settings"
-            },
-            {
-              "original": "Fixed `/model` claiming a model was \"saved as your default\" when the settings file couldn't be written; it now says the save failed and why"
-            },
-            {
-              "original": "Fixed `/clear` from Remote Control waiting on SessionStart hooks and on open terminal dialogs before completing"
-            },
-            {
-              "original": "Fixed the `/config` dialog changing height when switching between its tabs"
-            },
-            {
-              "original": "Fixed resuming a workflow run after its container restarted; a resume whose run journal is missing now fails with a clear error instead of rerunning every agent"
-            },
-            {
-              "original": "Fixed the `claude-api` skill's error-code reference: model access failures return 404 and unavailable beta headers return 400, not 403"
-            },
-            {
-              "original": "Fixed non-interactive sessions (`-p` with stream-json input, Agent SDK, cloud sessions) resetting the shell working directory at each new user message; a `cd` now persists across turns"
-            },
-            {
-              "original": "Fixed MCP servers configured as `http` that only speak the legacy HTTP+SSE transport never connecting; Claude Code now falls back to SSE as the MCP spec describes"
-            },
-            {
-              "original": "Fixed some claude.ai connectors in cloud sessions showing as needing authentication even though they are connected in claude.ai (servers that answer an unsupported request with HTTP 401)"
-            },
-            {
-              "original": "Fixed remote sessions keeping their sandbox container alive while a connector approval or sign-in link waits for you"
-            },
-            {
-              "original": "Fixed resumed sessions showing long model-facing recovery instructions in \"background task didn't finish\" notices instead of a short status line"
-            },
-            {
-              "original": "Windows: Fixed Read, Write and Edit refusing every file (\"symlink resolution changed after permission was checked\") when running inside an AppContainer or restricted-token sandbox"
-            },
-            {
-              "original": "Improved `--worktree` startup on large repositories: the new worktree is now checked out in parallel (git 2.32+)"
-            },
-            {
-              "original": "Improved `/workflows` agent detail: tool calls are marked running, failed or done, the subagent's task list is shown when it has one, and Enter unfolds the listed calls with their inputs and results"
-            },
-            {
-              "original": "Improved slash commands typed mid-prompt: matches now show in a list (Tab opens it outside fullscreen) instead of a single suggestion, and a plugin skill is now found by its bare name"
-            },
-            {
-              "original": "Improved remote MCP servers that need sign-in: Claude Code no longer registers an OAuth client with them until you actually authenticate"
-            },
-            {
-              "original": "Improved the time to resume long sessions that read many files"
-            },
-            {
-              "original": "Improved the error shown when an image over the size limits cannot be decoded: it now names the cause and how to fix it instead of only citing the limit"
-            },
-            {
-              "original": "Improved the Artifact tool's read of an artifact someone else wrote: the summary now treats the page as untrusted content and flags embedded instructions rather than relaying them"
-            },
-            {
-              "original": "Updated the `.claude` folder permission option to say what it actually allows: editing files in the project's `.claude` folder (or `~/.claude`) for the session"
-            },
-            {
-              "original": "Changed machines with `forceLoginGatewayUrl` in managed settings to be Claude apps gateway sessions from startup, like `forceLoginMethod: \"gateway\"`; a leftover claude.ai login or API key is not used"
-            },
-            {
-              "original": "Changed image processing to use the runtime's built-in image support; the CLI no longer extracts a native image module to the temp directory"
-            },
-            {
-              "original": "Changed plugin display metadata to prefer the marketplace entry over `plugin.json` on the Installed tab and `claude plugin details`, filling gaps from `plugin.json`"
-            },
-            {
-              "original": "Changed Claude apps gateway sessions to export OpenTelemetry directly to a collector the gateway's managed settings name in `OTEL_EXPORTER_OTLP_ENDPOINT`, instead of through the gateway's relay; sessions without a named collector still use the relay"
-            },
-            {
-              "original": "[VSCode] Added automatic archiving of sessions inactive for a set period (new \"Archive inactive sessions\" setting, default 14 days)"
-            },
-            {
-              "original": "[VSCode] Fixed the sidebar chat coming back blank after Reload Window or a restart when the conversation had been open for more than 10 minutes"
-            },
-            {
-              "original": "[VSCode] Fixed the timeline dot sitting below the text on the \"Remote Control is active\" message"
+              "title": {
+                "zh-TW": "[VSCode] 閒置工作階段自動封存，重啟視窗不空白且版面修正",
+                "en": "[VSCode] Auto-Archiving for Inactive Sessions with Fixes for Blank Restarts and Layout Glitches"
+              },
+              "body": {
+                "zh-TW": "在 VS Code 擴充套件中，側邊欄的工作階段管理與視覺細節得到了貼心修正。為避免對話清單長期累積變得雜亂，新增了「封存閒置工作階段」（Archive inactive sessions）設定，預設會在閒置滿 14 天後自動將其移入封存區。先前若一個對話視窗開啟超過 10 分鐘，在執行視窗重新載入或重啟編輯器後，側邊欄對話往往會變成一片空白，這項顯示異常現已完全修復。同時，在顯示遠端控制已啟用的提示訊息中，時間軸圓點沉在文字下方的排版走位問題也已校正歸位。⟦這就像辦公室定期整理個人公文櫃，超過兩週沒動的歷史案件會自動移至封存資料夾，拉開抽屜時內容不再莫名消失，外側標籤也貼得平整端正。⟧",
+                "en": "Sidebar session management and visual details have received thoughtful fixes in the VS Code extension. To keep conversation lists uncluttered over time, a new \"Archive inactive sessions\" setting automatically moves sessions to an archive after 14 days of inactivity by default. Previously, if a chat had been open for more than 10 minutes, reloading the window or restarting the editor often left the sidebar blank; this rendering bug has now been resolved. Additionally, a layout misalignment where the timeline dot sat beneath text in \"Remote Control is active\" notices has been corrected. ⟦This is like an office organizing filing cabinets where cases untouched for over two weeks automatically move into archival folders, drawer contents never vanish mysteriously, and exterior labels stay neat and aligned.⟧"
+              },
+              "original": "[VSCode] Added automatic archiving of sessions inactive for a set period (new \"Archive inactive sessions\" setting, default 14 days)\n[VSCode] Fixed the sidebar chat coming back blank after Reload Window or a restart when the conversation had been open for more than 10 minutes\n[VSCode] Fixed the timeline dot sitting below the text on the \"Remote Control is active\" message"
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "2.1.261",
@@ -437,55 +449,95 @@
           "period": "2026-09-09",
           "items": [
             {
+              "title": {
+                "zh-TW": "遇到 503 暫時錯誤自動長重試，工作階段不中斷",
+                "en": "Automatic extended retries on temporary 503 errors keep sessions uninterrupted"
+              },
+              "body": {
+                "zh-TW": "你正請 AI 執行冗長的多步驟任務，最怕遇到遠端模型伺服器短暫壅塞。⟦好似在熱門麵包店結帳時遇到刷卡機短暫斷線，店員不會立刻退回商品並將你請出店門，而是請你稍待片刻後再次感應，直到連線恢復。⟧ 以前只要碰上 `503 Unavailable` 這類短暫的模型介面錯誤，整個正在進行的工作階段（session，從啟動到結束的一整段對話歷程）就會被迫終止。現在代理人遇到這類暫時狀況，會透過指數退避（重試等待時間隨失敗次數拉長的做法）大幅延長重試期。即使服務發生短暫波動，也不會隨意中斷你的工作階段。",
+                "en": "When asking AI to perform long multi-step tasks, the biggest worry is hitting brief congestion on remote model servers. ⟦Much like a card reader briefly disconnecting at a busy bakery checkout, where the clerk does not immediately return your items and show you out the door, but asks you to wait a moment and tap again until the connection recovers.⟧ Previously, whenever encountering a transient model API error like `503 Unavailable`, the entire ongoing session was forced to terminate. Now, when encountering such temporary situations, the agent significantly extends the retry period using exponential backoff (waiting longer between retries as failed attempts increase). Even during brief service fluctuations, your session will no longer be casually interrupted."
+              },
               "original": "Improved resilience to transient model API errors: the agent now retries errors such as `503 Unavailable` for much longer with exponential backoff, so a brief service hiccup no longer aborts your session."
             },
             {
-              "original": "Improved sign-in and startup speed by reading your signed-in identity from the stored credential instead of making a network request on every launch and after browser consent; a failed identity lookup no longer prevents sign-in from completing, and the displayed plan tier no longer briefly disappears during startup."
+              "title": {
+                "zh-TW": "本機憑證快讀登入身分，切換帳號清空企業舊資料",
+                "en": "Local credentials speed up sign-in identity checks and account switching clears stale business data"
+              },
+              "body": {
+                "zh-TW": "每次啟動工具或切換帳號，現在都能迅速就緒。以前每次開啟命令列或在瀏覽器完成授權，都要先送出一趟網路請求確認身分；若是查詢遇到問題，整個登入程序就會卡住中斷，啟動時顯示的方案等級也常常閃爍消失。現在改為直接從儲存的憑證（存放在本機的登入身分證明）讀取資料，查詢失敗不再阻礙登入完成，畫面上的方案等級更維持穩定顯示。若是你剛從選定專案的企業帳號切換至個人帳號，舊的企業專案與授權細節現在會被徹底清除，不再因為殘留過期資料而跳出專案存取錯誤。⟦這好比拿出皮夾裡已蓋章的會員卡直接通關，驗票員不必每次都打電話回總部查驗，換成一般訪客卡時也會順手收回貴賓通行證，不再拿舊通行條擋住入口。⟧",
+                "en": "Launching the tool or switching accounts is now ready promptly every time. Previously, opening the CLI or completing browser authorization required sending a network request to verify your identity; if the lookup ran into issues, the entire sign-in process would freeze and halt, and the plan tier shown at startup often flickered and disappeared. Now, data is read directly from stored credentials (login identity proofs stored locally), so lookup failures no longer block sign-in completion, and the on-screen plan tier remains stably displayed. If you switch from a business account with a selected project to a personal account, old business project and license details are now thoroughly cleared, preventing project access errors caused by leftover stale data. ⟦This is like showing a stamped membership card directly from your wallet at the gate without ticket staff calling headquarters every time, and handing over a regular visitor pass while returning the VIP badge so outdated passes will not block the entrance.⟧"
+              },
+              "original": "Improved sign-in and startup speed by reading your signed-in identity from the stored credential instead of making a network request on every launch and after browser consent; a failed identity lookup no longer prevents sign-in from completing, and the displayed plan tier no longer briefly disappears during startup.\nFixed sign-in failing with a project access error after switching from a business account with a selected project to a personal account; stale business project and license details are now fully cleared on personal sign-in."
             },
             {
-              "original": "Improved headless (`-p`) runs to exit promptly once the final answer is delivered: the CLI waits for running background tasks and scheduled timers to finish, bound by `--print-timeout`, and leaves daemon background tasks such as dev servers running instead of terminating them."
+              "title": {
+                "zh-TW": "無頭模式自動化更順暢，及時退出且日誌回報清晰",
+                "en": "Smoother headless automation with prompt exits and clear error reporting"
+              },
+              "body": {
+                "zh-TW": "將指令串進自動化排程時，最講求乾淨俐落與明確回報。⟦宛如快遞物流車隊的夜間集運，貨件裝車完畢就立即發車，沿途留下明確標籤與簽收單，不因無人簽名而原地乾等。⟧ 啟用無頭模式（headless，沒有終端機視窗的非互動執行模式）搭配 `-p` 旗標時，現在送達最終答案便會迅速退出。背景任務與排程計時器受 `--print-timeout` 限制等待結束，但開發伺服器等常駐守護工作會持續運行而不被強制中止。每輪執行省下多達 200 ms 閒置延遲，並跳過生成無人查看的對話標題。遇到無人互動的實作計畫審查時會自動通過。若 `--print-timeout` 中途逾時，會回傳既有輸出並在 stderr 附帶警告成功退出，手動按 Ctrl+C 中斷則維持非零退出碼。嚴重錯誤在 stderr 加上穩定的 `error:` 標記，提示潛在截斷並解釋先前靜默結束的原因。",
+                "en": "Chaining commands into automated workflows demands clean execution and explicit feedback. ⟦Much like a logistics delivery fleet consolidating cargo overnight, departing immediately once loading is complete and leaving clear labels and receipts along the way without idling on-site because no one is there to sign.⟧ When running in headless mode with the `-p` flag, the CLI now exits promptly once the final answer is delivered. Running background tasks and scheduled timers are waited on subject to `--print-timeout`, while persistent daemon tasks like development servers continue running without being forcefully terminated. Each turn cuts up to 200 ms of idle latency and skips generating conversation titles that nobody would see. Non-interactive implementation plan reviews now pass automatically. If `--print-timeout` expires mid-turn, it returns the partial output and exits successfully with a warning on stderr, while manual Ctrl+C interrupts still exit with a non-zero code. Fatal errors add a stable `error:` marker on stderr, noting potential truncation and explaining why previous runs ended silently."
+              },
+              "original": "Improved headless (`-p`) runs to exit promptly once the final answer is delivered: the CLI waits for running background tasks and scheduled timers to finish, bound by `--print-timeout`, and leaves daemon background tasks such as dev servers running instead of terminating them.\nImproved failure reporting in headless (`-p`) runs: fatal errors now appear on stderr with a stable `error:` marker, a note is printed when the response may be truncated, and runs that previously ended silently with no output now explain why.\nImproved headless (`-p`) turnaround by cutting up to 200 ms of idle latency per turn and skipping the model call that generated a conversation title no one would see.\nChanged what happens when `--print-timeout` expires mid-turn: the CLI now returns the partial output it has and exits successfully with a warning on stderr, instead of failing with a timeout error; interrupts such as Ctrl+C still exit non-zero.\nFixed headless (`-p`) runs stalling forever on implementation-plan approval that no one could give; non-interactive runs now proceed through plan review automatically."
             },
             {
-              "original": "Improved failure reporting in headless (`-p`) runs: fatal errors now appear on stderr with a stable `error:` marker, a note is printed when the response may be truncated, and runs that previously ended silently with no output now explain why."
+              "title": {
+                "zh-TW": "讀取網址改為預先詢問，工具審查提示說清緣由",
+                "en": "URL fetching asks for permission first and tool approval prompts explain reasons clearly"
+              },
+              "body": {
+                "zh-TW": "讓 AI 代勞查資料或動用本機工具時，安全把關更加清晰。抓取網址的預設權限從一律允許改為先問過你，除非預先授權，否則讀取網址前都會請求同意。工具審核提示也迎來翻新，明確點出審核項目——例如詢問 `Run this command?`、`Allow access to this URL?` 還是 `Allow calling this tool?`。編輯命令的快捷鍵僅在審核命令時提供，避免介面混淆。當審核原因不明顯時，下方會附上一行 `Reason:` 說明緣由，例如觸發了掛鉤（hook，在特定事件發生時觸發的攔截小程式）標記，或是涉及其他專案的檔案。⟦這彷彿在大門加裝智慧訪視對講機，外人想進門必須先按鈴通報，螢幕上清楚顯示對方的來意與身分，還會註記警衛攔檢的理由，不再讓人盲目按下開門鈕。⟧",
+                "en": "Security guardrails are much clearer when having AI fetch data or invoke local tools. The default permission for fetching URLs has changed from always allowed to asking first, requesting approval before reading a URL unless pre-authorized. Tool approval prompts have also been revamped to specify exactly what is being approved—such as asking `Run this command?`, `Allow access to this URL?`, or `Allow calling this tool?`. The shortcut for editing commands is only offered when approving a command, preventing interface confusion. When the reason for approval is not obvious, a `Reason:` line is attached below explaining why, such as a hook flagging the action or a file belonging to a different project. ⟦This is like installing a smart intercom at the front door: visitors must ring first, the screen clearly displays their identity and purpose, and notes any guard inspection reasons so you never press the door release blindly.⟧"
+              },
+              "original": "Improved tool approval prompts to say exactly what you are approving — for example `Run this command?`, `Allow access to this URL?`, or `Allow calling this tool?` — with the command-editing shortcut offered only when a command is being approved, and a `Reason:` line explaining why approval is being requested when it is not obvious, such as a hook flagging the action or a file belonging to a different project.\nChanged the default permission for fetching URLs from always allowed to asking first, so the agent now requests approval before reading a URL unless you have granted access."
             },
             {
-              "original": "Improved headless (`-p`) turnaround by cutting up to 200 ms of idle latency per turn and skipping the model call that generated a conversation title no one would see."
-            },
-            {
-              "original": "Improved tool approval prompts to say exactly what you are approving — for example `Run this command?`, `Allow access to this URL?`, or `Allow calling this tool?` — with the command-editing shortcut offered only when a command is being approved, and a `Reason:` line explaining why approval is being requested when it is not obvious, such as a hook flagging the action or a file belonging to a different project."
-            },
-            {
+              "title": {
+                "zh-TW": "模型名稱轉換留存日誌，稽核軌跡隨時可查",
+                "en": "Model name resolutions are logged for traceable audit trails"
+              },
+              "body": {
+                "zh-TW": "在終端機指定模型名稱時，背後的實際流向現在一清二楚。⟦如同在藥局憑處方箋領藥，當藥劑師因原廠藥缺貨或劑型調整而替換成同成分學名藥時，收據與藥袋上都會清楚加註替換紀錄與變更原因。⟧ 命令列工具增強了模型選擇的稽核能力。當你輸入的模型名稱在後台被解析對應到另一款模型時，日誌都會詳實記錄具體轉換過程。無論是輸入別名對應到正式名稱、透過 `--effort` 旗標切換到不同推理程度的變體，或是先前儲存的舊模型因下架廢棄而被替換，日誌中都有跡可循。這讓你不必猜測背後到底跑的是哪一個版本，隨時都能追溯實際運行的模型。",
+                "en": "When specifying model names in the terminal, the actual underlying resolution is now crystal clear. ⟦Much like filling a prescription at a pharmacy where an out-of-stock brand-name drug is substituted with an equivalent generic, with the replacement record and rationale clearly noted on the receipt and label.⟧ The CLI tool has enhanced its auditability for model selection. Whenever a model name you specify resolves behind the scenes to a different model, the logs faithfully record the specific conversion process. Whether resolving an alias to an official name, switching to a different reasoning variant via the `--effort` flag, or replacing a deprecated saved model, everything leaves a clear trail in the logs. This removes any guesswork about which version is running behind the scenes, allowing you to trace the active model at any time."
+              },
               "original": "Improved model selection auditability: the CLI log now records whenever a model name you specify resolves to a different model, such as alias resolution, `--effort` variant selection, or replacement of a deprecated saved model."
             },
             {
-              "original": "Changed what happens when `--print-timeout` expires mid-turn: the CLI now returns the partial output it has and exits successfully with a warning on stderr, instead of failing with a timeout error; interrupts such as Ctrl+C still exit non-zero."
+              "title": {
+                "zh-TW": "外掛重裝乾淨覆蓋目錄，MCP 相對路徑基準修正",
+                "en": "Plugin reinstalls cleanly replace directories and MCP relative paths resolve accurately"
+              },
+              "body": {
+                "zh-TW": "管理擴充套件與隨附工具時，現在不再留下惱人的殘存檔案。過去重新安裝外掛時，來源端已經刪除的舊檔案仍會留在目錄裡；現在安裝會精確替換整個外掛管理目錄，且若嘗試從外掛自身的已安裝目錄再次執行安裝，會被直接拒絕以防目錄損壞。解除安裝外掛後，也不會在 `config.json` 中留下殘餘的啟用或停用項目。同時，外掛所定義的 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器若使用相對路徑或未指定工作目錄，先前會依錯誤位置解析；現在一律以該外掛本身的目錄為基準進行解析，確保隨附腳本正常運行。⟦恰似替相機更換擴充鏡頭套組，換上新套件時會徹底移走舊鏡片，拆除時順便清除控制選單裡的舊按鍵，套組內的專用濾鏡也一律以該鏡頭接環為基準精準卡位。⟧",
+                "en": "Managing plugins and bundled tools no longer leaves annoying leftover files behind. Previously, reinstalling a plugin left old files that were already deleted from the source inside the directory; now, installation replaces the managed plugin directory exactly, and attempting to install from the plugin's own installed directory is directly rejected to prevent corruption. Uninstalling a plugin also no longer leaves leftover enabled or disabled entries in `config.json`. Meanwhile, if MCP servers defined by plugins use relative paths or leave the working directory unset, they previously resolved against the wrong location; they now consistently resolve against the plugin's own directory, ensuring bundled scripts run properly. ⟦Just like swapping a camera lens kit: mounting a new set completely removes old glass, detaching it cleans up stale button mappings from the control menu, and dedicated kit filters align accurately against the lens mount.⟧"
+              },
+              "original": "Fixed plugin reinstalls keeping files that had been deleted from the source: installing a plugin now replaces its managed directory exactly, installing a plugin from its own installed directory is refused instead of corrupting it, and uninstalling a plugin no longer leaves its enabled/disabled entry behind in `config.json`.\nFixed MCP servers defined by plugins resolving relative or unset working directories against the wrong location; they now resolve against the plugin's own directory so plugin-bundled scripts run correctly."
             },
             {
-              "original": "Changed the default permission for fetching URLs from always allowed to asking first, so the agent now requests approval before reading a URL unless you have granted access."
+              "title": {
+                "zh-TW": "子代理啟動不再遺漏工具，任務結束即刻解鎖佇列",
+                "en": "Subagents reliably discover tools at startup and release queued messages upon completion"
+              },
+              "body": {
+                "zh-TW": "多工派發子代理處理複雜任務時，工具抓取與狀態切換更加可靠。先前在系統啟動時存在競爭問題，如果外部工具伺服器仍在初始化，子代理往往會撲空。現在 MCP（讓 AI 連接外部工具的協定）伺服器會確保初始化完成，讓子代理隨時能找到工具。此外，特別是在超長對話中，子代理在執行完畢後有時會卡在運行狀態；這不僅造成狀態誤判，還會讓原本排隊等候閒置時發送的訊息一路卡住，非得重啟程式才能送出。如今這兩項瑕疵都已修復，子代理在任務結束後會正確切換狀態並如期交付排隊訊息。⟦有如工廠調派實習助理進場作業，開工前一定等儀器暖機完畢才放行領取工具，任務交代完畢也會立即回報交班，不再假裝忙碌而讓後續排隊的派工單全部卡死在收發室。⟧",
+                "en": "Dispatching subagents for complex multi-tasking now offers more reliable tool discovery and state transitions. Previously, a startup race condition meant subagents could fail to find tools if external tool servers were still initializing. Now, MCP servers ensure initialization finishes so subagents can always find their tools. Additionally, especially in very large conversations, subagents sometimes appeared stuck in a running state after finishing; this caused incorrect status reporting and left messages queued for idle delivery stuck until restarting the application. Both issues are now resolved, so subagents properly transition their state and deliver queued messages on schedule once tasks finish. ⟦Like assigning an intern assistant on the factory floor: they are only sent to fetch tools after equipment warms up, and they report shift handovers immediately upon finishing tasks rather than pretending to stay busy and stalling dispatch orders in the mailroom.⟧"
+              },
+              "original": "Fixed a startup race where subagents could fail to find tools from MCP servers that were still initializing.\nFixed subagents sometimes appearing stuck in a running state after they had finished — especially in very large conversations — which also left queued when-idle messages undelivered until restart."
             },
             {
-              "original": "Fixed plugin reinstalls keeping files that had been deleted from the source: installing a plugin now replaces its managed directory exactly, installing a plugin from its own installed directory is refused instead of corrupting it, and uninstalling a plugin no longer leaves its enabled/disabled entry behind in `config.json`."
-            },
-            {
-              "original": "Fixed MCP servers defined by plugins resolving relative or unset working directories against the wrong location; they now resolve against the plugin's own directory so plugin-bundled scripts run correctly."
-            },
-            {
-              "original": "Fixed a startup race where subagents could fail to find tools from MCP servers that were still initializing."
-            },
-            {
-              "original": "Fixed subagents sometimes appearing stuck in a running state after they had finished — especially in very large conversations — which also left queued when-idle messages undelivered until restart."
-            },
-            {
+              "title": {
+                "zh-TW": "終端機命令及時釋放內部狀態，長工作階段記憶體大降",
+                "en": "Terminal commands release internal state promptly to cut memory usage in long sessions"
+              },
+              "body": {
+                "zh-TW": "長時間在同一個工作階段中連續敲入指令，不再面臨記憶體越吃越腫的窘境。以前工具內部存在記憶體流失（程式結束運算後未及時釋放資源的現象）缺陷。只要在終端機中執行過任何命令，該命令的內部狀態就會被保留在記憶體中，直到整個工作階段（session，從啟動到關閉的完整使用過程）結束為止。這導致使用者若是開啟長期會話並執行大量指令，記憶體用量就會一路飆升。這次修復徹底清除了執行完畢後的殘留狀態，讓執行許多指令的長工作階段大幅降低記憶體消耗。⟦就像廚房料理台每做完一道菜就立即隨手擦拭乾淨，不再將用過的空盤與鍋具一路堆到打烊，就算連續出餐一整天，工作檯面也始終保持輕盈俐落。⟧",
+                "en": "Running continuous commands in the same session no longer leads to runaway memory bloat. Previously, the tool suffered from a memory leak where every executed terminal command retained its internal state in memory for the rest of the session. As a result, running many commands in extended sessions caused memory usage to surge continuously. This fix thoroughly clears residual state once commands finish, significantly reducing memory consumption in long sessions that run many commands. ⟦Much like wiping down a kitchen countertop immediately after each dish instead of piling up used plates and pots until closing time, keeping the workspace neat and uncluttered even during a full day of service.⟧"
+              },
               "original": "Fixed a memory leak where every finished terminal command kept internal state alive for the rest of the session; long sessions that run many commands now use significantly less memory."
-            },
-            {
-              "original": "Fixed headless (`-p`) runs stalling forever on implementation-plan approval that no one could give; non-interactive runs now proceed through plan review automatically."
-            },
-            {
-              "original": "Fixed sign-in failing with a project access error after switching from a business account with a selected project to a personal account; stale business project and license details are now fully cleared on personal sign-in."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "1.1.27",

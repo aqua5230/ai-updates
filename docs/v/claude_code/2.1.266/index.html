@@ -4,19 +4,45 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Claude Code 2.1.266 更新白話速報</title>
-  <meta name="description" content="Fixed a 2.1.265 regression affecting LLM-gateway and proxy setups: the undocumented `CLAUDE_CODE_USE_GATEWAY` environment variable, previously ignored">
+  <meta name="description" content="自訂閘道連線修復，未公開變數不再誤擋請求 如果你透過代理伺服器（替使用者轉發請求的中繼主機）連線 Claude，在 2.1.265 版可能遇到請求全部失敗。這是因為未記載的環境變數（開程式前預先設定的控制參數） `CLAUDE_CODE_USE_GATEWAY` 出現回歸異常。過去除非同時設定 `A">
   <link rel="canonical" href="https://aqua5230.github.io/ai-updates/v/claude_code/2.1.266/">
   <meta property="og:type" content="article">
   <meta property="og:title" content="Claude Code 2.1.266 更新白話速報">
-  <meta property="og:description" content="Fixed a 2.1.265 regression affecting LLM-gateway and proxy setups: the undocumented `CLAUDE_CODE_USE_GATEWAY` environment variable, previously ignored">
+  <meta property="og:description" content="自訂閘道連線修復，未公開變數不再誤擋請求 如果你透過代理伺服器（替使用者轉發請求的中繼主機）連線 Claude，在 2.1.265 版可能遇到請求全部失敗。這是因為未記載的環境變數（開程式前預先設定的控制參數） `CLAUDE_CODE_USE_GATEWAY` 出現回歸異常。過去除非同時設定 `A">
   <meta property="og:url" content="https://aqua5230.github.io/ai-updates/v/claude_code/2.1.266/">
   <meta property="og:image" content="https://aqua5230.github.io/ai-updates/og-image.png">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Claude Code", "softwareVersion": "2.1.266", "datePublished": "2026-09-08", "releaseNotes": ""}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Claude Code", "softwareVersion": "2.1.266", "datePublished": "2026-09-08", "releaseNotes": "自訂閘道連線修復，未公開變數不再誤擋請求"}</script>
   <style>:root{color-scheme:light dark}body{font:16px/1.65 system-ui,sans-serif;max-width:54rem;margin:auto;padding:2rem}article{border-bottom:1px solid #999;padding:1rem 0}article p{white-space:pre-line}h1,h2,h3{line-height:1.25}code{font:.9em "JetBrains Mono",monospace;color:#f0f6fc;background:#0d1117;border-radius:4px;padding:.1em .35em;overflow-wrap:anywhere;word-break:break-word}pre{white-space:pre-wrap;overflow-wrap:anywhere}pre.code-block{font:.85em/1.5 "JetBrains Mono",monospace;color:#f0f6fc;background:#0d1117;border-radius:6px;padding:.75rem}pre.code-block code{font:inherit;background:transparent;padding:0}a{color:LinkText}nav{display:flex;gap:1rem;flex-wrap:wrap}</style>
 </head>
 <body>
   <header><h1>Claude Code 2.1.266</h1><p>發布日期：2026-09-08</p></header>
-  <main><section><h2>Original changelog</h2><article><pre>Fixed a 2.1.265 regression affecting LLM-gateway and proxy setups: the undocumented `CLAUDE_CODE_USE_GATEWAY` environment variable, previously ignored unless `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN` were both set, began forcing Cloud-gateway sign-in on its own in 2.1.265, so configurations that set it alongside an API key, `apiKeyHelper`, or custom auth headers failed every request with &quot;Not signed in to the Cloud gateway&quot;. The variable on its own is ignored again; no configuration change is needed</pre></article></section></main>
+  <main><section lang="zh-TW"><h2>zh-TW</h2><article><h3>自訂閘道連線修復，未公開變數不再誤擋請求</h3><p>如果你透過代理伺服器（替使用者轉發請求的中繼主機）連線 Claude，在 2.1.265 版可能遇到請求全部失敗。這是因為未記載的環境變數（開程式前預先設定的控制參數） <code>CLAUDE_CODE_USE_GATEWAY</code> 出現回歸異常。過去除非同時設定 <code>ANTHROPIC_BASE_URL</code> 與 <code>ANTHROPIC_AUTH_TOKEN</code>，否則它會被忽略；前一版卻單獨強制要求雲端閘道登入，導致搭配一般 API 金鑰、<code>apiKeyHelper</code> 或自訂標頭時每次請求都失敗。現在 2.1.266 版已修復，單獨存在時再次被忽略，你無須修改任何設定即可正常使用。</p><pre class="code-block"><code># 2.1.265 曾因單獨設定此未公開環境變數而強制要求雲端閘道登入：
+export CLAUDE_CODE_USE_GATEWAY=true
+
+# 過去與現在：除非同時設定以下兩者，否則該變數會被忽略：
+export ANTHROPIC_BASE_URL=&quot;https://gateway.example.com&quot;
+export ANTHROPIC_AUTH_TOKEN=&quot;your-token&quot;
+
+# 搭配以下任一驗證時，前一版每次發出請求都會報錯：
+# 1. API 金鑰（API key）
+# 2. apiKeyHelper
+# 3. 自訂驗證標頭（custom auth headers）
+# 錯誤：Not signed in to the Cloud gateway</code></pre><p>
+這好比音響上的擴大機開關，原廠線材沒插齊時會自動忽略，前一版卻擅自鎖死專屬驗證導致放不出聲音，如今修復後恢復靜默。</p></article></section>
+<section lang="en"><h2>en</h2><article><h3>Custom gateway connection fixed, undocumented variable no longer falsely blocks requests</h3><p>If you connect to Claude through a proxy server, all your requests may have failed in version 2.1.265. This was caused by a regression with the undocumented environment variable <code>CLAUDE_CODE_USE_GATEWAY</code>. Previously, it was ignored unless both <code>ANTHROPIC_BASE_URL</code> and <code>ANTHROPIC_AUTH_TOKEN</code> were set; however, the previous version forced Cloud gateway sign-in on its own, causing every request to fail when paired with a standard API key, <code>apiKeyHelper</code>, or custom auth headers. Version 2.1.266 has now fixed this so the variable is ignored again when set alone, allowing normal use without changing any settings.</p><pre class="code-block"><code># In 2.1.265, setting this undocumented environment variable alone forced Cloud gateway sign-in:
+export CLAUDE_CODE_USE_GATEWAY=true
+
+# Previously and now: the variable is ignored unless both of the following are set:
+export ANTHROPIC_BASE_URL=&quot;https://gateway.example.com&quot;
+export ANTHROPIC_AUTH_TOKEN=&quot;your-token&quot;
+
+# When paired with any of the following authentication methods, the previous version errored on every request:
+# 1. API key
+# 2. apiKeyHelper
+# 3. Custom auth headers
+# Error: Not signed in to the Cloud gateway</code></pre><p>
+This is like an amplifier switch on an audio system that is automatically ignored when original cables are not fully plugged in; the previous version arbitrarily locked into proprietary authentication and produced no sound, but now it returns to staying silent after the fix.</p></article></section>
+<section><h2>原始 CHANGELOG</h2><article><details><summary>Original changelog</summary><pre>Fixed a 2.1.265 regression affecting LLM-gateway and proxy setups: the undocumented `CLAUDE_CODE_USE_GATEWAY` environment variable, previously ignored unless `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN` were both set, began forcing Cloud-gateway sign-in on its own in 2.1.265, so configurations that set it alongside an API key, `apiKeyHelper`, or custom auth headers failed every request with &quot;Not signed in to the Cloud gateway&quot;. The variable on its own is ignored again; no configuration change is needed</pre></details></article></section></main>
   <footer><nav><a href="https://aqua5230.github.io/ai-updates/#claude_code/2.1.266">回到互動版</a><a href="https://aqua5230.github.io/ai-updates/v/claude_code/2.1.265/">上一版</a></nav></footer>
 </body>
 </html>
