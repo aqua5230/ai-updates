@@ -336,7 +336,7 @@ ANALOGY_MARKS = str.maketrans("", "", "⟦⟧")
 
 
 def _strip_analogy_marks(text: str) -> str:
-    """⟦⟧ 是給主站前端抓比喻用的機器標記，不是內文。靜態頁與 RSS 沒有比喻框，照散文顯示但要脫記號。"""
+    """⟦⟧ 是給渲染器辨識比喻的機器標記，不是讀者可見的內文。"""
     return text.translate(ANALOGY_MARKS)
 
 
@@ -365,17 +365,47 @@ FENCED_CODE_RE = re.compile(
     r"^[ \t]*```[ \t]*[A-Za-z0-9_+-]*[ \t]*\r?\n([\s\S]*?)\r?\n^[ \t]*```[ \t]*(?=\r?$)",
     re.MULTILINE,
 )
+ANALOGY_RE = re.compile(r"⟦(.*?)⟧", re.DOTALL)
+ANALOGY_ICON = (
+    '<svg class="log-analogy-icon" viewBox="0 0 24 24" aria-hidden="true">'
+    '<circle cx="12" cy="12" r="9"></circle>'
+    '<path d="M12 8v5M12 16.5v.01"></path></svg>'
+)
+
+
+def _render_prose(text: str) -> str:
+    """把散文與 ⟦比喻⟧ 分開渲染，並容忍未成對的標記。"""
+    blocks = []
+    cursor = 0
+    for match in ANALOGY_RE.finditer(text):
+        before = _strip_analogy_marks(text[cursor : match.start()])
+        if before:
+            blocks.append(f'<p class="log-prose-text">{_render_inline_code(before)}</p>')
+        analogy = _strip_analogy_marks(match.group(1)).strip()
+        if analogy:
+            blocks.append(
+                f'<aside class="log-analogy" role="note">{ANALOGY_ICON}'
+                f"<span>{_render_inline_code(analogy)}</span></aside>"
+            )
+        cursor = match.end()
+    prose = _strip_analogy_marks(text[cursor:])
+    if prose:
+        blocks.append(f'<p class="log-prose-text">{_render_inline_code(prose)}</p>')
+    return "".join(blocks)
 
 
 def _render_body(text: str) -> str:
-    text = _strip_analogy_marks(text)
     blocks = []
     cursor = 0
     for match in FENCED_CODE_RE.finditer(text):
         prose = re.sub(r"\r?\n$", "", text[cursor:match.start()])
         if prose:
-            blocks.append(f"<p>{_render_inline_code(prose)}</p>")
-        blocks.append(f'<pre class="code-block"><code>{escape(match.group(1))}</code></pre>')
+            blocks.append(_render_prose(prose))
+        blocks.append(
+            '<pre class="log-code-block"><code>'
+            f"{escape(_strip_analogy_marks(match.group(1)))}"
+            "</code></pre>"
+        )
         cursor = match.end()
         if text.startswith("\r\n", cursor):
             cursor += 2
@@ -383,7 +413,7 @@ def _render_body(text: str) -> str:
             cursor += 1
     prose = text[cursor:]
     if prose:
-        blocks.append(f"<p>{_render_inline_code(prose)}</p>")
+        blocks.append(_render_prose(prose))
     return "".join(blocks)
 
 
@@ -403,18 +433,31 @@ def _render_items(
                         "<details><summary>Original changelog</summary>"
                         f"<pre>{escape(str(item.get('original', '')))}</pre></details>"
                     )
-                blocks.append(f"<article><h3>{escape(title)}</h3>{_render_body(body)}{original}</article>")
+                blocks.append(
+                    '<article class="log-item-card">'
+                    f'<h3 class="log-item-title">{escape(title)}</h3>'
+                    f"{_render_body(body)}{original}</article>"
+                )
         return "\n".join(blocks) or "<p>沒有可用的整理內容。</p>"
 
     raw = version.get("raw")
     entries = raw.get("entries", []) if isinstance(raw, dict) else []
-    return "\n".join(f"<article><pre>{escape(entry)}</pre></article>" for entry in entries if isinstance(entry, str)) or "<p>沒有可用的原始更新內容。</p>"
+    return "\n".join(
+        '<article class="log-item-card"><pre class="log-code-block">'
+        f"{escape(_strip_analogy_marks(entry))}</pre></article>"
+        for entry in entries
+        if isinstance(entry, str)
+    ) or "<p>沒有可用的原始更新內容。</p>"
 
 
 def _render_originals(version: dict[str, Any]) -> str:
+    # summary 逐則標上卡片標題：整段都寫「Original changelog」時，讀者分不出哪一則對應哪張卡。
     return "\n".join(
-        "<article><details><summary>Original changelog</summary>"
-        f"<pre>{escape(str(item.get('original', '')))}</pre></details></article>"
+        '<details class="log-howto original-entry">'
+        f'<summary>Original changelog<span class="original-entry-title">'
+        f'{escape(_localized(item.get("title"), "zh-TW"))}</span></summary>'
+        f'<pre class="log-code-block">{escape(str(item.get("original", "")))}</pre>'
+        "</details>"
         for item in _curated_items(version)
     )
 
@@ -457,13 +500,20 @@ def _render_static_page(
     )
     if items:
         language_sections = "\n".join(
-            f'<section lang="{language}"><h2>{escape(language)}</h2>'
+            f'<section class="language-section" lang="{language}">'
+            f'<h2>{"繁體中文" if language == "zh-TW" else "English"}</h2>'
             f'{_render_items(version, language, include_original=False)}</section>'
             for language in LANGUAGES
         )
-        language_sections += f"\n<section><h2>原始 CHANGELOG</h2>{_render_originals(version)}</section>"
+        language_sections += (
+            f'\n<section class="language-section"><h2>原始 CHANGELOG</h2>'
+            f"{_render_originals(version)}</section>"
+        )
     else:
-        language_sections = f'<section><h2>Original changelog</h2>{_render_items(version, "zh-TW")}</section>'
+        language_sections = (
+            '<section class="language-section"><h2>Original changelog</h2>'
+            f'{_render_items(version, "zh-TW")}</section>'
+        )
     title = f"{name} {version_name} 更新白話速報"
     url = _page_url(tool_id, version_name)
     return f'''<!doctype html>
@@ -479,13 +529,21 @@ def _render_static_page(
   <meta property="og:description" content="{escape(description, quote=True)}">
   <meta property="og:url" content="{escape(url, quote=True)}">
   <meta property="og:image" content="{SITE_URL}og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script type="application/ld+json">{json_ld}</script>
-  <style>:root{{color-scheme:light dark}}body{{font:16px/1.65 system-ui,sans-serif;max-width:54rem;margin:auto;padding:2rem}}article{{border-bottom:1px solid #999;padding:1rem 0}}article p{{white-space:pre-line}}h1,h2,h3{{line-height:1.25}}code{{font:.9em "JetBrains Mono",monospace;color:#f0f6fc;background:#0d1117;border-radius:4px;padding:.1em .35em;overflow-wrap:anywhere;word-break:break-word}}pre{{white-space:pre-wrap;overflow-wrap:anywhere}}pre.code-block{{font:.85em/1.5 "JetBrains Mono",monospace;color:#f0f6fc;background:#0d1117;border-radius:6px;padding:.75rem}}pre.code-block code{{font:inherit;background:transparent;padding:0}}a{{color:LinkText}}nav{{display:flex;gap:1rem;flex-wrap:wrap}}</style>
+  <style>
+    :root{{color-scheme:light dark;--bg-color:oklch(0.176285 0.014021 258.357);--sidebar-bg:oklch(0.220223 0.015700 256.816);--text-color:oklch(0.856908 0.014132 247.992);--text-bright:oklch(0.970342 0.010275 247.932);--accent-color:oklch(0.715252 0.151810 253.306);--accent-contrast:oklch(0.176285 0.014021 258.357);--accent-glow:oklch(0.715252 0.151810 253.306 / .2);--border-color:oklch(0.270223 0.014885 252.310);--muted-color:oklch(0.662473 0.018141 250.922);--card-bg:oklch(0.245223 0.015700 256.816);--code-bg:oklch(0.159628 0.020332 265.576);--tag-new:oklch(0.695081 0.180928 145.621);--tag-fix:oklch(0.665118 0.204594 26.960);--tag-perf:oklch(0.719551 0.140145 79.915);interpolate-size:allow-keywords}}
+    @media(prefers-color-scheme:light){{:root{{--bg-color:oklch(0.940 0.005 247.858);--sidebar-bg:oklch(0.975 0.004 247.858);--text-color:oklch(0.371696 0.039156 257.287);--text-bright:oklch(0.207682 0.039824 265.755);--accent-color:oklch(0.546150 0.215208 262.881);--accent-contrast:oklch(1 0 0);--accent-glow:oklch(0.546150 0.215208 262.881 / .15);--border-color:oklch(0.900 0.010 255.508);--muted-color:oklch(0.520 0.040717 257.417);--card-bg:oklch(0.995 0.002 247.858);--code-bg:oklch(0.968260 0.006854 247.896);--tag-new:oklch(0.527299 0.137103 150.069);--tag-fix:oklch(0.577099 0.215157 27.325);--tag-perf:oklch(0.555283 0.145505 48.998)}}:root .log-item-card{{box-shadow:0 1px 3px rgba(0,0,0,.06)}}:root .log-item-card:hover{{box-shadow:0 4px 14px rgba(0,0,0,.12)}}}}
+    *{{box-sizing:border-box}}html,body{{max-width:100%;overflow-x:clip}}body{{min-width:0;margin:0;background:var(--bg-color);color:var(--text-color);font:400 16px/1.6 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}}
+    a{{color:var(--accent-color)}}a:focus-visible,summary:focus-visible{{outline:2px solid var(--accent-color);outline-offset:3px;border-radius:3px}}.page-shell{{width:min(100% - 2rem,68rem);margin:0 auto;padding:3rem 0 2rem;overflow-wrap:anywhere;word-break:break-word}}.page-header{{padding:0 0 2rem;border-bottom:1px solid var(--border-color);margin-bottom:2rem}}.site-kicker{{margin:0 0 .5rem;color:var(--accent-color);font:700 .75rem "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;letter-spacing:.08em;text-transform:uppercase}}h1,h2,h3{{color:var(--text-bright);line-height:1.3;text-wrap:balance}}h1{{margin:0;font:700 clamp(1.8rem,5vw,2.5rem)/1.2 "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace}}.release-period{{margin:.75rem 0 0;color:var(--muted-color);font:.85rem "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace}}.language-section{{margin:0 0 2.5rem}}.language-section>h2{{margin:0 0 1rem;font:700 1rem/1.4 "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;color:var(--muted-color);letter-spacing:.06em;text-transform:uppercase}}
+    .log-item-card{{min-width:0;background:var(--card-bg);border:1px solid var(--border-color);border-radius:8px;padding:1.5rem;margin:0 0 1.25rem;box-shadow:inset 0 1px 0 0 rgba(255,255,255,.08),0 1px 3px rgba(0,0,0,.06);transition:border-color .2s ease,box-shadow .2s ease}}.log-item-card:hover{{border-color:var(--accent-color);box-shadow:inset 0 1px 0 0 rgba(255,255,255,.08),0 4px 14px rgba(0,0,0,.12)}}.log-item-title{{margin:0 0 .75rem;font:600 1.25rem/1.4 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}}.log-prose-text{{margin:.5rem 0 0;font-size:.95rem;line-height:1.6;white-space:pre-line}}.log-prose-text:first-of-type{{margin-top:0}}code{{font:.9em "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;background:var(--code-bg);border-radius:4px;padding:.1em .35em;overflow-wrap:anywhere;word-break:break-word}}pre{{max-width:100%;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}}.log-code-block{{max-width:100%;margin:.75rem 0 0;padding:.75rem;overflow-x:auto;color:var(--text-color);background:var(--code-bg);border:1px solid var(--border-color);border-radius:6px;font:.85rem/1.5 "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace}}.log-code-block code{{padding:0;background:transparent;font:inherit}}.log-analogy{{display:flex;gap:.55rem;align-items:flex-start;margin:.75rem 0;padding:.65rem .85rem;background:color-mix(in srgb,var(--accent-color) 8%,transparent);border-left:3px solid var(--accent-color);border-radius:0 6px 6px 0;font-size:.92rem;line-height:1.55}}.log-analogy-icon{{width:15px;height:15px;flex-shrink:0;margin-top:.15rem;color:var(--accent-color);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}}.log-howto{{margin:0;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-color)}}.original-entry{{margin:0 0 .6rem;background:var(--card-bg)}}.original-entry summary{{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .6rem;list-style:none}}.original-entry summary::-webkit-details-marker{{display:none}}.original-entry summary::before{{content:"▸";flex:0 0 auto;color:var(--accent-color);transition:transform .2s ease}}.original-entry[open] summary::before{{transform:rotate(90deg)}}.original-entry-title{{color:var(--text-bright);font:600 .85rem/1.4 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}}.log-howto summary{{padding:.65rem .85rem;cursor:pointer;color:var(--muted-color);font:.8rem "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace}}.log-howto[open] summary{{border-bottom:1px solid var(--border-color);color:var(--text-bright)}}.log-howto .log-code-block{{margin:.75rem}}
+    footer{{border-top:1px solid var(--border-color);padding-top:1.5rem}}footer nav{{display:flex;flex-wrap:wrap;gap:.75rem 1rem}}footer a{{font:.8rem "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace}}@media(max-width:480px){{.page-shell{{width:min(100% - 1.5rem,68rem);padding-top:1.5rem}}.page-header{{padding-bottom:1.5rem;margin-bottom:1.5rem}}.language-section{{margin-bottom:2rem}}.log-item-card{{padding:1rem}}.log-item-title{{font-size:1.1rem}}.log-analogy{{padding:.5rem .65rem;font-size:.86rem}}.log-code-block{{padding:.65rem}}}}@media(prefers-reduced-motion:reduce){{*,*::before,*::after{{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}}}
+  </style>
 </head>
 <body>
-  <header><h1>{escape(name)} {escape(version_name)}</h1><p>發布日期：{escape(period)}</p></header>
-  <main>{language_sections}</main>
-  <footer><nav><a href="{SITE_URL}#{tool_id}/{version_name}">回到互動版</a>{previous_link}{next_link}</nav></footer>
+  <div class="page-shell"><header class="page-header"><p class="site-kicker">AI_UPDATES.LOG</p><h1>{escape(name)} {escape(version_name)}</h1><p class="release-period">發布日期：{escape(period)}</p></header><main>{language_sections}</main><footer><nav aria-label="版本導覽"><a href="{SITE_URL}#{tool_id}/{version_name}">回到互動版</a>{previous_link}{next_link}</nav></footer></div>
 </body>
 </html>
 '''
