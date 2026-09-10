@@ -294,10 +294,21 @@ def _description(version: dict[str, Any], language: str = "zh-TW") -> str:
     if items:
         first = items[0]
         body = _strip_prose_only(_strip_analogy_marks(_localized(first.get("body"), language)))
-        return f"{_localized(first.get('title'), language)} {body}"[:150]
-    raw = version.get("raw")
-    entries = raw.get("entries", []) if isinstance(raw, dict) else []
-    return " ".join(entry for entry in entries if isinstance(entry, str))[:150]
+        text = f"{_strip_analogy_marks(_localized(first.get('title'), language))} {body}"
+    else:
+        raw = version.get("raw")
+        entries = raw.get("entries", []) if isinstance(raw, dict) else []
+        text = " ".join(entry for entry in entries if isinstance(entry, str))
+    text = _strip_prose_only(_strip_analogy_marks(text))
+    if len(text) <= 150:
+        return text
+    # Reserve one character for the ellipsis; prefer a complete sentence, then
+    # punctuation or whitespace. Never cut an unbroken English word or URL.
+    for pattern in (r"[。！？]|[.!?](?=\s|$)", r"[，、；：]|[,;:](?=\s|$)|\s+"):
+        ends = [match.end() for match in re.finditer(pattern, text) if match.end() <= 149]
+        if ends:
+            return text[:ends[-1]].rstrip() + "…"
+    return "…"
 
 
 def _rss_pub_date(period: str) -> str:
@@ -431,7 +442,7 @@ def _render_items(
                 if include_original:
                     original = (
                         "<details><summary>Original changelog</summary>"
-                        f"<pre>{escape(str(item.get('original', '')))}</pre></details>"
+                        f'<pre lang="en">{escape(str(item.get("original", "")))}</pre></details>'
                     )
                 blocks.append(
                     '<article class="log-item-card">'
@@ -443,7 +454,7 @@ def _render_items(
     raw = version.get("raw")
     entries = raw.get("entries", []) if isinstance(raw, dict) else []
     return "\n".join(
-        '<article class="log-item-card"><pre class="log-code-block">'
+        '<article class="log-item-card"><pre class="log-code-block" lang="en">'
         f"{escape(_strip_analogy_marks(entry))}</pre></article>"
         for entry in entries
         if isinstance(entry, str)
@@ -456,7 +467,7 @@ def _render_originals(version: dict[str, Any]) -> str:
         '<details class="log-howto original-entry">'
         f'<summary>Original changelog<span class="original-entry-title">'
         f'{escape(_localized(item.get("title"), "zh-TW"))}</span></summary>'
-        f'<pre class="log-code-block">{escape(str(item.get("original", "")))}</pre>'
+        f'<pre class="log-code-block" lang="en">{escape(str(item.get("original", "")))}</pre>'
         "</details>"
         for item in _curated_items(version)
     )
@@ -481,11 +492,18 @@ def _render_static_page(
         ]
     structured_data = {
         "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": name,
-        "softwareVersion": version_name,
+        "@type": "TechArticle",
+        "headline": f"{name} {version_name}",
         "datePublished": _period_end_date(period),
-        "releaseNotes": "；".join(release_notes),
+        "description": description,
+        "inLanguage": list(LANGUAGES) if items else ["en"],
+        "url": _page_url(tool_id, version_name),
+        "about": {
+            "@type": "SoftwareApplication",
+            "name": name,
+            "softwareVersion": version_name,
+            "releaseNotes": "；".join(release_notes),
+        },
     }
     json_ld = json.dumps(structured_data, ensure_ascii=False).replace("</", "<\\/")
     previous_link = (
@@ -525,6 +543,8 @@ def _render_static_page(
   <meta name="description" content="{escape(description, quote=True)}">
   <link rel="canonical" href="{escape(url, quote=True)}">
   <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_TW">
+  <meta property="og:locale:alternate" content="en_US">
   <meta property="og:title" content="{escape(title, quote=True)}">
   <meta property="og:description" content="{escape(description, quote=True)}">
   <meta property="og:url" content="{escape(url, quote=True)}">
@@ -559,7 +579,7 @@ def _write_static_pages(history_tools: list[dict[str, Any]]) -> int:
     sitemap_entries = [f"  <url><loc>{SITE_URL}</loc></url>"]
     llms_sections = [
         "# AI Updates",
-        "五語 AI 工具 changelog 白話翻譯站。",
+        "以繁體中文與英文提供 AI 工具更新紀錄的白話重寫。",
         "資料每日更新。",
     ]
     for tool in history_tools:
@@ -574,7 +594,7 @@ def _write_static_pages(history_tools: list[dict[str, Any]]) -> int:
             period = str((version.get("curated") or version.get("raw") or {}).get("period", ""))
             lastmod = _period_end_date(period)
             sitemap_entries.append(f"  <url><loc>{escape(url)}</loc><lastmod>{escape(lastmod)}</lastmod></url>")
-            llms_sections.append(f"- {url}")
+            llms_sections.append(f"- [{tool['name']} {version_name}]({url})")
             page_count += 1
     (ROOT / "docs" / "sitemap.xml").write_text(
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
@@ -597,13 +617,33 @@ def _write_static_summary(history_tools: list[dict[str, Any]]) -> None:
     for tool in history_tools:
         if tool["versions"]:
             latest = tool["versions"][0]
+            curated = next((v for v in tool["versions"] if _curated_items(v)), None)
+            excerpt = ""
+            if curated is not None:
+                first = _curated_items(curated)[0]
+                title = _strip_analogy_marks(_localized(first.get("title"), "zh-TW"))
+                body = _strip_analogy_marks(_localized(first.get("body"), "zh-TW"))
+                sentence = re.split(r"(?<=[。！？!?])|(?<=\.)\s+", body, maxsplit=1)[0]
+                # 反引號是 Markdown 語法，摘要是給讀者與爬蟲讀的散文，不該原樣露出。
+                title = title.replace("`", "")
+                sentence = sentence.replace("`", "")
+                # 摘要取自最新「已策展」的版本，未必是上面那個版號；相同時就不重複標。
+                label = "摘要"
+                if str(curated["version"]) != str(latest["version"]):
+                    label = f'摘要（{escape(str(curated["version"]))}）'
+                excerpt = (
+                    f'<p>{label}：'
+                    f'<strong>{escape(title)}</strong> {escape(sentence)}</p>'
+                )
             links.append(
                 f'<li><a href="{escape(_page_url(str(tool["id"]), str(latest["version"])), quote=True)}">'
-                f'{escape(str(tool["name"]))} {escape(str(latest["version"]))}</a></li>'
+                f'{escape(str(tool["name"]))} {escape(str(latest["version"]))}</a>{excerpt}</li>'
             )
     summary = "<!-- STATIC-SUMMARY:START -->\n  <noscript><section><h1>AI 工具更新速報</h1><p>最新版本：</p><ul>" + "".join(links) + "</ul></section></noscript>\n  <!-- STATIC-SUMMARY:END -->"
+    if len(summary) > 2000:
+        raise ValueError("STATIC-SUMMARY exceeds 2000 characters with curated excerpts")
     updated, count = re.subn(
-        r"<!-- STATIC-SUMMARY:START -->.*?<!-- STATIC-SUMMARY:END -->", summary, index, flags=re.DOTALL
+        r"<!-- STATIC-SUMMARY:START -->.*?<!-- STATIC-SUMMARY:END -->", lambda _: summary, index, flags=re.DOTALL
     )
     if count != 1:
         raise ValueError("docs/index.html must contain exactly one STATIC-SUMMARY marker block")
