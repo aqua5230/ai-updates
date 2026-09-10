@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import http.client
 import json
 import os
 import re
@@ -71,6 +72,12 @@ def _request(
             if attempt == attempts:
                 raise
         except (TimeoutError, ConnectionError):
+            if attempt == attempts:
+                raise
+        except http.client.IncompleteRead:
+            # 大回應（codex releases 單頁約 27MB）被中途截斷時丟這個例外，它不是
+            # URLError／ConnectionError 的子類，不列在這裡就不會重試，每日排程
+            # 因此連紅四次（2026-09-10 查 GitHub Action 歷史）。
             if attempt == attempts:
                 raise
         sleep(backoff * (2 ** (attempt - 1)))

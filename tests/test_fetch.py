@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import http.client
 import io
 import json
 import urllib.error
@@ -237,6 +238,29 @@ def test_request_retries_connection_reset_then_succeeds(monkeypatch) -> None:
     assert fetch._request("https://example.invalid", sleep=delays.append) == b"response"
     assert len(calls) == 3
     assert delays == [1.0, 2.0]
+
+
+def test_request_retries_incomplete_read_then_succeeds(monkeypatch) -> None:
+    """大回應被中途截斷丟的是 http.client.IncompleteRead，不是 ConnectionError。"""
+    outcomes: list[BaseException | io.BytesIO] = [
+        http.client.IncompleteRead(b"partial", 27206124),
+        io.BytesIO(b"response"),
+    ]
+    calls = []
+    delays = []
+
+    def urlopen(*args, **kwargs):
+        calls.append((args, kwargs))
+        outcome = outcomes.pop(0)
+        if isinstance(outcome, BaseException):
+            raise outcome
+        return outcome
+
+    monkeypatch.setattr(fetch.urllib.request, "urlopen", urlopen)
+
+    assert fetch._request("https://example.invalid", sleep=delays.append) == b"response"
+    assert len(calls) == 2
+    assert delays == [1.0]
 
 
 def test_request_does_not_retry_non_retryable_http_error(monkeypatch) -> None:
