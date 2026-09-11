@@ -49,6 +49,41 @@ def test_parse_codex_releases_fixture() -> None:
     ]
 
 
+def test_parse_github_releases_skips_non_version_tags() -> None:
+    payload = [
+        {
+            "tag_name": "python-v0.154.0",
+            "body": "- Added a Python SDK feature.",
+            "published_at": "2026-09-10T00:00:00Z",
+            "html_url": "https://github.com/openai/codex/releases/tag/python-v0.154.0",
+            "draft": False,
+        },
+        {
+            "tag_name": "voice-cygwin-108b38cf67cbb731",
+            "body": "- Unrelated asset drop.",
+            "published_at": "2026-09-10T00:00:00Z",
+            "html_url": "https://github.com/openai/codex/releases/tag/voice-cygwin-108b38cf67cbb731",
+            "draft": False,
+        },
+        {
+            "tag_name": "rust-v0.154.0",
+            "body": "- Added a real feature.",
+            "published_at": "2026-09-10T00:00:00Z",
+            "html_url": "https://github.com/openai/codex/releases/tag/rust-v0.154.0",
+            "draft": False,
+        },
+    ]
+
+    assert fetch.parse_github_releases(payload) == [
+        {
+            "version": "0.154.0",
+            "period": "2026-09-10",
+            "source_url": "https://github.com/openai/codex/releases/tag/rust-v0.154.0",
+            "entries": ["Added a real feature."],
+        }
+    ]
+
+
 def test_parse_gh_cli_releases_fixture() -> None:
     payload = json.loads((FIXTURES / "gh_cli_releases.json").read_text(encoding="utf-8"))
 

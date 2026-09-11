@@ -175,6 +175,22 @@ def parse_keepachangelog(text: str) -> list[tuple[str, str, list[str]]]:
     return versions
 
 
+_RELEASE_TAG_PREFIX = re.compile(r"^(?:rust-v|v)")
+
+
+def _normalize_release_tag(tag: str) -> str | None:
+    """Strip a known version prefix and return None for non-version tags.
+
+    GitHub releases sometimes carry unrelated one-off tags (asset drops,
+    other release tracks) that happen to start with "v"; a bare
+    removeprefix("v") mangles those into garbage instead of skipping them.
+    """
+    version = _RELEASE_TAG_PREFIX.sub("", tag, count=1)
+    if not version or not version[0].isdigit():
+        return None
+    return version
+
+
 def parse_github_releases(payload: Any) -> list[dict[str, Any]]:
     if not isinstance(payload, list):
         raise ValueError("GitHub releases response is not a list")
@@ -188,11 +204,14 @@ def parse_github_releases(payload: Any) -> list[dict[str, Any]]:
         html_url = release.get("html_url")
         if not all(isinstance(value, str) for value in (tag, body, published_at, html_url)):
             continue
+        version = _normalize_release_tag(tag)
+        if version is None:
+            continue
         entries = _release_body_entries(body)
         if entries:
             releases.append(
                 {
-                    "version": tag.removeprefix("rust-v").removeprefix("v"),
+                    "version": version,
                     "period": published_at[:10],
                     "source_url": html_url,
                     "entries": entries,
