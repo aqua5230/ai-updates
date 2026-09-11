@@ -3,6 +3,53 @@
   "name": "Usage",
   "versions": [
     {
+      "version": "0.30.13",
+      "raw": {
+        "version": "0.30.13",
+        "period": "2026-09-12",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-09-12",
+        "entries": [
+          "**The Windows panel opens inside the screen at high display scaling** ([#130](https://github.com/aqua5230/usage/issues/130)). pywebview 6.2.1 returns screen bounds in physical pixels but labels them as scale 1.0, while `move()` / `resize()` multiply their input by the window's DPI again. At 250% on 3840x2160 the default x came out as 3840 − 380 − 12 = 3448, pinning the panel to the bottom-right edge, and that position was saved, so every relaunch repeated it. Screen rectangles are now converted to logical pixels with the window's own DPI (only when the primary screen reports 1.0 while the window DPI is not 96, so a future pywebview that fixes this is not double-converted), and `window.show()` is queued behind the placement so the panel never appears at a stale position.",
+          "**The Windows panel reopens on the display it was closed on with mixed scaling.** The saved position was physical pixels divided by the DPI of whichever monitor the window was on at that moment, so a panel closed on a 225% display reopened on the 100% primary. Positions are now saved in physical pixels and converted with the window's current DPI when placed. The preference key and shape are unchanged.",
+          "**The bottom of the Windows panel is no longer cut off on short high-DPI screens.** The 0.6 zoom floor did not account for the window's DPI, so at 2560x1440 @225% the panel was held above the zoom it needed and lost its rate/status row and Refresh/Quit buttons. Windows now uses `MIN_PANEL_SCALE / window DPI scale` as the floor, so text still never renders smaller than 0.6× of a 100% display; macOS is unchanged.",
+          "**The Windows tray tooltip is capped at 127 characters.** Since the Grok row was added, the English tooltip with every provider at 100% reached 129 characters; pystray raised `ValueError: string too long`, which `_refresh_worker()` swallowed along with the same iteration's `inject_state()`, so an open panel silently stopped updating.",
+          "**Installed status line and session resume hooks are replaced with the current copies.** Both scripts had changed without a version bump — the status line's `1000k` fix and ten session-resume fixes since July — so existing installs kept the old files. The status line goes to `1.6` and session resume to `1.7`, and a new test keeps the session-resume script version and installer constant in step."
+        ]
+      },
+      "curated": null
+    },
+    {
+      "version": "0.30.12",
+      "raw": {
+        "version": "0.30.12",
+        "period": "2026-09-11",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-09-12",
+        "entries": [
+          "**`CLAUDE_CONFIG_DIR` is respected everywhere, not only for transcripts** ([#129](https://github.com/aqua5230/usage/issues/129)). With a relocated Claude Code config dir, \"Set Up Status Line\" wrote to `~/.claude/settings.json`, which Claude Code never read, so both quota bars sat at 0% with \"Reset imminent\", the fallback surfaced a stale `~/.claude.json`, and Project Usage stayed empty because an `.app` launched from Finder or the Dock does not inherit the shell environment. A new `loaders/claude_paths.py` resolves the directory from the environment, then `launchctl getenv CLAUDE_CONFIG_DIR`, then `~/.claude`; comma-separated values are read in full and written to the first entry. Files Claude Code owns follow it — `settings.json`, `.claude.json` (inside the directory whenever the variable is set, the same rule Claude Code uses), and `projects/`. usage's own files — the statusline script, `usage-status.json`, prefs — stay pinned to `~/.claude`: the script runs as a Claude Code subprocess and sees the variable while the app may not, and deriving both from it would let them write and read in different places.",
+          "**Token counts no longer read `1000k` at a unit boundary.** The three statusline scripts promoted to `M` at `value >= 1_000_000`, but `k` is formatted `:.0f`, so anything from 999,500 rounded to `1000k` first; there was no `B` step either, so 1.5 billion read `1500.0M`. The thresholds now compare against the rounded boundary (999,500 for k→M, 999,950,000 for M→B) and a `B` step was added, matching the already-correct version in `ui/tables.py`.",
+          "**Weekly trend bars in the report show their date range and cost on hover.** Each row only carried a token count, with no way to tell which week it was or what it cost. The range is clamped to the report's actual span, so an unfinished last week does not claim seven days next to three days of numbers.",
+          "**Insight notes in the report are square, borderless tinted rows.** They were the last framed surface left — 8px corners and a 3px left stripe — and now match the report's other full-row fills."
+        ]
+      },
+      "curated": null
+    },
+    {
+      "version": "0.30.11",
+      "raw": {
+        "version": "0.30.11",
+        "period": "2026-09-10",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-09-12",
+        "entries": [
+          "**AI Talent Market.** The panel browsed a curated set of subagent personas and installed them into `~/.claude/agents/`. Claude Code has since built persona selection in itself, and the evidence against the pattern accumulated from the other side: the GPT Store showed what happens to a persona catalogue once the host platform ships its own, and three papers now report that a persona prefix measurably degrades a model's reasoning rather than sharpening it. The panel also carried the project's only vendored binary — `vendor/instate-cli`, built from a separate private project, fetched during release through a `INSTATE_CLI_TOKEN` secret that expired twice and silently shipped a 23 MB-lighter app with an empty panel. Removing the feature removes that whole chain: the checksum file, the fingerprint guard, the release upload/download dance, and the macOS-only carve-outs in the panel parity and theme-count scripts.",
+          "**AI Council.** A separate window ran a multi-round discussion between Claude Code, Codex and Antigravity, with a token estimate up front, consensus tallying, and read-only folder access. It was the largest subsystem in the project at roughly 3,600 lines across `discussion/`, and the thing it produced — the same question answered by two tools, side by side, ending in one pass — is something two terminal windows already do faster. A usage monitor is the wrong place to run conversations; the quota it spent was the quota it exists to protect. The parts are in git history if a stripped-down version is ever wanted."
+        ]
+      },
+      "curated": null
+    },
+    {
       "version": "0.30.10",
       "raw": {
         "version": "0.30.10",
