@@ -976,34 +976,106 @@
           "period": "2026-09-12",
           "items": [
             {
+              "title": {
+                "zh-TW": "自訂代理人支援精簡配置，排除預設提示詞與工具並保留掛鉤",
+                "en": "Custom agents support lean configuration, excluding default prompts and tools while preserving hooks"
+              },
+              "body": {
+                "zh-TW": "設計專精特定任務的自訂代理人時，你現在能擁有一張完全乾淨的畫布。在代理人 Markdown 檔案頂端的前言設定（在文件開頭以橫線包夾的設定區塊）加入 `excludeDefaultComponents: true`，便能選擇不載入系統預設的提示詞區段與內建工具，只留下你親自指定的行為邏輯。這項設定能避免通用指令干擾專業發揮。而任務結束後的掛鉤（在特定事件發生時被觸發的小程式）依舊完整保留，讓自訂自動化流程順暢運作。⟦宛如訂製專業賽車時選擇拆空內裝的輕量化車體，移除了預設的後座與原廠音響，只留下純粹操控配備，但底盤的安全感應線路依然維持連動。⟧\n\n```yaml\n---\nname: my-specialist\nexcludeDefaultComponents: true\n---\n```",
+                "en": "When designing custom agents tailored for specialized tasks, you now have a completely blank canvas. Adding `excludeDefaultComponents: true` to the frontmatter of an agent's Markdown file allows you to opt out of loading system default prompt sections and built-in tools, keeping only your explicitly specified behavior logic. This setting prevents general-purpose instructions from interfering with specialized capabilities. Meanwhile, post-task hooks remain fully preserved, keeping custom automated workflows running smoothly. ⟦Just like ordering a purpose-built race car with a stripped lightweight chassis, where default rear seats and factory stereo are removed to keep only pure driving controls, while the safety sensor wiring in the chassis remains connected.⟧\n\n```yaml\n---\nname: my-specialist\nexcludeDefaultComponents: true\n---\n```"
+              },
               "original": "Added support for `excludeDefaultComponents: true` in custom agent Markdown frontmatter, allowing custom agents to opt out of default prompt sections and built-in tools while preserving post-invocation hooks."
             },
             {
+              "title": {
+                "zh-TW": "模型 API 強化錯誤重試機制，保留工具產出並提供清楚診斷",
+                "en": "Model API strengthens error retry mechanism, preserving tool outputs and providing clear diagnostics"
+              },
+              "body": {
+                "zh-TW": "面對遠端模型伺服器偶發的網路壅塞或限流，工具現在具備更沉著的容錯韌性。⟦宛如在自動販賣機投幣購買熱飲遇到出杯口短暫卡頓，機台會主動間隔等待並重新嘗試，妥善保留已落下的紙杯，若最終仍無法出料也會在螢幕亮起明確的缺料警示。⟧以前連線時若撞上暫時性的 `genai.APIError` 錯誤，執行流程往往直接中斷。現在無論是 `502`、`503`、`504` 伺服器異常、每分鐘觸發的 `429` 速率限制，或是傳輸串流中途中斷，程式都會在內部以指數退避（重試等待時間隨次數倍增的做法）自動重試。重試期間已完成的工具呼叫產出會完整保留，不再白白作廢。若重試後仍未能成功復原，系統會針對 `503` 與 `429` 狀況顯示清楚易懂的錯誤提示，不再丟出晦澀難懂的內部代碼。",
+                "en": "When facing occasional network congestion or rate limits from remote model servers, the tool now exhibits calmer fault resilience. ⟦Like buying a hot drink from a vending machine and encountering a brief jam at the dispenser chute: the machine automatically waits at intervals and retries, properly preserving the dropped cup, and illuminates a clear out-of-stock warning on the screen if it ultimately cannot dispense.⟧ Previously, encountering transient `genai.APIError` failures during a connection would often abort execution immediately. Now, whether dealing with `502`, `503`, or `504` server errors, per-minute `429` rate limits, or mid-stream transmission interruptions, the program automatically retries in-process using exponential backoff. Completed tool call outputs during retries are fully preserved rather than wasted. If recovery still fails after retrying, the system displays clear and understandable error messages for `503` and `429` situations instead of throwing obscure internal error codes."
+              },
               "original": "Improved model API error resilience and diagnostics: transient `genai.APIError` failures (`502`, `503`, `504`, per-minute `429` rate limits, and mid-stream interruptions) automatically retry in-process with exponential backoff while preserving completed tool call outputs, and unrecovered `503` and `429` responses surface clear user-facing error messages."
             },
             {
+              "title": {
+                "zh-TW": "MCP 與工具結構驗證放寬，保留開放物件與自訂參數",
+                "en": "MCP and tool schema validation relaxed, preserving open objects and custom arguments"
+              },
+              "body": {
+                "zh-TW": "串接各類外部擴充工具時，規格檢驗不再把合法的彈性輸入擋在門外。使用 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）或各家模型提供者的擴充工具時，舊版結構驗證機制過於嚴格。即使工具規格本身允許開放物件結構描述（schema，規範資料格式與欄位型別的結構定義），例如宣告為 `{\"type\": \"object\"}` 或明確寫出 `additionalProperties: true`，系統過去仍會拒絕傳入任何未預先宣告的引數。現在檢驗邏輯全面改善，能妥善保留這些開放物件結構，讓合規允許額外參數的工具順利接收資料。⟦好比前往公證處填寫資產申報單，欄位末端若明確勾選了「其他動產」或備註允許自由補充，審查櫃台便會如實受理附帶清單，不再挑剔額外寫入的項目未列在制式表格上。⟧",
+                "en": "When integrating external extension tools, specification checks no longer lock out valid, flexible inputs. When using MCP or provider extension tools, the previous schema validation mechanism was overly strict. Even if a tool specification itself allowed open object schemas (such as declaring `{\"type\": \"object\"}` or explicitly setting `additionalProperties: true`), the system previously rejected any undeclared arguments. The validation logic is now improved to properly preserve these open object schemas, allowing tools that permit extra parameters to receive data smoothly. ⟦Just like filling out an asset declaration form at a notary office: if the end of a field explicitly checks \"other movable property\" or notes allow free additions, the review counter accepts the attached list as-is, no longer rejecting extra written items simply because they were not listed on the standard form.⟧"
+              },
               "original": "Improved MCP and provider tool schema validation to preserve open object schemas (such as `{\"type\": \"object\"}` or explicit `additionalProperties: true`) instead of rejecting undeclared arguments on schemas that allow them."
             },
             {
+              "title": {
+                "zh-TW": "開啟大型對話降低記憶體佔用，每輪互動回應更敏捷",
+                "en": "Opening large conversations reduces memory usage, making per-turn responses more agile"
+              },
+              "body": {
+                "zh-TW": "重新載入累積大量歷史紀錄的長篇對話時，終端機的操作手感現在依然輕快。⟦這好比翻開一整箱厚重的工程施工藍圖，經過重新折疊與編目整理，攤在桌上不再佔滿整張辦公桌，每次翻到特定樓層做標記也隨翻隨寫、毫無延宕。⟧以前開啟對話紀錄特別長的工作階段（session，從啟動到結束的一整段對話歷程）時，龐大的歷史內容往往會迅速堆高記憶體用量。隨著對話越來越長，每輪互動的送出與回應也常因此變得遲緩。現在開啟大型對話時的每輪回應速度顯著改善，同時有效降低了記憶體消耗。即使面對篇幅極長的工作階段，每次對話往返都能維持順暢反應。",
+                "en": "When reloading lengthy conversations with accumulated history, terminal operations remain snappy. ⟦Like opening a heavy box of engineering construction blueprints that have been refolded and cataloged: spreading them out no longer occupies the entire desk, and flipping to a specific floor to make notes is immediate without any delay.⟧ Previously, opening sessions with extensive conversation histories would rapidly inflate memory usage. As conversations grew longer, sending and receiving responses per turn frequently became sluggish. Now, per-turn responsiveness when opening large conversations is significantly improved while effectively reducing memory consumption. Even in exceptionally long sessions, each conversational turn maintains smooth responsiveness."
+              },
               "original": "Improved per-turn responsiveness and reduced memory usage when opening large conversations."
             },
             {
+              "title": {
+                "zh-TW": "--continue 支援階層備援搜尋，子目錄與當機後不開新對話",
+                "en": "--continue supports hierarchical fallback search, avoiding new conversations in subdirectories or after crashes"
+              },
+              "body": {
+                "zh-TW": "想要迅速接續上一回的中斷進度，恢復對話的指令現在更值得信賴。以前執行 `--continue` 旗標時，只要終端機位於專案的子目錄、先前發生過異常當機，或者同一工作區內恰好有另一個工作階段（session，從啟動到關閉的完整使用過程）正在運行，系統往往會誤判並強制開出一筆全新空白對話。這讓使用者找不到原本的上下文紀錄。現在這項缺陷已經修好，指令會啟動智慧備援（fallback，在主路徑失效時自動切換至替代方案的容錯設計）機制，自動搜尋當前工作區及其父目錄、子目錄，精準找回最近一次非空的歷史對話。⟦恰似工匠走進分流的加工側間準備繼續施工，即使方才經歷了意外跳電、或隔壁主工位正有人借用工具，他依然能在工具架的主層或鄰近抽屜裡，精準摸出最後那份尚未結案的工件繼續雕琢。⟧\n\n```\n# 接續當前工作區最近一次非空對話\nagy --continue\n```",
+                "en": "When resuming interrupted progress from a previous session, the continuation command is now much more dependable. Previously, running the `--continue` flag would often mistakenly force a brand-new blank conversation if the terminal was located in a project subdirectory, after an abnormal crash, or while another session was running in the same workspace. This left users unable to find their original context history. This flaw has now been fixed; the command initiates a fallback mechanism that automatically searches the current workspace along with its parent and child directories to accurately retrieve the most recent non-empty conversation. ⟦Much like a craftsman stepping into a branch workshop to resume work: even after a sudden power outage or while someone borrows tools at the main workstation next door, he can still reach into the tool rack's main shelf or adjacent drawers to accurately retrieve the last unfinished piece and continue carving.⟧\n\n```\n# Resume the most recent non-empty conversation in the current workspace\nagy --continue\n```"
+              },
               "original": "Fixed `--continue` starting a brand-new conversation when launched from a subdirectory, after a crash, or while another session is open in the same workspace; it now falls back to the most recent non-empty conversation in the current workspace or its parent/child directories."
             },
             {
+              "title": {
+                "zh-TW": "行內模式修復全螢幕空白閃爍，捲動與清畫面視覺更平順",
+                "en": "Inline mode fixes full-screen blank flashes, smoothing scrolling and screen clearing"
+              },
+              "body": {
+                "zh-TW": "長時間在終端機中緊盯對話輸出，刺眼的畫面閃爍不再打擾你的專注。在行內模式（inline mode，直接在終端機當前游標處嵌入文字的顯示方式）下，使用者過去常常會撞見令人不適的全螢幕空白閃爍。這種刺眼的閃動特別容易發生在文字輸出首次被推入回捲緩衝區（scrollback，終端機用來保留上方歷史畫面的暫存區）的那一刻、每一輪對話即將結束的收尾瞬間，或是按下 `Ctrl+L` 快捷鍵嘗試清空螢幕之時。這個畫面閃爍問題現在已經徹底修復，各種切換情境下都能維持穩定的視覺感受。⟦彷彿在老舊放映廳看電影遇到換膠捲捲軸，以前每逢段落切換或清潔布幕時總會突然白光一閃刺傷眼睛，如今更換了數位連續放映機，轉場時畫面銜接安靜平穩。⟧",
+                "en": "When focusing on conversational output in the terminal for long periods, glaring screen flashes no longer disrupt your concentration. In inline mode, users previously often encountered jarring full-screen blank flashes. This glaring flash occurred especially when text output was first pushed into the scrollback buffer, at the closing moment of each conversation turn, or when pressing `Ctrl+L` to clear the screen. This screen flashing issue is now completely fixed, maintaining a stable visual experience across all transition scenarios. ⟦Like watching a movie in an old cinema during a film reel change: paragraph transitions or screen cleanings previously triggered a sudden flash of white light that stung the eyes, but with a new digital continuous projector, transitions now connect quietly and smoothly.⟧"
+              },
               "original": "Fixed full-screen blank flashes in inline mode when content first pushes to scrollback, at the end of a turn, or when clearing the screen with `Ctrl+L`."
             },
             {
+              "title": {
+                "zh-TW": "Remote Control 隨附介面狀態修復，即時反映已登入工作階段",
+                "en": "Remote Control companion UI state fixed, instantly reflecting signed-in sessions"
+              },
+              "body": {
+                "zh-TW": "使用遠端裝置協同操作終端機時，隨附介面現在能準確同步你已登入的身分。⟦好似持智慧手環與跑步機連線同步運動數據，手環螢幕接通瞬間便會直接顯示當前登入的會員姓名，不再跳回初始歡迎頁逼你重新掃描卡片。⟧以前透過 `Remote Control` 將遠端隨附介面連線至互動式命令列工作階段（session，從啟動到結束的一整段操作歷程）時，介面端常出現異常狀況。它不會顯示當前活動工作階段的有效登入狀態，反而會錯誤彈出未通過驗證的登入畫面，阻礙使用者操作。這個狀態顯示問題現在已經修好，遠端介面連線後能直接反映正常的登入狀態。",
+                "en": "When using remote devices to collaboratively operate the terminal, the companion UI now accurately synchronizes your signed-in identity. ⟦Just like pairing a fitness tracker with a treadmill to sync workout data: the moment the tracker screen connects, it immediately displays the currently logged-in member's name instead of jumping back to the initial welcome page and forcing you to rescan your card.⟧ Previously, connecting a remote companion UI to an interactive CLI session via `Remote Control` often caused an abnormal state on the UI side. Instead of displaying the active session's authenticated sign-in state, it erroneously showed an unauthenticated sign-in screen, hindering operations. This status display issue is now fixed, allowing remote interfaces to directly reflect the normal signed-in state upon connection."
+              },
               "original": "Fixed remote companion UIs connected to an interactive CLI session via Remote Control displaying an unauthenticated sign-in screen instead of the active session's signed-in state."
             },
             {
+              "title": {
+                "zh-TW": "狀態列如實反映終端機沙盒狀態，解除旗標設定下的顯示誤判",
+                "en": "Status line accurately reflects terminal sandbox state, resolving false display under flag setting"
+              },
+              "body": {
+                "zh-TW": "開啟隔離防護執行不可信指令時，底部狀態提示不再引起虛驚。當你在啟動命令列時加入了 `--sandbox` 命令列旗標，程式明明已經替該工作階段（session，從啟動到關閉的完整執行過程）啟用了終端機沙盒防護。然而畫面底部的狀態列（顯示目前模式與環境資訊的即時通知列）過去卻會錯誤回報沙盒為停用狀態，容易讓人誤以為隔離環境未生效。這個顯示問題現在已經修正，只要使用該旗標啟動，狀態列便會如實反映沙盒的啟用狀態。⟦這如同實驗室操作員戴上護目鏡並扳下通風櫥排氣閥，排風扇明明已正常抽風運轉，警示面板上的指示燈卻誤亮著「排氣已關閉」，校正接線後指示燈終於真實反映抽風狀態。⟧\n\n```\n# 以終端機沙盒防護模式啟動工作階段\nagy --sandbox\n```",
+                "en": "When enabling isolated protection to execute untrusted commands, bottom status hints no longer cause false alarms. When launching the command line with the `--sandbox` flag, the program properly enables terminal sandbox protection for that session. However, the status line at the bottom of the screen previously erroneously reported the sandbox as disabled, easily leading users to believe the isolated environment was not active. This display issue is now fixed; launching with this flag ensures the status line accurately reflects the sandbox's enabled state. ⟦Much like a lab operator putting on safety goggles and pulling the fume hood exhaust valve: while the exhaust fan is running normally, the indicator light on the warning panel mistakenly shows \"Exhaust Off\"; after correcting the wiring, the light finally accurately reflects the ventilation status.⟧\n\n```\n# Launch session with terminal sandbox protection mode\nagy --sandbox\n```"
+              },
               "original": "Fixed the status line reporting the terminal sandbox as disabled when the session was launched with the `--sandbox` command-line flag."
             },
             {
+              "title": {
+                "zh-TW": "Mermaid 純文字圖表移除縮放提示，檢視器介面回歸清爽",
+                "en": "Mermaid plain-text diagrams remove zoom hints, restoring clean viewer interface"
+              },
+              "body": {
+                "zh-TW": "在終端機檢視流程圖或架構圖時，畫面控制項不再出現用不上的快捷鍵提示。當你在產出物檢視器（artifact viewer，查看程式碼或圖表等生成成果的專用檢視面板）中瀏覽 Mermaid 圖表時，若圖表是以 ASCII 純文字模式而非 Kitty 圖片模式進行算繪，終端機過去依然會顯示圖片專用的縮放按鍵提示。這導致底部的頁尾提示欄列出無效的 `Ctrl+=` 與 `Ctrl+-` 縮放快捷鍵，按下去也沒有實際縮放效果。這個介面提示問題現在已經修正，純文字圖表不再顯示多餘的圖片縮放提示。⟦宛如閱讀以純文字打字機排印的黑白公文，閱讀器底端卻跳出僅適用於高解析度相片的多點觸控手勢指引，移走無效提示後版面回歸乾淨俐落。⟧",
+                "en": "When viewing flowcharts or architecture diagrams in the terminal, UI controls no longer display unusable shortcut hints. When browsing Mermaid diagrams in the artifact viewer, if a diagram was rendered in ASCII plain-text mode rather than Kitty image mode, the terminal previously still showed image zoom key hints. This caused the bottom footer hint bar to list ineffective `Ctrl+=` and `Ctrl+-` zoom shortcuts that had no actual zooming effect when pressed. This UI hint issue is now fixed, so plain-text diagrams no longer display redundant image zoom hints. ⟦Like reading a black-and-white official document printed on a plain typewriter, only for the bottom of the reader to pop up multi-touch gesture guides meant exclusively for high-resolution photos; removing the invalid hints restores a clean, uncluttered layout.⟧"
+              },
               "original": "Fixed image zoom keys (`Ctrl+=` and `Ctrl+-`) and the footer zoom hint appearing in the artifact viewer when a Mermaid diagram is rendered in ASCII mode instead of as a Kitty image."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "1.2.0",
@@ -1217,54 +1289,142 @@
           "period": "2026-09-12",
           "items": [
             {
+              "title": {
+                "zh-TW": "Windows 面板在高縮放螢幕不再貼邊，重開位置精準",
+                "en": "Windows panel no longer clings to screen edge at high scaling, reopening accurately"
+              },
+              "body": {
+                "zh-TW": "使用 3840x2160 高解析度螢幕並開啟 250% 縮放時，Windows 面板現在會準確開在畫面之內。⟦這好比木工師傅照著設計圖施工，助手卻誤把圖面上的公尺當成公分再放大換算，讓做好的櫃子直接卡死在牆角。⟧底層套件 `pywebview 6.2.1` 回傳的螢幕範圍明明是實體像素，卻標記成縮放 1.0。後續 `move()` 與 `resize()` 又拿視窗自身 DPI 重複相乘，使得預設水平坐標被算成 3840 − 380 − 12 = 3448，將面板釘在右下角邊緣，且該位置還被存檔讓每次重開都重演。現在程式只在主螢幕回報 1.0 且視窗 DPI 不是 96 時，才用視窗自己的 DPI 將螢幕矩形換算回邏輯像素，避免未來 `pywebview` 修好時重複換算；同時將 `window.show()` 排在擺位之後，面板絕不再閃現在舊位置。",
+                "en": "When using a 3840x2160 high-resolution display with 250% scaling, the Windows panel now opens accurately within the screen bounds. ⟦This is like a carpenter building according to blueprints, but an assistant mistakes meters for centimeters and scales them up again, leaving the finished cabinet wedged tightly against the wall corner.⟧ The underlying package `pywebview 6.2.1` returns screen bounds in physical pixels but labels them with a scale of 1.0. Subsequent `move()` and `resize()` operations then multiplied their inputs by the window's own DPI again, causing the default horizontal coordinate to be calculated as 3840 − 380 − 12 = 3448, pinning the panel to the bottom-right edge, and that position was saved so every relaunch repeated the issue. Now the program converts screen rectangles back to logical pixels using the window's own DPI only when the primary screen reports 1.0 while the window DPI is not 96, preventing double conversion if a future `pywebview` release fixes this; at the same time, `window.show()` is queued after placement, ensuring the panel never flashes at a stale position."
+              },
               "original": "**The Windows panel opens inside the screen at high display scaling** ([#130](https://github.com/aqua5230/usage/issues/130)). pywebview 6.2.1 returns screen bounds in physical pixels but labels them as scale 1.0, while `move()` / `resize()` multiply their input by the window's DPI again. At 250% on 3840x2160 the default x came out as 3840 − 380 − 12 = 3448, pinning the panel to the bottom-right edge, and that position was saved, so every relaunch repeated it. Screen rectangles are now converted to logical pixels with the window's own DPI (only when the primary screen reports 1.0 while the window DPI is not 96, so a future pywebview that fixes this is not double-converted), and `window.show()` is queued behind the placement so the panel never appears at a stale position."
             },
             {
+              "title": {
+                "zh-TW": "Windows 面板支援混合縮放多螢幕，重開精準回到原螢幕",
+                "en": "Windows panel supports mixed-scaling multi-monitor setups, reopening precisely on the original display"
+              },
+              "body": {
+                "zh-TW": "外接不同螢幕工作的讀者，若各螢幕設定了不同的縮放比例，關閉 Windows 面板後重新開啟，它現在會老實回到當初關閉的那台螢幕。先前系統儲存面板位置時，是把實體像素除以視窗當下所在螢幕的 DPI；這導致在 225% 縮放螢幕上關閉的面板，重新開啟時卻莫名其妙彈回 100% 的主螢幕。新版改為直接儲存實體像素，等到擺放面板位置時，才搭配視窗當下的 DPI 進行換算。⟦這如同在不同比例尺的地圖之間穿梭，標記位置時若除以當前圖紙比例，重新翻開時便會走樣跳回起點；改存真實公尺距離後，在哪張地圖合上就在哪張地圖展開。⟧這項改進完全不改變偏好設定的鍵名與資料格式。",
+                "en": "For users working with external monitors configured with different scale factors, closing the Windows panel and reopening it now reliably returns it to the specific display where it was closed. Previously, the system saved the panel's position by dividing physical pixels by the DPI of whichever display the window was currently on; as a result, a panel closed on a 225% scaling display would unexpectedly jump back to the 100% primary screen upon reopening. The new version saves positions directly in physical pixels and only converts them using the window's current DPI when placing the panel. ⟦This is like navigating between maps of different scales: if marked locations are divided by the current sheet's ratio, reopening them distorts the coordinates back to the starting point; storing the actual meter distances instead ensures that whichever map you close on is where you reopen.⟧ This improvement leaves preference key names and data formats completely unchanged."
+              },
               "original": "**The Windows panel reopens on the display it was closed on with mixed scaling.** The saved position was physical pixels divided by the DPI of whichever monitor the window was on at that moment, so a panel closed on a 225% display reopened on the 100% primary. Positions are now saved in physical pixels and converted with the window's current DPI when placed. The preference key and shape are unchanged."
             },
             {
+              "title": {
+                "zh-TW": "Windows 面板放寬矮螢幕縮放下限，按鈕與狀態列不再裁切",
+                "en": "Windows panel relaxes zoom floor on short displays, preventing buttons and status row from being cut off"
+              },
+              "body": {
+                "zh-TW": "把 Windows 面板開在偏矮的螢幕上時，若曾碰過重新整理或結束按鈕被切出畫面外的窘境，現在這類版面裁切問題已徹底解決。⟦這彷彿在低矮的天花板下擺放展示架，若硬性規定層架間隔不能縮小，最底層的控制旋鈕就會被地面擋住；按空間比例動態調降底線，底部按鍵才不被擠出視野。⟧過去面板設有 0.6 的縮放下限，卻未考慮視窗自身的 DPI，使得 2560x1440 搭配 225% 縮放時，面板被卡在比實際需要更大的縮放比例，導致速率與狀態列以及重新整理和結束按鈕全部掉出畫面之外。現在 Windows 將縮放下限改為 `MIN_PANEL_SCALE / window DPI scale`，確保文字顯示依然絕不小於 100% 螢幕的 0.6 倍，同時讓整張面板順利塞進螢幕內；macOS 則維持原樣不變。",
+                "en": "When opening the Windows panel on shorter screens, any issues where the Refresh or Quit buttons were cut off outside the viewport are now completely resolved. ⟦This is like placing a display rack under a low ceiling: if shelf spacing is rigidly forbidden from shrinking, the bottom control knobs get blocked by the floor; dynamically lowering the floor based on available space keeps bottom buttons from being squeezed out of view.⟧ Previously, the panel enforced a 0.6 zoom floor without accounting for the window's own DPI, causing the panel at 2560x1440 with 225% scaling to remain stuck above the zoom level it actually needed, which pushed the rate and status row as well as the Refresh and Quit buttons entirely off-screen. Windows now changes the zoom floor to `MIN_PANEL_SCALE / window DPI scale`, ensuring text rendering is still never smaller than 0.6× of a 100% display while allowing the entire panel to fit smoothly inside the screen; macOS remains unchanged."
+              },
               "original": "**The bottom of the Windows panel is no longer cut off on short high-DPI screens.** The 0.6 zoom floor did not account for the window's DPI, so at 2560x1440 @225% the panel was held above the zoom it needed and lost its rate/status row and Refresh/Quit buttons. Windows now uses `MIN_PANEL_SCALE / window DPI scale` as the floor, so text still never renders smaller than 0.6× of a 100% display; macOS is unchanged."
             },
             {
+              "title": {
+                "zh-TW": "Windows 系統匣提示限制字數，避免例外吞沒導致面板停更",
+                "en": "Windows tray tooltip enforces character limit, preventing swallowed exceptions from stalling panel updates"
+              },
+              "body": {
+                "zh-TW": "開啟 Windows 系統匣觀察各家 AI 用量，開著的面板現在絕不會無聲無息地停止更新。先前新增了 Grok 欄位之後，在英文介面且每家提供商額度皆滿 100% 的極端狀況下，提示文字長度會達到 129 個字元；這讓底層圖示套件 `pystray` 拋出 `ValueError: string too long` 錯誤，但該錯誤卻被背景工作常駐程式 `_refresh_worker()` 默默吞掉，連同該輪更新畫面的 `inject_state()` 也一併跳過，導致面板看似開著卻再也不會刷新數據。現在系統匣提示文字強制限制在 127 個字元以內，徹底防範字串過長引發的崩潰。⟦這種脫節宛如展場跑馬燈因文字過長當機，值班警衛不但沒回報還順手切斷訊號線，讓大廳螢幕默默停在上一輪舊畫面。⟧",
+                "en": "When opening the Windows tray to check AI usage across providers, an open panel will no longer silently stop updating. Previously, after adding the Grok row, tooltip text reached 129 characters in the extreme case of an English interface with every provider's quota at 100%; this caused the underlying icon library `pystray` to raise a `ValueError: string too long` error, which was silently swallowed by the background worker `_refresh_worker()`, skipping that cycle's UI update `inject_state()` as well and leaving the open panel unable to refresh data. The tray tooltip text is now strictly capped at 127 characters, completely preventing crashes caused by excessively long strings. ⟦This disconnection is like an exhibition marquee crashing from text that is too long, and instead of reporting it, the duty guard casually disconnects the signal cable, leaving the lobby display quietly frozen on the previous frame.⟧"
+              },
               "original": "**The Windows tray tooltip is capped at 127 characters.** Since the Grok row was added, the English tooltip with every provider at 100% reached 129 characters; pystray raised `ValueError: string too long`, which `_refresh_worker()` swallowed along with the same iteration's `inject_state()`, so an open panel silently stopped updating."
             },
             {
+              "title": {
+                "zh-TW": "終端機狀態列與接續提醒自動換新，補齊修復並校準版號",
+                "en": "Terminal status line and session resume hooks update automatically, incorporating fixes and aligning version numbers"
+              },
+              "body": {
+                "zh-TW": "先前已在電腦中安裝過狀態列與工作階段接續提醒的使用者，現在升級時會自動替換成最新版腳本。過去這兩支 hook（特定事件發生時被觸發的小程式）雖然歷經多次修改，涵蓋狀態列進位的 `1000k` 修正以及 7 月以來工作階段接續提醒的十項修正，卻因為未調升版號，讓既有安裝一直留在舊檔案。新版將狀態列升級至 1.6 版、接續提醒升級至 1.7 版，安裝程式會主動用最新副本覆蓋舊檔，並新增自動化測試確保腳本版號與安裝常數隨時步調一致。⟦這恰似圖書館借閱處更新了服務規章，封皮上的版本代號卻漏未換新，讓館員誤以為抽屜裡積滿灰塵的舊手冊仍是現行規定。⟧",
+                "en": "Users who previously installed the status line and session resume hooks on their systems will now have them automatically replaced with the latest script versions upon upgrading. In the past, although both hooks underwent numerous modifications—including the status line rounding fix for `1000k` and ten fixes to session resume since July—the lack of version bumps left existing installations stuck on older files. The new release bumps the status line to version 1.6 and session resume to 1.7, with the installer actively overwriting old files with the latest copies and adding an automated test to ensure script version numbers and installer constants stay strictly in step. ⟦This is just like a library circulation desk updating its service policies but forgetting to update the version code on the cover, leading librarians to mistakenly believe the dusty manual in the drawer is still the active rulebook.⟧"
+              },
               "original": "**Installed status line and session resume hooks are replaced with the current copies.** Both scripts had changed without a version bump — the status line's `1000k` fix and ten session-resume fixes since July — so existing installs kept the old files. The status line goes to `1.6` and session resume to `1.7`, and a new test keeps the session-resume script version and installer constant in step."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "0.30.12",
           "period": "2026-09-11",
           "items": [
             {
+              "title": {
+                "zh-TW": "自訂 Claude Code 設定路徑處處生效，狀態列與專案用量不再空白",
+                "en": "Custom Claude Code config paths take effect everywhere, keeping status lines and project usage from going blank"
+              },
+              "body": {
+                "zh-TW": "如果你搬移了 Claude Code 的設定資料夾，狀態列與專案用量現在處處都能正常讀取。⟦這好比工作室搬遷後，公文仍投進舊信箱，讓新辦公室的值班看板始終查無進度。⟧先前「設定狀態列」仍寫進 `~/.claude/settings.json`，Claude Code 根本不讀，兩條額度長條圖停在 0% 且標記「即將重置」；備援機制甚至翻出過期的 `~/.claude.json`，且從 Finder 或 Dock 開啟的桌面程式抓不到終端機變數，專案用量一片空白。\n\n```\n# 路徑解析順序（逗號分隔時讀取全部、寫入第一筆）：\n# 1. 環境變數 CLAUDE_CONFIG_DIR\n# 2. launchctl getenv CLAUDE_CONFIG_DIR\n# 3. 預設路徑 ~/.claude\n\n# 跟隨變數搬移：settings.json, .claude.json, projects/\n# 固定留在原處：狀態列腳本, usage-status.json, 偏好設定\n```\n\n新版 `loaders/claude_paths.py` 依序解析目錄，Claude Code 檔案跟著走，而 usage 自己的檔案固定留在原處，避免子行程與桌面端分頭讀寫造成錯位。",
+                "en": "If you relocate Claude Code's configuration directory, the status line and project usage can now be read properly everywhere. ⟦It is like moving to a new studio while official mail is still delivered to the old mailbox, leaving the duty board in the new office with no updates to display.⟧ Previously, \"Set Up Status Line\" still wrote to `~/.claude/settings.json`, which Claude Code never read, leaving both quota bars stuck at 0% with \"Reset imminent\"; the fallback mechanism even surfaced a stale `~/.claude.json`, and desktop apps launched from Finder or the Dock could not catch terminal environment variables, leaving project usage completely blank.\n\n```\n# Path resolution order (reads all when comma-separated, writes to the first entry):\n# 1. Environment variable CLAUDE_CONFIG_DIR\n# 2. launchctl getenv CLAUDE_CONFIG_DIR\n# 3. Default path ~/.claude\n\n# Moves with the variable: settings.json, .claude.json, projects/\n# Stays pinned in place: statusline script, usage-status.json, preferences\n```\n\nThe new `loaders/claude_paths.py` resolves directories in order so that Claude Code files follow the variable while usage's own files stay pinned in place, preventing misalignment from subprocesses and the desktop app reading and writing in different locations."
+              },
               "original": "**`CLAUDE_CONFIG_DIR` is respected everywhere, not only for transcripts** ([#129](https://github.com/aqua5230/usage/issues/129)). With a relocated Claude Code config dir, \"Set Up Status Line\" wrote to `~/.claude/settings.json`, which Claude Code never read, so both quota bars sat at 0% with \"Reset imminent\", the fallback surfaced a stale `~/.claude.json`, and Project Usage stayed empty because an `.app` launched from Finder or the Dock does not inherit the shell environment. A new `loaders/claude_paths.py` resolves the directory from the environment, then `launchctl getenv CLAUDE_CONFIG_DIR`, then `~/.claude`; comma-separated values are read in full and written to the first entry. Files Claude Code owns follow it — `settings.json`, `.claude.json` (inside the directory whenever the variable is set, the same rule Claude Code uses), and `projects/`. usage's own files — the statusline script, `usage-status.json`, prefs — stay pinned to `~/.claude`: the script runs as a Claude Code subprocess and sees the variable while the app may not, and deriving both from it would let them write and read in different places."
             },
             {
+              "title": {
+                "zh-TW": "狀態列 Token 在單位邊界不再顯示 1000k，並補齊十億級距",
+                "en": "Status line token counts no longer show 1000k at unit boundaries, adding the billion step"
+              },
+              "body": {
+                "zh-TW": "在狀態列查看消耗進度時，若 Token（AI 處理與計費的文字單位）數值剛好逼近單位邊界，現在不再顯示彆扭的 `1000k`。⟦這種尷尬宛如汽車儀表板的里程計數器，在行駛累積到九百九十九點五公尺時本該跳轉為一公里，卻因提早進位而顯示出一千公尺；重新對準門檻後，大單位才會準時接棒切換。⟧過去三支狀態列腳本在數值達到 1,000,000 時才升級為 `M`，但 `k` 是整數格式化，999,500 以上會先四捨五入成 `1000k`；腳本也沒有 `B` 級距，使得 15 億被印成 `1500.0M`。現在門檻改為比對進位後的邊界（`k` 到 `M` 用 999,500、`M` 到 `B` 用 999,950,000）並補上 `B` 級距，對齊 `ui/tables.py` 既有的正確寫法。",
+                "en": "When checking usage progress in the status line, token values near unit boundaries no longer display an awkward `1000k`. ⟦This awkwardness is like a car odometer that should flip to 1 kilometer at 999.5 meters, but instead displays 1000 meters due to early rounding; readjusting the threshold ensures the larger unit takes over right on time.⟧ Previously, the three status line scripts only upgraded to `M` when reaching 1,000,000, but `k` used integer formatting, causing values of 999,500 and above to round up to `1000k` first; the scripts also lacked a `B` step, causing 1.5 billion to be printed as `1500.0M`. The thresholds now compare against rounded boundaries (999,500 for `k` to `M`, 999,950,000 for `M` to `B`) and add the `B` step, matching the existing correct implementation in `ui/tables.py`."
+              },
               "original": "**Token counts no longer read `1000k` at a unit boundary.** The three statusline scripts promoted to `M` at `value >= 1_000_000`, but `k` is formatted `:.0f`, so anything from 999,500 rounded to `1000k` first; there was no `B` step either, so 1.5 billion read `1500.0M`. The thresholds now compare against the rounded boundary (999,500 for k→M, 999,950,000 for M→B) and a `B` step was added, matching the already-correct version in `ui/tables.py`."
             },
             {
+              "title": {
+                "zh-TW": "報表週趨勢長條支援懸停顯示，標註日期區間與花費",
+                "en": "Report weekly trend bars support hover display, showing date ranges and costs"
+              },
+              "body": {
+                "zh-TW": "打開用量報表查看每週趨勢長條時，滑鼠移過去現在會即時浮現日期區間與花費。⟦這有如專案白板上的進度橫條，湊近細看才能得知起訖日期與開銷明細，且剛進行三天的當週絕不會虛報成整整七天。⟧以前每列長條只標記 Token（AI 處理與計費的文字單位）數量，完全看不出那是哪一週、花了多少費用。新版在滑鼠懸停時補齊了具體時間與金額，顯示的日期區間也會嚴格限制在報表的實際範圍內，讓還沒過完的最後一週不會宣稱涵蓋七天、旁邊卻只有三天的數據。",
+                "en": "When viewing weekly trend bars in the usage report, hovering over them now reveals their date range and cost. ⟦It is like a progress bar on a project whiteboard where looking closely reveals exact start and end dates and expense details, ensuring a current week with only three days is never falsely shown as a full seven days.⟧ Previously, each row only marked token counts, with no way to tell which week it was or how much it cost. The new version provides the exact timeframe and amount on hover, and clamps the displayed date range strictly to the report's actual span so an unfinished last week does not claim seven days next to three days of numbers."
+              },
               "original": "**Weekly trend bars in the report show their date range and cost on hover.** Each row only carried a token count, with no way to tell which week it was or what it cost. The range is clamped to the report's actual span, so an unfinished last week does not claim seven days next to three days of numbers."
             },
             {
+              "title": {
+                "zh-TW": "報表洞察備忘改為方角無框，對齊全列填色風格",
+                "en": "Insight notes in reports become square and borderless, matching full-row fill styling"
+              },
+              "body": {
+                "zh-TW": "報表底部的洞察備忘（提供用量趨勢與分析提醒的備忘列），現在全面改為方角、無外框的淡色整列。它們原本是整個報表介面中最後一處還帶有外框的表面，帶有 8px 圓角與 3px 左側色條，現在已改為與報表其餘整列填色完全一致的視覺風格。⟦整張介面有如筆記本排版，當所有章節內容都已換成清爽的無框滿版底色時，最後一個帶有外框與側邊色條的便簽也同步抹平框線，讓整頁閱讀動線不再突兀。⟧",
+                "en": "Insight notes at the bottom of the report are now entirely square, borderless tinted full rows. They were originally the last framed surfaces left across the entire report interface, featuring 8px rounded corners and a 3px left stripe, and have now been updated to match the visual style of the report's other full-row fills. ⟦The entire interface is like a notebook layout where, once all chapter contents have switched to clean borderless full-bleed background colors, the last sticky note with a border and side stripe also flattens its outlines so the reading flow across the page is no longer disjointed.⟧"
+              },
               "original": "**Insight notes in the report are square, borderless tinted rows.** They were the last framed surface left — 8px corners and a 3px left stripe — and now match the report's other full-row fills."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "0.30.11",
           "period": "2026-09-10",
           "items": [
             {
+              "title": {
+                "zh-TW": "移除 AI 人才市場面板，簡化安裝與發版流程",
+                "en": "Remove AI Talent Market panel and simplify installation and release workflows"
+              },
+              "body": {
+                "zh-TW": "挑選現成的 AI 角色卡，不再需要獨立面板。⟦這就像在背包外硬加專用工具袋，原廠斷貨讓袋子成了空擺設；既然主袋本就自帶夾層，拆掉它不但減重也省去扣具保養。⟧專案正式移除了 AI 人才市場面板。該面板原本用來瀏覽精選的 subagent（子代理）角色卡並安裝至 `~/.claude/agents/` 目錄。隨著 Claude Code 內建角色選擇，加上 GPT Store 示範了平台自帶功能後的目錄命運，三篇論文也證實角色前綴會削弱推理。該面板還夾帶私有專案編譯出的唯一外部二進位檔 `vendor/instate-cli`，發版密鑰 `INSTATE_CLI_TOKEN` 曾兩度過期，悄悄出貨少了 23 MB 且面板全空的程式。移除該功能一併拆掉了校驗檔、指紋防呆、發版上傳下載流程，以及面板一致性與主題計數腳本中專屬 macOS 的特例。",
+                "en": "Choosing ready-made AI persona cards no longer requires a dedicated panel. ⟦It is like attaching a dedicated tool pouch to the outside of a backpack only for the manufacturer to discontinue it into an empty ornament; since the main bag already comes with built-in compartments, removing it not only sheds weight but also saves buckle maintenance.⟧ The project officially removed the AI Talent Market panel. The panel was originally used to browse curated subagent persona cards and install them into the `~/.claude/agents/` directory. As Claude Code built persona selection directly into the platform, and the GPT Store demonstrated the fate of catalogs once the host platform ships its own features, three papers also confirmed that persona prefixes degrade reasoning. The panel also carried the project's only external binary compiled from a private project, `vendor/instate-cli`; its release secret `INSTATE_CLI_TOKEN` expired twice, silently shipping an app that was 23 MB lighter with an empty panel. Removing this feature also eliminated the checksum file, fingerprint guards, release upload and download workflows, and macOS-specific carve-outs in the panel parity and theme-count scripts."
+              },
               "original": "**AI Talent Market.** The panel browsed a curated set of subagent personas and installed them into `~/.claude/agents/`. Claude Code has since built persona selection in itself, and the evidence against the pattern accumulated from the other side: the GPT Store showed what happens to a persona catalogue once the host platform ships its own, and three papers now report that a persona prefix measurably degrades a model's reasoning rather than sharpening it. The panel also carried the project's only vendored binary — `vendor/instate-cli`, built from a separate private project, fetched during release through a `INSTATE_CLI_TOKEN` secret that expired twice and silently shipped a 23 MB-lighter app with an empty panel. Removing the feature removes that whole chain: the checksum file, the fingerprint guard, the release upload/download dance, and the macOS-only carve-outs in the panel parity and theme-count scripts."
             },
             {
+              "title": {
+                "zh-TW": "移除 AI 圓桌討論視窗，回歸專注保護用量額度",
+                "en": "Remove AI Council window and refocus on protecting usage quota"
+              },
+              "body": {
+                "zh-TW": "想並排比較不同 AI 的回答，交給兩個終端機視窗處理得更快。專案正式移除了 AI 圓桌討論視窗。這項功能過去會在獨立視窗中，讓 Claude Code、Codex 與 Antigravity 進行多輪討論，開始前提供 token（AI 處理與計費的文字單位）預估、過程中計票共識，並支援唯讀資料夾存取。它是專案最大的子系統，在 `discussion/` 目錄佔了約 3,600 行程式碼。但它產出的成果，只是由兩款工具並排回答同一題且一次結束，開兩個終端機視窗早就更快。用量監控工具不該拿來跑對話，花掉的額度正是它存在所要保護的額度。若日後需要精簡版本，零件都仍完整留在 git 歷史紀錄中。⟦這種矛盾宛如行動電源上的電量螢幕，為了展示炫目動畫日夜長亮，耗盡的反而是出門在外最需要保留的備用電力。⟧",
+                "en": "Comparing answers from different AI tools side by side is much faster when left to two terminal windows. The project officially removed the AI Council window. This feature previously ran multi-round discussions between Claude Code, Codex, and Antigravity in a separate window, providing upfront token estimates, consensus tallying during the process, and read-only folder access. It was the project's largest subsystem, accounting for roughly 3,600 lines of code across the `discussion/` directory. Yet the output it produced was merely two tools answering the same question side by side in a single pass, which opening two terminal windows already achieved faster. A usage monitor should not be used to run conversations; the quota it consumed was the exact quota it exists to protect. If a stripped-down version is ever needed in the future, the parts remain fully intact in git history. ⟦This contradiction is like a battery indicator screen on a power bank that stays lit day and night to show flashy animations, draining the very backup power you need to preserve most when away from home.⟧"
+              },
               "original": "**AI Council.** A separate window ran a multi-round discussion between Claude Code, Codex and Antigravity, with a token estimate up front, consensus tallying, and read-only folder access. It was the largest subsystem in the project at roughly 3,600 lines across `discussion/`, and the thing it produced — the same question answered by two tools, side by side, ending in one pass — is something two terminal windows already do faster. A usage monitor is the wrong place to run conversations; the quota it spent was the quota it exists to protect. The parts are in git history if a stripped-down version is ever wanted."
             }
           ],
-          "curated": false
+          "curated": true
         }
       ]
     },

@@ -1,0 +1,61 @@
+{
+  "version": "0.30.13",
+  "period": "2026-09-12",
+  "items": [
+    {
+      "title": {
+        "zh-TW": "Windows 面板在高縮放螢幕不再貼邊，重開位置精準",
+        "en": "Windows panel no longer clings to screen edge at high scaling, reopening accurately"
+      },
+      "body": {
+        "zh-TW": "使用 3840x2160 高解析度螢幕並開啟 250% 縮放時，Windows 面板現在會準確開在畫面之內。⟦這好比木工師傅照著設計圖施工，助手卻誤把圖面上的公尺當成公分再放大換算，讓做好的櫃子直接卡死在牆角。⟧底層套件 `pywebview 6.2.1` 回傳的螢幕範圍明明是實體像素，卻標記成縮放 1.0。後續 `move()` 與 `resize()` 又拿視窗自身 DPI 重複相乘，使得預設水平坐標被算成 3840 − 380 − 12 = 3448，將面板釘在右下角邊緣，且該位置還被存檔讓每次重開都重演。現在程式只在主螢幕回報 1.0 且視窗 DPI 不是 96 時，才用視窗自己的 DPI 將螢幕矩形換算回邏輯像素，避免未來 `pywebview` 修好時重複換算；同時將 `window.show()` 排在擺位之後，面板絕不再閃現在舊位置。",
+        "en": "When using a 3840x2160 high-resolution display with 250% scaling, the Windows panel now opens accurately within the screen bounds. ⟦This is like a carpenter building according to blueprints, but an assistant mistakes meters for centimeters and scales them up again, leaving the finished cabinet wedged tightly against the wall corner.⟧ The underlying package `pywebview 6.2.1` returns screen bounds in physical pixels but labels them with a scale of 1.0. Subsequent `move()` and `resize()` operations then multiplied their inputs by the window's own DPI again, causing the default horizontal coordinate to be calculated as 3840 − 380 − 12 = 3448, pinning the panel to the bottom-right edge, and that position was saved so every relaunch repeated the issue. Now the program converts screen rectangles back to logical pixels using the window's own DPI only when the primary screen reports 1.0 while the window DPI is not 96, preventing double conversion if a future `pywebview` release fixes this; at the same time, `window.show()` is queued after placement, ensuring the panel never flashes at a stale position."
+      },
+      "original": "**The Windows panel opens inside the screen at high display scaling** ([#130](https://github.com/aqua5230/usage/issues/130)). pywebview 6.2.1 returns screen bounds in physical pixels but labels them as scale 1.0, while `move()` / `resize()` multiply their input by the window's DPI again. At 250% on 3840x2160 the default x came out as 3840 − 380 − 12 = 3448, pinning the panel to the bottom-right edge, and that position was saved, so every relaunch repeated it. Screen rectangles are now converted to logical pixels with the window's own DPI (only when the primary screen reports 1.0 while the window DPI is not 96, so a future pywebview that fixes this is not double-converted), and `window.show()` is queued behind the placement so the panel never appears at a stale position."
+    },
+    {
+      "title": {
+        "zh-TW": "Windows 面板支援混合縮放多螢幕，重開精準回到原螢幕",
+        "en": "Windows panel supports mixed-scaling multi-monitor setups, reopening precisely on the original display"
+      },
+      "body": {
+        "zh-TW": "外接不同螢幕工作的讀者，若各螢幕設定了不同的縮放比例，關閉 Windows 面板後重新開啟，它現在會老實回到當初關閉的那台螢幕。先前系統儲存面板位置時，是把實體像素除以視窗當下所在螢幕的 DPI；這導致在 225% 縮放螢幕上關閉的面板，重新開啟時卻莫名其妙彈回 100% 的主螢幕。新版改為直接儲存實體像素，等到擺放面板位置時，才搭配視窗當下的 DPI 進行換算。⟦這如同在不同比例尺的地圖之間穿梭，標記位置時若除以當前圖紙比例，重新翻開時便會走樣跳回起點；改存真實公尺距離後，在哪張地圖合上就在哪張地圖展開。⟧這項改進完全不改變偏好設定的鍵名與資料格式。",
+        "en": "For users working with external monitors configured with different scale factors, closing the Windows panel and reopening it now reliably returns it to the specific display where it was closed. Previously, the system saved the panel's position by dividing physical pixels by the DPI of whichever display the window was currently on; as a result, a panel closed on a 225% scaling display would unexpectedly jump back to the 100% primary screen upon reopening. The new version saves positions directly in physical pixels and only converts them using the window's current DPI when placing the panel. ⟦This is like navigating between maps of different scales: if marked locations are divided by the current sheet's ratio, reopening them distorts the coordinates back to the starting point; storing the actual meter distances instead ensures that whichever map you close on is where you reopen.⟧ This improvement leaves preference key names and data formats completely unchanged."
+      },
+      "original": "**The Windows panel reopens on the display it was closed on with mixed scaling.** The saved position was physical pixels divided by the DPI of whichever monitor the window was on at that moment, so a panel closed on a 225% display reopened on the 100% primary. Positions are now saved in physical pixels and converted with the window's current DPI when placed. The preference key and shape are unchanged."
+    },
+    {
+      "title": {
+        "zh-TW": "Windows 面板放寬矮螢幕縮放下限，按鈕與狀態列不再裁切",
+        "en": "Windows panel relaxes zoom floor on short displays, preventing buttons and status row from being cut off"
+      },
+      "body": {
+        "zh-TW": "把 Windows 面板開在偏矮的螢幕上時，若曾碰過重新整理或結束按鈕被切出畫面外的窘境，現在這類版面裁切問題已徹底解決。⟦這彷彿在低矮的天花板下擺放展示架，若硬性規定層架間隔不能縮小，最底層的控制旋鈕就會被地面擋住；按空間比例動態調降底線，底部按鍵才不被擠出視野。⟧過去面板設有 0.6 的縮放下限，卻未考慮視窗自身的 DPI，使得 2560x1440 搭配 225% 縮放時，面板被卡在比實際需要更大的縮放比例，導致速率與狀態列以及重新整理和結束按鈕全部掉出畫面之外。現在 Windows 將縮放下限改為 `MIN_PANEL_SCALE / window DPI scale`，確保文字顯示依然絕不小於 100% 螢幕的 0.6 倍，同時讓整張面板順利塞進螢幕內；macOS 則維持原樣不變。",
+        "en": "When opening the Windows panel on shorter screens, any issues where the Refresh or Quit buttons were cut off outside the viewport are now completely resolved. ⟦This is like placing a display rack under a low ceiling: if shelf spacing is rigidly forbidden from shrinking, the bottom control knobs get blocked by the floor; dynamically lowering the floor based on available space keeps bottom buttons from being squeezed out of view.⟧ Previously, the panel enforced a 0.6 zoom floor without accounting for the window's own DPI, causing the panel at 2560x1440 with 225% scaling to remain stuck above the zoom level it actually needed, which pushed the rate and status row as well as the Refresh and Quit buttons entirely off-screen. Windows now changes the zoom floor to `MIN_PANEL_SCALE / window DPI scale`, ensuring text rendering is still never smaller than 0.6× of a 100% display while allowing the entire panel to fit smoothly inside the screen; macOS remains unchanged."
+      },
+      "original": "**The bottom of the Windows panel is no longer cut off on short high-DPI screens.** The 0.6 zoom floor did not account for the window's DPI, so at 2560x1440 @225% the panel was held above the zoom it needed and lost its rate/status row and Refresh/Quit buttons. Windows now uses `MIN_PANEL_SCALE / window DPI scale` as the floor, so text still never renders smaller than 0.6× of a 100% display; macOS is unchanged."
+    },
+    {
+      "title": {
+        "zh-TW": "Windows 系統匣提示限制字數，避免例外吞沒導致面板停更",
+        "en": "Windows tray tooltip enforces character limit, preventing swallowed exceptions from stalling panel updates"
+      },
+      "body": {
+        "zh-TW": "開啟 Windows 系統匣觀察各家 AI 用量，開著的面板現在絕不會無聲無息地停止更新。先前新增了 Grok 欄位之後，在英文介面且每家提供商額度皆滿 100% 的極端狀況下，提示文字長度會達到 129 個字元；這讓底層圖示套件 `pystray` 拋出 `ValueError: string too long` 錯誤，但該錯誤卻被背景工作常駐程式 `_refresh_worker()` 默默吞掉，連同該輪更新畫面的 `inject_state()` 也一併跳過，導致面板看似開著卻再也不會刷新數據。現在系統匣提示文字強制限制在 127 個字元以內，徹底防範字串過長引發的崩潰。⟦這種脫節宛如展場跑馬燈因文字過長當機，值班警衛不但沒回報還順手切斷訊號線，讓大廳螢幕默默停在上一輪舊畫面。⟧",
+        "en": "When opening the Windows tray to check AI usage across providers, an open panel will no longer silently stop updating. Previously, after adding the Grok row, tooltip text reached 129 characters in the extreme case of an English interface with every provider's quota at 100%; this caused the underlying icon library `pystray` to raise a `ValueError: string too long` error, which was silently swallowed by the background worker `_refresh_worker()`, skipping that cycle's UI update `inject_state()` as well and leaving the open panel unable to refresh data. The tray tooltip text is now strictly capped at 127 characters, completely preventing crashes caused by excessively long strings. ⟦This disconnection is like an exhibition marquee crashing from text that is too long, and instead of reporting it, the duty guard casually disconnects the signal cable, leaving the lobby display quietly frozen on the previous frame.⟧"
+      },
+      "original": "**The Windows tray tooltip is capped at 127 characters.** Since the Grok row was added, the English tooltip with every provider at 100% reached 129 characters; pystray raised `ValueError: string too long`, which `_refresh_worker()` swallowed along with the same iteration's `inject_state()`, so an open panel silently stopped updating."
+    },
+    {
+      "title": {
+        "zh-TW": "終端機狀態列與接續提醒自動換新，補齊修復並校準版號",
+        "en": "Terminal status line and session resume hooks update automatically, incorporating fixes and aligning version numbers"
+      },
+      "body": {
+        "zh-TW": "先前已在電腦中安裝過狀態列與工作階段接續提醒的使用者，現在升級時會自動替換成最新版腳本。過去這兩支 hook（特定事件發生時被觸發的小程式）雖然歷經多次修改，涵蓋狀態列進位的 `1000k` 修正以及 7 月以來工作階段接續提醒的十項修正，卻因為未調升版號，讓既有安裝一直留在舊檔案。新版將狀態列升級至 1.6 版、接續提醒升級至 1.7 版，安裝程式會主動用最新副本覆蓋舊檔，並新增自動化測試確保腳本版號與安裝常數隨時步調一致。⟦這恰似圖書館借閱處更新了服務規章，封皮上的版本代號卻漏未換新，讓館員誤以為抽屜裡積滿灰塵的舊手冊仍是現行規定。⟧",
+        "en": "Users who previously installed the status line and session resume hooks on their systems will now have them automatically replaced with the latest script versions upon upgrading. In the past, although both hooks underwent numerous modifications—including the status line rounding fix for `1000k` and ten fixes to session resume since July—the lack of version bumps left existing installations stuck on older files. The new release bumps the status line to version 1.6 and session resume to 1.7, with the installer actively overwriting old files with the latest copies and adding an automated test to ensure script version numbers and installer constants stay strictly in step. ⟦This is just like a library circulation desk updating its service policies but forgetting to update the version code on the cover, leading librarians to mistakenly believe the dusty manual in the drawer is still the active rulebook.⟧"
+      },
+      "original": "**Installed status line and session resume hooks are replaced with the current copies.** Both scripts had changed without a version bump — the status line's `1000k` fix and ten session-resume fixes since July — so existing installs kept the old files. The status line goes to `1.6` and session resume to `1.7`, and a new test keeps the session-resume script version and installer constant in step."
+    }
+  ]
+}
