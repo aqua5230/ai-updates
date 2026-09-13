@@ -14,7 +14,34 @@
           "**The Windows panel no longer flashes at its old position before moving.** pywebview's WinForms backend passes `SWP_SHOWWINDOW` in both `resize()` and `move()`, so the `resize()` in `_place_window_on_ui_thread()` made the still-hidden window visible at the previous coordinates; the following `move()` then moved it and only then did `show()` run. Measured at 1 ms sampling, the window sat visible in the wrong place for 36 ms, about two frames. Position and size are now applied while the window is hidden in a single `SetWindowPos` without `SWP_SHOWWINDOW`, leaving display to the existing `show()` path; without a native handle, or off Windows, it falls back to `resize()` + `move()` unchanged. Applying geometry is also skipped entirely when the current physical-pixel geometry already matches, so `_apply_content_height_now()` no longer makes a pointless native call when the content height has not changed."
         ]
       },
-      "curated": null
+      "curated": {
+        "version": "0.30.14",
+        "period": "2026-09-12",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 啟動時不再連閃黑色主控台視窗，子行程全面安靜呼叫",
+              "en": "Windows startup no longer flashes black console windows, child processes fully silenced"
+            },
+            "body": {
+              "zh-TW": "在 Windows 啟動 Usage 時，桌面不再連閃黑色主控台視窗。⟦這好比助手出門採買，每趟都按門鈴吵到客人；改走安靜通道後，前台才重回安寧。⟧usage.exe 打包時無主控台，但呼叫子行程未帶 CREATE_NO_WINDOW，使系統每次都開關黑窗。閃爍次數等於歷史目錄數，因 resolve_project_name() 跑 git worktree list --porcelain。現由 usage_common/subprocess_utils.py 統一為子行程帶旗標與標準輸入 stdin=subprocess.DEVNULL。複製至 ~/.claude/ 的腳本改採內聯實作且經 ast 測試零相依，轉發器補上 FORWARDER_VERSION 與 self_heal()，比照其他 hook（掛鉤，特定事件發生時被觸發的小程式）自動換新。",
+              "en": "When launching Usage on Windows, the desktop no longer repeatedly flashes black console windows. ⟦This is like an assistant going out for errands and ringing the doorbell every trip, disturbing guests; switching to a quiet hallway restores peace to the front desk.⟧ usage.exe is packaged without a console, but calling child processes did not pass CREATE_NO_WINDOW, causing the system to open and close a black window every time. The flash count equaled the number of history directories because resolve_project_name() runs git worktree list --porcelain. usage_common/subprocess_utils.py now uniformly supplies flags for child processes along with standard input stdin=subprocess.DEVNULL. Scripts copied to ~/.claude/ now use inlined implementations verified by ast tests to have zero dependencies, and the forwarder adds FORWARDER_VERSION and self_heal() to auto-update just like other hooks."
+            },
+            "original": "**No more black console windows flashing at Windows startup** ([#130](https://github.com/aqua5230/usage/issues/130)). `usage.exe` is packaged without a console, but no `subprocess` call in the project passed `CREATE_NO_WINDOW`, so Windows created and closed a console window for every child process. The flash count equalled the number of distinct project directories in the Claude history — `resolve_project_name()` runs `git worktree list --porcelain` once per directory and caches per process, so every launch repeated it. A shared `usage_common/subprocess_utils.py` now supplies the `creationflags`, every child process in the project goes through it, and the missing `stdin=subprocess.DEVNULL` was added along the way. `usage_session_resume.py` and `usage_statusline_forwarder.py` are copied verbatim into `~/.claude/` and run by the system Python, so they keep an inlined equivalent instead of importing the project; a new test uses `ast` to keep every copied-out script free of project imports. The forwarder also had no version-upgrade path at all — `_copy_forwarder_script()` was only called on reinstall or when the state looked broken — so it gained `FORWARDER_VERSION` and a `self_heal()` upgrade step like the other hooks."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 面板不再先閃現舊位置，單次設定尺寸坐標徹底消除跳動",
+              "en": "Windows panel no longer flashes at old position, single geometry update eliminates jumpiness"
+            },
+            "body": {
+              "zh-TW": "點開 Windows 面板時，畫面不再先在舊坐標閃爍一下才跳回定位。pywebview 的 WinForms 後端在 resize() 與 move() 都帶 SWP_SHOWWINDOW，使 _place_window_on_ui_thread() 提早在舊坐標顯示視窗，隨後才移到定點。以 1 毫秒取樣實測，面板在錯位可見 36 毫秒，約兩個畫面幀。現在視窗改在隱藏時以單次 SetWindowPos 一起設定位置與大小且不帶顯示旗標，顯示交由 show() 處理；非 Windows 或取不到原生視窗時退回既有備援流程。套用前也會先比對目前的實體像素幾何，完全相同便跳過，避免 _apply_content_height_now() 在高度未變時白白呼叫。⟦這種穿幫宛如舞台劇換幕，道具桌還留在上一場的站位，工作人員就失手拉開布幕才急忙把它推定位。⟧",
+              "en": "When opening the Windows panel, the screen no longer flashes briefly at its old coordinates before snapping into position. The WinForms backend of pywebview passed SWP_SHOWWINDOW in both resize() and move(), causing _place_window_on_ui_thread() to prematurely display the window at previous coordinates before moving it to its target location. Measured at 1 ms sampling, the panel was visible in the wrong position for 36 ms, or about two frames. The window now sets position and size together via a single SetWindowPos without show flags while hidden, leaving display to show(), and falls back to the existing fallback flow off Windows or when native handles are unavailable. It also compares the current physical-pixel geometry before applying and skips entirely if identical, preventing _apply_content_height_now() from being called unnecessarily when height is unchanged. ⟦This glitch is like a stage scene change where the prop table is still at the previous scene's spot when staff accidentally pull open the curtain before hastily shoving it into place.⟧"
+            },
+            "original": "**The Windows panel no longer flashes at its old position before moving.** pywebview's WinForms backend passes `SWP_SHOWWINDOW` in both `resize()` and `move()`, so the `resize()` in `_place_window_on_ui_thread()` made the still-hidden window visible at the previous coordinates; the following `move()` then moved it and only then did `show()` run. Measured at 1 ms sampling, the window sat visible in the wrong place for 36 ms, about two frames. Position and size are now applied while the window is hidden in a single `SetWindowPos` without `SWP_SHOWWINDOW`, leaving display to the existing `show()` path; without a native handle, or off Windows, it falls back to `resize()` + `move()` unchanged. Applying geometry is also skipped entirely when the current physical-pixel geometry already matches, so `_apply_content_height_now()` no longer makes a pointless native call when the content height has not changed."
+          }
+        ]
+      }
     },
     {
       "version": "0.30.13",
