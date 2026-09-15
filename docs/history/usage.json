@@ -14,7 +14,34 @@
           "**The Windows tray panel could stay stuck at `--` and Loading forever when `~/.claude/settings.json` had a UTF-8 BOM.** `installer/setup_hook.py` opened the file as plain `utf-8`, and Python's JSON decoder rejects an otherwise-valid file that starts with a BOM with `Unexpected UTF-8 BOM`, so the startup self-heal step failed before the refresh loop ever completed. Both readers (`_load_settings()` and the legacy-usage migration) now open the file as `utf-8-sig`, which accepts the file with or without a BOM and does not change the parsed settings."
         ]
       },
-      "curated": null
+      "curated": {
+        "version": "0.30.16",
+        "period": "2026-09-15",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "週額度用完警示校準推算邏輯，短暫衝刺不再引發誤報",
+              "en": "Weekly quota exhaustion warnings calibrate projection logic, preventing false alarms from brief usage bursts"
+            },
+            "body": {
+              "zh-TW": "密集使用 AI 時，週額度用完警示不再因短時間衝刺就誤報。⟦這好比行車電腦預估剩餘續航，不能只因剛踩了幾秒重油門，就驚呼整桶油在半小時內見底。⟧過去只拿最近 30～60 分鐘的消耗速度外推整個 7 天週期，密集工作階段常引發假警報（例如本週用了 53.7%、還有 3 天 1 小時重置，卻警告「13 小時後用完」）。現在 `assess_weekly_quota()` 同時檢查兩種速度：短窗速度若預測 1 小時內用完仍會立刻示警；其餘情況須整週平均速度預測用完時間提前至少 20%（`WEEKLY_AVERAGE_WARNING_RATIO`）才警示。介面改為顯示整週平均預測的時間，不再出現「8h55m 後用完」卻與旁邊 5 小時工作階段額度矛盾的狀況；5 小時工作階段額度警示規則維持不變。",
+              "en": "During intensive AI use, weekly quota exhaustion warnings no longer trigger false alarms from short bursts of activity. ⟦This is like a trip computer estimating remaining range—it shouldn't panic that the entire tank will run dry in half an hour just because you stepped on the gas for a few seconds.⟧ Previously, it extrapolated only the burn rate from the last 30–60 minutes across the entire 7-day cycle, so intensive sessions often triggered false alarms (such as using 53.7% this week with 3 days and 1 hour until reset, yet warning \"runs out in 13 hours\"). Now, `assess_weekly_quota()` checks both rates: if the short-window rate predicts exhaustion within 1 hour, it still warns immediately; otherwise, the whole-week average rate must predict exhaustion at least 20% early (`WEEKLY_AVERAGE_WARNING_RATIO`) before raising a warning. The interface now displays the time predicted by the whole-week average, eliminating confusing scenarios where \"runs out in 8h55m\" contradicted the adjacent 5-hour session quota; rules for 5-hour session quota warnings remain unchanged."
+            },
+            "original": "**The weekly quota warning no longer fires from a short burst of use, and the time it shows now matches the reason it fired** ([#138](https://github.com/aqua5230/usage/pull/138)). It used to extrapolate only the last 30–60 minutes of burn rate onto the 7-day window, so a dense working session alone could trigger a false alarm (e.g. 53.7% used, 3 days 1 hour to reset, warned \"runs out in 13 hours\"). `assess_weekly_quota()` now checks both rates: the short window still warns immediately if it alone predicts exhaustion within an hour, but otherwise the whole-week average must predict exhaustion at least 20% of the reset window early (`WEEKLY_AVERAGE_WARNING_RATIO`) before it warns — and displays that average's time instead of the short window's, which previously could show a number like \"runs out in 8h55m\" next to a warning actually driven by a slower week-long trend, contradicting the separate 5-hour session quota shown beside it. Session-quota warnings are unchanged."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 系統匣支援 UTF-8 BOM 設定檔，徹底告別卡死與載入中",
+              "en": "Windows system tray supports UTF-8 BOM config files, resolving freezes and endless loading"
+            },
+            "body": {
+              "zh-TW": "在 Windows 電腦上，當 Claude 設定檔 `~/.claude/settings.json` 帶有 UTF-8 BOM（位元組順序記號，部分編輯器在開頭加入的隱藏標記），系統匣面板不再卡在 `--` 與 Loading。過去 `installer/setup_hook.py` 用一般 `utf-8` 開啟檔案，Python 的解析器把開頭帶 BOM 的有效檔案判為 `Unexpected UTF-8 BOM` 錯誤，導致啟動自我修復步驟在刷新迴圈跑完前就失敗。現在 `_load_settings()` 與舊版遷移邏輯皆改用 `utf-8-sig`，不論檔案有無 BOM 都能正常讀取且設定內容不變。⟦這宛如收發窗口先前看到信件開頭多了一枚印章，就誤判整份合規公文無效而拒絕拆閱；換上相容的判讀方式後，運作才重回正軌。⟧",
+              "en": "On Windows, when Claude's config file `~/.claude/settings.json` contains a UTF-8 BOM (byte order mark, a hidden marker added at the beginning by some editors), the system tray panel no longer gets stuck at `--` and Loading. Previously, `installer/setup_hook.py` opened the file as plain `utf-8`, causing Python's parser to reject valid files with a BOM with an `Unexpected UTF-8 BOM` error, so the startup self-heal step failed before the refresh loop could complete. Now, both `_load_settings()` and the legacy migration logic use `utf-8-sig`, reading the file properly whether a BOM is present or not without altering parsed settings. ⟦This is like a mailroom rejecting a valid official document simply because it has an extra stamp at the top; switching to a compatible reading method puts operations back on track.⟧"
+            },
+            "original": "**The Windows tray panel could stay stuck at `--` and Loading forever when `~/.claude/settings.json` had a UTF-8 BOM.** `installer/setup_hook.py` opened the file as plain `utf-8`, and Python's JSON decoder rejects an otherwise-valid file that starts with a BOM with `Unexpected UTF-8 BOM`, so the startup self-heal step failed before the refresh loop ever completed. Both readers (`_load_settings()` and the legacy-usage migration) now open the file as `utf-8-sig`, which accepts the file with or without a BOM and does not change the parsed settings."
+          }
+        ]
+      }
     },
     {
       "version": "0.30.15",
