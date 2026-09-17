@@ -568,12 +568,12 @@ def _render_static_page(
   <meta property="og:image" content="{SITE_URL}og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="AI_UPDATES.LOG：Claude Code、Codex、Antigravity 官方更新白話速報">
+  <meta property="og:image:alt" content="AI_UPDATES.LOG：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{escape(title, quote=True)}">
   <meta name="twitter:description" content="{escape(description, quote=True)}">
   <meta name="twitter:image" content="{SITE_URL}og-image.png">
-  <meta name="twitter:image:alt" content="AI_UPDATES.LOG：Claude Code、Codex、Antigravity 官方更新白話速報">
+  <meta name="twitter:image:alt" content="AI_UPDATES.LOG：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新">
   <link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
   <link rel="preload" href="../../../fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../../../fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
