@@ -87,6 +87,11 @@ def _configure_build(
         "TOOLS",
         (("alpha", "Alpha"), ("beta", "Beta")),
     )
+    monkeypatch.setattr(
+        build_script,
+        "TOOL_OPERATING_SYSTEMS",
+        {"alpha": "macOS", "beta": "Linux"},
+    )
     return records
 
 

@@ -22,6 +22,16 @@ TOOLS = (
     ("usage", "Usage"),
     ("gh_cli", "GitHub CLI"),
 )
+# Google's rich results test rejects a SoftwareApplication without two of offers,
+# aggregateRating, applicationCategory and operatingSystem; a third-party digest can
+# only vouch for the last two. Sourced from each tool's changelog and README.
+TOOL_OPERATING_SYSTEMS = {
+    "claude_code": "macOS, Windows, Linux",
+    "codex": "macOS, Windows, Linux",
+    "agy": "macOS, Windows, Linux",
+    "usage": "macOS, Windows",
+    "gh_cli": "macOS, Windows, Linux",
+}
 # Single source of truth for build outputs; add new outputs only here.
 BUILD_OUTPUTS = (
     "ai_updates.json",
@@ -508,6 +518,8 @@ def _render_static_page(
             "about": {
                 "@type": "SoftwareApplication",
                 "name": name,
+                "applicationCategory": "DeveloperApplication",
+                "operatingSystem": TOOL_OPERATING_SYSTEMS[tool_id],
                 "softwareVersion": version_name,
                 "releaseNotes": "；".join(release_notes),
             },
