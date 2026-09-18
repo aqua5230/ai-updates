@@ -126,6 +126,7 @@ components:
 - **tag-new / tag-fix / tag-perf**：只用於更新類型標籤與篩選 chip，不拿來裝飾。
 - 淺色值寫在 `:root[data-theme="light"]` 與 `@media(prefers-color-scheme:light)`，深色值寫在 `:root` 與 `:root[data-theme="dark"]`，名稱加 `-dark` 的 token 對應深色主題。
 - 所有文字對背景的對比度至少 4.5:1（WCAG AA），調色時只動 OKLCH 的亮度，不動色相與彩度，改完用 axe 的 `color-contrast` 驗。
+- 顏色一律寫 token，要半透明就用 `color-mix(in srgb,var(--token) N%,transparent)`，不寫死 `rgba()`／`#hex`。唯一的例外是分享選單的陰影色。
 
 ## Typography
 
@@ -175,11 +176,12 @@ CSS 裡的字級一律寫 `var(--fs-*)`，共七級：
 - **工具清單**：依資料順序固定排列，點擊不重排；選中的那顆用 accent 淡底加 accent 邊框。
 - **分享選單**：浮在按鈕下方，不推擠版面；超出視窗時改從左側對齊。
 - **版本頁麵包屑**：`AI_UPDATES.LOG / 工具名 / 版本號`，`--fs-xs` 等寬字；連結用 accent，目前頁與分隔線用 muted；連結高度至少 24px（axe `target-size`）。
+- **404 頁**：`docs/404.html` 由 `scripts/build.py` 用版本頁的同一份 `PAGE_CSS` 產生，不手寫。它會在任何路徑深度被服務，所以字體、圖示與連結都用絕對網址。
 
 ## Do's and Don'ts
 
 - Do：新增文字用 `--fs-*`，新增按鈕用 `--control-*`。
-- Do：改 `docs/index.html` 的樣式時，同步改 `scripts/build.py` 的版本頁模板，再跑 `python3 scripts/build.py`。
+- Do：改 `docs/index.html` 的樣式時，同步改 `scripts/build.py` 的 `PAGE_CSS`（版本頁與 404 頁共用），再跑 `python3 scripts/build.py`。
 - Do：上線前跑 `python3 -m pytest -q`（含 `tests/test_design_tokens.py`），並用 axe 檢查對比度與標題層級。
 - Do：深色、淺色、手機 WebKit 都要截圖看過。
 - Don't：加光暈、漸層背景、第二個強調色。
