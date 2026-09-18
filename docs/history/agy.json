@@ -22,7 +22,78 @@
           "Fixed `/rewind` conversation reverts and forks sweeping backward to an older workspace snapshot when recent snapshot commits were skipped, which could silently overwrite kept work; snapshot lookup now sweeps forward from the target step and falls back to step-by-step revert replay when no later snapshot exists."
         ]
       },
-      "curated": null
+      "curated": {
+        "version": "1.2.6",
+        "period": "2026-09-18",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "遠端操控正式推出，隨時隨地跨裝置同步接手對話",
+              "en": "Remote Control Officially Launches for Cross-Device Session Handoff"
+            },
+            "body": {
+              "zh-TW": "想暫時離開電腦又想隨時盯緊 AI 的執行進度，現在你可以直接用另一台裝置接手。⟦宛如客廳電視遊樂器開啟跨裝置鏡射，在平板完成配對後，即使走到廚房也能同步觀看畫面並直接操作控制器；退出連線或關機時通道也會立即關閉以保安全。⟧你在開啟工具時加上 `--remote-control` 旗標，或在對話中輸入 `/remote-control` 指令，就能建立專屬連線，從手機或平板即時跟隨與控制終端機。輸入 `/remote-control off` 或關閉工作階段（session）時，系統會自動拆除通道並註銷裝置清單。這項連線也修好了權限繼承問題，遠端發起的指令會完整套用原本設定的權限模式、循環模式與檔案存取授權；即使資料目錄名稱不同，配套介面也能如實呈現豐富的產物卡片。",
+              "en": "If you want to step away from your computer while keeping a close eye on AI progress, you can now take over directly from another device. ⟦Just like enabling cross-device mirroring on a living room console, where pairing with a tablet lets you watch the screen and operate the controller even while walking into the kitchen, with the tunnel immediately closing upon disconnecting or shutting down for safety.⟧ By adding the `--remote-control` flag when launching the tool or typing the `/remote-control` command in a conversation, you can create a dedicated connection to follow and control the terminal in real time from a phone or tablet. Typing `/remote-control off` or closing the session automatically tears down the tunnel and unregisters the device list. This connection also fixes permission inheritance issues, ensuring commands initiated remotely fully inherit the original permission mode, cycle mode, and file access grants. Even when data directory names differ, the companion interface faithfully renders rich artifact cards."
+            },
+            "original": "Added Remote Control (start a connection via `--remote-control` startup flag or `/remote-control` slash command) to create a session-scoped remote connection for following and controlling your active terminal session from another device. Typing `/remote-control off` or closing the session automatically tears down the tunnel and unregisters the device from the active Remote Control session list.\nFixed turns triggered from a connected Remote Control session or running across secondary workspaces executing without the CLI session's active permission mode, cycle mode, and non-workspace file access grants.\nFixed artifacts in the Remote Control companion rendering as plain `<name>.md` file links instead of rich artifact cards when the CLI's application data directory differs from the default bundle name."
+          },
+          {
+            "title": {
+              "zh-TW": "無頭模式解除執行時限，背景伺服器常駐且錯誤排查更精準",
+              "en": "Headless Mode Removes Execution Time Limits, Keeps Background Servers Running, and Improves Error Diagnostics"
+            },
+            "body": {
+              "zh-TW": "把耗時的繁重任務交給自動化腳本執行時，無頭模式（headless，沒有終端機視覺介面的執行模式）現在不會因為時間到了就強制中斷。⟦恰如工廠在夜間啟動無人值守的自動化流水線，只要不設關機定時器，機台就會耐心運轉直至所有工件加工完畢；若是途中遇上原料斷供或故障，控制面板立刻印出含錯誤代碼的結構化清單。⟧使用 `-p` 或 `--prompt` 執行時，預設逾時已從 5 分鐘調整為無限制，讓耗時較長的任務能一路執行到回覆完畢，除非手動加上 `--print-timeout` 參數。在具備 `GEMINI_API_KEY` 的工作階段中，背景伺服器指令也會在回合結束後保持運作。此外，當因 API 失敗中斷時，CLI 在標準錯誤輸出 `AGY_ERROR: {...}` JSON 紀錄，詳列標準狀態、HTTP 或 gRPC 錯誤代碼、是否可重試與錯誤識別碼，並將結束代碼改為 `3`。",
+              "en": "When handing off time-consuming heavy tasks to automation scripts, headless mode no longer forcibly terminates when time runs out. ⟦Just like starting an unattended automated assembly line in a factory at night, where machines run patiently until all workpieces are processed unless a shutdown timer is set, and the control panel immediately prints a structured list with error codes if materials run out or a breakdown occurs midway.⟧ When running with `-p` or `--prompt`, the default timeout has been changed from 5 minutes to unlimited, allowing long-running tasks to execute until the response finishes unless the `--print-timeout` parameter is passed manually. In sessions with `GEMINI_API_KEY`, background server commands also remain running after the turn ends. Additionally, when terminated due to an API failure, the CLI prints an `AGY_ERROR: {...}` JSON record to standard error detailing canonical status, HTTP or gRPC error codes, retryability, and error IDs, while updating the exit code to `3`."
+            },
+            "original": "Changed the default timeout for headless (`-p` / `--prompt`) runs from 5 minutes to unlimited so long-running agent turns run until the response completes unless `--print-timeout` is passed explicitly, and enabled daemon background commands in headless `GEMINI_API_KEY` sessions so background servers stay running after the turn finishes.\nImproved headless (`-p` / `--prompt`) error reporting when a turn terminates on an agent or model API failure: the CLI now prints a structured `AGY_ERROR: {...}` JSON line on stderr with canonical status, HTTP or gRPC error code, retryability, and error ID (including HTTP status mapping for `GEMINI_API_KEY` SDK errors) and exits with code `3` instead of `1`."
+          },
+          {
+            "title": {
+              "zh-TW": "編輯器游標支援標點斷詞，路徑與參數修改更俐落",
+              "en": "Editor Cursor Supports Punctuation Boundaries for Snappier Path and Flag Editing"
+            },
+            "body": {
+              "zh-TW": "鍵盤游標在提示詞編輯器中穿梭時，單詞跳轉與文字刪除變得更加細膩。以前按下單詞跳轉快捷鍵時，游標只會在空格處停下，如果遇到用斜線或符號連接的長網址，一跳就會衝過頭，刪除時也會把整串路徑一口氣刪光。⟦這就像長途列車原本只能在縣市大站停靠，現在每一處轉運站的交接月台都能精準煞停，讓你能隨心所欲單獨檢視或卸下某個特定車廂。⟧現在系統改進了分詞規則，游標移動快捷鍵（如 `Alt+F`、`Alt+B` 以及方向鍵組合）遇到標點符號時都會主動停下。單詞刪除鍵（如 `Ctrl+W`、`Alt+Backspace` 和 `Alt+D`）同樣會在標點邊界煞停。無論是檔案路徑中的各層目錄、網址或是各項參數設定，你都能精準按節跳轉或逐步刪除。",
+              "en": "Word navigation and text deletion have become much more refined when moving the keyboard cursor through the prompt editor. Previously, when pressing word-navigation shortcuts, the cursor only stopped at whitespace, causing it to overshoot long URLs joined by slashes or symbols and wipe out entire path strings when deleting. ⟦This is like a long-distance train that could only stop at major city stations, but can now halt precisely at transfer platforms at every transit hub, letting you inspect or detach a specific railcar at will.⟧ The system has now improved word boundary rules so cursor movement shortcuts (such as `Alt+F`, `Alt+B`, and arrow key combinations) actively stop at punctuation marks. Word deletion shortcuts (such as `Ctrl+W`, `Alt+Backspace`, and `Alt+D`) likewise stop at punctuation boundaries. Whether dealing with directory levels in file paths, URLs, or various parameter flags, you can now navigate precisely by segment or delete step by step."
+            },
+            "original": "Improved word-wise cursor movement (`Alt+F`, `Alt+B`, and `Ctrl`/`Alt`+Arrow keys) and word deletion (`Ctrl+W`, `Alt+Backspace`, and `Alt+D`) in the prompt editor to stop at punctuation boundaries instead of only whitespace, making it easy to step through or delete individual segments of file paths, URLs, and flags."
+          },
+          {
+            "title": {
+              "zh-TW": "全螢幕產物檢視器純文字複製，不再誤選行號與留白",
+              "en": "Full-Screen Artifact Viewer Copies Plain Text Without Accidentally Selecting Line Numbers and Padding"
+            },
+            "body": {
+              "zh-TW": "滑鼠在全螢幕產物檢視器中拖曳選取時，複製出來的內容不再夾帶多餘雜訊。以前只要滑鼠拖曳過螢幕，系統就會連同最左側的行號邊緣欄以及右側的尾隨間距一併選入，貼上時還得手動刪除行號。現在這個問題已經修好，拖曳只會反白並複製文件本身的文字內容；你還能隨時按下 `Ctrl+C` 重新複製當前選取的範圍、按 `Esc` 清除選取，或是使用 `Shift` 鍵搭配拖曳來保留原生終端機的選取方式。",
+              "en": "When dragging to select with the mouse in the full-screen artifact viewer, copied content no longer includes unwanted noise. Previously, dragging across the screen would capture the leftmost line-number gutter along with trailing padding on the right, requiring you to manually delete line numbers after pasting. This issue has now been fixed: dragging highlights and copies only the document text content itself. You can also press `Ctrl+C` at any time to re-copy the active selection, press `Esc` to clear the selection, or hold `Shift` while dragging to retain native terminal selection."
+            },
+            "original": "Fixed text selection in the full-screen artifact viewer capturing the line-number gutter and trailing padding; dragging across the viewer now highlights and copies only the document text, with `Ctrl+C` to re-copy an active selection, `Esc` to clear it, and `Shift`+drag for native terminal selection."
+          },
+          {
+            "title": {
+              "zh-TW": "執行中切換模型改為依序排隊，進行中對話不再中途遭換",
+              "en": "Mid-Run Model Switches Now Queue in Order Without Swapping In-Flight Turns"
+            },
+            "body": {
+              "zh-TW": "趁著 AI 正在回答問題時提前輸入下一句指示並指定模型，現在系統會乖乖排隊而不會打亂現狀。以前在回合運作中途輸入 `/model <name> <prompt>` 指令，系統會立刻切換執行中的模型，導致正在產出的內容中途被換掉。這個問題已經修好，單次模型切換現在會耐心等待，直到該筆排隊的提示詞正式開始執行時才會切換，確保當前進行中的回合與更早排隊的提示詞，都能完整使用工作階段（session）原本的模型順利跑完。",
+              "en": "When entering a subsequent instruction with a specified model while the AI is actively answering, the system now queues it properly without disrupting ongoing work. Previously, submitting the `/model <name> <prompt>` command midway through a running turn would immediately switch the active model, causing in-flight generations to be swapped mid-stream. This issue has now been fixed: one-shot model switches now wait patiently until the queued prompt begins executing, ensuring both the currently running turn and any earlier queued prompts finish completely on the session's original model."
+            },
+            "original": "Fixed submitting `/model <name> <prompt>` while a turn is already running switching the active model immediately in the middle of the in-flight turn; the one-shot model switch now waits until the queued prompt begins executing so the running turn and any earlier queued prompts finish on the session's original model."
+          },
+          {
+            "title": {
+              "zh-TW": "超大變更不撐爆對話儲存，倒帶復原不再誤覆寫成果",
+              "en": "Oversized Edits No Longer Exceed Session Storage, and Rewind Reverts Avoid Overwriting Work"
+            },
+            "body": {
+              "zh-TW": "遇到超大檔案變更或需要倒帶復原進度時，工作階段（session）的儲存與工作區狀態現在更加穩固。⟦宛如厚重帳本在歸檔龐大資料時，只記錄增減行數與摘要而省略整份原始收據，避免抽屜爆滿被整箱清空；翻查紀錄時也會精準比對目標頁數，不再盲目拿過期的舊存根來覆寫現狀。⟧以前當檔案修改的差異內容大於 1 MiB 時，會因超出對話儲存上限而導致整個工作階段被強制清空。現在超大編輯會保留行數變更統計，並自儲存歷程中省略龐大的原始差異內容，在執行 `/rewind` 時也會直接略過省略部分。此外，過去使用 `/rewind` 進行對話復原或建立分支時，若略過了近期的快照，系統可能會倒退掃描至過舊的工作區快照，默默覆寫保留的修改；現在尋找快照會從目標步驟向前搜尋，若無較新快照則採用逐步復原重播作為備援。",
+              "en": "When encountering massive file changes or rewinding progress, session storage and workspace states are now significantly more stable. ⟦Just like a thick ledger archiving voluminous records by logging only line counts and summaries while omitting bulky raw receipts to prevent overflowing drawers from being dumped out entirely, and referencing precise target page numbers during audits rather than blindly overwriting the present with outdated stubs.⟧ Previously, when file modification diffs exceeded 1 MiB, exceeding the conversation storage limit would force-clear the entire session. Oversized edits now preserve line-change statistics while omitting the massive raw diff content from stored history, and `/rewind` directly skips elided diffs during reverts. Additionally, when using `/rewind` for conversation reverts or forks in the past, skipping recent snapshots could cause the system to sweep backward to an outdated workspace snapshot and silently overwrite kept modifications. Snapshot lookup now sweeps forward from the target step, falling back to step-by-step revert replay when no newer snapshot exists."
+            },
+            "original": "Fixed file edits with diffs larger than 1 MiB exceeding the conversation storage limit and force-clearing the session; oversized edits now preserve their line-change statistics while omitting the raw diff body from stored conversation history and skipping the elided diff during `/rewind` reverts.\nFixed `/rewind` conversation reverts and forks sweeping backward to an older workspace snapshot when recent snapshot commits were skipped, which could silently overwrite kept work; snapshot lookup now sweeps forward from the target step and falls back to step-by-step revert replay when no later snapshot exists."
+          }
+        ]
+      }
     },
     {
       "version": "1.2.5",
