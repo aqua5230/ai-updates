@@ -38,7 +38,7 @@ typography:
     fontFamily: Inter
     fontSize: 1.375rem
     fontWeight: 650
-    lineHeight: 1.4
+    lineHeight: 1.5
   heading:
     fontFamily: JetBrains Mono
     fontSize: 1.125rem
@@ -134,7 +134,7 @@ CSS 裡的字級一律寫 `var(--fs-*)`，共七級：
 
 | token | 值 | 用在哪 |
 |---|---|---|
-| `--fs-2xs` | 11px | 版本號小字、New 徽章、產生日期 |
+| `--fs-2xs` | 11px | 版本號小字、New 徽章、英文版的產生日期與最新發布標籤 |
 | `--fs-xs` | 12px | 標籤、按鈕、篩選 chip、說明文字 |
 | `--fs-sm` | 13px | 工具名稱、分頁按鈕、日期、比喻框 |
 | `--fs-base` | 15px | 卡片內文 |
@@ -143,7 +143,7 @@ CSS 裡的字級一律寫 `var(--fs-*)`，共七級：
 | `--fs-xl` | 22px | 最新版本卡片標題 |
 
 - 例外只有兩種：跟著父層縮放的 `em`（行內程式碼、程式碼框、比喻框），以及版本號大標的 `clamp()`。
-- 中文排版照 W3C clreq：會換行的中文內文與說明文字，行距（`line-height`）落在 1.5～2.0；中文不加字距（密排），字距只寫在 `:lang(en)` 規則裡。
+- 中文排版照 W3C clreq：會換行的中文內文與說明文字，行距（`line-height`）落在 1.5～2.0；中文不加字距（密排），字距只寫在 `:lang(en)` 規則裡；中文最小用 `--fs-xs`（12px），`--fs-2xs` 只給英文與數字；介面文字的冒號跟著語言走（繁中全形「：」）。
 - 標題層級：外層標題一定比裡面的標題大。歷史版本標題用 `--fs-lg`，所以展開內容的卡片標題用 `--fs-md`。
 - 頁面標題順序不跳級：`h1`（logo 或頁名）→ `h2`（版本號，歷史分頁用隱藏的 `h2`）→ `h3`（卡片標題）。
 - 字體自架在 `docs/fonts/`（Inter、JetBrains Mono 可變字型，latin 與 latin-ext 子集，OFL 授權），`font-display:swap`，不再連 Google Fonts。
