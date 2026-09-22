@@ -125,7 +125,7 @@ components:
 - **primary**（CSS 變數 `--accent-color`）：唯一的互動色，用在選中的分頁、選中的工具、連結、時間軸圓點。
 - **tag-new / tag-fix / tag-perf**：只用於更新類型標籤與篩選 chip，不拿來裝飾。
 - 淺色值寫在 `:root[data-theme="light"]` 與 `@media(prefers-color-scheme:light)`，深色值寫在 `:root` 與 `:root[data-theme="dark"]`，名稱加 `-dark` 的 token 對應深色主題。
-- 所有文字對背景的對比度至少 4.5:1（WCAG AA），調色時只動 OKLCH 的亮度，不動色相與彩度，改完用 axe 的 `color-contrast` 驗。
+- 所有文字對背景的對比度至少 4.5:1（WCAG AA），調色時只動 OKLCH 的亮度，不動色相與彩度，改完用 axe 的 `color-contrast` 驗。含字的控制項不用 `opacity` 淡化，透明度會連文字對比一起拉低。
 - 顏色一律寫 token，要半透明就用 `color-mix(in srgb,var(--token) N%,transparent)`，不寫死 `rgba()`／`#hex`。唯一的例外是分享選單的陰影色。
 
 ## Typography
@@ -143,18 +143,19 @@ CSS 裡的字級一律寫 `var(--fs-*)`，共七級：
 | `--fs-xl` | 22px | 最新版本卡片標題 |
 
 - 例外只有兩種：跟著父層縮放的 `em`（行內程式碼、程式碼框、比喻框），以及版本號大標的 `clamp()`。
-- 中文排版照 W3C clreq：會換行的中文內文與說明文字，行距（`line-height`）落在 1.5～2.0；中文不加字距（密排），字距只寫在 `:lang(en)` 規則裡；中文最小用 `--fs-xs`（12px），`--fs-2xs` 只給英文與數字；介面文字的冒號跟著語言走（繁中全形「：」）。
+- 中文排版照 W3C clreq：會換行的中文內文與說明文字，行距（`line-height`）落在 1.5～2.0；中文不加字距（密排），字距只寫在 `:lang(en)` 規則裡；中文最小用 `--fs-xs`（12px），`--fs-2xs` 只給英文與數字；介面文字的冒號跟著語言走（繁中全形「：」）。`font` 簡寫會把行距重設成 `normal`，簡寫後面要明寫 `line-height`。
 - 標題層級：外層標題一定比裡面的標題大。歷史版本標題用 `--fs-lg`，所以展開內容的卡片標題用 `--fs-md`。
 - 頁面標題順序不跳級：`h1`（logo 或頁名）→ `h2`（版本號，歷史分頁用隱藏的 `h2`）→ `h3`（卡片標題）。
 - 字體自架在 `docs/fonts/`（Inter、JetBrains Mono 可變字型，latin 與 latin-ext 子集，OFL 授權），`font-display:swap`，不再連 Google Fonts。
 
 ## Layout
 
-- 桌機：左側固定側欄 280px，主內容區左右內距 4rem、最寬 1100px。
+- 桌機：左側固定側欄 280px，主內容區左右內距 4rem、最寬 1100px。內容超過視窗高度時側欄自己捲動。
 - 1023px 以下：側欄拆開，工具列變成單排可橫向捲動，設定區與 Usage App 卡片排到內容後面。
 - 600px 以下：隱藏時間軸軌道與序號。
 - 版本頁內容欄寬 46rem（內文實寬約 686px），一行約 45 個中文字。
 - 間距優先用 `.25rem / .5rem / .75rem / 1rem / 1.5rem / 2rem`。
+- 程式碼框的複製按鈕佔自己一欄，不疊在程式碼上；分頁按鈕不寫 `nowrap`，文字放大時允許換行。
 - 資料載入前，1023px 以下先保留工具列高度與一個螢幕高的主內容，避免版面跳動（CLS）。
 
 ## Elevation & Depth
