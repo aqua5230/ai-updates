@@ -408,6 +408,109 @@ ANALOGY_ICON = (
     '<path d="M12 8v5M12 16.5v.01"></path></svg>'
 )
 
+SENTENCE_STOP = {"zh-TW": "。", "zh-CN": "。", "ja": "。", "en": ".", "ko": "."}
+BADGE_LABELS = {
+    "zh-TW": {"new": "新功能", "fix": "問題修復", "perf": "效能優化"},
+    "en": {"new": "FEATURE", "fix": "BUGFIX", "perf": "PERF"},
+}
+BADGE_ICONS = {
+    "new": '<svg class="log-badge-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v4M12 16v4M4 12h4M16 12h4"></path></svg>',
+    "fix": '<svg class="log-badge-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.3 2.3L15.5 9.5"></path></svg>',
+    "perf": '<svg class="log-badge-icon filled" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3L4 14h6l-1 7 9-11h-6l1-7Z"></path></svg>',
+}
+
+
+def _first_sentence_end(text: str, stop: str) -> int:
+    in_code = False
+    for index, character in enumerate(text):
+        if character == "`":
+            in_code = not in_code
+            continue
+        if not in_code and character == stop:
+            return index
+    return -1
+
+
+def _split_analogy(text: str) -> tuple[str, str | None, str]:
+    start = text.find("⟦")
+    if start == -1:
+        return text, None, ""
+    end = text.find("⟧", start + 1)
+    if end == -1:
+        return text, None, ""
+    return text[:start], text[start + 1 : end], text[end + 1 :]
+
+
+def _render_plain_prose(text: str) -> str:
+    return f'<p class="log-prose-text">{_render_inline_code(text)}</p>'
+
+
+def _render_lead_prose(text: str, language: str) -> str:
+    stop = SENTENCE_STOP.get(language, ".")
+    cut = _first_sentence_end(text, stop)
+    if cut != -1 and "```" in text[: cut + 1]:
+        cut = -1
+    if cut == -1:
+        return _render_plain_prose(text)
+    lead = f'<p class="log-lead-text">{_render_inline_code(text[: cut + 1])}</p>'
+    rest = text[cut + 1 :].strip()
+    return lead + (_render_plain_prose(rest) if rest else "")
+
+
+def _render_prose_block(text: str, with_lead: bool, language: str) -> str:
+    before, analogy, after = _split_analogy(text)
+    blocks = []
+    if before:
+        blocks.append(_render_lead_prose(before, language) if with_lead else _render_plain_prose(before))
+    if analogy:
+        blocks.append(
+            f'<aside class="log-analogy" role="note">{ANALOGY_ICON}'
+            f"<span>{_render_inline_code(analogy.strip())}</span></aside>"
+        )
+    rest = after.strip() if after else ""
+    if rest:
+        blocks.append(
+            _render_lead_prose(rest, language) if with_lead and not before else _render_plain_prose(rest)
+        )
+    return "".join(blocks)
+
+
+def _badge_from_title(text: str) -> tuple[str, str]:
+    lower = text.lower()
+    if re.search(r"fix|bug|修|修復|修复|直|해결", lower):
+        return "fix", "bugfix"
+    if re.search(r"perf|效能|性能|省|優化|优化|改善|성능", lower):
+        return "perf", "perf"
+    return "new", "feature"
+
+
+def _classify_entry(line: str) -> str:
+    text = re.sub(r"^[*`\s]+", "", line.strip().lower())
+    prefix = re.match(r"^(feat|fix|perf|chore|docs|refactor|build|ci|test|style)(\([^)]*\))?!?:", text)
+    if prefix:
+        return {"fix": "fix", "perf": "perf", "feat": "new"}.get(prefix.group(1), "?")
+    if re.match(r"^(fixed|fixes|fix)\b", text):
+        return "fix"
+    if re.match(r"^(added|add|adds|introduced|introduces|new)\b", text):
+        return "new"
+    if re.match(r"^(improved|improves|optimiz|optimis)\w*\b", text):
+        return "perf" if re.search(
+            r"performance|faster|speed|latency|memory|startup|slow|jank|lag|cpu|throughput|responsive", text
+        ) else "new"
+    return "?"
+
+
+def _badge_for(original: str, title: str) -> tuple[str, str]:
+    kinds = {_classify_entry(line) for line in original.split("\n") if line.strip()}
+    if len(kinds) == 1 and "?" not in kinds:
+        kind = next(iter(kinds))
+        if kind == "fix":
+            return "fix", "bugfix"
+        if kind == "perf":
+            return "perf", "perf"
+        return "new", "feature"
+    return _badge_from_title(title or "")
+
 
 def _render_prose(text: str) -> str:
     """把散文與 ⟦比喻⟧ 分開渲染，並容忍未成對的標記。"""
@@ -430,13 +533,13 @@ def _render_prose(text: str) -> str:
     return "".join(blocks)
 
 
-def _render_body(text: str) -> str:
+def _render_body(text: str, language: str = "zh-TW") -> str:
     blocks = []
     cursor = 0
     for match in FENCED_CODE_RE.finditer(text):
         prose = re.sub(r"\r?\n$", "", text[cursor:match.start()])
         if prose:
-            blocks.append(_render_prose(prose))
+            blocks.append(_render_prose_block(prose, True, language))
         blocks.append(
             '<pre class="log-code-block"><code>'
             f"{escape(_strip_analogy_marks(match.group(1)))}"
@@ -449,7 +552,7 @@ def _render_body(text: str) -> str:
             cursor += 1
     prose = text[cursor:]
     if prose:
-        blocks.append(_render_prose(prose))
+        blocks.append(_render_prose_block(prose, True, language))
     return "".join(blocks)
 
 
@@ -463,6 +566,9 @@ def _render_items(
             title = _localized(item.get("title"), language)
             body = _localized(item.get("body"), language)
             if title or body:
+                original_text = item.get("original")
+                original_text = original_text if isinstance(original_text, str) else ""
+                badge_type, _ = _badge_for(original_text, title)
                 original = ""
                 if include_original:
                     original = (
@@ -470,9 +576,12 @@ def _render_items(
                         f'<pre lang="en">{escape(str(item.get("original", "")))}</pre></details>'
                     )
                 blocks.append(
-                    '<article class="log-item-card">'
-                    f'<h3 class="log-item-title">{escape(title)}</h3>'
-                    f"{_render_body(body)}{original}</article>"
+                    f'<article class="log-item-card tier-{badge_type}">'
+                    '<div class="log-item-header">'
+                    f'<span class="log-badge badge-{badge_type}">{BADGE_ICONS[badge_type]}'
+                    f"{escape(BADGE_LABELS[language][badge_type])}</span>"
+                    f'<h3 class="log-item-title">{escape(title)}</h3></div>'
+                    f"{_render_body(body, language)}{original}</article>"
                 )
         return "\n".join(blocks) or "<p>沒有可用的整理內容。</p>"
 
@@ -511,8 +620,8 @@ PAGE_CSS = """\
     :root[data-theme="dark"]{color-scheme:dark;--bg-color:oklch(0.176285 0.014021 258.357);--sidebar-bg:oklch(0.220223 0.015700 256.816);--text-color:oklch(0.856908 0.014132 247.992);--text-bright:oklch(0.970342 0.010275 247.932);--accent-color:oklch(0.715252 0.151810 253.306);--accent-contrast:oklch(0.176285 0.014021 258.357);--accent-glow:oklch(0.715252 0.151810 253.306 / .2);--border-color:oklch(0.270223 0.014885 252.310);--muted-color:oklch(0.662473 0.018141 250.922);--card-bg:oklch(0.245223 0.015700 256.816);--code-bg:oklch(0.159628 0.020332 265.576);--tag-new:oklch(0.695081 0.180928 145.621);--tag-fix:oklch(0.719000 0.204594 26.960);--tag-perf:oklch(0.719551 0.140145 79.915)}
     *{box-sizing:border-box}html,body{max-width:100%;overflow-x:clip}body{min-width:0;margin:0;background:var(--bg-color);color:var(--text-color);font:400 var(--fs-md)/1.6 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
     a{color:var(--accent-color)}a:focus-visible,summary:focus-visible{outline:2px solid var(--accent-color);outline-offset:3px;border-radius:3px}.page-shell{width:min(100% - 2rem,46rem);margin:0 auto;padding:3rem 0 2rem;overflow-wrap:anywhere;word-break:break-word}.page-header{padding:0 0 2rem;border-bottom:1px solid var(--border-color);margin-bottom:2rem}.breadcrumb{margin:0 0 .5rem;font:700 var(--fs-xs) "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace}.breadcrumb ol{display:flex;flex-wrap:wrap;align-items:center;margin:0;padding:0;list-style:none}.breadcrumb li{display:flex;align-items:center;min-height:24px;color:var(--muted-color)}.breadcrumb li+li::before{content:"/";content:"/" / "";margin:0 .5rem}.breadcrumb a{display:inline-flex;align-items:center;min-height:24px;color:var(--accent-color);text-decoration:none}.breadcrumb a:hover{text-decoration:underline}h1,h2,h3{color:var(--text-bright);line-height:1.3;text-wrap:balance}h1{margin:0;font:700 clamp(2rem,5vw,3.25rem)/1.2 "JetBrains Mono",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:-.02em}.release-period{margin:.75rem 0 0;color:var(--muted-color);font:var(--fs-sm) "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;line-height:1.5}.language-section{margin:0 0 2.5rem}.language-section>h2{margin:0 0 1rem;font:700 var(--fs-md)/1.4 "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;color:var(--muted-color);text-transform:uppercase}.language-section:lang(en)>h2{letter-spacing:.06em}
-    .log-item-card{min-width:0;background:var(--card-bg);border:1px solid var(--border-color);border-radius:8px;padding:1.5rem;margin:0 0 1.25rem;transition:border-color .2s ease}.log-item-card:hover{border-color:var(--accent-color)}.log-item-title{margin:0 0 .75rem;font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:var(--fs-xl);font-weight:650;line-height:1.5;text-wrap:pretty}.log-item-title:lang(en){letter-spacing:-.01em}.log-prose-text{margin:.5rem 0 0;font-size:var(--fs-base);line-height:1.8;white-space:pre-line}.log-prose-text:first-of-type{margin-top:0;color:var(--text-bright)}code{font:.9em "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;background:var(--code-bg);border-radius:4px;padding:.1em .35em;overflow-wrap:anywhere;word-break:break-word}pre{max-width:100%;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.log-code-block{max-width:100%;margin:.75rem 0 0;padding:.75rem;overflow-x:auto;color:var(--text-color);background:var(--code-bg);border:1px solid var(--border-color);border-radius:6px;font:var(--fs-sm)/1.5 "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace}.log-code-block code{padding:0;background:transparent;font:inherit}.log-analogy{display:flex;gap:.55rem;align-items:flex-start;border-left:2px solid color-mix(in srgb,var(--border-color) 65%,var(--accent-color));border-radius:0 6px 6px 0;padding:.65rem .85rem;margin:.75rem 0;font-size:.9em;line-height:1.7;color:var(--muted-color)}.log-analogy-icon{width:15px;height:15px;flex-shrink:0;margin-top:.15rem;color:var(--muted-color);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.log-howto{margin:0;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-color)}.original-entry{margin:0 0 .6rem;background:var(--card-bg)}.original-entry summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .6rem;list-style:none}.original-entry summary::-webkit-details-marker{display:none}.original-entry summary::before{content:"▸";flex:0 0 auto;color:var(--accent-color);transition:transform .2s ease}.original-entry[open] summary::before{transform:rotate(90deg)}.original-entry-title{color:var(--text-bright);font:600 var(--fs-sm)/1.6 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.log-howto summary{padding:.65rem .85rem;cursor:pointer;color:var(--muted-color);font:var(--fs-sm) "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace}.log-howto[open] summary{border-bottom:1px solid var(--border-color);color:var(--text-bright)}.log-howto .log-code-block{margin:.75rem}
-    footer{border-top:1px solid var(--border-color);padding-top:1.5rem}footer nav{display:flex;flex-wrap:wrap;gap:.75rem 1rem}footer a{font:var(--fs-sm) "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace}@media(max-width:480px){.page-shell{width:min(100% - 1.5rem,68rem);padding-top:1.5rem}.page-header{padding-bottom:1.5rem;margin-bottom:1.5rem}.language-section{margin-bottom:2rem}.log-item-card{padding:1rem}.log-item-title{font-size:var(--fs-lg)}.log-analogy{padding:.5rem .65rem;font-size:var(--fs-sm)}.log-code-block{padding:.65rem}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+    .log-item-card{min-width:0;background:var(--card-bg);border:1px solid var(--border-color);border-radius:8px;padding:1.5rem;margin:0 0 1.25rem;transition:border-color .2s ease}.log-item-card:hover{border-color:var(--accent-color)}.log-item-card.tier-fix{padding:1rem}.log-item-card.tier-fix .log-item-title{font-size:var(--fs-md)}.log-item-header{display:flex;flex-direction:column;align-items:flex-start;gap:.5rem;margin-bottom:.75rem}.log-badge{display:inline-flex;align-items:center;gap:.3rem;font:700 var(--fs-xs) "JetBrains Mono",monospace;padding:.2rem .5rem;border-radius:4px;text-transform:uppercase}.log-badge-icon{width:11px;height:11px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.log-badge-icon.filled{fill:currentColor;stroke:none}.badge-new{background:color-mix(in srgb,var(--tag-new) 15%,transparent);color:var(--tag-new);border:1px solid color-mix(in srgb,var(--tag-new) 30%,transparent)}.badge-fix{background:color-mix(in srgb,var(--tag-fix) 15%,transparent);color:var(--tag-fix);border:1px solid color-mix(in srgb,var(--tag-fix) 30%,transparent)}.badge-perf{background:color-mix(in srgb,var(--tag-perf) 15%,transparent);color:var(--tag-perf);border:1px solid color-mix(in srgb,var(--tag-perf) 30%,transparent)}.log-item-title{margin:0;font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:var(--fs-xl);font-weight:650;line-height:1.5;text-wrap:pretty}.log-item-title:lang(en){letter-spacing:-.01em}.log-lead-text{margin:0 0 .5rem;font:400 var(--fs-md)/1.7 "Inter",sans-serif;color:var(--text-bright);white-space:pre-line}.log-prose-text{margin:.5rem 0 0;font-size:var(--fs-base);line-height:1.8;white-space:pre-line}.log-prose-text:first-of-type{margin-top:0;color:var(--text-bright)}code{font:.9em "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;background:var(--code-bg);border-radius:4px;padding:.1em .35em;overflow-wrap:anywhere;word-break:break-word}pre{max-width:100%;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.log-code-block{max-width:100%;margin:.75rem 0 0;padding:.75rem;overflow-x:auto;color:var(--text-color);background:var(--code-bg);border:1px solid var(--border-color);border-radius:6px;font:var(--fs-sm)/1.5 "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace}.log-code-block code{padding:0;background:transparent;font:inherit}.log-analogy{display:flex;gap:.55rem;align-items:flex-start;border-left:2px solid color-mix(in srgb,var(--border-color) 65%,var(--accent-color));border-radius:0 6px 6px 0;padding:.65rem .85rem;margin:.75rem 0;font-size:.9em;line-height:1.7;color:var(--muted-color)}.log-analogy-icon{width:15px;height:15px;flex-shrink:0;margin-top:.15rem;color:var(--muted-color);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.log-howto{margin:0;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-color)}.original-entry{margin:0 0 .6rem;background:var(--card-bg)}.original-entry summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .6rem;list-style:none}.original-entry summary::-webkit-details-marker{display:none}.original-entry summary::before{content:"▸";flex:0 0 auto;color:var(--accent-color);transition:transform .2s ease}.original-entry[open] summary::before{transform:rotate(90deg)}.original-entry-title{color:var(--text-bright);font:600 var(--fs-sm)/1.6 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.log-howto summary{padding:.65rem .85rem;cursor:pointer;color:var(--muted-color);font:var(--fs-sm) "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace}.log-howto[open] summary{border-bottom:1px solid var(--border-color);color:var(--text-bright)}.log-howto .log-code-block{margin:.75rem}
+    footer{border-top:1px solid var(--border-color);padding-top:1.5rem}footer nav{display:flex;flex-wrap:wrap;gap:.75rem 1rem}footer a{font:var(--fs-sm) "JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace}.back-to-top{position:fixed;right:calc(1rem + env(safe-area-inset-right));bottom:calc(1rem + env(safe-area-inset-bottom));z-index:20;display:grid;place-items:center;width:var(--control-lg);height:var(--control-lg);padding:0;border:1px solid var(--accent-color);border-radius:6px;background:var(--card-bg);color:var(--accent-color);cursor:pointer}.back-to-top:hover,.back-to-top:focus-visible{background:color-mix(in srgb,var(--accent-color) 15%,var(--card-bg))}.back-to-top[hidden]{display:none}@media(max-width:480px){.page-shell{width:min(100% - 1.5rem,68rem);padding-top:1.5rem}.page-header{padding-bottom:1.5rem;margin-bottom:1.5rem}.language-section{margin-bottom:2rem}.log-item-card{padding:1rem}.log-item-title{font-size:var(--fs-lg)}.log-analogy{padding:.5rem .65rem;font-size:var(--fs-sm)}.log-code-block{padding:.65rem}.back-to-top{right:calc(.75rem + env(safe-area-inset-right));bottom:calc(.75rem + env(safe-area-inset-bottom))}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
   </style>"""
 
 
@@ -628,7 +737,8 @@ def _render_static_page(
   <script>try{{var t=localStorage.getItem("ai-updates-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head>
 <body>
-  <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="頁面路徑"><ol><li><a href="{SITE_URL}">AI_UPDATES.LOG</a></li><li><a href="{SITE_URL}#{tool_id}">{escape(name)}</a></li><li aria-current="page">{escape(version_name)}</li></ol></nav><h1>{escape(name)} {escape(version_name)}</h1><p class="release-period">發布日期：{escape(period)}</p></header><main>{language_sections}</main><footer><nav aria-label="版本導覽"><a href="{SITE_URL}#{tool_id}/{version_name}">回到互動版</a>{previous_link}{next_link}</nav></footer></div>
+  <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="頁面路徑"><ol><li><a href="{SITE_URL}">AI_UPDATES.LOG</a></li><li><a href="{SITE_URL}#{tool_id}">{escape(name)}</a></li><li aria-current="page">{escape(version_name)}</li></ol></nav><h1>{escape(name)} {escape(version_name)}</h1><p class="release-period">發布日期：{escape(period)}</p></header><main>{language_sections}</main><footer><nav aria-label="版本導覽"><a href="{SITE_URL}#{tool_id}/{version_name}">回到互動版</a>{previous_link}{next_link}</nav></footer></div><button class="back-to-top" id="back-to-top" type="button" aria-label="回到頂端" title="回到頂端" hidden><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+  <script>const backToTop=document.getElementById("back-to-top"),reducedMotion=matchMedia("(prefers-reduced-motion: reduce)");function updateBackToTop(){{backToTop.hidden=scrollY<=innerHeight*2}}addEventListener("scroll",updateBackToTop,{{passive:true}});updateBackToTop();backToTop.addEventListener("click",()=>scrollTo({{top:0,behavior:reducedMotion.matches?"auto":"smooth"}}));</script>
 </body>
 </html>
 '''
