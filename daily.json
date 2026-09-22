@@ -570,40 +570,84 @@
           "period": "2026-09-22",
           "items": [
             {
-              "original": "Improved context compaction to spread its user-request budget across all captured prompts, so a long initial instruction is no longer truncated to a small fixed slice when the other prompts in the conversation are short"
+              "title": {
+                "zh-TW": "上下文壓縮預算彈性分配，長提示詞與摘要清單不再提早截斷",
+                "en": "Flexible Context Compaction Budgets Prevent Early Truncation of Long Prompts and Summaries"
+              },
+              "body": {
+                "zh-TW": "當你進行長對話並觸發上下文壓縮（context compaction，對話過長時自動濃縮歷史以節省空間的機制）時，重要指令與背景任務不再被草率截斷。以往在壓縮對話時，每條提問都會被套用固定的長度上限，即使後續問答只有短短幾句，開頭落落長的初始提示詞（prompt）也會被硬生生切成一小段。現在預算改由所有擷取的提問共同彈性分攤，完整保留長指令的細節。同時，摘要與截斷預算也改以模型完整的上下文視窗（context window，模型一次能讀取的最大容量）作為計算基準，而非原本較窄的壓縮觸發門檻，避免濃縮後的摘要與背景任務清單過早被切掉。⟦這好比整理長篇會議發言記錄時，秘書將手冊的可用頁數彈性調配給各個段落，只要後續發言簡短，開場致詞就能完整謄錄，附錄的待辦清單也不會被提早切掉。⟧",
+                "en": "When engaging in long conversations that trigger context compaction, important instructions and background tasks are no longer prematurely cut short. Previously, a fixed length slice was applied to every captured prompt during compaction, truncating long initial instructions even if subsequent turns were brief. The user-request budget is now shared flexibly across all captured prompts, preserving the full details of long instructions. At the same time, summary and truncation budgets are now sized against the model's full context window rather than the narrower compaction trigger threshold, preventing compacted summaries and background-task lists from being truncated early. ⟦This is like a secretary compiling lengthy meeting minutes who flexibly allocates available page limits across sections, allowing a detailed opening speech to be recorded in full when follow-up remarks are short without cutting off the appendix's task list.⟧"
+              },
+              "original": "Improved context compaction to spread its user-request budget across all captured prompts, so a long initial instruction is no longer truncated to a small fixed slice when the other prompts in the conversation are short\nImproved context compaction to size summary and truncation budgets from the model's full context window instead of the compaction trigger threshold, so compacted summaries and background-task lists are no longer prematurely cut short"
             },
             {
-              "original": "Improved context compaction to size summary and truncation budgets from the model's full context window instead of the compaction trigger threshold, so compacted summaries and background-task lists are no longer prematurely cut short"
-            },
-            {
+              "title": {
+                "zh-TW": "自訂模型預設支援 PDF，並完整遵循各類多媒體旗標設定",
+                "en": "Custom Models Support PDFs by Default and Fully Honor Media Flags"
+              },
+              "body": {
+                "zh-TW": "如果你在 `settings.json` 中設定了自訂模型，過去傳送 PDF 或音訊附件、或是工具輸出音訊與文件時，會報出不支援媒體類型（unsupported mime type）的錯誤。現在自訂模型已修復這項問題，預設直接支援 PDF 格式，並且會嚴格遵循 `modelFeatures` 中的各項媒體旗標設定（包含 images、video、PDF 與 audio）。以前遇到自訂模型傳送 PDF 或音訊附件，或是工具輸出音訊與文件時，會報出錯誤而中斷，現在各類多媒體檔案都能依設定順暢傳遞給模型處理。",
+                "en": "If you configure custom models in `settings.json`, sending PDF or audio attachments or receiving audio and document outputs from tools previously caused `unsupported mime type` errors. Custom models now fix this issue by accepting PDFs by default and strictly honoring all media flags in `modelFeatures` (including images, video, PDF, and audio). Previously, sending PDF or audio attachments or handling tool media outputs on custom models would fail with errors, but now all types of media files pass smoothly to models according to their settings."
+              },
               "original": "Fixed PDF and audio tool outputs and attachments failing with `unsupported mime type` errors on custom models configured in `settings.json`; custom models now accept PDFs by default and honor the `modelFeatures` media flags for images, video, PDF, and audio"
             },
             {
+              "title": {
+                "zh-TW": "終端機編輯器呼叫修復，按 Ctrl+G 啟動 Vim 不再卡死",
+                "en": "Terminal Editor Invocation Fixed: Launching Vim via Ctrl+G No Longer Hangs"
+              },
+              "body": {
+                "zh-TW": "習慣在終端機內撰寫長篇提示詞時，按下 `Ctrl+G` 能呼叫全螢幕外部編輯器（如 `vim`）來編輯內容。以前按下快捷鍵後，編輯器會因為無法正確對接終端機輸出而卡死，並跳出警告訊息表示輸出並非指向終端機。現在外部編輯器已經改在真實的終端機標準輸出（stdout）環境下運作。以前你可能被迫中斷工作階段並重開終端機，現在隨時按下 `Ctrl+G` 都能順暢開啟編輯器撰寫提示詞，存檔退出後立即返回對話。",
+                "en": "When drafting long prompts in the terminal, pressing `Ctrl+G` opens a full-screen external editor (such as `vim`) to edit your input. Previously, pressing this shortcut caused the editor to hang with a warning that output was not to a terminal because it failed to attach properly. External editors now run against a real terminal stdout environment. Whereas you were previously forced to abort the session and restart your terminal, pressing `Ctrl+G` now reliably launches the editor to compose prompts and returns to the conversation immediately upon saving and exiting."
+              },
               "original": "Fixed pressing `Ctrl+G` to edit the prompt in a full-screen terminal editor such as `vim` hanging with `Vim: Warning: Output is not to a terminal`; external editors now run against a real terminal stdout"
             },
             {
+              "title": {
+                "zh-TW": "語音聽寫加入防逾時保護，超長錄音自動在三分半完成轉錄",
+                "en": "Voice Dictation Adds Timeout Protection: Long Recordings Auto-Finalize at 3.5 Minutes"
+              },
+              "body": {
+                "zh-TW": "當你透過語音輸入講述落落長的任務需求時，聽寫內容不再因為超時而被整段抹除。過去語音聽寫工作階段（session，錄音並即時轉成文字的執行過程）若超過 4 分鐘，會因為觸發時限錯誤而直接失敗，導致好不容易講完的草稿全數遺失。現在錄音會在 3 分 30 秒自動停止並完成最終轉錄。以前你講得太忘我可能會痛失所有語音輸入內容，現在會在時限前自動收尾，確保每句講述都穩穩轉成文字送出。",
+                "en": "When speaking extensive task requirements via voice input, your dictation is no longer wiped out due to timeouts. Previously, voice dictation sessions exceeding 4 minutes failed with a deadline error, losing the entire drafted transcription. Recordings now automatically stop and finalize at 3 minutes 30 seconds. Instead of losing lengthy spoken input if you talk too long, the system wraps up before the limit, ensuring your spoken words are reliably converted into text."
+              },
               "original": "Fixed voice dictation sessions longer than 4 minutes failing with a deadline error and erasing the drafted transcription; recordings now automatically stop and finalize at 3 minutes 30 seconds"
             },
             {
+              "title": {
+                "zh-TW": "一般帳號啟動橫幅精簡，不再誤顯示 Google Cloud 專案代碼",
+                "en": "Startup Banner Streamlined for Consumer Accounts: Google Cloud Project ID Removed"
+              },
+              "body": {
+                "zh-TW": "開啟命令列工具時，一般個人帳號的使用者將看到更乾淨的歡迎畫面。先前使用非企業的個人帳號登入時，終端機頂部的啟動橫幅會誤顯示 Google Cloud 專案代碼（Project ID）。現在這個顯示問題已經修好，一般消費者登入時不再出現該欄位。以前登入個人帳號時容易看到與自己無關的雲端專案字樣，現在橫幅畫面更加清爽乾淨。",
+                "en": "When launching the command-line tool, consumer account users will see a cleaner welcome screen. Previously, signing in with a non-enterprise personal account mistakenly displayed a Google Cloud Project ID in the startup banner at the top of the terminal. This display issue has now been resolved, and the field no longer appears for consumer sign-ins. Rather than seeing irrelevant cloud project details when logging in with a personal account, the startup banner remains clean and concise."
+              },
               "original": "Fixed the startup banner displaying a Google Cloud Project ID for consumer (non-enterprise) sign-ins"
             },
             {
-              "original": "Fixed a stack-overflow crash when loading or compacting conversations containing background-task, subagent-management, messaging, or scheduling steps"
+              "title": {
+                "zh-TW": "對話載入不因進階步驟當機，分岔對話資料不再衝突互撞",
+                "en": "Conversation Loading No Longer Crashes on Advanced Steps; Forked Data Collisions Fixed"
+              },
+              "body": {
+                "zh-TW": "在處理具備多代理或非同步任務的複雜對話時，記錄載入與對話分岔運作更加穩固。過去當對話中包含背景任務、子代理管理、訊息傳遞或排程步驟時，重新載入或壓縮對話容易觸發堆疊溢位（stack-overflow，記憶體堆疊空間耗盡）而導致程式當機，這項問題已經徹底修好。另外，先前將對話分岔（fork，從既有對話的某個時間點複製出一條新分支）時，新對話會誤繼承分岔點之後的舊步驟輸出資料，進而與分岔後產生的新步驟發生衝突。現在分岔記錄已確實截斷並乾淨隔離。⟦這好比整理複雜的活動企劃案，翻閱包含跨組交辦與排程備忘的厚重紀錄時不會讓活頁夾散架，而從中途某個階段另存新企劃時，也不會誤把原案後續的舊進度抄進來與新進度打架。⟧",
+                "en": "When handling complex conversations with multi-agent or asynchronous tasks, session loading and conversation branching operate much more reliably. Previously, reloading or compacting conversations containing background-task, subagent-management, messaging, or scheduling steps could trigger a stack-overflow crash, an issue that is now completely resolved. In addition, when forking a conversation, the new branch mistakenly inherited step output data from steps past the fork point, colliding with newly generated steps. Forked conversation history is now properly truncated and cleanly isolated. ⟦This is like managing a complex event plan: flipping through thick binders with cross-team delegations and schedules no longer breaks the binder, and saving a new project branch midway avoids copying over subsequent original milestones that clash with the new plan.⟧"
+              },
+              "original": "Fixed a stack-overflow crash when loading or compacting conversations containing background-task, subagent-management, messaging, or scheduling steps\nFixed forked conversations inheriting step output data from steps after the fork point, which could collide with new steps produced in the fork"
             },
             {
-              "original": "Fixed forked conversations inheriting step output data from steps after the fork point, which could collide with new steps produced in the fork"
-            },
-            {
-              "original": "Fixed a background poller and timer leaking for every conversation session, slowly accumulating memory over long-running sessions"
-            },
-            {
-              "original": "Fixed canceled conversation and workspace creation requests continuing to provision resources in the background; aborted requests now stop immediately"
-            },
-            {
-              "original": "Fixed quitting the CLI taking around 5 extra seconds before the process exited; shutdown now cancels open streaming connections immediately instead of waiting for a forced timeout"
+              "title": {
+                "zh-TW": "修復背景計時洩漏與無效佈署，命令列退出不再延遲等待",
+                "en": "Background Leak and Orphan Provisioning Fixed; CLI Exits Without Delay"
+              },
+              "body": {
+                "zh-TW": "長時間使用命令列工具與頻繁切換工作區時，背景程序資源釋放更加迅速俐落。先前每個對話工作階段（session）都會發生背景輪詢器與定時器洩漏的問題，在長時間執行下會逐漸累積佔用記憶體。現在已修復資源釋放機制。同時，如果使用者中途取消建立對話或工作區，過去背景仍會持續佈署資源，現在中止的請求會立即停止作業。此外，過去退出命令列工具時常需要額外等待約 5 秒行程才會結束，現在關閉時會立即中斷未結的串流連線，不再耗時等待強制逾時。⟦這如同大樓的智慧物業管理，一旦訪客退租或取消預約，後台便立即停止調度備料，離開大門時也能感應即過，不留任何持續耗能的閒置設備。⟧",
+                "en": "When using the command-line tool over extended periods or switching workspaces, background process resources are released much more cleanly. Previously, a background poller and timer leaked for every conversation session, gradually accumulating memory across long runs. The resource cleanup mechanism has now been corrected. Additionally, if a user canceled conversation or workspace creation, the background previously continued provisioning resources, whereas aborted requests now halt immediately. Furthermore, quitting the CLI previously required an extra wait of around 5 seconds before exiting, but shutdown now immediately cancels open streaming connections instead of waiting for a forced timeout. ⟦This is like smart building property management: once a tenant moves out or cancels a booking, background staging stops immediately, and exiting through the gate is instantaneous without leaving idle, power-draining equipment running.⟧"
+              },
+              "original": "Fixed a background poller and timer leaking for every conversation session, slowly accumulating memory over long-running sessions\nFixed canceled conversation and workspace creation requests continuing to provision resources in the background; aborted requests now stop immediately\nFixed quitting the CLI taking around 5 extra seconds before the process exited; shutdown now cancels open streaming connections immediately instead of waiting for a forced timeout"
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "1.2.7",
