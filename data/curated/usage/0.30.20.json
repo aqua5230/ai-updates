@@ -1,0 +1,61 @@
+{
+  "version": "0.30.20",
+  "period": "2026-09-23",
+  "items": [
+    {
+      "title": {
+        "zh-TW": "選單列記憶體減半且刷新變快，HTML 報表二次載入縮短至 0.1 秒",
+        "en": "Menu bar memory halved and refreshes faster, HTML report second load drops to 0.1 seconds"
+      },
+      "body": {
+        "zh-TW": "讓電腦整天掛著 usage 監控用量，現在吃掉的記憶體和 CPU 都少了很多。實測顯示選單列記憶體從 263 MB 降到約 130 MB，每次刷新從 1.2～1.65 秒 CPU 降至 0.16～0.47 秒。Grok 紀錄只在帶花費時才解 JSON（22,491 行裡只有 212 行），無變動時直接沿用。歷史快取（把查過的結果暫存起來直接用）略過來源檔已刪除的項目，並丟掉同一份 Claude 紀錄裡重複的行。這類重複行占快取項目的 57%；另外讓重複模型、專案與工作階段字串共用一份，並只重寫變動分片。今日與昨日合計改用本地日界線比較，升級後首次開啟會重讀紀錄重建快取。產生 HTML 報表時快取上限由 512 提高至 4096，第二次載入從 5.0 秒降至 0.1 秒。⟦會計師整理年度發票時，先把重複的抬頭合用同一個印章，沒變動的帳冊不再整本重抄，結算速度省下一大半時間。⟧",
+        "en": "Leaving usage running all day to monitor consumption now takes far less memory and CPU. Benchmarks show menu bar memory dropped from 263 MB to about 130 MB, and each refresh dropped from 1.2–1.65 seconds of CPU to 0.16–0.47 seconds. Grok logs decode JSON only when carrying costs (212 of 22,491 lines), and are reused directly when unchanged. The history cache drops lines repeated within one Claude log (57% of cached entries), skips entries whose source file was deleted, shares a single copy of repeated model, project, and session strings, and only rewrites changed shards. Today's and yesterday's totals now compare against local day boundaries, and the first launch after upgrading re-reads logs to rebuild the cache. When generating HTML reports, the cache cap was raised from 512 to 4096, cutting the second load from 5.0 seconds to 0.1 seconds. ⟦An accountant organizing annual invoices reuses one stamp for duplicate headers and avoids recopying unchanged ledgers, cutting settlement time by more than half.⟧"
+      },
+      "original": "**The menu bar app uses about half the memory and far less CPU per refresh.** Measured on one machine with 1.6 GB of Claude logs and 596 MB of Codex logs: the memory footprint went from 263 MB to about 130 MB, and each refresh from 1.2–1.65 s of CPU to 0.16–0.47 s. Grok's `updates.jsonl` lines are JSON-decoded only when they carry `costUsdTicks` (212 of 22,491 lines), and the whole Grok result is reused while none of its files change. The history cache drops lines repeated within one Claude log (57% of cached entries), shares repeated model, project and session strings, and skips entries whose source file was deleted; only the cache shards that changed are rewritten. Today's and yesterday's totals compare against local day boundaries instead of converting every entry's time zone, and the source scan groups paths by their parts. The first launch after upgrading re-reads the Claude logs once to rebuild the cache.\n**Generating the HTML report again no longer re-reads every log.** The report's parsers capped their file cache at 512, below a real install's file count, so a sequential scan evicted every file; the cap is now 4096, as in the menu bar's loader. A second load went from 5.0 s to 0.1 s."
+    },
+    {
+      "title": {
+        "zh-TW": "重新開啟 App 不再少算 Claude 花費，快取寫入計價回歸正確倍率",
+        "en": "Reopening app no longer undercounts Claude spending, cache write pricing returns to correct multiplier"
+      },
+      "body": {
+        "zh-TW": "重啟電腦或重新打開 usage 後，你看到的 Claude 花費不會再少算。以前程式將資料寫入硬碟快取（把查過的結果暫存起來直接用）時，漏掉了「1 小時快取寫入」的筆數。這導致 App 重開後，這批寫入被誤當成費率較低的 5 分鐘快取計價（以輸入價格的 1.25 倍而非正確的 2 倍計算），算出來的花費因而偏低。用 `usage doctor` 跟 Claude Code 自己算的花費對帳，差距從 12% 降到 2%。Claude 的快取結構已升級，現有快取會以正確的倍率重新計算。⟦就像飯店櫃台的電腦重開機後，以前會把住一晚的客人誤登成鐘點休息，帳因此少算一截；現在重開機也會照原本登記的方案收費。⟧",
+        "en": "After restarting your computer or reopening usage, the Claude spending you see is no longer undercounted. Previously, when writing data to disk cache, the program dropped the count of \"1-hour cache writes\". This caused the app, upon reopening, to mistakenly price these writes at the lower 5-minute cache rate (calculated at 1.25× the input price instead of the correct 2×), resulting in undercounted spending. Reconciling with `usage doctor` against Claude Code's own cost figures, the gap went from 12% to 2%. The Claude cache structure was upgraded, so existing caches recalculate with the correct multiplier. ⟦It is like a hotel front-desk system that, after a reboot, used to log overnight guests as short hourly stays and undercharge them; now it keeps charging the plan each guest actually booked.⟧"
+      },
+      "original": "**Claude spending is no longer undercounted after the app restarts.** The on-disk cache dropped the count of 1-hour cache writes, so after a restart they were priced as 5-minute writes (1.25× input instead of 2×). `usage doctor`'s reconciliation against Claude Code's own cost went from 12% apart to 2%. The Claude cache schema was bumped, so existing caches rebuild with the right figures."
+    },
+    {
+      "title": {
+        "zh-TW": "解除安裝完整還原原本的狀態列，開關切換不再覆寫原始備份",
+        "en": "Uninstalling fully restores the original status line, toggle switch no longer overwrites original backup"
+      },
+      "body": {
+        "zh-TW": "你在安裝 usage 之前自己設定的狀態列，現在不會再被弄丟。以前在設定中關閉再開啟狀態列，程式會把當前的狀態列暫存在專門保存安裝前備份的欄位 `previousStatusLine`，導致原本的舊設定被蓋掉，日後解除安裝時找不到最初的設定值。現在開關改用獨立欄位儲存，即使在狀態列關閉的狀態下解除安裝，也能順利找回原本的設定。執行 `usage unsetup` 解除安裝時，除了還原 Claude Code、Codex 與 Grok 之外，現在也會一併還原 Antigravity 的狀態列，不再將其遺留在 usage 的腳本捷徑上。⟦租車出遊換上自己的導航架，還車拆下時車行依舊把原廠螢幕接回，不會因為中途切換過模式就弄丟原本的配備。⟧",
+        "en": "The status line you set up before installing usage is no longer lost. Previously, toggling the status line off and on in settings caused the program to park the active status line under `previousStatusLine`, a field reserved for the pre-installation backup, which overwrote the original configuration and left uninstallation with nothing to restore. Toggling now stores state in an independent field, successfully restoring your original settings even if you uninstall while the status line is turned off. When running `usage unsetup` to uninstall, in addition to restoring Claude Code, Codex, and Grok, it now also restores Antigravity's status line instead of leaving it pointing at usage's script shortcut. ⟦Picture installing your own navigation mount in a rental car; when returning the car and taking it down, the agency still hooks the factory screen back up without losing the original gear just because you switched modes during the trip.⟧"
+      },
+      "original": "**Turning the status line off and on no longer loses the status line you had before installing usage.** The switch parked the live status line under `previousStatusLine`, the key that holds the pre-install backup, so a later uninstall had nothing to restore. It now uses its own key, and uninstalling while the switch is off restores the original too.\n**Uninstalling restores the Antigravity status line.** `usage unsetup` restored Claude Code, Codex and Grok but left Antigravity pointing at usage's script."
+    },
+    {
+      "title": {
+        "zh-TW": "支援多個 Claude 目錄掃描，修復背景更新覆寫設定與 Hook 備援文字",
+        "en": "Scanning multiple Claude directories supported, background update overwriting settings and hook fallback text fixed"
+      },
+      "body": {
+        "zh-TW": "如果你平時會在多個環境目錄切換，或習慣一邊檢查軟體更新一邊調整偏好，日常操作現在更加穩定順手。當你在環境變數 `CLAUDE_CONFIG_DIR` 中用逗號指定多個資料夾時，歷史紀錄掃描不再因預設單一路徑而當掉，選單列能持續正常刷新。背景檢查更新時，程式在連網結束後會先重新讀取最新的設定檔，解決 macOS 與 Windows 上剛改好的設定會被連網前的舊資料覆蓋回去的問題。精簡模式與接續工作階段的 hook（特定事件發生時被觸發的小程式）在遺失翻譯檔時顯示的內建備援文字，已同步至最新 `i18n.json` 內容。英文精簡提醒也補回「Drop filler … and pleasantries」的動詞。兩支 hook 均已升級版本並會自動重寫本機副本。多專案切換與自訂偏好設定的使用者，從此不必再擔心設定被莫名還原或畫面停止更新。",
+        "en": "If you frequently switch between multiple environment directories or adjust preferences while checking for software updates, daily workflows are now smoother and more reliable. When you specify multiple folders separated by commas in the `CLAUDE_CONFIG_DIR` environment variable, history scans no longer crash by assuming a single path, allowing the menu bar to refresh normally. During background update checks, the program now re-reads the latest preferences after the network request finishes, fixing an issue on macOS and Windows where freshly updated settings were overwritten by stale pre-network data. The built-in fallback text shown by terse-mode and session-resume hooks (small programs triggered when specific events occur) when translation files are missing has been synchronized with the latest `i18n.json`. The English terse reminder also restores the verb in \"Drop filler … and pleasantries\". Both hook versions were bumped and will automatically rewrite local copies. Users switching across projects and customizing preferences no longer need to worry about settings unexpectedly reverting or displays freezing."
+      },
+      "original": "**Several directories in `CLAUDE_CONFIG_DIR` no longer stop the menu bar from refreshing.** The history scan assumed exactly one Claude directory and crashed when a comma-separated list named more.\n**A setting changed during an update check is no longer reverted.** The background update check saved the preferences it had read before its network request, overwriting anything changed meanwhile; on macOS and Windows it now re-reads them first.\n**The terse-mode and session-resume hooks' built-in fallback text matches the translations.** The fallbacks, shown only when the translation sidecar is missing, had fallen behind `i18n.json`; the English terse reminder also gets back the verb in \"Drop filler … and pleasantries\". Both hook versions were bumped so installed copies are rewritten."
+    },
+    {
+      "title": {
+        "zh-TW": "官網手機版排版優化，CI 導入 Ruff 檢查並修復 Windows 測試",
+        "en": "Official website mobile layout polished, CI adopts Ruff formatting check and Windows tests fixed"
+      },
+      "body": {
+        "zh-TW": "用手機瀏覽 usage 官方網站，或是在不同作業系統參與專案開發時，閱讀與測試體驗都更為清爽。官網在 640px 以下的手機螢幕上，中日文段落取消了兩端對齊排版，讓窄螢幕閱讀更自然。安裝卡片內的 Homebrew 安裝指令現在能完整在一行內放下，而 Windows 訪客打開首頁時也會優先看到專屬的下載按鈕。在內部維護方面，持續整合（CI，自動驗證程式碼的機制）導入了 `ruff format --check` 檢查程式碼排版，全專案重排的紀錄也已收錄在 `.git-blame-ignore-revs` 中，讓 `git blame` 不會把每一行都算到這次重排頭上。夏令時間標題測試改用 `getattr` 呼叫 `time.tzset`，順利解決 Windows 系統因缺乏該函式而無法通過型別檢查的困擾。",
+        "en": "Whether browsing the official usage website on mobile or contributing across different operating systems, reading and testing experiences are now much cleaner. On mobile screens at 640px and below, the website removes justified text alignment for Chinese and Japanese paragraphs, making narrow-screen reading more natural. The Homebrew install command inside the install card now fits cleanly on a single line, and Windows visitors opening the homepage see the dedicated Windows download button first. For internal maintenance, continuous integration (CI, an automated mechanism for verifying code) introduced `ruff format --check` to verify code formatting, and the commit for reformatting the entire project is recorded in `.git-blame-ignore-revs` so `git blame` does not attribute every line to that reformat. The daylight-saving title test now calls `time.tzset` via `getattr`, resolving type-checking failures on Windows due to the missing function."
+      },
+      "original": "**CI checks formatting with `ruff format --check`.** The whole project was reformatted once, and that commit is listed in `.git-blame-ignore-revs`.\n**The daylight-saving title test passes Windows' type check.** It calls `time.tzset` through `getattr`, since Windows has no `tzset`.\n**Website on phones.** Chinese and Japanese paragraphs are no longer justified at 640px and below, the Homebrew command fits on one line in the install card, and Windows visitors see the Windows download button first."
+    }
+  ]
+}
