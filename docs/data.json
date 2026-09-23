@@ -922,106 +922,110 @@
       "id": "agy",
       "name": "Antigravity",
       "latest": {
-        "version": "1.2.8",
+        "version": "1.2.9",
         "raw": {
-          "version": "1.2.8",
-          "period": "2026-09-22",
+          "version": "1.2.9",
+          "period": "2026-09-23",
           "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-          "fetched_at": "2026-09-22",
+          "fetched_at": "2026-09-23",
           "entries": [
-            "Improved context compaction to spread its user-request budget across all captured prompts, so a long initial instruction is no longer truncated to a small fixed slice when the other prompts in the conversation are short",
-            "Improved context compaction to size summary and truncation budgets from the model's full context window instead of the compaction trigger threshold, so compacted summaries and background-task lists are no longer prematurely cut short",
-            "Fixed PDF and audio tool outputs and attachments failing with `unsupported mime type` errors on custom models configured in `settings.json`; custom models now accept PDFs by default and honor the `modelFeatures` media flags for images, video, PDF, and audio",
-            "Fixed pressing `Ctrl+G` to edit the prompt in a full-screen terminal editor such as `vim` hanging with `Vim: Warning: Output is not to a terminal`; external editors now run against a real terminal stdout",
-            "Fixed voice dictation sessions longer than 4 minutes failing with a deadline error and erasing the drafted transcription; recordings now automatically stop and finalize at 3 minutes 30 seconds",
-            "Fixed the startup banner displaying a Google Cloud Project ID for consumer (non-enterprise) sign-ins",
-            "Fixed a stack-overflow crash when loading or compacting conversations containing background-task, subagent-management, messaging, or scheduling steps",
-            "Fixed forked conversations inheriting step output data from steps after the fork point, which could collide with new steps produced in the fork",
-            "Fixed a background poller and timer leaking for every conversation session, slowly accumulating memory over long-running sessions",
-            "Fixed canceled conversation and workspace creation requests continuing to provision resources in the background; aborted requests now stop immediately",
-            "Fixed quitting the CLI taking around 5 extra seconds before the process exited; shutdown now cancels open streaming connections immediately instead of waiting for a forced timeout"
+            "Added `@<subagent> <message>` prompt syntax to send a message directly to a subagent conversation, with autocomplete listing running and completed subagents",
+            "Added Vim numeric count multipliers so counts apply to operators, motions, and actions in Normal and Visual modes, including `3dw`, `2d3w`, `3dd`, `3x`, `3rX`, `3p`, `3u`, `[count]G`/`gg`/`$`, and counted text objects such as `2di(`",
+            "Improved `GEMINI_API_KEY` sessions to reduce behavior discrepancies with the non-API-key sign-in path",
+            "Improved the artifact viewer to show a Left/Right pan hint in the footer when a wide diagram overflows the window",
+            "Improved `/rewind` to show a relative timestamp for each step and to focus the most recent step when the panel opens",
+            "Improved command allow-listing suggestions to recognize `jj config` and `jj op` subcommands when offering to always allow a command",
+            "Fixed headless (`-p` / `--prompt`) runs leaving daemon background processes running after exit, which could hang scripts reading the CLI's output until end-of-file; daemon processes now terminate when the run ends",
+            "Fixed headless (`-p` / `--prompt`) runs cancelling still-running background tasks about 5 seconds after the agent went idle; runs now wait for background tasks until the `--print-timeout` deadline, up to a 30-minute cap",
+            "Fixed a conversation-history database corruption risk where checking the database file for write access could silently drop file locks held by concurrent CLI processes on the same file",
+            "Fixed context compaction failing when the tool configuration used for compaction checkpoints was rejected in certain scenarios",
+            "Fixed a backend crash when a streamed model response chunk arrived without its response envelope, which terminated the session with connection errors",
+            "Fixed markdown table column alignment when a table cell contains file links that wrap across lines",
+            "Fixed markdown file links to code symbols dropping their display text and rendering the raw path instead",
+            "Fixed incomplete enterprise sign-ins (for example closing the browser window before finishing license or project selection) leaving behind a stuck partial credential; such credentials are now cleared automatically so sign-in can be retried cleanly",
+            "Fixed the browser companion page title to read `Antigravity CLI` instead of `Antigravity Cli`"
           ]
         },
         "curated": {
-          "version": "1.2.8",
-          "period": "2026-09-22",
+          "version": "1.2.9",
+          "period": "2026-09-23",
           "items": [
             {
               "title": {
-                "zh-TW": "長指令不再被截斷，上下文壓縮依全篇對話分攤預算",
-                "en": "Long prompts stay intact as context compaction shares budgets across turns"
+                "zh-TW": "輸入提示詞可用 @ 指名子代理，自動補齊快速對話",
+                "en": "Mention Subagents with @ in Prompts for Fast Messaging with Autocomplete"
               },
               "body": {
-                "zh-TW": "和 AI 來回聊上幾十輪之後，你最開始交代的那一大段需求，它還記得住嗎？以前上下文壓縮（context compaction，對話太長時自動濃縮歷史以省空間的機制）時，每段提問都只能分到固定的字數上限。就算後面幾句問答都很簡短，開頭落落長的初始提示詞（prompt）也會被削成一小截。現在改由所有提問彈性分攤預算，只要後續問題短，開頭的指令細節就能完整留下來。摘要與截斷預算也改照模型完整的上下文視窗（context window，模型一次能讀取的最大容量）計算，不再依較窄的壓縮觸發門檻計算，濃縮後的重點與背景任務清單就不會被提早切掉。⟦就像會議紀錄員依照整場會議的長度來分配紙張，以前每位發言人只能分到半頁，現在後面的人講得短，開頭主席的重要報告就能整段謄錄，結尾的待辦清單也不會被裁掉。⟧",
-                "en": "After dozens of back-and-forth turns, does the AI still remember the long brief you started with? Previously, compaction enforced a rigid length cap on every captured user prompt, lopping off details from a long initial prompt even when all subsequent follow-up turns were brief. The user-request budget is now shared flexibly across all captured prompts, preserving the full context of long instructions whenever later prompts are short. Summary and truncation budgets are also now calculated from the model's full context window rather than the narrower compaction trigger threshold, ensuring compacted summaries and background-task lists are never cut short prematurely. ⟦Like a meeting secretary who allocates notebook space across the whole session: each speaker used to get a fixed half-page, but now brief follow-ups leave plenty of room to record the chair's opening remarks in full without trimming the closing task list.⟧"
+                "zh-TW": "當你同時開了好幾個背景工作幫手，想要單獨插話交辦新任務，現在只要在輸入框打個 @ 符號就能辦到。現在新增了 `@<subagent> <message>` 提示詞語法，能直接把訊息發給指定的子代理（subagent，在背景獨立處理特定任務的助理）。打字時只要輸入 @ 就會跳出自動補齊選單，清單會列出目前正在執行以及已經完成的子代理名稱。例如研究助理剛查完資料，你直接打 `@research 幫我整理成三點結論` 就能繼續追問，不必手動切換對話。⟦彷彿在專案群組裡打出標註符號，選單立刻列出在線與已完工的全部同事，點名就能直接交代待辦事項。⟧",
+                "en": "When running multiple background helpers and wanting to chime in with a new task, you can now do so simply by typing an @ symbol in the input box. The newly added `@<subagent> <message>` prompt syntax lets you send messages directly to a specific subagent (an assistant handling dedicated tasks in the background). Typing @ brings up an autocomplete menu listing the names of both running and completed subagents. For example, right after a research assistant finishes gathering info, you can type `@research summarize this into three key takeaways` to follow up without manually switching conversations. ⟦Think of tagging someone in a project group chat, where a popup menu lists all active and finished colleagues so you can assign action items right away.⟧"
               },
-              "original": "Improved context compaction to spread its user-request budget across all captured prompts, so a long initial instruction is no longer truncated to a small fixed slice when the other prompts in the conversation are short\nImproved context compaction to size summary and truncation budgets from the model's full context window instead of the compaction trigger threshold, so compacted summaries and background-task lists are no longer prematurely cut short"
+              "original": "Added `@<subagent> <message>` prompt syntax to send a message directly to a subagent conversation, with autocomplete listing running and completed subagents"
             },
             {
               "title": {
-                "zh-TW": "自訂模型支援 PDF，多媒體檔案不再報格式不支援",
-                "en": "Custom models support PDFs and stop throwing unsupported mime type errors"
+                "zh-TW": "Vim 模式支援數字倍數前綴，多行與區塊操作一氣呵成",
+                "en": "Vim Mode Adds Numeric Count Multipliers for Multi-Line and Block Operations in One Go"
               },
               "body": {
-                "zh-TW": "在 `settings.json` 裡掛了自訂模型，一傳 PDF 或音訊就跳 `unsupported mime type`？以前丟這類附件、或讓工具輸出音訊與文件，都會直接卡住。現在自訂模型預設直接支援 PDF，而且會確實讀取 `modelFeatures` 裡針對 images、video、PDF 與 audio 的媒體旗標，各類多媒體檔案都能依照設定正常送給模型處理。",
-                "en": "Added a custom model in `settings.json` and got `unsupported mime type` the moment you sent a PDF or audio? Previously, attaching these media files or having tools emit audio and document outputs would fail outright. Custom models now accept PDFs by default and strictly honor the `modelFeatures` media flags for images, video, PDF, and audio, allowing media files to pass to the model as configured."
+                "zh-TW": "習慣在終端機裡用 Vim 快速修整文字的讀者，現在不用再狂按同一組快捷鍵了。編輯器現在支援數字倍數乘數，在一般模式（Normal mode，游標移動與執行指令的狀態）以及選取模式中，你可以在動作、移動與運算子前面加上次數。常用的整行刪除、貼上、復原、游標跳轉到指定行或選取多層括號區塊，都能直接加倍執行：\n\n```\n3dw    # 刪除接下來的 3 個單字\n2d3w   # 執行 2 次刪除 3 個單字\n3dd    # 刪除 3 行\n3x     # 刪除 3 個字元\n3rX    # 將接下來 3 個字元替換為 X\n3p     # 連續貼上 3 次\n3u     # 連續復原 3 次動作\n5G     # 移動至第 5 行（支援 [count]G、gg 與 $）\n2di(   # 刪除外層第 2 層括號內的文字物件\n```\n\n⟦如同給常用指令蓋上倍數印章，以前得連按好幾次按鍵的操作，現在敲個數字加指令就能一口氣整批執行完畢。⟧",
+                "en": "If you are used to editing text quickly with Vim in the terminal, you no longer have to mash the same shortcuts repeatedly. The editor now supports numeric count multipliers. In Normal mode (the state for moving the cursor and running commands) and Visual mode, you can prefix actions, motions, and operators with a count. Common operations like deleting whole lines, pasting, undoing, jumping to a specific line, or selecting nested bracket blocks can now run in multiples:\n\n```\n3dw    # Delete the next 3 words\n2d3w   # Run delete 3 words 2 times\n3dd    # Delete 3 lines\n3x     # Delete 3 characters\n3rX    # Replace the next 3 characters with X\n3p     # Paste 3 times consecutively\n3u     # Undo 3 actions consecutively\n5G     # Jump to line 5 (supports [count]G, gg, and $)\n2di(   # Delete the inner text object inside the 2nd outer bracket level\n```\n\n⟦Picture stamping your frequent commands with a multiplier mark, turning repeated keystrokes into a single batch execution with just a number and a key.⟧"
               },
-              "original": "Fixed PDF and audio tool outputs and attachments failing with `unsupported mime type` errors on custom models configured in `settings.json`; custom models now accept PDFs by default and honor the `modelFeatures` media flags for images, video, PDF, and audio"
+              "original": "Added Vim numeric count multipliers so counts apply to operators, motions, and actions in Normal and Visual modes, including `3dw`, `2d3w`, `3dd`, `3x`, `3rX`, `3p`, `3u`, `[count]G`/`gg`/`$`, and counted text objects such as `2di(`"
             },
             {
               "title": {
-                "zh-TW": "按 Ctrl+G 開啟 Vim 不再卡死，編輯提示詞直連終端機",
-                "en": "Pressing Ctrl+G to open Vim no longer hangs when editing prompts"
+                "zh-TW": "無頭模式守護程序正常退場，背景耗時任務不再被提早中斷",
+                "en": "Headless Daemons Exit Cleanly and Long Background Tasks Run to Completion"
               },
               "body": {
-                "zh-TW": "想要在終端機裡好好寫提示詞，按下 `Ctrl+G` 就能跳進 `vim` 這類全螢幕編輯器慢慢改。以前按下快捷鍵時，編輯器常因為輸出沒接對終端機而卡死，畫面上還會跳出 `Vim: Warning: Output is not to a terminal` 警告，整個卡住不動。現在外部編輯器改在真實的終端機標準輸出（stdout）下執行，隨時按 `Ctrl+G` 都能直接打開編輯器，改完存檔離開就立刻回到對話。",
-                "en": "When you want to compose prompts comfortably in the terminal, pressing `Ctrl+G` jumps into a full-screen editor like `vim`. Previously, pressing this shortcut could freeze the editor with a `Vim: Warning: Output is not to a terminal` warning because its output was not connected to a real terminal. External editors now run against a real terminal stdout, so pressing `Ctrl+G` opens your editor immediately and returns you to the conversation as soon as you save and exit."
+                "zh-TW": "用腳本串接命令列工具來自動跑任務時，最怕背景工作沒跑完就被砍掉、或是執行結束後卡住不放。在以 -p 或 --prompt 執行的無頭模式（headless，沒有終端機畫面的自動執行模式）下，以前程式退出後常殘留背景守護程序。這會導致讀取輸出的外部腳本一直等不到結尾訊號而卡死，現在常駐程序會在執行結束時確實終止。另外，以前助理只要閒置約 5 秒，就會誤把還在跑的背景任務直接取消；現在會持續等待背景任務完成，最長可等到 --print-timeout 指定的期限，上限為 30 分鐘。⟦跟自動化產線收工一樣，系統會等手上最後一件耗時組裝確實完工才打卡，下班時也會把廠房電源全數關閉不留尾巴。⟧",
+                "en": "When scripting command-line tools to automate tasks, you never want background jobs killed prematurely or hanging indefinitely after execution finishes. In headless mode (an automated execution mode without a terminal UI) run with -p or --prompt, background daemon processes previously lingered after exit. This caused external scripts reading CLI output to hang while waiting for an EOF signal, but daemons now terminate cleanly when the run ends. Additionally, when the agent sat idle for about 5 seconds, it previously cancelled still-running background tasks by mistake. Runs now keep waiting for background tasks until the --print-timeout deadline, capped at 30 minutes. ⟦Just like wrapping up an automated assembly line, the system waits for the last time-consuming build to finish before clocking out, completely powering down the workshop without leaving anything behind.⟧"
               },
-              "original": "Fixed pressing `Ctrl+G` to edit the prompt in a full-screen terminal editor such as `vim` hanging with `Vim: Warning: Output is not to a terminal`; external editors now run against a real terminal stdout"
+              "original": "Fixed headless (`-p` / `--prompt`) runs leaving daemon background processes running after exit, which could hang scripts reading the CLI's output until end-of-file; daemon processes now terminate when the run ends\nFixed headless (`-p` / `--prompt`) runs cancelling still-running background tasks about 5 seconds after the agent went idle; runs now wait for background tasks until the `--print-timeout` deadline, up to a 30-minute cap"
             },
             {
               "title": {
-                "zh-TW": "語音聽寫超時草稿不再被清空，錄音滿三分半自動完成轉錄",
-                "en": "Voice dictation no longer erases drafts on timeout and auto-finalizes at 3.5 minutes"
+                "zh-TW": "修復對話歷史資料庫損毀風險，改善上下文壓縮與串流穩定度",
+                "en": "Fix History Database Corruption Risks, Context Compaction, and Streaming Stability"
               },
               "body": {
-                "zh-TW": "對著麥克風講了一大段需求，結果一個字都沒留下？以前錄音只要超過 4 分鐘，就會觸發時限錯誤直接宣告失敗，講了老半天的轉錄草稿也跟著全部消失。現在錄音只要滿 3 分 30 秒就會自動停止並完成轉錄，講完的內容會好好轉成文字，不再怕超時白講一場。",
-                "en": "Talked into the mic at length, only to end up with nothing? Previously, recordings exceeding 4 minutes triggered a deadline error and failed completely, discarding the entire drafted transcript. Recordings now automatically stop and finalize at 3 minutes 30 seconds, reliably converting your spoken words into text so you never lose your progress."
+                "zh-TW": "當你同時開啟多個終端機視窗、或是進行超長篇對話時，底層資料庫與連線都不再無預警出錯。以前多個處理程序同時存取同一個對話歷史資料庫時，檢查寫入權限的動作可能會悄悄丟失檔案鎖（file lock，防止多個程式同時寫入同一檔案的鎖定機制），造成資料庫損壞風險。當對話過長觸發上下文壓縮（context compaction，自動濃縮歷史以節省空間的機制）時，部分情境下用於建立檢查點的工具設定曾遭到拒絕而導致壓縮失敗。模型串流回傳資料時，要是封包缺少外層回應信封，先前會觸發後端當機並以連線錯誤終止工作階段。現在這些資料庫鎖定、壓縮檢查點與串流封包解析問題都已修復。",
+                "en": "When opening multiple terminal windows at once or having very long conversations, underlying databases and connections no longer fail unexpectedly. When multiple processes accessed the same conversation history database concurrently, checking write permissions previously risked silently dropping file locks (a locking mechanism preventing multiple programs from writing to the same file at once), creating a database corruption risk. When long chats triggered context compaction (a mechanism that summarizes history to save space), tool configurations used for compaction checkpoints were rejected in certain scenarios, causing compaction to fail. When the model streamed response chunks without an outer response envelope, it previously triggered a backend crash that terminated the session with connection errors. These database locking, compaction checkpoint, and stream packet parsing issues are now fixed."
               },
-              "original": "Fixed voice dictation sessions longer than 4 minutes failing with a deadline error and erasing the drafted transcription; recordings now automatically stop and finalize at 3 minutes 30 seconds"
+              "original": "Fixed a conversation-history database corruption risk where checking the database file for write access could silently drop file locks held by concurrent CLI processes on the same file\nFixed context compaction failing when the tool configuration used for compaction checkpoints was rejected in certain scenarios\nFixed a backend crash when a streamed model response chunk arrived without its response envelope, which terminated the session with connection errors"
             },
             {
               "title": {
-                "zh-TW": "非企業帳號登入時不再看到 Google Cloud 的 Project ID",
-                "en": "Personal sign-ins no longer see a Google Cloud Project ID"
+                "zh-TW": "Markdown 跨行檔案連結不再破版，符號連結正確顯示名稱",
+                "en": "Markdown Multi-Line File Links No Longer Break Alignment, Code Links Show Clean Text"
               },
               "body": {
-                "zh-TW": "只是用個人帳號登入，啟動畫面卻冒出一串看不懂的雲端專案代碼？以前非企業的個人帳號登入時，終端機頂端的啟動橫幅會誤印出 Google Cloud 專案代碼（Project ID）。現在修好了，個人帳號登入時不會再看到這串跟你無關的代碼。",
-                "en": "Signed in with a personal account and saw a cryptic cloud project ID on the startup screen? Previously, non-enterprise personal sign-ins mistakenly showed a Google Cloud Project ID in the startup banner at the top of the terminal. This is now fixed, so personal sign-ins no longer see an ID that has nothing to do with them."
+                "zh-TW": "在終端機裡查看模型產出的表格與程式碼清單時，畫面排版現在變得整齊乾淨。以前表格儲存格如果包含換行折疊的檔案連結，整張 Markdown 表格的欄位對齊就會歪掉破版；現在即使連結文字跨行折疊，欄位依然能維持精確對齊。另外，指向函式或類別等程式碼符號的檔案連結，過去常遺失自訂顯示文字，直接把長長一串原始檔案路徑印出來；現在修復後會正常顯示原本的描述文字。⟦就像排版整齊的型錄表格，即使品名附帶超連結且折成兩行，整欄格線依然筆直對齊，按鈕上也好好印著簡潔名稱而非冗長路徑。⟧",
+                "en": "When viewing model-generated tables and code listings in the terminal, the layout is now clean and tidy. Previously, if a table cell contained a file link that wrapped across lines, the column alignment of the entire Markdown table would break. Even when link text wraps across multiple lines, table columns now maintain precise alignment. Additionally, file links pointing to code symbols like functions or classes often dropped their custom display text, rendering a long raw file path instead. This is now fixed so the intended descriptive text displays properly. ⟦A neatly formatted catalog table keeps its grid lines perfectly straight even when product links wrap across two lines, showing clean labels on buttons instead of raw file paths.⟧"
               },
-              "original": "Fixed the startup banner displaying a Google Cloud Project ID for consumer (non-enterprise) sign-ins"
+              "original": "Fixed markdown table column alignment when a table cell contains file links that wrap across lines\nFixed markdown file links to code symbols dropping their display text and rendering the raw path instead"
             },
             {
               "title": {
-                "zh-TW": "複雜步驟對話載入不再當機，分岔對話徹底隔離舊資料",
-                "en": "Complex conversation steps load without crashes and forked histories stay cleanly isolated"
+                "zh-TW": "登入行為一致化，未完成的企業驗證憑證自動清除",
+                "en": "Consistent Sign-In Behavior and Automatic Cleanup for Incomplete Enterprise Credentials"
               },
               "body": {
-                "zh-TW": "對話裡有子代理、排程這類步驟，重新打開時整個程式崩潰？以前對話裡只要有背景任務、子代理管理、訊息傳遞或排程步驟，重新載入或壓縮對話時就容易觸發堆疊溢位（stack-overflow，記憶體堆疊空間耗盡導致當機）而整台程式崩潰。另外，把對話分岔（fork，從既有對話的某個時間點複製出新分支）時，新分支以前會誤把分岔點之後的舊步驟輸出抄進來，跟分岔後產生的新步驟打架。現在這兩處都已修好，載入不再崩潰，分岔後的資料也乾淨隔開。⟦翻開厚厚的工作企劃夾，重讀多組交辦與排程紀錄時不會讓活頁夾散掉，從中途另存一份新企劃時，也不會把原本後半段的舊進度混進新計畫裡。⟧",
-                "en": "Did reopening a conversation with subagent or scheduling steps crash the whole program? Previously, reloading or compacting conversations containing background-task, subagent-management, messaging, or scheduling steps could trigger a stack-overflow crash that halted the program. In addition, when forking a conversation, the new branch mistakenly inherited step output data from steps after the fork point, clashing with freshly generated steps. Both issues are now resolved: loading no longer crashes and forked histories stay cleanly separated. ⟦Picture a thick project binder: reviewing multi-team handoffs and schedules no longer bursts the binder rings, and branching a new draft midway stops old downstream milestones from cluttering the new plan.⟧"
+                "zh-TW": "在不同登入方式之間切換、或是驗證中途斷線時，帳號狀態處理現在更順手。使用 GEMINI_API_KEY 環境變數啟動的工作階段，過去與一般登入路徑存在些許行為差異，現在已修復並減少兩者的行為落差。另外在進行企業帳號登入時，若在挑選授權或專案之前就關閉瀏覽器視窗，以前會殘留卡住的局部憑證（credential，記錄登入身分的授權資料）而無法重試。現在會自動清除未完成的殘餘憑證，讓你直接乾淨重試登入。⟦恰似訪客在發卡機前登記，若手續辦到一半中途離開，機器會自動收回未完成的臨時卡，方便下一回重新乾淨取證。⟧",
+                "en": "Handling account states is now smoother when switching between sign-in methods or disconnecting mid-authentication. Sessions started with the GEMINI_API_KEY environment variable previously had slight behavior discrepancies compared to the standard sign-in path, which are now resolved. Furthermore, during enterprise account sign-ins, closing the browser window before selecting a license or project previously left behind stuck partial credentials (authorization data recording sign-in identity) that blocked retries. Incomplete leftover credentials are now cleared automatically so you can retry sign-in cleanly. ⟦When a visitor registers at a badge kiosk and walks away halfway through, the machine retrieves the unfinished temporary card so the next attempt can start fresh.⟧"
               },
-              "original": "Fixed a stack-overflow crash when loading or compacting conversations containing background-task, subagent-management, messaging, or scheduling steps\nFixed forked conversations inheriting step output data from steps after the fork point, which could collide with new steps produced in the fork"
+              "original": "Improved `GEMINI_API_KEY` sessions to reduce behavior discrepancies with the non-API-key sign-in path\nFixed incomplete enterprise sign-ins (for example closing the browser window before finishing license or project selection) leaving behind a stuck partial credential; such credentials are now cleared automatically so sign-in can be retried cleanly"
             },
             {
               "title": {
-                "zh-TW": "修復背景資源洩漏，中途取消與結束程式都不再拖泥帶水",
-                "en": "Background leaks fixed, canceled requests abort instantly, and CLI quits without delay"
+                "zh-TW": "成品檢視器顯示平移提示，回溯面板自動聚焦最新步驟",
+                "en": "Artifact Viewer Shows Pan Hints, Rewind Panel Auto-Focuses Latest Step"
               },
               "body": {
-                "zh-TW": "命令列工具開了一整天，或是中途取消建立工作區，背景都不會再偷偷累積記憶體或霸佔資源。以前每個對話工作階段（session）都會漏掉背景輪詢器與計時器，開越久記憶體吃越多。要是你中途取消建立對話或工作區，背景還會傻傻繼續調度資源，現在只要取消就會立刻中止作業。想關掉工具離開時，以前也得乾等 5 秒強制逾時才能結束，現在關閉時會直接中斷未結的串流連線，按退出就能秒關。以前開久了電腦變慢、取消還佔資源、退出又得乾等的麻煩，現在一次全清乾淨了。",
-                "en": "Running the CLI all day or canceling workspace creation will no longer leak memory or hold onto orphaned resources in the background. Previously, every conversation session leaked a background poller and timer, steadily accumulating memory over long sessions. If you canceled a conversation or workspace creation, the background continued provisioning resources; aborted requests now halt immediately. Quitting the CLI also used to force an extra 5-second wait for a timeout, but shutdown now severs open streaming connections immediately to exit on the spot. Sluggish memory bloat, stuck background provisioning, and slow exits are all resolved."
+                "zh-TW": "在終端機裡查看生成產物或回頭翻找對話歷程時，多處介面細節變得更順手。當大型圖表超出視窗寬度時，成品檢視器（artifact viewer，瀏覽產出圖表與文件的介面）會在底部顯示向左或向右平移的提示。開啟 /rewind 回溯面板時，各步驟會標上相對時間，並在面板打開時自動聚焦在最新步驟。在指令授權方面，白名單建議現在能精準辨識 jj config 與 jj op 子指令，方便你直接設定永久允許。瀏覽器隨行頁面的分頁標題也修正為大寫縮寫的 Antigravity CLI。這些介面與指令辨識的修整，讓日常瀏覽圖表與回溯操作更俐落。",
+                "en": "Several UI details are now smoother when reviewing generated artifacts or browsing past conversation history in the terminal. When a wide diagram overflows the window width, the artifact viewer (an interface for browsing generated diagrams and documents) shows a Left/Right pan hint in the footer. Opening the /rewind panel displays relative timestamps for each step and automatically focuses on the most recent step when the panel opens. For command authorization, allow-listing suggestions now accurately recognize jj config and jj op subcommands when offering to always allow a command. The browser companion page title has also been corrected to the capitalized acronym Antigravity CLI. These interface and command recognition refinements make viewing diagrams and rewinding history much crisper."
               },
-              "original": "Fixed a background poller and timer leaking for every conversation session, slowly accumulating memory over long-running sessions\nFixed canceled conversation and workspace creation requests continuing to provision resources in the background; aborted requests now stop immediately\nFixed quitting the CLI taking around 5 extra seconds before the process exited; shutdown now cancels open streaming connections immediately instead of waiting for a forced timeout"
+              "original": "Improved the artifact viewer to show a Left/Right pan hint in the footer when a wide diagram overflows the window\nImproved `/rewind` to show a relative timestamp for each step and to focus the most recent step when the panel opens\nImproved command allow-listing suggestions to recognize `jj config` and `jj op` subcommands when offering to always allow a command\nFixed the browser companion page title to read `Antigravity CLI` instead of `Antigravity Cli`"
             }
           ]
         }
