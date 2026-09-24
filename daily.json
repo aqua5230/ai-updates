@@ -1039,6 +1039,46 @@
       "name": "Antigravity",
       "versions": [
         {
+          "version": "1.2.10",
+          "period": "2026-09-24",
+          "items": [
+            {
+              "original": "Added `medium` verbosity mode to `/config`, between `high` and `low`, which groups related tool calls and thoughts into concise summaries (such as `Explored N files`) while keeping commands and responses visible; the Verbosity setting and each option now describe what they show"
+            },
+            {
+              "original": "Improved Mermaid diagram and LaTeX rendering in the artifact viewer on Kitty-compatible terminals: artifacts are pre-rendered in the background so diagrams appear as soon as the viewer opens, images are uploaded once at a smaller size, and zooming with `Ctrl+=` / `Ctrl+-` no longer flickers between the old and new sizes"
+            },
+            {
+              "original": "Improved the artifact viewer footer by combining the separate top and bottom hints into one `g/G top/bottom` entry, labeling `m` with the view it switches to (diagram, LaTeX, ASCII, or raw), and fixing hints that contain arrow symbols wrapping onto a new line too early"
+            },
+            {
+              "original": "Improved terminal sandbox behavior so the agent asks to bypass the sandbox less often: it now knows sandboxed commands can read and write its own artifact and scratch directories, and it tries the sandbox first even after an earlier command needed a bypass"
+            },
+            {
+              "original": "Changed the step title of commands that exit with a non-zero code from `Errored` to `Failed`"
+            },
+            {
+              "original": "Changed how directory entries in `skills.json`, `rules.json`, `agents.json`, and `plugins.json` are scanned: an entry now loads only the items directly inside the directory, the same as a `.agents/skills/` folder, instead of recursively loading everything beneath it; to load a nested item, name it in `include_only`, for example `{\"path\": \"shared_skills\", \"include_only\": [\"category/my-skill\"]}`"
+            },
+            {
+              "original": "Fixed pressing `Esc` while the suggestions dropdown is open interrupting the agent's turn; it now closes the dropdown, and a second `Esc` interrupts"
+            },
+            {
+              "original": "Fixed Mermaid diagrams and LaTeX leaving a blank gap inside `tmux` or GNU `screen` when the outer terminal supports Kitty graphics; the CLI now falls back to ASCII diagrams unless images actually reach the terminal, and `CLI_GRAPHICS=kitty` still forces image mode for setups with image passthrough configured"
+            },
+            {
+              "original": "Fixed headless (`-p` / `--prompt`) runs that streamed part of a response and then ended on a model or agent error exiting with code 0; they now exit with code `3` and print the `AGY_ERROR` line, and JSON error output includes the partial response, while multi-turn `stream-json` sessions still warn and continue"
+            },
+            {
+              "original": "Fixed machines set up with the old Remote Control installer script crash-looping after an upgrade; when the CLI is launched by that deprecated background service it now unregisters the service and points to `remote-control start` instead of restarting repeatedly"
+            },
+            {
+              "original": "Fixed files that subagents write inside their own Git worktree being treated as artifacts, which demanded artifact metadata and left `.metadata.json` files in the worktree; subagent worktrees now live under a `worktrees/` directory in the app data directory"
+            }
+          ],
+          "curated": false
+        },
+        {
           "version": "1.2.9",
           "period": "2026-09-23",
           "items": [
@@ -1202,112 +1242,6 @@
                 "en": "Running the CLI all day or canceling workspace creation will no longer leak memory or hold onto orphaned resources in the background. Previously, every conversation session leaked a background poller and timer, steadily accumulating memory over long sessions. If you canceled a conversation or workspace creation, the background continued provisioning resources; aborted requests now halt immediately. Quitting the CLI also used to force an extra 5-second wait for a timeout, but shutdown now severs open streaming connections immediately to exit on the spot. Sluggish memory bloat, stuck background provisioning, and slow exits are all resolved."
               },
               "original": "Fixed a background poller and timer leaking for every conversation session, slowly accumulating memory over long-running sessions\nFixed canceled conversation and workspace creation requests continuing to provision resources in the background; aborted requests now stop immediately\nFixed quitting the CLI taking around 5 extra seconds before the process exited; shutdown now cancels open streaming connections immediately instead of waiting for a forced timeout"
-            }
-          ],
-          "curated": true
-        },
-        {
-          "version": "1.2.7",
-          "period": "2026-09-19",
-          "items": [
-            {
-              "title": {
-                "zh-TW": "產出物檢視器支援圖形渲染，數學公式與流程圖直接預覽",
-                "en": "Artifact Viewer Supports Graphics Rendering with Direct Previews for Math Equations and Flowcharts"
-              },
-              "body": {
-                "zh-TW": "在終端機中開啟產出物詳細檢視器時，現在能直接看到圖形化數學公式與流程圖。⟦這好比在閱讀數位筆記時，原本只能看到由文字符號拼排的原始代碼，現在翻開內頁就像自動載入高畫質插圖，複雜的方程式與流程圖直接以視覺圖案精緻呈現。⟧新機制在支援 Kitty 協定的終端機中，能直接在檢視器畫面中渲染 LaTeX 數學公式（包括 `$$...$$` 與 `math`、`latex`、`tex` 程式碼區塊），以及 Mermaid 流程圖和循序圖。若終端機不支援該協定，畫面會自動切換為 Unicode ASCII 純文字作為備援。遇到較寬的圖表時，你可以使用左右方向鍵進行水平平移；隨時按下 `m` 鍵，還可在影像、ASCII 以及原始文字三種檢視模式之間循環切換。",
-                "en": "When opening the artifact detail viewer in the terminal, you can now directly view rendered graphical math equations and flowcharts. ⟦It is like reading digital notes where you previously only saw raw code cobbled together with text symbols, but now turning the page automatically loads high-resolution illustrations, presenting complex equations and flowcharts in refined visual diagrams.⟧ On terminals supporting the Kitty protocol, the new mechanism renders LaTeX math equations (including `$$...$$` and `math`, `latex`, and `tex` code blocks) alongside Mermaid flowcharts and sequence diagrams inline in the viewer. If a terminal does not support the protocol, the display automatically falls back to plain Unicode ASCII text. For wider diagrams, you can use the Left and Right arrow keys to pan horizontally. Pressing the `m` key cycles between Image, ASCII, and Raw text view modes at any time."
-              },
-              "original": "Added inline Kitty graphics rendering for LaTeX math equations (`$$...$$` and fenced `math`, `latex`, and `tex` blocks) and Mermaid flowcharts and sequence diagrams in the artifact detail viewer, with Unicode ASCII fallback, Left/Right arrow horizontal panning for wide diagrams, and `m` to cycle between Image, ASCII, and Raw views"
-            },
-            {
-              "title": {
-                "zh-TW": "提問互動提示操作升級，支援左右換題與自填預覽",
-                "en": "Interactive Question Prompt Upgraded with Left/Right Navigation and Write-In Previews"
-              },
-              "body": {
-                "zh-TW": "AI 一口氣丟來好幾個釐清問題時，填答畫面現在讓你前後翻題，也看得出哪幾題已經答過。⟦好比填寫多頁的紙本問卷，現在你可以隨時往前翻閱已作答的題目確認細節，手寫補充的欄位會整齊謄在預覽處，已選項目蓋有清楚的勾選標記，翻到最後一頁時按下確認就能一次繳回整份問卷。⟧提示介面現在支援使用左右方向鍵在多個問題之間自由切換與回顧。若選擇自行填寫答案，確認送出後的文字會直接在行內即時預覽；已經完成選取的選項旁會標註勾選符號，讓整體作答狀態一目了然。當你瀏覽到最後一個問題時，直接按下確認即可一步完成整份送出。",
-                "en": "When the AI asks several clarifying questions at once, the answer screen now lets you move back and forth between them and see which ones you have already answered. ⟦Much like filling out a multi-page paper survey where you can flip back to review answered questions, see handwritten supplementary notes neatly transcribed into a preview area, verify answered options stamped with clear check marks, and submit the entire questionnaire in one go upon confirming the final page.⟧ The prompt interface now supports using the Left and Right arrow keys to freely switch between and review questions. If you choose to write in an answer, confirmed text is previewed inline in real time. Answered options display check marks so your response status is clear at a glance. When you navigate to the final question, pressing confirm submits the entire set in a single step."
-              },
-              "original": "Improved the `ask_question` interactive prompt with Left/Right arrow navigation between questions, inline previews of confirmed write-in answers, check marks on answered options, and single-step submission on the final question"
-            },
-            {
-              "title": {
-                "zh-TW": "自訂規則享有專屬額度，不再擠壓技能與外部工具",
-                "en": "Custom Rules Receive Dedicated Token Budget Without Evicting Skills or External Tools"
-              },
-              "body": {
-                "zh-TW": "載入龐大的專案規範與自訂規則時，其他擴充功能不再因為空間不足而被無預警捨棄。⟦宛如整理隨身行李箱時規劃了專屬夾層，即使放入整疊筆記也只會佔用該夾層的專用容量，並在分頁處整齊切齊，絕不會把隨身工具包或精密儀器擠出行李箱外。⟧系統現在為使用者與工作區規則分配了專屬的 20,000 個 token（AI 處理文字的計量單位）預算配額。超出上限的規則會在換行邊界處自動截斷，並透過檔案路徑與描述清楚列出超額清單。這項獨立配額確保了龐大的規則清單不會再擠掉技能、工作流程、子代理或 MCP（讓 AI 連接外部工具的協定）等重要工具。",
-                "en": "When loading extensive project guidelines and custom rules, other extensions are no longer discarded without warning due to space constraints. ⟦Just like designing a dedicated compartment in a travel suitcase where a thick stack of notebooks only consumes that compartment's designated capacity and is trimmed neatly at page margins, preventing toolkits or precision instruments from being squeezed out.⟧ The system now allocates a dedicated 20,000-token budget for user and workspace rules. Oversized rules are automatically truncated at newline boundaries, with over-budget rules clearly listed by file path and description. This independent quota ensures that large rule sets no longer evict essential tools such as skills, workflows, subagents, or Model Context Protocol (MCP) integrations."
-              },
-              "original": "Improved customization token budgeting by giving user and workspace rules a dedicated 20,000-token budget (cutting oversized rules on newline boundaries and listing over-budget rules by path and description) so large rule sets no longer evict skills, workflows, subagents, or MCP tools"
-            },
-            {
-              "title": {
-                "zh-TW": "預設代理工具組去蕪存菁，舊版搜尋與目錄工具退役",
-                "en": "Default Agent Toolset Streamlined with Legacy Search and Directory Tools Retired"
-              },
-              "body": {
-                "zh-TW": "代理一啟動就帶在身上的工具箱，這版拿掉了三個舊的搜尋與列目錄工具。⟦好比隨身維修包將已經被新型工具涵蓋的舊式單一扳手與量尺移出基本標配，讓隨身工具袋保持俐落；但若是特殊任務的作業手冊明確指名，你依然能隨時將它們放回工具箱中。⟧系統改進了工具配置基準線，將舊版的 `find_by_name`、`grep_search` 以及 `list_dir` 工具從預設工具組中淘汰。這項調整能精簡代理預設攜帶的工具清單，避免多餘工具造成干擾。若你的自訂代理依然需要這些舊工具，只要在設定檔的 `tools` 清單中明確列出，依然可以照常呼叫與使用。",
-                "en": "The toolbox agents carry from the moment they start drops three legacy search and directory-listing tools in this release. ⟦Like a portable repair kit removing older single-purpose wrenches and rulers that are already superseded by modern tools, keeping the toolkit nimble while still allowing you to pack them back in whenever a specialized manual specifically demands them.⟧ The system refines the baseline tool configuration by retiring the legacy `find_by_name`, `grep_search`, and `list_dir` tools from the default toolset. This change streamlines the list of tools carried by agents by default, avoiding distractions caused by redundant tools. If your custom agents still require these legacy tools, you can continue calling and using them as usual by explicitly declaring them in the `tools` list of your configuration."
-              },
-              "original": "Improved the default agent and subagent toolset by retiring the legacy `find_by_name`, `grep_search`, and `list_dir` tools from the default baseline while keeping them available to custom agents that explicitly list them in `tools`"
-            },
-            {
-              "title": {
-                "zh-TW": "外掛程式指令前綴與背景程序修復，升級快取清理更乾淨",
-                "en": "Plugin Slash Command Prefix and Background Process Fixes with Cleaner Upgrade Cache Pruning"
-              },
-              "body": {
-                "zh-TW": "外掛裝多了以後，指令名稱互相打架、升級完舊程式還賴在背景，這幾個毛病這版都處理了。⟦彷彿模組化機房在更換新組件時，主控端會徹底關閉舊機台的殘留線路並清空廢棄零件存放區，控制面板也不會因為零件名稱重複而印錯開關代號，停用的模組依然能隨時在總清單中找回。⟧系統修復了外掛技能的斜線指令在設定名稱自帶前綴時會出現雙重前綴（如 `/<plugin>:<plugin>:<skill>`）的錯誤，並解決了多個外掛定義相同簡稱技能時指令遭到遮蔽的問題。外掛升級時，系統不再讓舊的 MCP（讓 AI 連接外部工具的協定）伺服器與 sidecar 行程在已刪除的安裝目錄中持續殘留運作。啟動時也會主動清理市集快取（把下載檔案暫存起來的空間）中已被取代的舊版外掛與暫存目錄。此外，已停用的外掛不會再因只查詢啟用項目的指令而自 `/plugin` 清單中消失，移除外掛時也強化了外掛識別碼的路徑驗證。",
-                "en": "With several plugins installed, command names could clash and old processes could linger after an upgrade; this release deals with both. ⟦Much like swapping components in a modular server room where the controller terminates lingering connections from decommissioned units, clears out obsolete spare parts storage, prevents duplicate part names from printing incorrect switch identifiers on the panel, and still lets you locate disabled modules in the master inventory.⟧ The system fixes an issue where plugin skill slash commands received double prefixes (such as `/<plugin>:<plugin>:<skill>`) when the frontmatter name already included the plugin prefix, and resolves command shadowing when multiple plugins define skills with the same short name. During plugin upgrades, legacy MCP servers and sidecar processes are no longer left running from deleted installation directories. Startup now actively prunes superseded plugin versions and staging directories from the marketplace cache. Additionally, disabled plugins no longer disappear from the `/plugin` list after enabled-only customization queries, and path validation for plugin IDs has been hardened during uninstallation."
-              },
-              "original": "Fixed plugin skill slash commands being double-prefixed (`/<plugin>:<plugin>:<skill>`) when a skill's frontmatter name already includes the plugin prefix, or being shadowed when multiple plugins define skills with the same short name\nFixed plugin upgrades leaving old MCP server and sidecar processes running from deleted install directories, and pruned superseded plugin versions and staging directories from the marketplace cache on startup\nFixed disabled plugins disappearing from the `/plugin` list after enabled-only customization queries, and hardened plugin ID path validation on uninstall"
-            },
-            {
-              "title": {
-                "zh-TW": "終端機橫幅顯示企業專案，用量面板去除重複配額文字",
-                "en": "Terminal Startup Banner Displays Enterprise Project and Usage Panel Removes Duplicate Quota Text"
-              },
-              "body": {
-                "zh-TW": "兩個常看的畫面這版變清楚了：啟動時的歡迎橫幅，和查額度的 `/usage` 面板。⟦恰似車輛儀表板在重新整合後，頂部狀態欄直接標記當前連接的行車系統專案代碼，底部的油量指示條也移除了重複堆疊的小字，讓關鍵資訊一目了然。⟧企業帳號在啟動命令列工具時，啟動橫幅現在會在登入帳號與方案層級下方，清楚標示當前作用中的 Google Cloud 專案識別碼（Project ID）。同時，`/usage` 用量查詢面板也移除了每個進度條下方重複顯示的剩餘配額百分比文字，讓整體畫面更為清爽緊湊。",
-                "en": "Two screens you look at often got clearer in this release: the startup banner and the `/usage` quota panel. ⟦Much like a redesigned vehicle dashboard that displays the active navigation system project code directly on the top status bar and eliminates redundant stacked fine print beneath the fuel gauge, making key information clear at a glance.⟧ When enterprise accounts launch the command-line tool, the startup banner now clearly displays the active Google Cloud Project ID beneath the signed-in account and plan tier. Meanwhile, the `/usage` panel removes the duplicate remaining-quota percentage text beneath each progress bar, resulting in a cleaner and more compact interface."
-              },
-              "original": "Improved the CLI startup banner for enterprise accounts to display the active Google Cloud Project ID beneath the signed-in account and plan tier\nImproved the `/usage` panel by removing the duplicate remaining-quota percentage line beneath each progress bar"
-            },
-            {
-              "title": {
-                "zh-TW": "模型重試等待上限縮減至 30 秒，連線異常恢復更迅速",
-                "en": "Model API Retry Backoff Capped at 30 Seconds for Faster Recovery from Connection Failures"
-              },
-              "body": {
-                "zh-TW": "模型 API 一時連不上時，你不必再盯著停住的終端機乾等好幾分鐘。以前在觸發重試機制時，每次重試之間的退避等待時間會逐步拉長，單次最長甚至需要等待多達 4 分鐘，導致終端機長時間停滯。⟦這就像撥打客服專線遇忙線時，自動重撥系統改為最多每隔半分鐘重新撥號一次，不再讓你對著話筒乾等數分鐘才重試。⟧現在系統將單次重試的退避等待時間上限嚴格限制在 30 秒，縮短連線遇阻時的等待空檔，讓對話能更快恢復順暢交流。",
-                "en": "When the model API briefly fails, you no longer have to stare at a stalled terminal for minutes. Previously, when triggering retries, the backoff delay between attempts grew progressively longer, taking up to 4 minutes for a single wait and leaving the terminal stalled for extended periods. ⟦This is like calling a busy customer service hotline where the automated redial system now tries again at most every half minute, instead of leaving you waiting on the line for minutes before redialing.⟧ The system now strictly caps the per-attempt retry backoff at 30 seconds, reducing idle waiting intervals during connectivity hiccups so conversations can resume smoothly much faster."
-              },
-              "original": "Improved model API retry responsiveness by capping per-attempt retry backoff at 30 seconds instead of waiting up to 4 minutes between attempts"
-            },
-            {
-              "title": {
-                "zh-TW": "終端機退出渲染與無頭模式修復，背景日誌與記憶體最佳化",
-                "en": "Terminal Exit Rendering and Headless Mode Fixes with Background Logging and Memory Optimizations"
-              },
-              "body": {
-                "zh-TW": "如果你常用 `-p` 讓它在背景自己跑，或習慣在終端機裡清畫面、退出，這幾項修正都跟你有關。⟦好比後台自動化工作站一邊運作，一邊將各個工具的進度即時抄錄進專屬日誌檔案，同時定期整理過長的文件摘要以節省桌面空間，在操作員關閉工作站時也能乾淨還原周邊設備的通訊狀態。⟧系統將 Bubble Tea 框架升級至 v2.0.9，修復了終端機畫面渲染問題，以及在離開工具或清除畫面時 Kitty 鍵盤通訊協定堆疊的處理異常。在無頭模式（headless，沒有終端機視覺介面的執行模式）使用 `-p` 或 `--prompt` 執行時，修復了偶爾漏掉背景任務等待通知的問題。背景 SDK 工具的執行進度現在會確實記錄至任務記錄檔中，並透過複製截斷的指令輸出預覽來降低記憶體用量。",
-                "en": "If you often run it headless with `-p`, or routinely clear the screen and exit in the terminal, these fixes apply to you. ⟦Like an automated back-office workstation that logs individual tool progress into dedicated log files in real time while periodically tidying up lengthy document previews to conserve desk space, and cleanly restores peripheral communication states when an operator shuts down the workstation.⟧ The system upgrades the Bubble Tea framework to v2.0.9, resolving terminal rendering issues and anomalies in Kitty keyboard protocol stack handling upon exiting the tool or clearing the screen. When running in headless mode using `-p` or `--prompt`, an issue where background-task waiting notices were occasionally skipped has been fixed. Execution progress for background SDK tools is now reliably recorded in task log files, and memory usage is reduced by cloning truncated command output previews."
-              },
-              "original": "Fixed terminal rendering and Kitty keyboard protocol stack handling on exit and screen clear by upgrading Bubble Tea to v2.0.9\nFixed headless (`-p` / `--prompt`) runs occasionally skipping the background-task waiting notice, logged background SDK tool progress to task log files, and reduced memory usage by cloning truncated command output previews"
-            },
-            {
-              "title": {
-                "zh-TW": "啟動命令列工具不再影響桌面版對話釘選與已讀狀態",
-                "en": "Starting CLI No Longer Alters Desktop App Conversation Pinning or Read States"
-              },
-              "body": {
-                "zh-TW": "以前在電腦上啟動命令列工具時，可能會意外干擾桌面應用程式（desktop app）的狀態，導致原本釘選的對話被取消釘選，或是已讀過的對話被重新標記為未讀。現在這個問題已經修好，啟動命令列工具不會再誤改桌面版應用程式中的對話標記與釘選狀態。",
-                "en": "Previously, launching the CLI on your computer could inadvertently interfere with desktop app state, causing pinned conversations to be unpinned or read conversations to be marked as unread. This issue has now been resolved, ensuring that starting the CLI will no longer unintentionally modify conversation read flags or pinned states in the desktop application."
-              },
-              "original": "Fixed starting the CLI unpinning conversations or marking them unread in the desktop app"
             }
           ],
           "curated": true
