@@ -179,10 +179,16 @@ CSS 裡的字級一律寫 `var(--fs-*)`，共七級：
 - **分享選單**：浮在按鈕下方，不推擠版面；超出視窗時改從左側對齊。
 - **版本頁麵包屑**：`AI_UPDATES.LOG / 工具名 / 版本號`，`--fs-xs` 等寬字；連結用 accent，目前頁與分隔線用 muted；連結高度至少 24px（axe `target-size`）。
 - **404 頁**：`docs/404.html` 由 `scripts/build.py` 用版本頁的同一份 `PAGE_CSS` 產生，不手寫。它會在任何路徑深度被服務，所以字體、圖示與連結都用絕對網址。
+- **404 錯誤資訊**：保留原有中英文說明、回首頁和訂閱 RSS；內容卡先顯示 `ERR 404  route not found` 與閃爍方塊游標，再列五個工具的首頁 hash 連結。游標約每秒閃爍一次。
+- **側欄設定按鈕**：主題與複製 RSS 按鈕用 16px 行內 SVG 加文字，水平間距 `.5rem`；主題依目前模式顯示太陽或月亮，RSS 固定顯示 RSS 圖示。hover 邊框用 `--accent-color`。
 - **篩選 chip 計數**：標籤後用等寬數字顯示目前版本的各類卡片數，切換工具或版本時同步更新，不另開會推擠內容的文字列。0 張卡的類型 chip 停用（muted 色），但已選中的仍可點掉。
 - **回到頂端按鈕**：捲過兩個螢幕高才以 fixed 顯示在右下角，44px 正方形、只放箭頭圖示（文字放 `aria-label` 與 `title`），圓角 6px，並避開 safe area。
 
 ## Do's and Don'ts
+
+- 跨頁導覽用 CSS `@view-transition{navigation:auto}` 淡入淡出；首頁內切換工具或版本不套轉場。
+- 首頁與版本頁的 `.log-item-card` 在支援 `animation-timeline:view()` 時，隨進入視窗由透明、下移 12px 漸至原位，範圍為 `entry 0% entry 35%`。只動畫 `opacity` 和獨立的 `translate`，不動 hover 使用的 `transform`；首屏卡片維持完整狀態，不支援的瀏覽器維持原狀。
+- `prefers-reduced-motion: reduce` 時，關閉跨頁轉場、卡片淡入及 404 游標閃爍，卡片保持完整顯示。
 
 - Do：新增文字用 `--fs-*`，新增按鈕用 `--control-*`。
 - Do：改 `docs/index.html` 的樣式時，同步改 `scripts/build.py` 的 `PAGE_CSS`（版本頁與 404 頁共用），再跑 `python3 scripts/build.py`。
