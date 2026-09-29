@@ -118,7 +118,7 @@
     .latest-indicator:lang(zh),.sidebar-generated:lang(zh){font-size:var(--fs-xs)}
     .timeline-container{position:relative;padding-left:0;border-left:0;margin-top:0}
     .timeline-version-block{position:relative;margin-bottom:2rem}
-    .timeline-serial{position:absolute;top:2.13rem;transform:none;left:1.75rem;width:1.5rem;color:var(--muted-color);font:500 var(--fs-2xs)/1.3 "Inter",sans-serif;font-variant-numeric:tabular-nums;text-align:left;pointer-events:none;z-index:1;display:block}
+    .timeline-serial{color:var(--muted-color);font:500 var(--fs-2xs)/1.5 "Inter",sans-serif;font-variant-numeric:tabular-nums;flex-shrink:0}
     .main-content{overflow-wrap:break-word;word-break:break-word}
     .log-item-card{background:var(--card-bg);border:0;border-radius:16px;padding:1.75rem;margin-bottom:0;transition:box-shadow .2s ease;box-shadow:0 1px 2px var(--shadow-ink-1),0 8px 24px var(--shadow-ink-2)}
     .log-item-card:hover{border-color:transparent;transform:none;box-shadow:0 2px 4px var(--shadow-ink-hover-1),0 12px 32px var(--shadow-ink-hover-2)}
@@ -126,7 +126,7 @@
     .tier-fix .log-item-title{font-size:var(--fs-md)}
     .tier-fix:hover{transform:none}
     .is-lead{position:relative}
-    .log-item-header{display:flex;align-items:baseline;gap:.45rem .75rem;margin-bottom:1rem;flex-wrap:wrap}.timeline-version-block .log-item-header>.log-badge:first-child{margin-left:2rem}
+    .log-item-header{display:flex;align-items:baseline;gap:.45rem .75rem;margin-bottom:1rem;flex-wrap:wrap}
     .log-badge{font:500 var(--fs-xs)/1.5 "Inter",sans-serif;padding:0;border-radius:0;margin-top:0;flex-shrink:0;border:0;background:transparent;color:var(--muted-color);gap:0}
     .badge-new{background:transparent;color:var(--muted-color);border:0}
     .badge-fix{background:transparent;color:var(--muted-color);border:0}
@@ -209,14 +209,14 @@
     .sidebar-action-button{text-align:center;min-height:var(--control-lg);background:var(--sidebar-bg);border-radius:8px;font:500 var(--fs-xs)/1.5 "Inter",sans-serif}
     .version-actions .markdown-copy-btn{min-height:var(--control-lg)}
     .timeline-container{padding-left:0;border-left:0;margin-top:0}
-    .timeline-serial{left:1.75rem;width:1.5rem;display:block;top:2.13rem;transform:none;font:500 var(--fs-2xs)/1.3 "Inter",sans-serif;text-align:left}
+    
     .logo-area{order:1;padding:1.5rem 1.5rem 0}
     .cta-card{order:5;margin-left:1.5rem;margin-right:1.5rem;background:var(--soft-surface);border-color:var(--border-color);border-radius:12px;padding:1.25rem;transition:border-color .2s ease}
     .sidebar-generated{order:6;margin:.75rem 1.5rem 0}
     }
     @media (max-width:600px){
     .timeline-container{border-left:0;padding-left:0;margin-top:0}
-    .timeline-serial{display:block}
+    
     .section-tabs{width:100%;margin-bottom:2rem;padding:0;gap:.25rem;margin:0 0 2rem;border:0;border-radius:0;background:transparent}
     .section-tab-slider{top:0;bottom:0;border-radius:999px}
     .section-tab-btn{flex:1;min-height:var(--control-lg);padding:.6rem .75rem;font-size:var(--fs-xs);border-radius:999px;font:500 var(--fs-xs)/1.5 "Inter",sans-serif;white-space:nowrap}
@@ -242,8 +242,8 @@
     .history-accordion-header{padding:.875rem;gap:.5rem;flex-wrap:wrap}
     .history-accordion-body{padding:.875rem;background:var(--card-bg);border-radius:0 0 16px 16px}
     .version-actions-small{padding:0 .875rem .875rem}
-    .timeline-serial{top:1.62rem;left:1.25rem}
-    .log-item-header{align-items:baseline;gap:.35rem .6rem;flex-direction:row}.timeline-version-block .log-item-header>.log-badge:first-child{margin-left:1.75rem}
+    
+    .log-item-header{align-items:baseline;gap:.35rem .6rem;flex-direction:row}
     .terminal-body{padding:.75rem;line-height:1.7}
     }
     @supports (animation-timeline:view()){
@@ -387,7 +387,7 @@
     function applyHash(scroll=false){const target=parseHash(),firstTool=data.tools[0];invalidHashNotice=false;if(target.invalid||target.invalidVersion){const tool=target.tool||firstTool;currentToolId=tool?.id||"";expanded=new Set();activeSection="latest";if(tool)setHash(tool.id,latestVersion(tool)?.version);invalidHashNotice=true;render();return}if(target.empty){currentToolId=firstTool?.id||"";expanded=new Set();activeSection="latest";render();return}currentToolId=target.tool.id;const historical=target.version&&target.version!==latestVersion(target.tool)?.version;expanded=historical?new Set([target.version]):new Set();activeSection=historical?"history":"latest";if(historical)requestHistoryForView(target.tool,target.version);render();if(scroll&&historical)requestAnimationFrame(()=>document.getElementById(`history-${target.version}`)?.scrollIntoView({block:"start"}))}
     function renderSidebar(){const nav=document.getElementById("tool-nav-list");nav.replaceChildren();const activate=tool=>{currentToolId=tool.id;expanded=new Set();activeSection="latest";invalidHashNotice=false;setHash(tool.id,latestVersion(tool)?.version);render()};let activeBtn=null;(data.tools||[]).forEach(tool=>{const isActive=tool.id===currentToolId,button=el("button",`tool-item-btn${isActive?" active":""}`);button.type="button";button.setAttribute("aria-pressed",String(isActive));const main=el("span","tool-item-main");main.append(toolIcon(tool.id),el("span","tool-name",tool.name));button.append(main,el("span","tool-version-lbl",tool.latest?`v${tool.latest.version}`:"—"));button.addEventListener("click",()=>activate(tool));if(isActive)activeBtn=button;nav.append(button)});if(activeBtn){const navRect=nav.getBoundingClientRect(),btnRect=activeBtn.getBoundingClientRect();if(btnRect.left<navRect.left)nav.scrollLeft+=btnRect.left-navRect.left;else if(btnRect.right>navRect.right)nav.scrollLeft+=btnRect.right-navRect.right}updateToolListMask()}
     function terminal(original){const wrap=el("div","terminal-block");const button=el("button","terminal-header");button.type="button";button.setAttribute("aria-expanded","false");button.append(el("span","",COPY[language].original.toUpperCase()));const body=el("div","terminal-body",original);body.hidden=true;button.addEventListener("click",()=>{body.hidden=!body.hidden;button.setAttribute("aria-expanded",String(!body.hidden))});wrap.append(button,body);return wrap}
-    function itemView(item,isCurated,history=false,index=0){const block=el("div",history?"history-item-block":"timeline-version-block");if(!history)block.append(el("span","timeline-serial",String(index+1).padStart(2,"0")));const card=history?block:el("article","log-item-card");if(!isCurated)card.append(el("p","review-note",COPY[language].pending.toUpperCase()));const title=isCurated?localized(item.title):item.original;const body=isCurated?localized(item.body):"";const [type]=badgeFor(item.original,title);if(!history){card.classList.add(`tier-${type}`);if(index===0)card.classList.add("is-lead")}const badgeLabel={new:COPY[language].badgeNew,fix:COPY[language].badgeFix,perf:COPY[language].badgePerf}[type];const header=el("div","log-item-header");const badge=el("span",`log-badge badge-${type}`);badge.append(document.createTextNode(badgeLabel));header.append(badge);if(item.enterprise)header.append(el("span","log-badge badge-enterprise",COPY[language].enterpriseBadge));header.append(el("h3","log-item-title",title));card.append(header);if(body){const bodyNode=el("div","log-item-body");bodyNode.append(bodyContent(body));card.append(bodyNode)}if(isCurated&&item.original)card.append(terminal(item.original));if(!history)block.append(card);return block}
+    function itemView(item,isCurated,history=false,index=0){const block=el("div",history?"history-item-block":"timeline-version-block");const card=history?block:el("article","log-item-card");if(!isCurated)card.append(el("p","review-note",COPY[language].pending.toUpperCase()));const title=isCurated?localized(item.title):item.original;const body=isCurated?localized(item.body):"";const [type]=badgeFor(item.original,title);if(!history){card.classList.add(`tier-${type}`);if(index===0)card.classList.add("is-lead")}const badgeLabel={new:COPY[language].badgeNew,fix:COPY[language].badgeFix,perf:COPY[language].badgePerf}[type];const header=el("div","log-item-header");if(!history)header.append(el("span","timeline-serial",String(index+1).padStart(2,"0")));const badge=el("span",`log-badge badge-${type}`);badge.append(document.createTextNode(badgeLabel));header.append(badge);if(item.enterprise)header.append(el("span","log-badge badge-enterprise",COPY[language].enterpriseBadge));header.append(el("h3","log-item-title",title));card.append(header);if(body){const bodyNode=el("div","log-item-body");bodyNode.append(bodyContent(body));card.append(bodyNode)}if(isCurated&&item.original)card.append(terminal(item.original));if(!history)block.append(card);return block}
     function versionItems(version,tool){const enterprise=new Set(tool?.versions.find(summary=>summary.version===version.version)?.enterprise||version.enterprise||[]);if(version.curated)return {items:(version.curated.items||[]).map((item,index)=>({...item,enterprise:enterprise.has(index+1)})),curated:true};const raw=version.raw;return {items:raw?(raw.entries||[]).map((original,index)=>({original,enterprise:enterprise.has(index+1)})):[],curated:false}}
     function itemBadgeType(item,isCurated){const title=isCurated?localized(item.title):item.original;return badgeFor(item.original,title)[0]}
     function itemMatchesFilter(item,isCurated){return (!hideEnterprise||!item.enterprise)&&(activeFilters.size===0||activeFilters.has(itemBadgeType(item,isCurated)))}
