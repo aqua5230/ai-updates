@@ -225,6 +225,91 @@ def test_static_page_renders_originals_once_and_keeps_all_languages(
             assert item["body"][language] in page
 
 
+def test_english_pages_and_language_links(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    records = _configure_build(tmp_path, monkeypatch)
+    build_script.build()
+    pages = tmp_path / "docs" / "v"
+    zh = (pages / "alpha" / "2.0.0" / "index.html").read_text(encoding="utf-8")
+    en = (pages / "alpha" / "2.0.0" / "en" / "index.html").read_text(encoding="utf-8")
+    assert not (pages / "alpha" / "1.0.0" / "en").exists()
+    assert (pages / "beta" / "3.0.0" / "en" / "index.html").exists()
+    zh_url = build_script._page_url("alpha", "2.0.0")
+    en_url = f"{zh_url}en/"
+    for page in (zh, en):
+        for language, url in (("zh-TW", zh_url), ("en", en_url), ("x-default", zh_url)):
+            assert f'<link rel="alternate" hreflang="{language}" href="{url}">' in page
+    raw_page = (pages / "alpha" / "1.0.0" / "index.html").read_text(encoding="utf-8")
+    assert 'hreflang=' not in raw_page
+    assert f'<a href="{en_url}" hreflang="en" lang="en">English</a>' in zh
+    assert f'<a href="{zh_url}" hreflang="zh-TW" lang="zh-TW">繁體中文</a>' in en
+    assert '<html lang="en">' in en
+    assert f'<link rel="canonical" href="{en_url}">' in en
+    assert '<meta property="og:locale" content="en_US">' in en
+    assert '<meta property="og:locale:alternate" content="zh_TW">' in en
+    assert '<section class="language-section" lang="en"><h2>Release notes</h2>' in en
+    assert '<h2>Original changelog</h2>' in en
+    assert '<section class="language-section" lang="zh-TW">' not in en
+    assert 'zh-TW title' not in en
+    assert 'zh-TW body' not in en
+    assert 'aria-label="Page path"' in en
+    assert 'Released: 2026-07-25' in en
+    assert 'aria-label="Version navigation"' in en
+    assert 'aria-label="Back to top" title="Back to top"' in en
+    assert "Back to interactive view" in en
+    assert 'Previous version</a>' not in en
+    assert 'Next version</a>' not in en
+    assert len(re.findall(r'id="card-\d+"', en)) == len(records["alpha"][0]["curated"]["items"])
+    expected_title = "Alpha 2.0.0: en title 1 | Plain-language release notes"
+    expected_description = "en body 1"
+    assert f"<title>{expected_title}</title>" in en
+    assert f'<meta name="description" content="{expected_description}">' in en
+    assert f'<meta property="og:title" content="{expected_title}">' in en
+    assert f'<meta name="twitter:title" content="{expected_title}">' in en
+    assert f'"headline": "{expected_title}"' in en
+    assert f'"description": "{expected_description}"' in en
+    assert '"inLanguage": "en"' in en
+    sitemap = ET.parse(tmp_path / "docs" / "sitemap.xml").getroot()
+    locs = [entry.findtext("{*}loc") for entry in sitemap]
+    assert en_url in locs
+    assert f'{build_script._page_url("beta", "3.0.0")}en/' in locs
+    assert f'{build_script._page_url("alpha", "1.0.0")}en/' not in locs
+    llms = (tmp_path / "docs" / "llms.txt").read_text(encoding="utf-8")
+    assert f"- [Alpha 2.0.0]({zh_url}) · [English]({en_url})" in llms
+    assert f"- [Alpha 1.0.0]({build_script._page_url('alpha', '1.0.0')})\n" in llms
+
+
+def test_english_page_neighbors_and_escaped_title() -> None:
+    versions = [
+        {"version": number, "raw": _raw(number, ["Original"]),
+         "curated": _curated(number, ["Original"])}
+        for number in ("3.0.0", "2.0.0", "1.0.0")
+    ]
+    versions[0]["curated"] = None
+    versions[1]["curated"]["items"][0]["title"]["en"] = "A < B & C"
+    page = build_script._render_static_page(
+        {"id": "claude_code", "name": "Claude Code"}, 1, versions, "en"
+    )
+    previous_url = build_script._page_url("claude_code", "1.0.0") + "en/"
+    assert f'<a href="{previous_url}">Previous version</a>' in page
+    assert "Next version</a>" not in page
+    assert "A &lt; B &amp; C" in page
+    assert "A < B & C" not in page.split("<script type=\"application/ld+json\">")[0]
+    assert "Plain-language release notes" in page.split("</title>")[0]
+    assert 'id="card-1"' in page
+    versions[1]["curated"]["items"][0]["title"]["en"] = "Long " * 20
+    long_page = build_script._render_static_page(
+        {"id": "claude_code", "name": "Claude Code"}, 1, versions, "en"
+    )
+    assert "Plain-language release notes" not in long_page.split("</title>")[0]
+    single = build_script._render_static_page(
+        {"id": "claude_code", "name": "Claude Code"}, 0, [versions[1]], "en"
+    )
+    assert "Previous version</a>" not in single
+    assert "Next version</a>" not in single
+
+
 def test_static_page_and_feed_strip_analogy_markers() -> None:
     """⟦⟧ 是給主站前端抓比喻用的機器標記（PLAYBOOK 鐵則 5），靜態頁與 RSS 沒有比喻框，
     不准漏到讀者眼前。"""

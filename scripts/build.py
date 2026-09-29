@@ -670,12 +670,12 @@ def _render_items(
     ) or "<p>沒有可用的原始更新內容。</p>"
 
 
-def _render_originals(version: dict[str, Any]) -> str:
+def _render_originals(version: dict[str, Any], language: str = "zh-TW") -> str:
     # summary 逐則標上卡片標題：整段都寫「Original changelog」時，讀者分不出哪一則對應哪張卡。
     return "\n".join(
         '<details class="log-howto original-entry">'
         f'<summary>Original changelog<span class="original-entry-title">'
-        f'{escape(_localized(item.get("title"), "zh-TW"))}</span></summary>'
+        f'{escape(_localized(item.get("title"), language))}</span></summary>'
         f'<pre class="log-code-block" lang="en">{escape(str(item.get("original", "")))}</pre>'
         "</details>"
         for item in _curated_items(version)
@@ -704,31 +704,55 @@ PAGE_CSS = """\
 
 
 def _render_static_page(
-    tool: dict[str, Any], index: int, versions: list[dict[str, Any]]
+    tool: dict[str, Any], index: int, versions: list[dict[str, Any]],
+    language: str = "zh-TW",
 ) -> str:
     version = versions[index]
     version_name = str(version["version"])
     tool_id = str(tool["id"])
     name = str(tool["name"])
     period = str((version.get("curated") or version.get("raw") or {}).get("period", ""))
-    description = _description(version)
-    page_css = PAGE_CSS.replace("__ASSETS__", "../../../")
+    english = language == "en"
+    description = _description(version, language)
+    assets = "../../../../" if english else "../../../"
+    page_css = PAGE_CSS.replace("__ASSETS__", assets)
     release_notes = []
     items = _curated_items(version)
     if items:
         release_notes = [
-            _localized(item.get("title"), "zh-TW")
+            _localized(item.get("title"), language)
             for item in items
-            if _localized(item.get("title"), "zh-TW")
+            if _localized(item.get("title"), language)
         ]
-    title = f"{name} {version_name} 更新白話速報"
-    if items:
+    if english:
+        title = f"{name} {version_name}: {_headline(version, 'en')}"
+        suffixed = f"{title} | Plain-language release notes"
+        if len(suffixed) <= 70:
+            title = suffixed
+    else:
+        title = f"{name} {version_name} 更新白話速報"
+    if items and not english:
         headline = _headline(version, "zh-TW")
         if headline:
             title = f"{name} {version_name}：{headline}｜更新白話速報"
             if len(title) > 60:
                 title = f"{name} {version_name}：{headline}"
-    url = _page_url(tool_id, version_name)
+    zh_url = _page_url(tool_id, version_name)
+    en_url = f"{zh_url}en/"
+    url = en_url if english else zh_url
+    alternate_links = ""
+    language_link = ""
+    if items:
+        alternate_links = (
+            f'  <link rel="alternate" hreflang="zh-TW" href="{escape(zh_url, quote=True)}">\n'
+            f'  <link rel="alternate" hreflang="en" href="{escape(en_url, quote=True)}">\n'
+            f'  <link rel="alternate" hreflang="x-default" href="{escape(zh_url, quote=True)}">\n'
+        )
+        language_link = (
+            f'<a href="{escape(zh_url, quote=True)}" hreflang="zh-TW" lang="zh-TW">繁體中文</a>'
+            if english else
+            f'<a href="{escape(en_url, quote=True)}" hreflang="en" lang="en">English</a>'
+        )
     site = {"@type": "Organization", "name": "AI_UPDATES.LOG", "url": SITE_URL}
     structured_data = [
         {
@@ -737,7 +761,7 @@ def _render_static_page(
             "headline": title,
             "datePublished": _period_end_date(period),
             "description": description,
-            "inLanguage": list(LANGUAGES) if items else ["en"],
+            "inLanguage": "en" if english else (list(LANGUAGES) if items else ["en"]),
             "url": url,
             "image": f"{SITE_URL}og-image.png",
             "author": site,
@@ -748,7 +772,7 @@ def _render_static_page(
                 "applicationCategory": "DeveloperApplication",
                 "operatingSystem": TOOL_OPERATING_SYSTEMS[tool_id],
                 "softwareVersion": version_name,
-                "releaseNotes": "；".join(release_notes),
+                "releaseNotes": ("; " if english else "；").join(release_notes),
             },
         },
         {
@@ -762,17 +786,27 @@ def _render_static_page(
         },
     ]
     json_ld = json.dumps(structured_data, ensure_ascii=False).replace("</", "<\\/")
-    previous_link = (
-        f'<a href="{escape(_page_url(tool_id, str(versions[index + 1]["version"])), quote=True)}">上一版</a>'
-        if index + 1 < len(versions)
-        else ""
-    )
-    next_link = (
-        f'<a href="{escape(_page_url(tool_id, str(versions[index - 1]["version"])), quote=True)}">下一版</a>'
-        if index > 0
-        else ""
-    )
-    if items:
+    def neighbor_link(neighbor_index: int, label: str) -> str:
+        if not 0 <= neighbor_index < len(versions):
+            return ""
+        neighbor = versions[neighbor_index]
+        if english and not _curated_items(neighbor):
+            return ""
+        neighbor_url = _page_url(tool_id, str(neighbor["version"]))
+        if english:
+            neighbor_url += "en/"
+        return f'<a href="{escape(neighbor_url, quote=True)}">{label}</a>'
+
+    previous_link = neighbor_link(index + 1, "Previous version" if english else "上一版")
+    next_link = neighbor_link(index - 1, "Next version" if english else "下一版")
+    if english:
+        language_sections = (
+            '<section class="language-section" lang="en"><h2>Release notes</h2>'
+            f'{_render_items(version, "en", include_original=False, card_ids=True)}</section>'
+            '<section class="language-section"><h2>Original changelog</h2>'
+            f'{_render_originals(version, "en")}</section>'
+        )
+    elif items:
         language_sections = "\n".join(
             f'<section class="language-section" lang="{language}">'
             f'<h2>{"繁體中文" if language == "zh-TW" else "English"}</h2>'
@@ -789,39 +823,39 @@ def _render_static_page(
             f'{_render_items(version, "zh-TW")}</section>'
         )
     return f'''<!doctype html>
-<html lang="zh-TW">
+<html lang="{language}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{escape(title)}</title>
   <meta name="description" content="{escape(description, quote=True)}">
   <link rel="canonical" href="{escape(url, quote=True)}">
-  <meta name="robots" content="max-image-preview:large">
+{alternate_links}  <meta name="robots" content="max-image-preview:large">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="AI_UPDATES.LOG">
-  <meta property="og:locale" content="zh_TW">
-  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:locale" content="{'en_US' if english else 'zh_TW'}">
+  <meta property="og:locale:alternate" content="{'zh_TW' if english else 'en_US'}">
   <meta property="og:title" content="{escape(title, quote=True)}">
   <meta property="og:description" content="{escape(description, quote=True)}">
   <meta property="og:url" content="{escape(url, quote=True)}">
   <meta property="og:image" content="{SITE_URL}og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="AI_UPDATES.LOG：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新">
+  <meta property="og:image:alt" content="{'AI_UPDATES.LOG: Plain-language AI tool release notes for Claude Code, Codex, Antigravity, Usage, and GitHub CLI' if english else 'AI_UPDATES.LOG：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新'}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{escape(title, quote=True)}">
   <meta name="twitter:description" content="{escape(description, quote=True)}">
   <meta name="twitter:image" content="{SITE_URL}og-image.png">
-  <meta name="twitter:image:alt" content="AI_UPDATES.LOG：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新">
-  <link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="../../../fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="../../../fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <meta name="twitter:image:alt" content="{'AI_UPDATES.LOG: Plain-language AI tool release notes for Claude Code, Codex, Antigravity, Usage, and GitHub CLI' if english else 'AI_UPDATES.LOG：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新'}">
+  <link rel="icon" href="{assets}favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="{assets}fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{assets}fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
   <script type="application/ld+json">{json_ld}</script>
 {page_css}
   <script>try{{var t=localStorage.getItem("ai-updates-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head>
 <body>
-  <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="頁面路徑"><ol><li><a href="{SITE_URL}">AI_UPDATES.LOG</a></li><li><a href="{SITE_URL}#{tool_id}">{escape(name)}</a></li><li aria-current="page">{escape(version_name)}</li></ol></nav><h1>{escape(name)} {escape(version_name)}</h1><p class="release-period">發布日期：{escape(period)}</p></header><main>{language_sections}</main><footer><nav aria-label="版本導覽"><a href="{SITE_URL}#{tool_id}/{version_name}">回到互動版</a>{previous_link}{next_link}</nav></footer></div><button class="back-to-top" id="back-to-top" type="button" aria-label="回到頂端" title="回到頂端" hidden><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+  <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="{'Page path' if english else '頁面路徑'}"><ol><li><a href="{SITE_URL}">AI_UPDATES.LOG</a></li><li><a href="{SITE_URL}#{tool_id}">{escape(name)}</a></li><li aria-current="page">{escape(version_name)}</li></ol></nav><h1>{escape(name)} {escape(version_name)}</h1><p class="release-period">{'Released: ' if english else '發布日期：'}{escape(period)}</p></header><main>{language_sections}</main><footer><nav aria-label="{'Version navigation' if english else '版本導覽'}"><a href="{SITE_URL}#{tool_id}/{version_name}">{'Back to interactive view' if english else '回到互動版'}</a>{previous_link}{next_link}{language_link}</nav></footer></div><button class="back-to-top" id="back-to-top" type="button" aria-label="{'Back to top' if english else '回到頂端'}" title="{'Back to top' if english else '回到頂端'}" hidden><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
   <script>const backToTop=document.getElementById("back-to-top"),reducedMotion=matchMedia("(prefers-reduced-motion: reduce)");function updateBackToTop(){{backToTop.hidden=scrollY<=innerHeight*2}}addEventListener("scroll",updateBackToTop,{{passive:true}});updateBackToTop();backToTop.addEventListener("click",()=>scrollTo({{top:0,behavior:reducedMotion.matches?"auto":"smooth"}}));</script>
 </body>
 </html>
@@ -876,7 +910,18 @@ def _write_static_pages(history_tools: list[dict[str, Any]]) -> int:
             period = str((version.get("curated") or version.get("raw") or {}).get("period", ""))
             lastmod = _period_end_date(period)
             sitemap_entries.append(f"  <url><loc>{escape(url)}</loc><lastmod>{escape(lastmod)}</lastmod></url>")
-            llms_sections.append(f"- [{tool['name']} {version_name}]({url})")
+            llms_line = f"- [{tool['name']} {version_name}]({url})"
+            if _curated_items(version):
+                en_path = path.parent / "en" / "index.html"
+                en_path.parent.mkdir(parents=True, exist_ok=True)
+                en_path.write_text(_render_static_page(tool, index, versions, "en"), encoding="utf-8")
+                en_url = f"{url}en/"
+                sitemap_entries.append(
+                    f"  <url><loc>{escape(en_url)}</loc><lastmod>{escape(lastmod)}</lastmod></url>"
+                )
+                llms_line += f" · [English]({en_url})"
+                page_count += 1
+            llms_sections.append(llms_line)
             page_count += 1
     (ROOT / "docs" / "sitemap.xml").write_text(
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
