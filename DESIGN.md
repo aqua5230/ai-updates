@@ -1,89 +1,157 @@
 ---
 version: alpha
 name: AI Updates
-description: AI 工具更新速報的藍色柔光版面規格；首頁、版本頁與 404 共用主題色。
-tokens:
-  size:
-    --fs-2xs: ".6875rem"
-    --fs-xs: ".75rem"
-    --fs-sm: ".8125rem"
-    --fs-base: ".9375rem"
-    --fs-md: "1rem"
-    --fs-lg: "1.125rem"
-    --fs-xl: "1.375rem"
-    --control-sm: "32px"
-    --control-md: "36px"
-    --control-lg: "44px"
-  light:
-    --bg-color: "#ffffff"
-    --sidebar-bg: "#ffffff"
-    --card-bg: "#ffffff"
-    --code-bg: "#f6f9fc"
-    --soft-surface: "#f6f9fc"
-    --border-color: "#d8e3ee"
-    --text-color: "#425466"
-    --text-bright: "#061b31"
-    --muted-color: "#586a82"
-    --accent-color: "#2563eb"
-    --accent-contrast: "#ffffff"
-    --accent-glow: "#eff6ff"
-    --link-color: "#2156ca"
-    --tag-new: "#087a56"
-    --tag-fix: "#b13f43"
-    --tag-perf: "#925b08"
-    --item-rule: "#e5edf5"
-    --chip-bg: "#f6f9fc"
-    --analogy-text: "#425466"
-    --analogy-start: "oklch(0.77 0.11 255 / .16)"
-    --analogy-end: "oklch(0.80 0.09 205 / .13)"
-    --analogy-border: "#d8e3ee"
-    --badge-bg: "#ffffff"
-    --glow-wash-1: "rgb(34 211 238 / 17%)"
-    --glow-wash-2: "rgb(56 140 255 / 15%)"
-    --glow-wash-3: "rgb(99 102 241 / 18%)"
-    --glass-fill: "rgb(255 255 255 / 70%)"
-    --glass-border: "#d8e3ee"
-    --glass-shadow: "0 10px 28px rgb(10 37 64 / 8%)"
-    --selected-gradient: "linear-gradient(110deg,#2563eb,#0369a1)"
-    --serial-1: "#1575a2"
-    --serial-2: "#2563c9"
-    --serial-3: "#4158bc"
-    --font-ui: "\"Inter\",-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif"
-  dark:
-    --bg-color: "#0a2540"
-    --sidebar-bg: "#0a2540"
-    --card-bg: "#0f3056"
-    --code-bg: "#102e4e"
-    --soft-surface: "#173b62"
-    --border-color: "#31516f"
-    --text-color: "#bed0e4"
-    --text-bright: "#ffffff"
-    --muted-color: "#aac0d8"
-    --accent-color: "#2563eb"
-    --accent-contrast: "#ffffff"
-    --accent-glow: "#243f75"
-    --link-color: "#93c5fd"
-    --tag-new: "#85d9bc"
-    --tag-fix: "#ffa99e"
-    --tag-perf: "#f9cf82"
-    --item-rule: "rgb(255 255 255 / 10%)"
-    --chip-bg: "#173b62"
-    --analogy-text: "#bed0e4"
-    --analogy-start: "oklch(0.51 0.16 255 / .22)"
-    --analogy-end: "oklch(0.55 0.10 205 / .16)"
-    --analogy-border: "rgb(255 255 255 / 12%)"
-    --badge-bg: "rgb(255 255 255 / 6%)"
-    --glow-wash-1: "rgb(34 211 238 / 27%)"
-    --glow-wash-2: "rgb(56 140 255 / 29%)"
-    --glow-wash-3: "rgb(99 102 241 / 38%)"
-    --glass-fill: "rgb(10 37 64 / 69%)"
-    --glass-border: "rgb(255 255 255 / 18%)"
-    --glass-shadow: "0 12px 36px rgb(0 12 34 / 18%)"
-    --selected-gradient: "linear-gradient(110deg,#2563eb,#0369a1)"
-    --serial-1: "#50c7f1"
-    --serial-2: "#4dacf6"
-    --serial-3: "#6d9aff"
-    --font-ui: "\"Inter\",-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif"
+description: AI 工具更新速報的藍色柔光版面規格；首頁、版本頁與 404 共用字級、控制項及色票。
+colors:
+  background: "#ffffff"
+  sidebar: "#ffffff"
+  card: "rgb(255 255 255 / 70%)"
+  code: "#f6f9fc"
+  soft-surface: "#f6f9fc"
+  border: "#d8e3ee"
+  item-rule: "#e5edf5"
+  text: "#425466"
+  text-bright: "#061b31"
+  muted: "#586a82"
+  primary: "#2563eb"
+  on-primary: "#ffffff"
+  primary-soft: "#eff6ff"
+  link: "#2156ca"
+  tag-new: "#087a56"
+  tag-fix: "#b13f43"
+  tag-perf: "#925b08"
+  serial-start: "#1575a2"
+  serial-mid: "#2563c9"
+  serial-end: "#4158bc"
+  background-dark: "#0a2540"
+  sidebar-dark: "#0a2540"
+  card-dark: "rgb(10 37 64 / 69%)"
+  code-dark: "#102e4e"
+  soft-surface-dark: "#173b62"
+  border-dark: "#31516f"
+  text-dark: "#bed0e4"
+  text-bright-dark: "#ffffff"
+  muted-dark: "#aac0d8"
+  primary-dark: "#2563eb"
+  on-primary-dark: "#ffffff"
+  primary-soft-dark: "#243f75"
+  link-dark: "#93c5fd"
+  tag-new-dark: "#85d9bc"
+  tag-fix-dark: "#ffa99e"
+  tag-perf-dark: "#f9cf82"
+  serial-start-dark: "#50c7f1"
+  serial-mid-dark: "#4dacf6"
+  serial-end-dark: "#6d9aff"
+typography:
+  display:
+    fontFamily: Inter
+    fontSize: 6rem
+    fontWeight: 300
+    lineHeight: 1
+  serial:
+    fontFamily: Inter
+    fontSize: 2.25rem
+    fontWeight: 300
+    lineHeight: 1
+  title:
+    fontFamily: Inter
+    fontSize: 1.75rem
+    fontWeight: 600
+    lineHeight: 1.4
+  heading:
+    fontFamily: Inter
+    fontSize: 1.125rem
+    fontWeight: 600
+  body-lead:
+    fontFamily: Inter
+    fontSize: 1rem
+    fontWeight: 400
+    lineHeight: 1.8
+  body:
+    fontFamily: Inter
+    fontSize: 0.9375rem
+    fontWeight: 400
+    lineHeight: 1.8
+  ui:
+    fontFamily: Inter
+    fontSize: 0.8125rem
+    fontWeight: 500
+  label:
+    fontFamily: Inter
+    fontSize: 0.75rem
+    fontWeight: 500
+  caption:
+    fontFamily: Inter
+    fontSize: 0.6875rem
+    fontWeight: 500
+rounded:
+  sm: 4px
+  md: 8px
+  code: 12px
+  soft: 14px
+  card: 20px
+  full: 999px
+spacing:
+  2xs: 0.25rem
+  xs: 0.5rem
+  sm: 0.75rem
+  md: 1rem
+  lg: 1.5rem
+  xl: 2rem
+components:
+  card:
+    backgroundColor: "{colors.card}"
+    rounded: "{rounded.card}"
+    padding: 2rem
+  analogy:
+    textColor: "{colors.text}"
+    typography: "{typography.body}"
+    rounded: "{rounded.soft}"
+    padding: 1rem
+  badge-new:
+    textColor: "{colors.tag-new}"
+    typography: "{typography.label}"
+    rounded: "{rounded.full}"
+  badge-fix:
+    textColor: "{colors.tag-fix}"
+    typography: "{typography.label}"
+    rounded: "{rounded.full}"
+  badge-perf:
+    textColor: "{colors.tag-perf}"
+    typography: "{typography.label}"
+    rounded: "{rounded.full}"
+  filter-chip:
+    backgroundColor: "{colors.soft-surface}"
+    typography: "{typography.label}"
+    rounded: "{rounded.full}"
+    height: 32px
+  filter-chip-active:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+    rounded: "{rounded.full}"
+  tab-button:
+    typography: "{typography.label}"
+    rounded: "{rounded.full}"
+    height: 44px
+  tab-button-active:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+    rounded: "{rounded.full}"
+  tool-button-active:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+    typography: "{typography.ui}"
+    rounded: "{rounded.full}"
+    height: 44px
+  search-input:
+    backgroundColor: "{colors.card}"
+    typography: "{typography.body}"
+    rounded: "{rounded.md}"
+    height: 44px
+  small-button:
+    typography: "{typography.label}"
+    rounded: "{rounded.full}"
+    height: 32px
 ---
 # AI Updates 設計規格
 
