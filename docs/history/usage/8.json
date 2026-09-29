@@ -5,6 +5,35 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.28.19",
+      "raw": {
+        "version": "0.28.19",
+        "period": "2026-07-23",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-23",
+        "entries": [
+          "**Windows tray now has the same \"Auto-start 5-hour session\" toggle macOS has had.** Wires the existing `window_keeper` auto-ping logic into `wintray.py`, firing after each refresh; the toggle is in both the tray menu and the HTML panel menu, with Windows-specific enable instructions (Settings → Power & battery) across all five languages. Also adds real-world Windows install-path fallbacks for the `claude`/`agy` binaries."
+        ]
+      },
+      "curated": {
+        "version": "0.28.19",
+        "period": "2026-07-23",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 也能用開關保住五小時工作階段",
+              "en": "Windows can now keep a five-hour session going automatically"
+            },
+            "body": {
+              "zh-TW": "你在 Windows 上盯著 Usage 的額度面板，不必再每隔一陣子手動續住工作。系統匣（tray，Windows 右下角收納常駐程式圖示的地方）現在也有 macOS 已有的「自動啟動 5 小時工作階段」開關；在系統匣選單或 HTML 面板選單打開它，程式每次重新整理後都會接上既有的 window_keeper 自動 ping 機制，替這段 5 小時工作階段續著。像替停車計時器開啟自動續費，不用守在旁邊反覆按鈕。若 Windows 阻擋背景運作，畫面也會指向「設定 → 電源與電池」的啟用方法。另補上 claude 與 agy 執行檔（讓指令能啟動程式的檔案）在 Windows 常見安裝位置的備援路徑，找程式時更不易撲空。",
+              "en": "If you keep an eye on Usage's quota panel on Windows, you no longer need to keep a session alive by hand. The system tray now gets the same \"Auto-start 5-hour session\" switch macOS already had. Turn it on in either the tray menu or HTML panel menu, and each refresh reconnects the existing window_keeper auto-ping logic to keep that five-hour session going. It is like enabling automatic top-ups on a parking meter instead of standing beside it to press a button again and again. If Windows blocks background operation, the app points you to Settings → Power & battery for the enablement steps. It also adds fallback paths for the `claude` and `agy` binaries (files that let a command start a program) in real-world Windows install locations, so the app is less likely to come up empty when looking for them."
+            },
+            "original": "**Windows tray now has the same \"Auto-start 5-hour session\" toggle macOS has had.** Wires the existing `window_keeper` auto-ping logic into `wintray.py`, firing after each refresh; the toggle is in both the tray menu and the HTML panel menu, with Windows-specific enable instructions (Settings → Power & battery) across all five languages. Also adds real-world Windows install-path fallbacks for the `claude`/`agy` binaries."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.28.18",
       "raw": {
         "version": "0.28.18",
@@ -274,35 +303,6 @@
               "en": "When you hop between panels to check usage, the app should not unpack and rebuild a room every time. If a panel had been pushed out of the small LRU cache, switching back used to reread its HTML from disk and assemble it again. Now each panel keeps its finished markup and builds it only once. Switching also stops forcing settings synchronization on the main thread, duplicate back-to-back refreshes no longer repackage unchanged state, and cleanup of an old panel happens after your click. Like a shop attendant opening your next door before tidying the last display, rather than making you wait in the aisle."
             },
             "original": "**Switching panels no longer stalls the UI with a beachball**: cold-rebuilding a panel view (evicted from the small LRU cache) reread and reassembled its HTML from disk every time — now the assembled markup is cached per panel and only built once. Selecting a panel no longer forces `NSUserDefaults.synchronize()` on the main thread. Unchanged panel state is no longer redundantly re-serialized and re-injected when a switch triggers two refresh passes back to back. Evicting an old cached panel view from the LRU cache is now deferred off the click's run-loop turn instead of running inline with the new panel's setup."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.28.9",
-      "raw": {
-        "version": "0.28.9",
-        "period": "2026-07-17",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-18",
-        "entries": [
-          "**The Claude Code statusLine hook now works end-to-end on Windows**: four fixes land together. `setup_hook` now prefers an all-ASCII `python.exe` path (falling back to system PATH when the venv path isn't ASCII), since Claude Code on Windows fails to spawn statusLine commands whose path contains non-ASCII characters; `--setup` migrates existing non-ASCII commands. All five hook scripts now read stdin via `sys.stdin.buffer` and decode UTF-8 explicitly (and the forwarder pins `encoding=utf-8` on its subprocess fan-out), since Windows otherwise decodes the piped session JSON with the locale codepage, turning a cwd like `GitHub專案` into mojibake and silently breaking `usage-status.json` writes. Hooks now fall back to `GetUserDefaultUILanguage` when no `LANG`-style env var is set (the Windows norm), matching the tray's existing language detection. `get_width()` now probes the real console width via `CONOUT$` + `GetConsoleScreenBufferInfo` instead of always falling back to a fixed 116 columns, restoring the `(left)` reset-time suffix on wide terminals. Non-Windows behavior is unchanged."
-        ]
-      },
-      "curated": {
-        "version": "0.28.9",
-        "period": "2026-07-17",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Windows 的 Claude Code 狀態列終於正常運作",
-              "en": "Claude Code's status line finally works end-to-end on Windows"
-            },
-            "body": {
-              "zh-TW": "Windows 的 Claude Code 狀態列（statusLine，顯示在終端機最底下的狀態列）終於正常運作。這次修好四處：掛鉤（hook，特定事件發生時被觸發的小程式）優先用全 ASCII 的 Python 路徑；虛擬環境路徑不合就改用系統 PATH，`--setup` 也會遷移舊指令。五支掛鉤用 UTF-8 讀標準輸入（stdin，程式接收外來資料的入口），轉發器啟動子行程時也固定 UTF-8。Windows 不會再以系統語言的編碼頁誤解工作階段 JSON，將 `GitHub專案` 這類工作資料夾變成亂碼、寫壞 `usage-status.json`。沒有 `LANG` 類環境變數時，改查系統介面語言，和系統匣相同；主控台量實際寬度，寬終端機會重現 `(left)` 重設時間。像校正列車資訊牌的線路、語言和尺規，班次不再中途消失。非 Windows 不變。",
-              "en": "On Windows, Claude Code's status line at the bottom of the terminal could fail somewhere along the way. This release fixes four links in that chain. Hooks (small programs triggered by particular events) now avoid Python paths containing non-ASCII characters, and `--setup` migrates older commands. All five hook scripts now read standard input as UTF-8, so a working-folder name like `GitHub專案` is no longer turned into mojibake and prevented from writing `usage-status.json`. If Windows has no `LANG`-style environment variable, the hooks now use the system UI language instead. Wide terminals also measure their actual width again, restoring the `(left)` reset-time suffix. It is like repairing the wiring, language setting, and ruler behind a train-information board so its timetable does not vanish mid-journey. Non-Windows behavior is unchanged."
-            },
-            "original": "**The Claude Code statusLine hook now works end-to-end on Windows**: four fixes land together. `setup_hook` now prefers an all-ASCII `python.exe` path (falling back to system PATH when the venv path isn't ASCII), since Claude Code on Windows fails to spawn statusLine commands whose path contains non-ASCII characters; `--setup` migrates existing non-ASCII commands. All five hook scripts now read stdin via `sys.stdin.buffer` and decode UTF-8 explicitly (and the forwarder pins `encoding=utf-8` on its subprocess fan-out), since Windows otherwise decodes the piped session JSON with the locale codepage, turning a cwd like `GitHub專案` into mojibake and silently breaking `usage-status.json` writes. Hooks now fall back to `GetUserDefaultUILanguage` when no `LANG`-style env var is set (the Windows norm), matching the tray's existing language detection. `get_width()` now probes the real console width via `CONOUT$` + `GetConsoleScreenBufferInfo` instead of always falling back to a fixed 116 columns, restoring the `(left)` reset-time suffix on wide terminals. Non-Windows behavior is unchanged."
           }
         ]
       }

@@ -5,6 +5,39 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.11.3",
+      "raw": {
+        "version": "0.11.3",
+        "period": "2026-05-25",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Read-only CLI commands silently mutated user settings**: `usage daily` / `report` / `sessions` / `dashboard` and other read commands unconditionally called `setup()` or `update_hook()`, potentially writing to `~/.claude/settings.json` or `~/.codex/config.toml` on every invocation. Fix: only `setup` / `unsetup` mutate user settings; other commands now show a one-line \"Hook not installed. Run: usage setup\" hint when the hook isn't installed.",
+          "**Opus 4.6 / 4.7 cost was underestimated 3× on offline cold start**: `pricing.py`'s fallback table listed Opus as `5e-6 / 25e-6` (input / output per token), but the published Anthropic rate is `15e-6 / 75e-6`. Affected scenario: no pricing cache *and* LiteLLM live fetch fails. Users with network access or a cached price table are unaffected.",
+          "**`adapters/codex.py` sqlite connection leak**: `_load_thread_models()` wrapped the work in `try / except`, but `conn.close()` ran *after* `execute().fetchall()` — any exception in between left the connection dangling. Now uses `contextlib.closing()` to guarantee release.",
+          "**Mid-write crash could leave `~/.codex/config.toml` truncated**: `setup_hook.py`'s `_setup_codex` / `_unsetup_codex` used plain `write_text()`, so a crash or kill during setup could corrupt Codex config. Now uses `mkstemp + os.replace` atomic write, sharing a single module-private helper with Claude settings.",
+          "**`analyzer/cost.py` removed**: it was a weakened duplicate of `pricing.py` — bidirectional substring model matching (prone to misclassification), no cache TTL, and an SSL-cert-verification-disabled fallback when fetching the price table (a security concern for cost data). `analyzer/{aggregator,blocks,reporter}` now import `pricing.calculate_cost` directly; the latter accepts a `typing.Protocol` so both `history_loader.UsageEntry` and `adapters.types.UsageEntry` work. Net 76 lines of duplicate cost-calc code removed."
+        ]
+      },
+      "curated": {
+        "version": "0.11.3",
+        "period": "2026-05-25",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "唯讀指令不再亂動設定，離線時成本估算更精準",
+              "en": "Read-only commands stop mutating settings, and offline costs are accurate"
+            },
+            "body": {
+              "zh-TW": "這次修補了幾個背後運作的安全隱患。以前當你在終端機下達像 `usage report` 這種理應「只看資料不改東西」的唯讀指令時，系統卻會自作主張地在背後偷偷覆寫你的 Claude 或 Codex 設定檔，甚至如果執行到一半被強制關閉，還可能把你的設定檔截斷弄壞。現在它學乖了，唯讀指令絕對不會碰你的設定檔，而需要修改檔案的安裝流程也改成「原子寫入（atomic write）」——確保整份檔案寫完才替換，中途當機也不會留下半殘的廢檔。此外，針對在沒有網路又沒有價格快取的「離線冷啟動」情況，我們修正了內建的備用價格表，原本它把最新模型 Opus 4.6 的價格低估了 3 倍，現在斷網時也能幫你算出正確的花費。就像去圖書館借書，以前只是用電腦查個書目，系統卻會偷偷跑去改你的借閱密碼，而且遇到停電還可能把你的卡片消磁；現在它安守本分只查資料，並且不管圖書館有沒有連上網，查到的逾期罰金都保證正確無誤。",
+              "en": "We've patched several quiet hazards in how the system operates under the hood. Previously, when you ran terminal commands like `usage report` that were supposed to simply read data, the system would aggressively overwrite your Claude or Codex config files behind your back, and if the app was killed mid-write, it could completely ruin your configuration file. The app now behaves itself: read-only commands absolutely will not touch your settings, and the actual installation flows now use \"atomic writes\" — guaranteeing the entire file is safely written before swapping it in, leaving no broken files even if it crashes mid-way. Additionally, for \"offline cold starts\" (when you have no internet and no cached price table), we fixed the built-in fallback prices where the cost of the newest Opus 4.6 model was drastically underestimated by 3×. Now your cost estimates are accurate even completely offline. It's like using a library catalog computer: it used to secretly reset your PIN just because you searched for a book, and a power outage could erase your card; now it sticks to reading only, and tells you exactly the right late fees even when the library's internet is down."
+            },
+            "original": "**Read-only CLI commands silently mutated user settings**: `usage daily` / `report` / `sessions` / `dashboard` and other read commands unconditionally called `setup()` or `update_hook()`, potentially writing to `~/.claude/settings.json` or `~/.codex/config.toml` on every invocation. Fix: only `setup` / `unsetup` mutate user settings; other commands now show a one-line \"Hook not installed. Run: usage setup\" hint when the hook isn't installed.\n**Opus 4.6 / 4.7 cost was underestimated 3× on offline cold start**: `pricing.py`'s fallback table listed Opus as `5e-6 / 25e-6` (input / output per token), but the published Anthropic rate is `15e-6 / 75e-6`. Affected scenario: no pricing cache *and* LiteLLM live fetch fails. Users with network access or a cached price table are unaffected.\n**`adapters/codex.py` sqlite connection leak**: `_load_thread_models()` wrapped the work in `try / except`, but `conn.close()` ran *after* `execute().fetchall()` — any exception in between left the connection dangling. Now uses `contextlib.closing()` to guarantee release.\n**Mid-write crash could leave `~/.codex/config.toml` truncated**: `setup_hook.py`'s `_setup_codex` / `_unsetup_codex` used plain `write_text()`, so a crash or kill during setup could corrupt Codex config. Now uses `mkstemp + os.replace` atomic write, sharing a single module-private helper with Claude settings.\n**`analyzer/cost.py` removed**: it was a weakened duplicate of `pricing.py` — bidirectional substring model matching (prone to misclassification), no cache TTL, and an SSL-cert-verification-disabled fallback when fetching the price table (a security concern for cost data). `analyzer/{aggregator,blocks,reporter}` now import `pricing.calculate_cost` directly; the latter accepts a `typing.Protocol` so both `history_loader.UsageEntry` and `adapters.types.UsageEntry` work. Net 76 lines of duplicate cost-calc code removed."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.2",
       "raw": {
         "version": "0.11.2",
@@ -311,35 +344,6 @@
               "en": "You can now choose the new \"Midnight Aquarium\" panel! It's a deep-sea animation theme featuring 42 randomly drifting bubbles rising from the bottom, 4 jellyfish floating up and down with a cyan glow, and bioluminescent particles, all paired with frosted glass cards and sweeping light effects for a truly soothing vibe. Additionally, due to a conflicting system setting, launching the bundled app previously caused the system to completely ignore your computer's language preference and force an English interface on you. We've changed how we ask the system for your preference, so Traditional Chinese users will finally be greeted with a familiar Chinese interface the moment they click the app. It's like buying a smart fish tank that used to only speak English, but has finally learned to read your house's nametag and greet you in your native tongue."
             },
             "original": "**New \"Midnight Aquarium\" panel**: sixth built-in panel with a deep-sea animation theme — Canvas 2D bubbles rising from the bottom (42 bubbles with random drift), 4 CSS jellyfish (floating up/down with cyan glow), bioluminescent particles in the background. Glass-morphism cards with backdrop-filter blur, progress bars with a sweeping light animation. Adds i18n key `panel_aquarium` (all 5 languages).\n**Fix .app language detection**: switched to `NSLocale.preferredLanguages()` instead of `currentLocale().localeIdentifier()` so the bundle language is no longer overridden by `CFBundleDevelopmentRegion = English` — Traditional Chinese users now see the correct UI language when launching the .app."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.6.9",
-      "raw": {
-        "version": "0.6.9",
-        "period": "2026-05-22",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**New \"Cloud Observation\" panel**: fifth built-in panel with a weather-station visual — light blue sky gradient, white cloud layers (with `feGaussianBlur` soft edges), pale contour lines, and translucent glass cards. Light overall tone, with `backdrop-filter` letting the clouds peek through. Adds i18n key `panel_cloud_observation` (all 5 languages)."
-        ]
-      },
-      "curated": {
-        "version": "0.6.9",
-        "period": "2026-05-22",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "新增雲圖觀測面板",
-              "en": "New Cloud Observation panel added"
-            },
-            "body": {
-              "zh-TW": "現在多了一款「雲圖觀測（Cloud Observation）」面板可以選了！它是我們的第五款內建面板，走的是氣象觀測站的風格——有著淡藍色的天空漸層、邊緣柔和的白色雲層，以及淡淡的等高線。整個介面採用清爽的淺色調，搭配半透明的玻璃卡片效果，讓背後的雲層能若隱若現透出來。就像是你的電腦桌面上開了一扇明亮的小窗戶，隨時都能看著外頭輕柔飄動的白雲。",
-              "en": "You can now choose the new \"Cloud Observation\" panel! It's our fifth built-in panel, featuring a weather-station visual style — a light blue sky gradient, white cloud layers with soft edges, and pale contour lines. The entire interface embraces a crisp, light tone with translucent glass cards, allowing the clouds behind to peek through subtly. It's like opening a bright little window right on your computer desktop, letting you watch the soft, drifting white clouds whenever you like."
-            },
-            "original": "**New \"Cloud Observation\" panel**: fifth built-in panel with a weather-station visual — light blue sky gradient, white cloud layers (with `feGaussianBlur` soft edges), pale contour lines, and translucent glass cards. Light overall tone, with `backdrop-filter` letting the clouds peek through. Adds i18n key `panel_cloud_observation` (all 5 languages)."
           }
         ]
       }

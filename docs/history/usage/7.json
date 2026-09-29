@@ -5,6 +5,35 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.29.7",
+      "raw": {
+        "version": "0.29.7",
+        "period": "2026-07-29",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-29",
+        "entries": [
+          "**The panel no longer leaves an empty strip at the bottom**: panel height came from a fixed per-panel constant, so any layout that rendered shorter than the registered value left dead space below the footer. The common trigger is Codex reporting only a weekly window with no 5-hour data, which drops a quota row from the card. The panel now measures its own natural height after each refresh and the window resizes to match, clamped to the usable screen area; the registered constants stay as the pre-measurement default and as the fallback when a measurement is unusable. A panel that deliberately leaves room for a full-window backdrop — World Cup's pitch is the only one — marks that region so it keeps its designed height instead of collapsing while the measurement releases the layout's height constraints."
+        ]
+      },
+      "curated": {
+        "version": "0.29.7",
+        "period": "2026-07-29",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "額度面板會自己收好高度，不留底部空白",
+              "en": "Quota panels now fit their content instead of leaving a blank strip"
+            },
+            "body": {
+              "zh-TW": "你打開 Usage 面板（跳出來顯示額度的小視窗）查看 Codex 的每週額度時，底部不會再莫名多出一條空白帶。以前畫面高度照每張面板預設的固定值算；若 Codex 只回報每週時段、沒有 5 小時資料，額度卡少了一列，底下就留下死白。現在每次更新後，面板會量自己的實際高度，視窗隨著內容縮放，且不會超出可用螢幕範圍；量不出來時仍用原本數值當備援。這像量身裁衣：少一行內容就收短一點。只有 World Cup 的球場主題刻意預留滿版背景，會標記那塊空間，保留原本設計高度。",
+              "en": "When you open the Usage panel to check Codex's weekly quota, an odd blank strip will no longer linger below it. The panel height used to come from a fixed preset. If Codex reported only a weekly window and no 5-hour data, the quota card lost one row but kept the extra height. Now, after each refresh, the panel measures its natural height and the window follows it without exceeding usable screen space; the old value remains a fallback if measuring fails. Think of a tailored hem: one less line of content, one less line of fabric. The World Cup pitch theme is the exception: it marks its intentional full-window backdrop so its designed height remains intact."
+            },
+            "original": "**The panel no longer leaves an empty strip at the bottom**: panel height came from a fixed per-panel constant, so any layout that rendered shorter than the registered value left dead space below the footer. The common trigger is Codex reporting only a weekly window with no 5-hour data, which drops a quota row from the card. The panel now measures its own natural height after each refresh and the window resizes to match, clamped to the usable screen area; the registered constants stay as the pre-measurement default and as the fallback when a measurement is unusable. A panel that deliberately leaves room for a full-window backdrop — World Cup's pitch is the only one — marks that region so it keeps its designed height instead of collapsing while the measurement releases the layout's height constraints."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.29.6",
       "raw": {
         "version": "0.29.6",
@@ -401,35 +430,6 @@
               "en": "If the app crashes or is forcibly stopped while saving data, its leftover temporary files in `~/.usage/` will now be cleared instead of piling up. An atomic write normally deletes the file made by `mkstemp` after safely putting the completed new file in place, but SIGKILL or a crash prevents that cleanup from running. One installation gathered 40 MB in 12 days, mostly from slower JSONL caches. On startup, Usage now checks `~/.usage/` and its immediate `*.d` children, deleting only ordinary files with the matching temporary-file name that have not been touched for 24 hours. Symlinks and directories are always left alone. It is like a warehouse clearing yesterday's packing scraps each morning without throwing away a box still being packed."
             },
             "original": "**Orphaned temp files piled up in `~/.usage/`.** Every atomic write unlinks its `mkstemp` file in a `finally` block, and that block never runs when the app is SIGKILLed or crashes mid-write. One install had collected 40 MB of them over twelve days, dominated by the large JSONL caches whose slow writes are the likeliest to be interrupted. Startup now sweeps `~/.usage` and its direct `*.d` children, deleting only regular files that match the `mkstemp` name shape and have gone untouched for 24 hours — long enough that a second usage process cannot lose a temp file it is still writing. Symlinks and directories are skipped no matter how well their name matches."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.28.19",
-      "raw": {
-        "version": "0.28.19",
-        "period": "2026-07-23",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-23",
-        "entries": [
-          "**Windows tray now has the same \"Auto-start 5-hour session\" toggle macOS has had.** Wires the existing `window_keeper` auto-ping logic into `wintray.py`, firing after each refresh; the toggle is in both the tray menu and the HTML panel menu, with Windows-specific enable instructions (Settings → Power & battery) across all five languages. Also adds real-world Windows install-path fallbacks for the `claude`/`agy` binaries."
-        ]
-      },
-      "curated": {
-        "version": "0.28.19",
-        "period": "2026-07-23",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Windows 也能用開關保住五小時工作階段",
-              "en": "Windows can now keep a five-hour session going automatically"
-            },
-            "body": {
-              "zh-TW": "你在 Windows 上盯著 Usage 的額度面板，不必再每隔一陣子手動續住工作。系統匣（tray，Windows 右下角收納常駐程式圖示的地方）現在也有 macOS 已有的「自動啟動 5 小時工作階段」開關；在系統匣選單或 HTML 面板選單打開它，程式每次重新整理後都會接上既有的 window_keeper 自動 ping 機制，替這段 5 小時工作階段續著。像替停車計時器開啟自動續費，不用守在旁邊反覆按鈕。若 Windows 阻擋背景運作，畫面也會指向「設定 → 電源與電池」的啟用方法。另補上 claude 與 agy 執行檔（讓指令能啟動程式的檔案）在 Windows 常見安裝位置的備援路徑，找程式時更不易撲空。",
-              "en": "If you keep an eye on Usage's quota panel on Windows, you no longer need to keep a session alive by hand. The system tray now gets the same \"Auto-start 5-hour session\" switch macOS already had. Turn it on in either the tray menu or HTML panel menu, and each refresh reconnects the existing window_keeper auto-ping logic to keep that five-hour session going. It is like enabling automatic top-ups on a parking meter instead of standing beside it to press a button again and again. If Windows blocks background operation, the app points you to Settings → Power & battery for the enablement steps. It also adds fallback paths for the `claude` and `agy` binaries (files that let a command start a program) in real-world Windows install locations, so the app is less likely to come up empty when looking for them."
-            },
-            "original": "**Windows tray now has the same \"Auto-start 5-hour session\" toggle macOS has had.** Wires the existing `window_keeper` auto-ping logic into `wintray.py`, firing after each refresh; the toggle is in both the tray menu and the HTML panel menu, with Windows-specific enable instructions (Settings → Power & battery) across all five languages. Also adds real-world Windows install-path fallbacks for the `claude`/`agy` binaries."
           }
         ]
       }
