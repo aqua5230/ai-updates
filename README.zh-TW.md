@@ -2,7 +2,7 @@
 
 [English](README.md) | 繁體中文
 
-AI Updates 追蹤 Claude Code、Codex、Antigravity、Usage 與 GitHub CLI 的官方 changelog。它保存不可覆寫的官方原文紀錄，支援經人工審核的五語白話速報（zh-TW、zh-CN、en、ja、ko），並產出靜態網站與相容應用程式使用的資料 feed。
+AI Updates 追蹤 Claude Code、Codex、Antigravity、Usage 與 GitHub CLI 的官方 changelog。它保存不可覆寫的官方原文紀錄，支援經人工審核的繁中與英文白話速報（zh-TW、en），並產出靜態網站與相容應用程式使用的資料 feed。
 
 ## 網站
 
@@ -20,7 +20,7 @@ https://aqua5230.github.io/ai-updates/
 
 ## 運作方式
 
-`data/raw/` 保存每天匯入的官方 changelog 項目。紀錄以版本為單位寫入，永不覆寫。`data/curated/` 保存這些項目經人工審核後的五語白話版本。
+`data/raw/` 保存每天匯入的官方 changelog 項目。紀錄以版本為單位寫入，永不覆寫。`data/curated/` 保存這些項目經人工審核後的繁中與英文白話版本。
 
 `scripts/build.py` 合併兩個資料層，產出以下檔案：
 
@@ -33,7 +33,7 @@ https://aqua5230.github.io/ai-updates/
 ```text
 data/
   raw/<tool_id>/<version>.json       # 不可覆寫的官方原文紀錄
-  curated/<tool_id>/<version>.json   # 人工審核的五語紀錄
+  curated/<tool_id>/<version>.json   # 人工審核的繁中與英文紀錄
 docs/
   index.html                         # GitHub Pages 網站
   data.json                          # 產出的網站版本索引
@@ -79,7 +79,7 @@ python3 scripts/sync_agy.py
 ## 審核流程
 
 1. 每日 workflow 會為每個新匯入的版本建立 issue。
-2. 建立 `data/curated/<tool>/<version>.json`，寫入經審核的五語白話 `items`。
+2. 建立 `data/curated/<tool>/<version>.json`，寫入經審核的繁中與英文白話 `items`。
 3. 執行 `python3 scripts/build.py` 與 `pytest`。
 4. 建立 pull request，審核後合併。
 

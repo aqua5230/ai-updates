@@ -2,7 +2,7 @@
 
 English | [繁體中文](README.zh-TW.md)
 
-AI Updates tracks the official changelogs for Claude Code, Codex, Antigravity, Usage, and GitHub CLI. It preserves immutable source records, supports human-reviewed plain-language updates in five languages (zh-TW, zh-CN, en, ja, and ko), and publishes feeds for a static website and compatible applications.
+AI Updates tracks the official changelogs for Claude Code, Codex, Antigravity, Usage, and GitHub CLI. It preserves immutable source records, supports human-reviewed plain-language updates in Traditional Chinese (zh-TW) and English (en), and publishes feeds for a static website and compatible applications.
 
 ## Website
 
@@ -20,7 +20,7 @@ https://aqua5230.github.io/ai-updates/
 
 ## How It Works
 
-`data/raw/` stores daily imports of official changelog entries. Records are written per version and are never overwritten. `data/curated/` holds human-reviewed, plain-language versions of those entries in five languages.
+`data/raw/` stores daily imports of official changelog entries. Records are written per version and are never overwritten. `data/curated/` holds human-reviewed, plain-language versions of those entries in Traditional Chinese and English.
 
 `scripts/build.py` combines both layers into generated artifacts:
 
@@ -33,7 +33,7 @@ https://aqua5230.github.io/ai-updates/
 ```text
 data/
   raw/<tool_id>/<version>.json       # Immutable official source records
-  curated/<tool_id>/<version>.json   # Human-reviewed five-language records
+  curated/<tool_id>/<version>.json   # Human-reviewed zh-TW and en records
 docs/
   index.html                         # GitHub Pages site
   data.json                          # Generated website version index
@@ -79,7 +79,7 @@ This command runs `agy changelog`; existing version records are not overwritten.
 ## Curation Workflow
 
 1. The daily workflow opens an issue for each newly imported version.
-2. Create `data/curated/<tool>/<version>.json` with the reviewed five-language plain-language `items`.
+2. Create `data/curated/<tool>/<version>.json` with the reviewed zh-TW and en plain-language `items`.
 3. Run `python3 scripts/build.py` and `pytest`.
 4. Open a pull request and merge it after review.
 
