@@ -1,48 +1,52 @@
 ---
 version: alpha
 name: AI_UPDATES.LOG
-description: AI 工具更新速報的介面規格。首頁 docs/index.html 與版本頁模板 scripts/build.py 共用同一套 token。
+description: AI 工具更新速報的清爽科技站介面規格；首頁、版本頁與 404 共用字級、控制項及色票。
 colors:
-  background: "oklch(0.940 0.005 247.858)"
-  sidebar: "oklch(0.975 0.004 247.858)"
-  card: "oklch(0.995 0.002 247.858)"
-  code: "oklch(0.968260 0.006854 247.896)"
-  border: "oklch(0.900 0.010 255.508)"
-  text: "oklch(0.371696 0.039156 257.287)"
-  text-bright: "oklch(0.207682 0.039824 265.755)"
-  muted: "oklch(0.520 0.040717 257.417)"
-  primary: "oklch(0.484000 0.215208 262.881)"
+  background: "oklch(0.975 0.003 240)"
+  sidebar: "oklch(1 0 0)"
+  card: "oklch(1 0 0)"
+  code: "oklch(0.955 0.004 240)"
+  soft-surface: "oklch(0.96 0.003 240)"
+  border: "oklch(0.905 0.006 240)"
+  text: "oklch(0.34 0.012 240)"
+  text-bright: "oklch(0.18 0.008 240)"
+  muted: "oklch(0.43 0.01 240)"
+  primary: "oklch(0.18 0.008 240)"
   on-primary: "oklch(1 0 0)"
-  tag-new: "oklch(0.472000 0.137103 150.069)"
-  tag-fix: "oklch(0.473000 0.215157 27.325)"
-  tag-perf: "oklch(0.501000 0.145505 48.998)"
-  background-dark: "oklch(0.176285 0.014021 258.357)"
-  sidebar-dark: "oklch(0.220223 0.015700 256.816)"
-  card-dark: "oklch(0.245223 0.015700 256.816)"
-  code-dark: "oklch(0.159628 0.020332 265.576)"
-  border-dark: "oklch(0.270223 0.014885 252.310)"
-  text-dark: "oklch(0.856908 0.014132 247.992)"
-  text-bright-dark: "oklch(0.970342 0.010275 247.932)"
-  muted-dark: "oklch(0.662473 0.018141 250.922)"
-  primary-dark: "oklch(0.715252 0.151810 253.306)"
-  on-primary-dark: "oklch(0.176285 0.014021 258.357)"
-  tag-new-dark: "oklch(0.695081 0.180928 145.621)"
-  tag-fix-dark: "oklch(0.719000 0.204594 26.960)"
-  tag-perf-dark: "oklch(0.719551 0.140145 79.915)"
+  link: "oklch(0.37 0.05 240)"
+  tag-new: "oklch(0.43 0.01 240)"
+  tag-fix: "oklch(0.43 0.01 240)"
+  tag-perf: "oklch(0.43 0.01 240)"
+  background-dark: "oklch(0.18 0.005 240)"
+  sidebar-dark: "oklch(0.22 0.005 240)"
+  card-dark: "oklch(0.25 0.005 240)"
+  code-dark: "oklch(0.30 0.005 240)"
+  soft-surface-dark: "oklch(0.30 0.005 240)"
+  border-dark: "oklch(0.36 0.005 240)"
+  text-dark: "oklch(0.86 0.005 240)"
+  text-bright-dark: "oklch(0.97 0.003 240)"
+  muted-dark: "oklch(0.73 0.005 240)"
+  primary-dark: "oklch(0.96 0.003 240)"
+  on-primary-dark: "oklch(0.18 0.005 240)"
+  link-dark: "oklch(0.84 0.025 240)"
+  tag-new-dark: "oklch(0.73 0.005 240)"
+  tag-fix-dark: "oklch(0.73 0.005 240)"
+  tag-perf-dark: "oklch(0.73 0.005 240)"
 typography:
   display:
-    fontFamily: JetBrains Mono
-    fontSize: 2.25rem
-    fontWeight: 700
+    fontFamily: Inter
+    fontSize: 4rem
+    fontWeight: 500
   title:
     fontFamily: Inter
     fontSize: 1.375rem
-    fontWeight: 650
+    fontWeight: 600
     lineHeight: 1.5
   heading:
-    fontFamily: JetBrains Mono
+    fontFamily: Inter
     fontSize: 1.125rem
-    fontWeight: 700
+    fontWeight: 500
   body-lead:
     fontFamily: Inter
     fontSize: 1rem
@@ -54,21 +58,23 @@ typography:
     fontWeight: 400
     lineHeight: 1.8
   ui:
-    fontFamily: JetBrains Mono
+    fontFamily: Inter
     fontSize: 0.8125rem
     fontWeight: 500
   label:
-    fontFamily: JetBrains Mono
+    fontFamily: Inter
     fontSize: 0.75rem
-    fontWeight: 700
+    fontWeight: 500
   caption:
-    fontFamily: JetBrains Mono
+    fontFamily: Inter
     fontSize: 0.6875rem
-    fontWeight: 700
+    fontWeight: 500
 rounded:
   sm: 4px
-  md: 6px
-  lg: 8px
+  md: 8px
+  code: 10px
+  soft: 12px
+  card: 16px
   full: 999px
 spacing:
   2xs: 0.25rem
@@ -80,35 +86,46 @@ spacing:
 components:
   card:
     backgroundColor: "{colors.card}"
-    rounded: "{rounded.lg}"
-    padding: 1.5rem
+    rounded: "{rounded.card}"
+    padding: 1.75rem
   card-compact:
     backgroundColor: "{colors.card}"
-    rounded: "{rounded.lg}"
-    padding: 1rem
+    rounded: "{rounded.card}"
+    padding: 1.75rem
   badge-new:
-    textColor: "{colors.tag-new}"
+    textColor: "{colors.muted}"
     typography: "{typography.label}"
-    rounded: "{rounded.sm}"
+  badge-fix:
+    textColor: "{colors.muted}"
+    typography: "{typography.label}"
+  badge-perf:
+    textColor: "{colors.muted}"
+    typography: "{typography.label}"
   filter-chip:
     typography: "{typography.label}"
     rounded: "{rounded.full}"
     height: 32px
+  filter-chip-active:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+    rounded: "{rounded.full}"
   tab-button:
-    typography: "{typography.ui}"
-    rounded: "{rounded.sm}"
+    typography: "{typography.label}"
+    rounded: "{rounded.full}"
     height: 44px
   tab-button-active:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.on-primary}"
+    rounded: "{rounded.full}"
   tool-button-active:
-    textColor: "{colors.text-bright}"
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
     typography: "{typography.ui}"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.full}"
     height: 44px
   small-button:
     typography: "{typography.label}"
-    rounded: "{rounded.sm}"
+    rounded: "{rounded.md}"
     height: 32px
 ---
 
@@ -116,17 +133,16 @@ components:
 
 ## Overview
 
-像一份整理過的終端機日誌：等寬字標出結構（logo、版本號、標籤、按鈕），比例字承載內文。畫面安靜、扁平，只有一個藍色強調色；綠、紅、橘三個標籤色只用來分辨「新功能／問題修復／效能優化」。深色與淺色兩套主題地位相同，任何改動都要兩套一起看。
+清爽科技站使用冷灰白頁底、白色側欄與卡片、近黑文字。Inter 承載標題、導覽與中文內文；等寬字只用在數字和程式碼。工具、分頁與篩選的選中狀態都是近黑實心膠囊配白字。深色模式用近黑中性底、略亮的卡片與近白膠囊。
 
 ## Colors
 
-- **background / sidebar / card**：三層底色由深到淺（淺色主題）或由暗到亮（深色主題），靠亮度差分層，不靠陰影。
-- **text / text-bright / muted**：內文、標題、次要資訊三級。muted 只用在日期、序號、輔助說明。
-- **primary**（CSS 變數 `--accent-color`）：唯一的互動色，用在選中的分頁、選中的工具、連結、時間軸圓點。
-- **tag-new / tag-fix / tag-perf**：只用於更新類型標籤與篩選 chip，不拿來裝飾。
-- 淺色值寫在 `:root[data-theme="light"]` 與 `@media(prefers-color-scheme:light)`，深色值寫在 `:root` 與 `:root[data-theme="dark"]`，名稱加 `-dark` 的 token 對應深色主題。
-- 所有文字對背景的對比度至少 4.5:1（WCAG AA），調色時只動 OKLCH 的亮度，不動色相與彩度，改完用 axe 的 `color-contrast` 驗。含字的控制項不用 `opacity` 淡化，透明度會連文字對比一起拉低。
-- 顏色一律寫 token，要半透明就用 `color-mix(in srgb,var(--token) N%,transparent)`，不寫死 `rgba()`／`#hex`。唯一的例外是分享選單的陰影色。
+- 淺色四層：頁底 `--bg-color`、白色 `--sidebar-bg`／`--card-bg`、淡灰 `--soft-surface`、程式碼底 `--code-bg`。
+- 深色底與卡片的色相約 240、彩度 0.005；卡片和軟底逐層變亮。深色沒有可見卡片陰影。
+- `--text-color` 放內文；`--text-bright` 放標題；`--muted-color` 放日期、序號、徽章與輔助文字。連結使用 `--link-color`。
+- `--tag-new`、`--tag-fix`、`--tag-perf` 三者在各主題完全相同，更新類型不靠顏色區分。
+- `:root` 與 `[data-theme="dark"]` 同色；`@media(prefers-color-scheme:light)` 與 `[data-theme="light"]` 同色。文字與所處底色的 WCAG 對比至少 4.5:1，改完用 axe 的 `color-contrast` 驗。含字的控制項不用 `opacity` 淡化。
+- 顏色一律寫 token，要半透明就用 `color-mix(in srgb,var(--token) N%,transparent)`，不寫死 `rgba()`／`#hex`。
 
 ## Typography
 
@@ -134,15 +150,15 @@ CSS 裡的字級一律寫 `var(--fs-*)`，共七級：
 
 | token | 值 | 用在哪 |
 |---|---|---|
-| `--fs-2xs` | 11px | 版本號小字、New 徽章、英文版的產生日期與最新發布標籤 |
+| `--fs-2xs` | 11px | 英文與數字：版本小字、計數 |
 | `--fs-xs` | 12px | 標籤、按鈕、篩選 chip、說明文字 |
-| `--fs-sm` | 13px | 工具名稱、分頁按鈕、日期、比喻框 |
+| `--fs-sm` | 13px | 工具名稱、日期、比喻框、程式碼 |
 | `--fs-base` | 15px | 卡片內文 |
 | `--fs-md` | 16px | 導言、歷史展開內的卡片標題、緊湊卡標題 |
-| `--fs-lg` | 18px | logo、歷史版本標題 |
+| `--fs-lg` | 18px | 歷史版本標題、版本頁段落標題 |
 | `--fs-xl` | 22px | 最新版本卡片標題 |
 
-- 例外只有兩種：跟著父層縮放的 `em`（行內程式碼、程式碼框、比喻框），以及版本號大標的 `clamp()`。
+- 唯一字級例外是版本號大標的 `clamp()`；行內程式碼、程式碼框與比喻框也使用 `--fs-*`。
 - 中文排版照 W3C clreq：會換行的中文內文與說明文字，行距（`line-height`）落在 1.5～2.0；中文不加字距（密排），字距只寫在 `:lang(en)` 規則裡；中文最小用 `--fs-xs`（12px），`--fs-2xs` 只給英文與數字；介面文字的冒號跟著語言走（繁中全形「：」）。`font` 簡寫會把行距重設成 `normal`，簡寫後面要明寫 `line-height`。
 - 標題層級：外層標題一定比裡面的標題大。歷史版本標題用 `--fs-lg`，所以展開內容的卡片標題用 `--fs-md`。
 - 頁面標題順序不跳級：`h1`（logo 或頁名）→ `h2`（版本號，歷史分頁用隱藏的 `h2`）→ `h3`（卡片標題）。
@@ -150,53 +166,53 @@ CSS 裡的字級一律寫 `var(--fs-*)`，共七級：
 
 ## Layout
 
-- 桌機：左側固定側欄 280px，主內容區左右內距 4rem、最寬 1100px。內容超過視窗高度時側欄自己捲動。
-- 1023px 以下：側欄拆開，工具列變成單排可橫向捲動，設定區與 Usage App 卡片排到內容後面。
-- 600px 以下：隱藏時間軸軌道與序號。
-- 版本頁內容欄寬 46rem（內文實寬約 686px），一行約 45 個中文字。
-- 間距優先用 `.25rem / .5rem / .75rem / 1rem / 1.5rem / 2rem`。
-- 程式碼框的複製按鈕佔自己一欄，不疊在程式碼上；分頁按鈕不寫 `nowrap`，文字放大時允許換行。
-- 資料載入前，1023px 以下先保留工具列高度與一個螢幕高的主內容，避免版面跳動（CLS）。
+- 桌機側欄固定 280px；主內容使用寬鬆內距，最寬 1100px。版本頁正文最寬 46rem。
+- 1023px 以下工具列橫向捲動、觸控控制項至少 44px；600px 以下主內容縮小內距。頁面不出現整頁橫向捲軸。
+- 首頁卡片的序號是徽章前的小灰字；沒有時間軸軌道與圓點。版本頁使用相同卡片、字體、比喻框與程式碼框。
+- 搜尋結果、分享選單、歷史手風琴、企業／團隊開關與卡片錨點沿用既有互動。
 
 ## Elevation & Depth
 
-整體扁平。卡片沒有陰影，靠底色與 1px 邊框分層；hover 只換邊框色並上移 2px。唯一的陰影在浮動的分享選單，用來表示它蓋在內容上面。不使用發光（box-shadow 光暈）與漸層背景；1023px 以下工具列的捲動邊緣遮罩是唯一例外，遮罩不是背景色。
+淺色卡片使用極淡、範圍較大的陰影；hover 只改陰影，不移動卡片。深色卡片靠底色亮度分層，陰影 token 是透明。分享選單可用陰影表示浮在內容上方。卡片進場只動 `translate`。
 
 ## Shapes
 
-- 4px：小按鈕、分頁按鈕、分頁滑塊、行內程式碼。
-- 6px：工具按鈕、程式碼框、原始 CHANGELOG 摺疊區。
-- 8px：卡片、歷史版本卡、分頁外框、Usage App 卡片。
-- 999px：篩選 chip。
-- 巢狀圓角 = 外層圓角 − 內距，例如分頁外框 8px、內距 4px，裡面就是 4px。
+- 16px：更新卡片與歷史版本卡。
+- 12px：比喻框、原始 CHANGELOG 區、側欄 Usage App 卡。
+- 10px：搜尋框、結果面板與程式碼框。
+- 8px：設定與一般小按鈕。
+- 4px：行內程式碼。
+- 999px：工具、分頁、篩選 chip、最新發布標記。
 
 ## Components
 
-- **控制項高度**只用三級：`--control-sm` 32px（篩選 chip、複製連結／分享、原始 CHANGELOG 標題）、`--control-md` 36px（桌機設定區）、`--control-lg` 44px（工具按鈕、分頁按鈕、1023px 以下的所有設定按鈕）。
-- **更新卡片**：一般卡內距 1.5rem、標題 `--fs-xl`；「問題修復」是緊湊卡，內距 1rem、標題 `--fs-md`、hover 不上移。
-- **時間軸**：圓點與序號的垂直中心對齊卡片第一行的類型標籤；序號右緣離卡片至少 16px。
-- **工具清單**：依資料順序固定排列，點擊不重排；選中的那顆用 accent 淡底加 accent 邊框。
+- 更新卡片白底、無邊框、圓角 16px，內距 1.75rem。一般標題 `--fs-xl`，緊湊卡與歷史展開內標題 `--fs-md`。
+- 工具與分頁選中狀態為 `--accent-color` 實心底與 `--accent-contrast` 字；深色主題兩者互換亮暗。分頁和工具都維持 44px 觸控高度。
+- 篩選 chip 桌機高 32px、1023px 以下高 44px、字級 `--fs-xs`，選中同樣使用實心膠囊；類型徽章是沒有框與圖示的中性灰小字。企業／團隊徽章與隱藏開關使用同一套中性灰。
+- 最新發布標記為實心小膠囊。比喻框使用淡灰底與 12px 圓角，不加左色條。原始 CHANGELOG 摺疊區也用淡灰底與 12px 圓角。
+- 版本頁麵包屑用 Inter 小字、深灰連結；版本大標用 Inter 500。404 與版本頁共用 `PAGE_CSS`；404 的圖示和字體使用絕對網址。
+- **工具清單**：依資料順序固定排列，點擊不重排。
+- **篩選 chip 計數**：標籤後用數字顯示目前版本的各類卡片數，切換工具或版本時同步更新。0 張卡的類型 chip 停用（muted 色），但已選中的仍可點掉。
+- **企業／團隊向**：`data.json` 的 `enterprise` 卡片序號標出，徽章放在類型徽章旁；「隱藏企業／團隊向」是獨立開關，預設關、不寫入 localStorage，與類型 chip 互不影響。
+- **搜尋框**：放在主內容區最上方、分頁列之上，高度 `--control-lg`、字級 `--fs-base`；第一次聚焦或輸入才載入 `search-index.json`，至少 2 個字元才搜。結果面板貼在輸入框下方、最多 30 筆，第一行（`aria-live="polite"`）顯示筆數，連結到靜態版本頁的 `#card-<n>`（英文介面連到 `/en/`）。按 Esc 收起面板。
 - **分享選單**：浮在按鈕下方，不推擠版面；超出視窗時改從左側對齊。
-- **版本頁麵包屑**：`AI_UPDATES.LOG / 工具名 / 版本號`，`--fs-xs` 等寬字；連結用 accent，目前頁與分隔線用 muted；連結高度至少 24px（axe `target-size`）。
-- **404 頁**：`docs/404.html` 由 `scripts/build.py` 用版本頁的同一份 `PAGE_CSS` 產生，不手寫。它會在任何路徑深度被服務，所以字體、圖示與連結都用絕對網址。
-- **404 錯誤資訊**：保留原有中英文說明、回首頁和訂閱 RSS；內容卡先顯示 `ERR 404  route not found` 與閃爍方塊游標，再列五個工具的首頁 hash 連結。游標約每秒閃爍一次。
-- **側欄設定按鈕**：主題與複製 RSS 按鈕用 16px 行內 SVG 加文字，水平間距 `.5rem`；主題依目前模式顯示太陽或月亮，RSS 固定顯示 RSS 圖示。hover 邊框用 `--accent-color`。
-- **篩選 chip 計數**：標籤後用等寬數字顯示目前版本的各類卡片數，切換工具或版本時同步更新，不另開會推擠內容的文字列。0 張卡的類型 chip 停用（muted 色），但已選中的仍可點掉。
-- **回到頂端按鈕**：捲過兩個螢幕高才以 fixed 顯示在右下角，44px 正方形、只放箭頭圖示（文字放 `aria-label` 與 `title`），圓角 6px，並避開 safe area。
-- **搜尋框**：放在主內容區最上方、分頁列之上，高度 `--control-lg`、圓角 6px、字級 `--fs-base`；第一次聚焦或輸入才載入 `search-index.json`，至少 2 個字元才搜。結果面板貼在輸入框下方、最多 30 筆，第一行（`aria-live="polite"`）顯示筆數，連結到靜態版本頁的 `#card-<n>`（英文介面連到 `/en/`）。按 Esc 收起面板。
-- **企業／團隊向徽章**：`data.json` 的 `enterprise` 卡片序號標出，徽章放在類型徽章旁，用 `--muted-color` 與 `--border-color`，不用 `tag-*` 色；篩選列的「隱藏企業／團隊向」是獨立開關，預設關、不寫入 localStorage，與類型 chip 互不影響。
-- **跳到主要內容連結**：`<body>` 第一個可聚焦元素，平常藏在視窗上緣外，取得焦點時滑入左上角，高度 `--control-lg`，邊框用 `--accent-color`。
+- **側欄設定按鈕**：主題與複製 RSS 按鈕用 16px 行內 SVG 加文字；主題依目前模式顯示太陽或月亮，RSS 固定顯示 RSS 圖示。
+- **回到頂端按鈕**：捲過兩個螢幕高才以 fixed 顯示在右下角，44px 正方形、只放箭頭圖示（文字放 `aria-label` 與 `title`），並避開 safe area。
+- **跳到主要內容連結**：`<body>` 第一個可聚焦元素，平常藏在視窗上緣外，取得焦點時滑入左上角，高度 `--control-lg`。
+- **版本頁麵包屑**：`AI_UPDATES.LOG / 工具名 / 版本號`，連結高度至少 24px（axe `target-size`）。
+- **404 錯誤資訊**：保留中英文說明、回首頁和訂閱 RSS；內容卡先顯示 `ERR 404  route not found` 與閃爍方塊游標，再列五個工具的首頁 hash 連結。
+- 資料載入前，1023px 以下先保留工具列高度與一個螢幕高的主內容，避免版面跳動（CLS）。
 
 ## Do's and Don'ts
 
-- 跨頁導覽用 CSS `@view-transition{navigation:auto}` 淡入淡出；首頁內切換工具或版本不套轉場。
-- 首頁與版本頁的 `.log-item-card` 在支援 `animation-timeline:view()` 時，隨進入視窗由下移 12px 滑至原位，範圍為 `entry 0% entry 35%`。只動畫獨立的 `translate`，不動 hover 使用的 `transform`，也不動 `opacity`（半透明的字會被 Lighthouse／axe 判成對比不足，2026-09-29 拿掉）；首屏卡片維持完整狀態，不支援的瀏覽器維持原狀。
-- `prefers-reduced-motion: reduce` 時，關閉跨頁轉場、卡片淡入及 404 游標閃爍，卡片保持完整顯示。
-
-- Do：新增文字用 `--fs-*`，新增按鈕用 `--control-*`。
-- Do：改 `docs/index.html` 的樣式時，同步改 `scripts/build.py` 的 `PAGE_CSS`（版本頁與 404 頁共用），再跑 `python3 scripts/build.py`。
-- Do：上線前跑 `python3 -m pytest -q`（含 `tests/test_design_tokens.py`），並用 axe 檢查對比度與標題層級。
-- Do：深色、淺色、手機 WebKit 都要截圖看過。
-- Don't：加光暈、漸層背景、第二個強調色。
-- Don't：寫死字級數字（例如 `font-size:.73rem`），測試會擋。
+- Do：新增字級使用七個 `--fs-*`；控制項高度使用 `--control-sm`（32px）、`--control-md`（36px）、`--control-lg`（44px）。
+- Do：中文不加字距；英文需要字距時只寫在 `:lang(en)` 規則。會換行的中文內文行距維持 1.5～2.0。
+- Do：改首頁 CSS 時同步改 `scripts/build.py` 的 `PAGE_CSS`，再跑 `python3 scripts/build.py`。
+- Do：保留 RSS、skip link、語言與主題切換、搜尋、歷史手風琴、分享、錨點與 `prefers-reduced-motion`。
+- Do：跨頁導覽用 `@view-transition{navigation:auto}` 淡入淡出；首頁內切換工具或版本不套轉場。
+- Do：`.log-item-card` 在支援 `animation-timeline:view()` 時由下移 12px 滑至原位，範圍 `entry 0% entry 35%`。只動畫獨立的 `translate`，不動 `transform` 與 `opacity`（半透明的字會被 Lighthouse／axe 判成對比不足）；首屏卡片維持完整狀態。
+- Do：`prefers-reduced-motion: reduce` 時關閉跨頁轉場、卡片進場及 404 游標閃爍。
+- Do：上線前跑 `python3 -m pytest -q`，並用 axe 檢查對比度、標題層級與點擊區；深色、淺色、手機 WebKit 都要截圖看過。
 - Don't：讓點擊或載入改變已經在畫面上的內容位置。
+- Don't：加彩色類型徽章、徽章圖示、時間軸軌道、卡片 hover 位移或中文大寫字距。
+- Don't：寫死字級或把中文縮到 11px。
