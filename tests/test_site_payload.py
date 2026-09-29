@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import json
+import re
+import xml.etree.ElementTree as ET
+from datetime import date, timedelta
+from html import unescape
 from pathlib import Path
 from typing import Any
 
@@ -237,3 +241,145 @@ def test_static_page_and_feed_strip_analogy_markers() -> None:
     description = build_script._description(version)
 
     assert "⟦" not in description and "⟧" not in description
+
+
+def test_feeds_include_visible_versions_in_date_order(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _configure_build(tmp_path, monkeypatch)
+    tools = []
+    for tool_id, name in build_script.TOOLS:
+        versions = []
+        for number in range(25):
+            period = (date(2026, 9, 28) - timedelta(days=number)).isoformat()
+            version = f"1.{number}.0"
+            raw = _raw(version, [f"Raw `{tool_id}` {number}"])
+            raw["period"] = period
+            curated = None
+            if number == 1:
+                curated = _curated(version, ["Original"])
+                curated["period"] = period
+                curated["items"][0]["title"]["en"] = "⟦New `feature`⟧"
+                curated["items"][0]["body"]["en"] = "First `sentence`. Second sentence."
+            versions.append({"version": version, "raw": raw, "curated": curated})
+        tools.append({"id": tool_id, "name": name, "versions": versions})
+    stale = tmp_path / "docs" / "feed" / "stale.xml"
+    stale.parent.mkdir()
+    stale.write_text("old", encoding="utf-8")
+    build_script._write_rss_feed(tools)
+
+    assert not stale.exists()
+    ns = {"atom": "http://www.w3.org/2005/Atom"}
+    for tool_id, name in build_script.TOOLS:
+        channel = ET.parse(tmp_path / "docs" / "feed" / f"{tool_id}.xml").getroot().find("channel")
+        assert channel is not None
+        assert channel.findtext("title") == f"AI Updates · {name}"
+        assert channel.find("atom:link", ns).get("href") == (
+            f"{build_script.SITE_URL}feed/{tool_id}.xml"
+        )
+        items = channel.findall("item")
+        assert len(items) == 20
+        assert [item.findtext("title") for item in items] == [
+            f"{name} 1.{number}.0" for number in range(20)
+        ]
+        assert items[1].findtext("description") == "New feature: First sentence. Second sentence."
+        assert "`" not in items[0].findtext("description")
+
+    channel = ET.parse(tmp_path / "docs" / "feed.xml").getroot().find("channel")
+    assert channel is not None
+    assert channel.find("atom:link", ns).get("href") == f"{build_script.SITE_URL}feed.xml"
+    items = channel.findall("item")
+    assert len(items) == 30
+    assert [item.findtext("title") for item in items] == [
+        f"{name} 1.{number}.0"
+        for number in range(15)
+        for _, name in build_script.TOOLS
+    ]
+
+
+def test_headline_limits_and_metadata(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _configure_build(tmp_path, monkeypatch)
+    version = {
+        "version": "2.0.0",
+        "raw": _raw("2.0.0", ["Raw update"]),
+        "curated": _curated("2.0.0", ["Raw update"]),
+    }
+    first = version["curated"]["items"][0]
+    first["title"]["zh-TW"] = "前面有重點，" + "長" * 35
+    first["title"]["en"] = "New feature, " + "word " * 15
+    first["body"]["zh-TW"] = "先用 `設定` 完成" + "設" * 50 + "。後面這句不該出現。"
+    assert build_script._headline(version, "zh-TW") == "前面有重點"
+    assert build_script._headline(version, "en") == (
+        "New feature, word word word word word word word word word"
+    )
+    first["title"]["zh-TW"] = "長" * 35
+    first["title"]["en"] = "x" * 65
+    assert build_script._headline(version, "zh-TW") == "長" * 30
+    assert build_script._headline(version, "en") == "x" * 60
+    first["title"]["zh-TW"] = ""
+    assert build_script._headline(version, "zh-TW") == ""
+    first["title"]["zh-TW"] = "⟦" + "長" * 30 + "⟧"
+    page = build_script._render_static_page(
+        {"id": "alpha", "name": "Alpha"}, 0, [version]
+    )
+    title = unescape(re.search(r"<title>(.*?)</title>", page).group(1))
+    assert title == f"Alpha 2.0.0：{'長' * 30}｜更新白話速報"
+    assert "`" not in re.search(r'<meta name="description" content="([^"]*)"', page).group(1)
+    lead = "先用 設定 完成" + "設" * 50 + "。"
+    assert f'content="{lead}"' in page
+    assert '<meta property="og:title" content="' + title + '">' in page
+    assert '<meta name="twitter:title" content="' + title + '">' in page
+    assert f'<meta property="og:description" content="{lead}">' in page
+    assert f'<meta name="twitter:description" content="{lead}">' in page
+    assert '"headline": "' + title + '"' in page
+    assert f'"description": "{lead}"' in page
+    second = "第二句補上" + "長" * 50 + "。"
+    first["body"]["zh-TW"] = "很短。" + second + "第三句不該出現。"
+    assert build_script._description(version, "zh-TW") == "很短。" + second
+
+    version["version"] = "very-long-version-name-that-removes-the-suffix"
+    page = build_script._render_static_page(
+        {"id": "alpha", "name": "Alpha"}, 0, [version]
+    )
+    title = unescape(re.search(r"<title>(.*?)</title>", page).group(1))
+    assert title == f"Alpha {version['version']}：{'長' * 30}"
+    assert "｜更新白話速報" not in page
+
+
+def test_card_ids_keep_curated_positions_and_raw_fallback() -> None:
+    version = {
+        "version": "1.0.0",
+        "raw": _raw("1.0.0", ["Raw `entry`"]),
+        "curated": _curated("1.0.0", ["First", "Skipped", "Third"]),
+    }
+    version["curated"]["items"][1]["title"] = {"zh-TW": "", "en": ""}
+    version["curated"]["items"][1]["body"] = {"zh-TW": "", "en": ""}
+    zh = build_script._render_items(version, "zh-TW", card_ids=True)
+    en = build_script._render_items(version, "en")
+    assert re.findall(r'id="card-(\d+)"', zh) == ["1", "3"]
+    assert 'id="card-' not in en
+
+    version["curated"] = None
+    assert build_script._headline(version, "zh-TW") == ""
+    assert build_script._description(version) == "Raw `entry`"
+    assert 'id="card-' not in build_script._render_items(version, "zh-TW", card_ids=True)
+
+
+def test_long_lead_uses_existing_truncation_rule() -> None:
+    version = {"curated": _curated("1.0.0", ["Original"])}
+    first = version["curated"]["items"][0]
+    first["body"]["zh-TW"] = "甲" * 140 + "，" + "乙" * 30 + "。後句。"
+    description = build_script._description(version)
+    assert description == "甲" * 140 + "，…"
+    assert len(description) <= 150
+
+
+def test_feed_with_one_version(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _configure_build(tmp_path, monkeypatch)
+    version = {"version": "1.0.0", "raw": _raw("1.0.0", ["Only release"]), "curated": None}
+    build_script._write_rss_feed([{"id": "alpha", "name": "Alpha", "versions": [version]}])
+    channel = ET.parse(tmp_path / "docs" / "feed" / "alpha.xml").getroot().find("channel")
+    assert channel is not None
+    assert len(channel.findall("item")) == 1

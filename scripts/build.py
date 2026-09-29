@@ -41,6 +41,7 @@ BUILD_OUTPUTS = (
     "docs/index.html",
     "docs/404.html",
     "docs/feed.xml",
+    "docs/feed",
     "docs/sitemap.xml",
     "docs/robots.txt",
     "docs/llms.txt",
@@ -313,26 +314,59 @@ def _curated_items(version: dict[str, Any]) -> list[dict[str, Any]]:
     return [item for item in curated.get("items", []) if isinstance(item, dict)]
 
 
-def _description(version: dict[str, Any], language: str = "zh-TW") -> str:
+def _headline(version: dict[str, Any], language: str) -> str:
+    items = _curated_items(version)
+    if not items:
+        return ""
+    title = _strip_analogy_marks(_localized(items[0].get("title"), language)).replace("`", "")
+    limit = 30 if language == "zh-TW" else 60
+    if len(title) <= limit:
+        return title
+    if language == "zh-TW":
+        cut = max((title.rfind(mark, 0, limit + 1) for mark in "，、：；"), default=-1)
+        return title[:cut] if cut > 0 else title[:limit]
+    cut = max(title.rfind(", ", 0, limit + 1), title.rfind(" ", 0, limit + 1))
+    return title[:cut].rstrip(", ") if cut > 0 else title[:limit]
+
+
+def _truncate_description(text: str, limit: int) -> str:
+    if len(text) <= limit:
+        return text
+    # Reserve one character for the ellipsis; prefer a complete sentence, then
+    # punctuation or whitespace. Never cut an unbroken English word or URL.
+    for pattern in (r"[。！？]|[.!?](?=\s|$)", r"[，、；：]|[,;:](?=\s|$)|\s+"):
+        ends = [match.end() for match in re.finditer(pattern, text) if match.end() <= limit - 1]
+        if ends:
+            return text[:ends[-1]].rstrip() + "…"
+    return "…"
+
+
+def _description(
+    version: dict[str, Any], language: str = "zh-TW", limit: int = 150
+) -> str:
     items = _curated_items(version)
     if items:
         first = items[0]
-        body = _strip_prose_only(_strip_analogy_marks(_localized(first.get("body"), language)))
-        text = f"{_strip_analogy_marks(_localized(first.get('title'), language))} {body}"
+        rest = _localized(first.get("body"), language)
+        stop = SENTENCE_STOP.get(language, ".")
+        # 只有一句很短的引子（例如「AI 人才市場迎來了一次大擴編。」）給不出資訊，
+        # 補上下一句，直到夠長或碰到比喻框為止。
+        floor = 50 if language == "zh-TW" else 100
+        text = ""
+        while rest and not rest.lstrip().startswith("⟦"):
+            cut = _first_sentence_end(rest, stop)
+            text += rest[: cut + 1] if cut != -1 else rest
+            rest = rest[cut + 1 :] if cut != -1 else ""
+            if len(_strip_analogy_marks(text).replace("`", "").strip()) >= floor:
+                break
     else:
         raw = version.get("raw")
         entries = raw.get("entries", []) if isinstance(raw, dict) else []
         text = " ".join(entry for entry in entries if isinstance(entry, str))
     text = _strip_prose_only(_strip_analogy_marks(text))
-    if len(text) <= 150:
-        return text
-    # Reserve one character for the ellipsis; prefer a complete sentence, then
-    # punctuation or whitespace. Never cut an unbroken English word or URL.
-    for pattern in (r"[。！？]|[.!?](?=\s|$)", r"[，、；：]|[,;:](?=\s|$)|\s+"):
-        ends = [match.end() for match in re.finditer(pattern, text) if match.end() <= 149]
-        if ends:
-            return text[:ends[-1]].rstrip() + "…"
-    return "…"
+    if items:
+        text = text.replace("`", "")
+    return _truncate_description(text, limit)
 
 
 def _rss_pub_date(period: str) -> str:
@@ -341,27 +375,45 @@ def _rss_pub_date(period: str) -> str:
 
 
 def _write_rss_feed(history_tools: list[dict[str, Any]]) -> None:
+    feed_root = ROOT / "docs" / "feed"
+    shutil.rmtree(feed_root, ignore_errors=True)
+    feed_root.mkdir(parents=True)
+    tool_order = {tool_id: index for index, (tool_id, _) in enumerate(TOOLS)}
+    all_entries = []
+    for tool in history_tools:
+        entries = []
+        for version in tool.get("versions", []):
+            period = str((version.get("curated") or version.get("raw") or {}).get("period", ""))
+            entries.append((_period_end_date(period), tool, version, period))
+        entries.sort(key=lambda entry: entry[0], reverse=True)
+        all_entries.extend(entries)
+        _write_feed(
+            feed_root / f"{tool['id']}.xml",
+            f"AI Updates · {tool['name']}",
+            f"{SITE_URL}feed/{tool['id']}.xml",
+            entries[:20],
+        )
+    all_entries.sort(
+        key=lambda entry: (entry[0], -tool_order[str(entry[1]["id"])]), reverse=True
+    )
+    _write_feed(ROOT / "docs" / "feed.xml", "AI Updates", f"{SITE_URL}feed.xml", all_entries[:30])
+
+
+def _write_feed(
+    path: Path, title: str, url: str,
+    entries: list[tuple[str, dict[str, Any], dict[str, Any], str]],
+) -> None:
     rss = ET.Element("rss", {"version": "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom"})
     channel = ET.SubElement(rss, "channel")
-    ET.SubElement(channel, "title").text = "AI Updates"
+    ET.SubElement(channel, "title").text = title
     ET.SubElement(channel, "link").text = SITE_URL
     ET.SubElement(
         channel,
         "atom:link",
-        {"href": f"{SITE_URL}feed.xml", "rel": "self", "type": "application/rss+xml"},
+        {"href": url, "rel": "self", "type": "application/rss+xml"},
     )
     ET.SubElement(channel, "description").text = "Plain-language updates for AI developer tools."
     ET.SubElement(channel, "language").text = "en"
-
-    entries = []
-    for tool in history_tools:
-        versions = tool.get("versions", [])
-        if not versions:
-            continue
-        version = versions[0]
-        period = str((version.get("curated") or version.get("raw") or {}).get("period", ""))
-        entries.append((_period_end_date(period), tool, version, period))
-    entries.sort(key=lambda entry: entry[0], reverse=True)
 
     if entries:
         ET.SubElement(channel, "lastBuildDate").text = _rss_pub_date(entries[0][3])
@@ -374,11 +426,19 @@ def _write_rss_feed(history_tools: list[dict[str, Any]]) -> None:
         ET.SubElement(item, "link").text = url
         ET.SubElement(item, "guid", {"isPermaLink": "true"}).text = url
         ET.SubElement(item, "pubDate").text = _rss_pub_date(period)
-        ET.SubElement(item, "description").text = _description(version, "en")
+        lead = _description(version, "en", 200).replace("`", "")
+        curated_items = _curated_items(version)
+        headline = (
+            _strip_prose_only(_strip_analogy_marks(_localized(curated_items[0].get("title"), "en")))
+            .replace("`", "")
+            if curated_items else f"{tool['name']} {version_name}"
+        )
+        summary = f"{headline}: {lead}" if headline else lead
+        ET.SubElement(item, "description").text = _truncate_description(summary, 200)
 
     tree = ET.ElementTree(rss)
     ET.indent(tree, space="  ")
-    tree.write(ROOT / "docs" / "feed.xml", encoding="utf-8", xml_declaration=True)
+    tree.write(path, encoding="utf-8", xml_declaration=True)
 
 
 ANALOGY_MARKS = str.maketrans("", "", "⟦⟧")
@@ -570,12 +630,13 @@ def _render_body(text: str, language: str = "zh-TW") -> str:
 
 
 def _render_items(
-    version: dict[str, Any], language: str, *, include_original: bool = True
+    version: dict[str, Any], language: str, *, include_original: bool = True,
+    card_ids: bool = False,
 ) -> str:
     items = _curated_items(version)
     if items:
         blocks = []
-        for item in items:
+        for number, item in enumerate(items, 1):
             title = _localized(item.get("title"), language)
             body = _localized(item.get("body"), language)
             if title or body:
@@ -588,8 +649,9 @@ def _render_items(
                         "<details><summary>Original changelog</summary>"
                         f'<pre lang="en">{escape(str(item.get("original", "")))}</pre></details>'
                     )
+                card_id = f' id="card-{number}"' if card_ids else ""
                 blocks.append(
-                    f'<article class="log-item-card tier-{badge_type}">'
+                    f'<article class="log-item-card tier-{badge_type}"{card_id}>'
                     '<div class="log-item-header">'
                     f'<span class="log-badge badge-{badge_type}">{BADGE_ICONS[badge_type]}'
                     f"{escape(BADGE_LABELS[language][badge_type])}</span>"
@@ -660,6 +722,12 @@ def _render_static_page(
             if _localized(item.get("title"), "zh-TW")
         ]
     title = f"{name} {version_name} 更新白話速報"
+    if items:
+        headline = _headline(version, "zh-TW")
+        if headline:
+            title = f"{name} {version_name}：{headline}｜更新白話速報"
+            if len(title) > 60:
+                title = f"{name} {version_name}：{headline}"
     url = _page_url(tool_id, version_name)
     site = {"@type": "Organization", "name": "AI_UPDATES.LOG", "url": SITE_URL}
     structured_data = [
@@ -708,7 +776,7 @@ def _render_static_page(
         language_sections = "\n".join(
             f'<section class="language-section" lang="{language}">'
             f'<h2>{"繁體中文" if language == "zh-TW" else "English"}</h2>'
-            f'{_render_items(version, language, include_original=False)}</section>'
+            f'{_render_items(version, language, include_original=False, card_ids=language == "zh-TW")}</section>'
             for language in LANGUAGES
         )
         language_sections += (
