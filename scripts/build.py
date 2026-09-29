@@ -677,19 +677,21 @@ PAGE_CSS = """\
     @font-face{font-family:"Inter";font-style:normal;font-weight:400 700;font-display:swap;src:url(__ASSETS__fonts/inter-latin.woff2) format("woff2");unicode-range:U+0-FF,U+131,U+152-153,U+2BB-2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
     @font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:400 700;font-display:swap;src:url(__ASSETS__fonts/jetbrains-mono-latin-ext.woff2) format("woff2");unicode-range:U+100-2BA,U+2BD-2C5,U+2C7-2CC,U+2CE-2D7,U+2DD-2FF,U+304,U+308,U+329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
     @font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:400 700;font-display:swap;src:url(__ASSETS__fonts/jetbrains-mono-latin.woff2) format("woff2");unicode-range:U+0-FF,U+131,U+152-153,U+2BB-2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-    :root{--fs-2xs:.6875rem;--fs-xs:.75rem;--fs-sm:.8125rem;--fs-base:.9375rem;--fs-md:1rem;--fs-lg:1.125rem;--fs-xl:1.375rem;--control-sm:32px;--control-md:36px;--control-lg:44px}
-    :root{color-scheme:dark;--bg-color:oklch(0.18 0.005 240);--sidebar-bg:oklch(0.22 0.005 240);--text-color:oklch(0.86 0.005 240);--text-bright:oklch(0.97 0.003 240);--accent-color:oklch(0.96 0.003 240);--accent-contrast:oklch(0.18 0.005 240);--accent-glow:oklch(0.32 0.005 240);--border-color:oklch(0.36 0.005 240);--muted-color:oklch(0.73 0.005 240);--card-bg:oklch(0.25 0.005 240);--code-bg:oklch(0.30 0.005 240);--tag-new:oklch(0.695081 0.180928 145.621);--tag-fix:oklch(0.719000 0.204594 26.960);--tag-perf:oklch(0.719551 0.140145 79.915);--link-color:oklch(0.84 0.025 240);--soft-surface:oklch(0.30 0.005 240);--shadow-ink-1:transparent;--shadow-ink-2:transparent;--shadow-ink-hover-1:transparent;--shadow-ink-hover-2:transparent;--shadow-ink-search:transparent}
+    :root{--fs-2xs:.6875rem;--fs-xs:.75rem;--fs-sm:.8125rem;--fs-base:.9375rem;--fs-md:1rem;--fs-lg:1.125rem;--fs-xl:1.375rem;--control-sm:32px;--control-md:36px;--control-lg:44px;--bg-color:#0a2540;--sidebar-bg:#0a2540;--card-bg:#0f3056;--code-bg:#102e4e;--soft-surface:#173b62;--border-color:#31516f;--text-color:#bed0e4;--text-bright:#ffffff;--muted-color:#aac0d8;--accent-color:#2563eb;--accent-contrast:#ffffff;--accent-glow:#243f75;--link-color:#93c5fd;--tag-new:#85d9bc;--tag-fix:#ffa99e;--tag-perf:#f9cf82;--item-rule:rgb(255 255 255 / 10%);--chip-bg:#173b62;--analogy-text:#bed0e4;--analogy-start:oklch(0.51 0.16 255 / .22);--analogy-end:oklch(0.55 0.10 205 / .16);--analogy-border:rgb(255 255 255 / 12%);--badge-bg:rgb(255 255 255 / 6%);--glow-wash-1:rgb(34 211 238 / 27%);--glow-wash-2:rgb(56 140 255 / 29%);--glow-wash-3:rgb(99 102 241 / 38%);--glass-fill:rgb(10 37 64 / 69%);--glass-border:rgb(255 255 255 / 18%);--glass-shadow:0 12px 36px rgb(0 12 34 / 18%);--selected-gradient:linear-gradient(110deg,#2563eb,#0369a1);--serial-1:#50c7f1;--serial-2:#4dacf6;--serial-3:#6d9aff;--font-ui:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:dark}
     @media (prefers-color-scheme:light){
-    :root{--bg-color:oklch(0.975 0.003 240);--sidebar-bg:oklch(1 0 0);--text-color:oklch(0.34 0.012 240);--text-bright:oklch(0.18 0.008 240);--accent-color:oklch(0.18 0.008 240);--accent-contrast:oklch(1 0 0);--accent-glow:oklch(0.955 0.004 240);--border-color:oklch(0.905 0.006 240);--muted-color:oklch(0.43 0.01 240);--card-bg:oklch(1 0 0);--code-bg:oklch(0.955 0.004 240);--tag-new:oklch(0.472000 0.137103 150.069);--tag-fix:oklch(0.473000 0.215157 27.325);--tag-perf:oklch(0.501000 0.145505 48.998);--link-color:oklch(0.37 0.05 240);--soft-surface:oklch(0.96 0.003 240);--shadow-ink-1:oklch(0.18 0.008 240 / .035);--shadow-ink-2:oklch(0.18 0.008 240 / .045);--shadow-ink-hover-1:oklch(0.18 0.008 240 / .04);--shadow-ink-hover-2:oklch(0.18 0.008 240 / .06);--shadow-ink-search:oklch(0.18 0.008 240 / .025);color-scheme:light}
+
+    :root{--bg-color:#ffffff;--sidebar-bg:#ffffff;--card-bg:#ffffff;--code-bg:#f6f9fc;--soft-surface:#f6f9fc;--border-color:#d8e3ee;--text-color:#425466;--text-bright:#061b31;--muted-color:#586a82;--accent-color:#2563eb;--accent-contrast:#ffffff;--accent-glow:#eff6ff;--link-color:#2156ca;--tag-new:#087a56;--tag-fix:#b13f43;--tag-perf:#925b08;--item-rule:#e5edf5;--chip-bg:#f6f9fc;--analogy-text:#425466;--analogy-start:oklch(0.77 0.11 255 / .16);--analogy-end:oklch(0.80 0.09 205 / .13);--analogy-border:#d8e3ee;--badge-bg:#ffffff;--glow-wash-1:rgb(34 211 238 / 17%);--glow-wash-2:rgb(56 140 255 / 15%);--glow-wash-3:rgb(99 102 241 / 18%);--glass-fill:rgb(255 255 255 / 70%);--glass-border:#d8e3ee;--glass-shadow:0 10px 28px rgb(10 37 64 / 8%);--selected-gradient:linear-gradient(110deg,#2563eb,#0369a1);--serial-1:#1575a2;--serial-2:#2563c9;--serial-3:#4158bc;--font-ui:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:light}
+
     }
-    :root[data-theme="light"]{color-scheme:light;--bg-color:oklch(0.975 0.003 240);--sidebar-bg:oklch(1 0 0);--text-color:oklch(0.34 0.012 240);--text-bright:oklch(0.18 0.008 240);--accent-color:oklch(0.18 0.008 240);--accent-contrast:oklch(1 0 0);--accent-glow:oklch(0.955 0.004 240);--border-color:oklch(0.905 0.006 240);--muted-color:oklch(0.43 0.01 240);--card-bg:oklch(1 0 0);--code-bg:oklch(0.955 0.004 240);--tag-new:oklch(0.472000 0.137103 150.069);--tag-fix:oklch(0.473000 0.215157 27.325);--tag-perf:oklch(0.501000 0.145505 48.998);--link-color:oklch(0.37 0.05 240);--soft-surface:oklch(0.96 0.003 240);--shadow-ink-1:oklch(0.18 0.008 240 / .035);--shadow-ink-2:oklch(0.18 0.008 240 / .045);--shadow-ink-hover-1:oklch(0.18 0.008 240 / .04);--shadow-ink-hover-2:oklch(0.18 0.008 240 / .06);--shadow-ink-search:oklch(0.18 0.008 240 / .025)}
-    :root[data-theme="dark"]{color-scheme:dark;--bg-color:oklch(0.18 0.005 240);--sidebar-bg:oklch(0.22 0.005 240);--text-color:oklch(0.86 0.005 240);--text-bright:oklch(0.97 0.003 240);--accent-color:oklch(0.96 0.003 240);--accent-contrast:oklch(0.18 0.005 240);--accent-glow:oklch(0.32 0.005 240);--border-color:oklch(0.36 0.005 240);--muted-color:oklch(0.73 0.005 240);--card-bg:oklch(0.25 0.005 240);--code-bg:oklch(0.30 0.005 240);--tag-new:oklch(0.695081 0.180928 145.621);--tag-fix:oklch(0.719000 0.204594 26.960);--tag-perf:oklch(0.719551 0.140145 79.915);--link-color:oklch(0.84 0.025 240);--soft-surface:oklch(0.30 0.005 240);--shadow-ink-1:transparent;--shadow-ink-2:transparent;--shadow-ink-hover-1:transparent;--shadow-ink-hover-2:transparent;--shadow-ink-search:transparent}
+    :root[data-theme="light"]{--bg-color:#ffffff;--sidebar-bg:#ffffff;--card-bg:#ffffff;--code-bg:#f6f9fc;--soft-surface:#f6f9fc;--border-color:#d8e3ee;--text-color:#425466;--text-bright:#061b31;--muted-color:#586a82;--accent-color:#2563eb;--accent-contrast:#ffffff;--accent-glow:#eff6ff;--link-color:#2156ca;--tag-new:#087a56;--tag-fix:#b13f43;--tag-perf:#925b08;--item-rule:#e5edf5;--chip-bg:#f6f9fc;--analogy-text:#425466;--analogy-start:oklch(0.77 0.11 255 / .16);--analogy-end:oklch(0.80 0.09 205 / .13);--analogy-border:#d8e3ee;--badge-bg:#ffffff;--glow-wash-1:rgb(34 211 238 / 17%);--glow-wash-2:rgb(56 140 255 / 15%);--glow-wash-3:rgb(99 102 241 / 18%);--glass-fill:rgb(255 255 255 / 70%);--glass-border:#d8e3ee;--glass-shadow:0 10px 28px rgb(10 37 64 / 8%);--selected-gradient:linear-gradient(110deg,#2563eb,#0369a1);--serial-1:#1575a2;--serial-2:#2563c9;--serial-3:#4158bc;--font-ui:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:light}
+    :root[data-theme="dark"]{--bg-color:#0a2540;--sidebar-bg:#0a2540;--card-bg:#0f3056;--code-bg:#102e4e;--soft-surface:#173b62;--border-color:#31516f;--text-color:#bed0e4;--text-bright:#ffffff;--muted-color:#aac0d8;--accent-color:#2563eb;--accent-contrast:#ffffff;--accent-glow:#243f75;--link-color:#93c5fd;--tag-new:#85d9bc;--tag-fix:#ffa99e;--tag-perf:#f9cf82;--item-rule:rgb(255 255 255 / 10%);--chip-bg:#173b62;--analogy-text:#bed0e4;--analogy-start:oklch(0.51 0.16 255 / .22);--analogy-end:oklch(0.55 0.10 205 / .16);--analogy-border:rgb(255 255 255 / 12%);--badge-bg:rgb(255 255 255 / 6%);--glow-wash-1:rgb(34 211 238 / 27%);--glow-wash-2:rgb(56 140 255 / 29%);--glow-wash-3:rgb(99 102 241 / 38%);--glass-fill:rgb(10 37 64 / 69%);--glass-border:rgb(255 255 255 / 18%);--glass-shadow:0 12px 36px rgb(0 12 34 / 18%);--selected-gradient:linear-gradient(110deg,#2563eb,#0369a1);--serial-1:#50c7f1;--serial-2:#4dacf6;--serial-3:#6d9aff;--font-ui:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:dark}
     *{box-sizing:border-box}
     html,body{max-width:100%;overflow-x:clip}
-    body{min-width:0;margin:0;background:var(--bg-color);color:var(--text-color);font:400 var(--fs-md)/1.6 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{min-width:0;margin:0;background:var(--bg-color);color:var(--text-color);font:400 var(--fs-md)/1.6 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;position:relative;isolation:isolate}
+    body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 47vw 41vh at 64% 12%,var(--glow-wash-1),transparent 76%),radial-gradient(ellipse 48vw 48vh at 81% 20%,var(--glow-wash-2),transparent 76%),radial-gradient(ellipse 48vw 43vh at 98% 5%,var(--glow-wash-3),transparent 78%)}
     a{color:var(--link-color)}
     a:focus-visible,summary:focus-visible{outline:2px solid var(--accent-color);outline-offset:3px;border-radius:3px}
-    .page-shell{width:min(100% - 2rem,46rem);margin:0 auto;padding:4rem 0 5rem;overflow-wrap:anywhere;word-break:break-word}
+    .page-shell{width:min(100% - 2rem,46rem);margin:0 auto;padding:4rem 0 5rem;overflow-wrap:anywhere;word-break:break-word;position:relative;z-index:1}
     .page-header{padding:0 0 2rem;border-bottom:0;margin-bottom:2.5rem}
     .breadcrumb{margin:0 0 .5rem;font:500 var(--fs-xs)/1.5 "Inter",sans-serif;line-height:1.5}
     .breadcrumb ol{display:flex;flex-wrap:wrap;align-items:center;margin:0;padding:0;list-style:none}
@@ -698,33 +700,37 @@ PAGE_CSS = """\
     .breadcrumb a{display:inline-flex;align-items:center;min-height:var(--control-sm);color:var(--link-color);text-decoration:none}
     .breadcrumb a:hover{text-decoration:underline}
     h1,h2,h3{color:var(--text-bright);line-height:1.3;text-wrap:balance}
-    h1{margin:0;font:500 var(--fs-xl)/1.3 "Inter",sans-serif}.version-heading{font-size:clamp(2.5rem,5vw,4rem);line-height:1.08}
+    h1{margin:0;font:500 var(--fs-xl)/1.3 "Inter",sans-serif;font-weight:300}
+    .version-heading{font-size:clamp(2.75rem,5vw,4.5rem);line-height:1.05;font-weight:300}
     .release-period{margin:.75rem 0 0;color:var(--muted-color);font:400 var(--fs-xs)/1.5 "Inter",sans-serif;line-height:1.5}
     .language-section{margin:0 0 2.5rem}
     .language-section>h2{margin:0 0 1rem;font:500 var(--fs-lg)/1.5 "Inter",sans-serif;color:var(--muted-color)}
     .language-section:lang(en)>h2{letter-spacing:.06em}
-    .log-item-card{min-width:0;background:var(--card-bg);border:0;border-radius:16px;padding:1.75rem;margin:0 0 1.25rem;transition:box-shadow .2s ease;box-shadow:0 1px 2px var(--shadow-ink-1),0 8px 24px var(--shadow-ink-2)}
-    .log-item-card:hover{border-color:transparent;transform:none;box-shadow:0 2px 4px var(--shadow-ink-hover-1),0 12px 32px var(--shadow-ink-hover-2)}
-    .log-item-card.tier-fix{padding:1.75rem}
+    .log-item-card{min-width:0;background:var(--glass-fill);border:1px solid var(--glass-border);border-radius:20px;padding:2rem;margin:0 0 1.25rem;transition:box-shadow .2s ease;box-shadow:var(--glass-shadow);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);animation:none}
+    .log-item-card:hover{border-color:var(--glass-border);transform:none;box-shadow:var(--glass-shadow);background:var(--glass-fill)}
+    .log-item-card.tier-fix{padding:2rem}
     .log-item-card.tier-fix .log-item-title{font-size:var(--fs-md)}
     .log-item-header{display:flex;align-items:baseline;gap:.45rem .75rem;margin-bottom:1rem;flex-wrap:wrap;flex-direction:row}
-    .log-badge{display:inline-flex;align-items:center;gap:0;font:500 var(--fs-xs)/1.5 "Inter",sans-serif;padding:0;border-radius:0;border:0;background:transparent;color:var(--muted-color);margin-top:0}.log-badge.badge-new{color:var(--tag-new);font-weight:600}.log-badge.badge-fix{color:var(--tag-fix);font-weight:600}.log-badge.badge-perf{color:var(--tag-perf);font-weight:600}
-    .badge-new{background:transparent;color:var(--muted-color);border:0}
-    .badge-fix{background:transparent;color:var(--muted-color);border:0}
-    .badge-perf{background:transparent;color:var(--muted-color);border:0}
-    .log-item-title{margin:0;font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:var(--fs-xl);font-weight:600;line-height:1.5;text-wrap:pretty;flex-basis:100%}
-    .log-item-title:lang(en){letter-spacing:-.01em}
-    .log-lead-text{margin:0 0 .5rem;font:400 var(--fs-md)/1.7 "Inter",sans-serif;color:var(--text-bright);white-space:pre-line}
-    .log-prose-text{margin:.5rem 0 0;font-size:var(--fs-base);line-height:1.8;white-space:pre-line}
-    .log-prose-text:first-of-type{margin-top:0;color:var(--text-bright)}
+    .log-badge{display:inline-flex;align-items:center;gap:0;font:500 var(--fs-xs)/1.5 "Inter",sans-serif;padding:.18rem .65rem;border-radius:999px;border:1px solid currentColor;background:var(--badge-bg);color:var(--muted-color);margin-top:0;width:max-content;font-size:var(--fs-xs);font-weight:600}
+    .log-badge.badge-new{color:var(--tag-new);font-weight:600;padding:.18rem .65rem;border:1px solid currentColor;border-radius:999px;background:var(--badge-bg);font-size:var(--fs-xs)}
+    .log-badge.badge-fix{color:var(--tag-fix);font-weight:600;padding:.18rem .65rem;border:1px solid currentColor;border-radius:999px;background:var(--badge-bg);font-size:var(--fs-xs)}
+    .log-badge.badge-perf{color:var(--tag-perf);font-weight:600;padding:.18rem .65rem;border:1px solid currentColor;border-radius:999px;background:var(--badge-bg);font-size:var(--fs-xs)}
+    .badge-new{background:var(--badge-bg);color:var(--muted-color);border:1px solid currentColor}
+    .badge-fix{background:var(--badge-bg);color:var(--muted-color);border:1px solid currentColor}
+    .badge-perf{background:var(--badge-bg);color:var(--muted-color);border:1px solid currentColor}
+    .log-item-title{margin:0;font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:var(--fs-xl);font-weight:600;line-height:1.4;text-wrap:pretty;flex-basis:100%}
+    .log-item-title:lang(en){letter-spacing:normal}
+    .log-lead-text{margin:0 0 .5rem;font:400 var(--fs-md)/1.7 "Inter",sans-serif;color:var(--text-color);white-space:pre-line;line-height:1.8}
+    .log-prose-text{margin:.5rem 0 0;font-size:var(--fs-base);line-height:1.8;white-space:pre-line;color:var(--text-color)}
+    .log-prose-text:first-of-type{margin-top:0;color:var(--text-color)}
     code{font:var(--fs-sm)/1.5 "JetBrains Mono",monospace;background:var(--code-bg);border-radius:4px;padding:.1em .35em;overflow-wrap:anywhere;word-break:break-word;line-height:1.5}
     pre{max-width:100%;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
     .log-code-block{max-width:100%;margin:.75rem 0 0;padding:.75rem;overflow-x:auto;color:var(--text-color);background:var(--code-bg);border:0;border-radius:10px;font:var(--fs-sm)/1.5 "JetBrains Mono",monospace}
     .log-code-block code{padding:0;background:transparent;font:inherit}
-    .log-analogy{display:flex;gap:.55rem;align-items:flex-start;border-left:0;border-radius:12px;padding:1rem 1.25rem;margin:1.25rem 0;font-size:var(--fs-sm);line-height:1.75;color:var(--text-color);background:var(--soft-surface)}
-    .log-howto{margin:0;border:0;border-radius:12px;background:var(--soft-surface)}
-    .original-entry{margin:0 0 .6rem;background:var(--soft-surface)}
-    .original-entry summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .6rem;list-style:none}
+    .log-analogy{display:flex;gap:.55rem;align-items:flex-start;border-left:0;border-radius:14px;padding:1rem 1.25rem;margin:1.5rem 0;font-size:var(--fs-base);line-height:1.8;color:var(--text-color);background:linear-gradient(120deg,var(--analogy-start),var(--analogy-end));border:1px solid var(--analogy-border)}
+    .log-howto{margin:0;border:0;border-radius:6px;background:var(--soft-surface)}
+    .original-entry{margin:0 0 .6rem;background:var(--code-bg);border:1px solid var(--border-color);border-radius:12px;overflow:hidden}
+    .original-entry summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .6rem;list-style:none;padding:.65rem .85rem}
     .original-entry summary::-webkit-details-marker{display:none}
     .original-entry summary::before{content:"▸";flex:0 0 auto;color:var(--accent-color);transition:transform .2s ease}
     .original-entry[open] summary::before{transform:rotate(90deg)}
@@ -735,43 +741,52 @@ PAGE_CSS = """\
     footer{border-top:1px solid var(--border-color);padding-top:1.5rem}
     footer nav{display:flex;flex-wrap:wrap;gap:.75rem 1rem}
     footer a{font:var(--fs-sm)/1.5 "Inter",sans-serif;line-height:1.5}
-    .back-to-top{position:fixed;right:calc(1rem + env(safe-area-inset-right));bottom:calc(1rem + env(safe-area-inset-bottom));z-index:20;display:grid;place-items:center;width:var(--control-lg);height:var(--control-lg);padding:0;border:1px solid var(--border-color);border-radius:8px;background:var(--card-bg);color:var(--text-bright);cursor:pointer}
+    .back-to-top{position:fixed;right:calc(1rem + env(safe-area-inset-right));bottom:calc(1rem + env(safe-area-inset-bottom));z-index:20;display:grid;place-items:center;width:var(--control-lg);height:var(--control-lg);padding:0;border:1px solid var(--glass-border);border-radius:999px;background:var(--glass-fill);color:var(--text-bright);cursor:pointer;box-shadow:var(--glass-shadow);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4)}
     .back-to-top:hover,.back-to-top:focus-visible{background:color-mix(in srgb,var(--accent-color) 15%,var(--card-bg))}
     .back-to-top[hidden]{display:none}
-    @media (max-width:1023px){.log-howto summary,.breadcrumb a,footer a{min-height:var(--control-lg)}.log-howto summary,footer a{display:flex;align-items:center}}
+    @media (max-width:1023px){
+
+    .log-howto summary,.breadcrumb a,footer a{min-height:var(--control-lg)}
+    .log-howto summary,footer a{display:flex;align-items:center}
+    .log-item-card{backdrop-filter:none;-webkit-backdrop-filter:none}
+
+    }
     @media (max-width:480px){
+
     .page-shell{width:min(100% - 1.5rem,46rem);padding:1.5rem 0 4rem}
     .page-header{padding-bottom:1.5rem;margin-bottom:2.5rem;border-bottom:0}
     .language-section{margin-bottom:2rem}
-    .log-item-card{padding:1.25rem}
+    .log-item-card{padding:1.3rem}
     .log-item-title{font-size:var(--fs-xl);font-weight:600;line-height:1.5;flex-basis:100%}
-    .log-analogy{padding:.9rem 1rem;font-size:var(--fs-sm);border-left:0;border-radius:12px;background:var(--soft-surface);color:var(--text-color);margin:1.25rem 0;line-height:1.75}
+    .log-analogy{padding:1rem 1.25rem;font-size:var(--fs-base);border-left:0;border-radius:14px;background:linear-gradient(120deg,var(--analogy-start),var(--analogy-end));color:var(--analogy-text);margin:1.25rem 0;line-height:1.8;border:1px solid var(--analogy-border)}
     .log-code-block{padding:.65rem;font:var(--fs-sm)/1.5 "JetBrains Mono",monospace;border-radius:10px;border:0;background:var(--code-bg)}
     .back-to-top{right:calc(.75rem + env(safe-area-inset-right));bottom:calc(.75rem + env(safe-area-inset-bottom));border-radius:8px;color:var(--text-bright);border:1px solid var(--border-color)}
+    .version-heading{font-size:clamp(3.5rem,12vw,4.5rem)}
+
     }
     @media (prefers-reduced-motion:reduce){
+
     @view-transition{navigation:none}
     ::view-transition-old(root),::view-transition-new(root){animation:none!important}
     .language-section .log-item-card{animation:none!important;opacity:1!important;translate:none!important}
-    .error-cursor{animation:none!important}
     *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+
     }
     @supports (animation-timeline:view()){
-    @keyframes card-enter{
-    from{translate:0 12px}
-    to{translate:0 0}
-    }
+
+    @keyframes card-enter{from{translate:0 12px}
+    to{translate:0 0}}
     .language-section .log-item-card{animation:card-enter linear both;animation-timeline:view();animation-range:entry 0% entry 35%}
-    }
-    .error-line{margin:0 0 1rem;white-space:pre-wrap;color:var(--text-bright);font:700 var(--fs-md)/1.5 "JetBrains Mono",monospace}
-    .error-cursor{display:inline-block;width:.65em;height:1em;margin-left:.25em;background:currentColor;vertical-align:-.15em;animation:cursor-blink 1s steps(1) infinite}
-    @keyframes cursor-blink{
-    50%{opacity:0}
+
     }
     .error-tools{margin-top:1.5rem}
-    .error-tools p{margin:0 0 .5rem;color:var(--muted-color);font:700 var(--fs-xs)/1.5 "JetBrains Mono",monospace}
+    .error-actions{display:flex;flex-wrap:wrap;gap:.75rem;margin:1.5rem 0 0}
+    .error-actions a{display:inline-flex;align-items:center;min-height:var(--control-lg);padding:.6rem 1rem;border-radius:999px;border:1px solid var(--border-color);text-decoration:none;background:var(--glass-fill);color:var(--text-bright)}
+    .error-actions a:first-child{background:var(--selected-gradient);color:var(--accent-contrast);border-color:transparent}
+    .error-tools p{margin:0 0 .5rem;color:var(--muted-color);font:600 var(--fs-xs)/1.5 var(--font-ui)}
     .error-tools ul{display:flex;flex-wrap:wrap;gap:.5rem 1rem;margin:0;padding:0;list-style:none}
-    .error-tools a{font:var(--fs-sm)/1.5 "JetBrains Mono",monospace}
+    .error-tools a{font:500 var(--fs-sm)/1.5 var(--font-ui);display:inline-flex;align-items:center;min-height:var(--control-md);padding:.35rem .75rem;border:1px solid var(--border-color);border-radius:999px;text-decoration:none;background:var(--glass-fill)}
+    .error-tools a:hover{background:var(--accent-glow);border-color:var(--accent-color)}
   </style>"""
 
 
@@ -825,7 +840,7 @@ def _render_static_page(
             if english else
             f'<a href="{escape(en_url, quote=True)}" hreflang="en" lang="en">English</a>'
         )
-    site = {"@type": "Organization", "name": "AI_UPDATES.LOG", "url": SITE_URL}
+    site = {"@type": "Organization", "name": "AI Updates", "url": SITE_URL}
     structured_data = [
         {
             "@context": "https://schema.org",
@@ -851,7 +866,7 @@ def _render_static_page(
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             "itemListElement": [
-                {"@type": "ListItem", "position": 1, "name": "AI_UPDATES.LOG", "item": SITE_URL},
+                {"@type": "ListItem", "position": 1, "name": "AI Updates", "item": SITE_URL},
                 {"@type": "ListItem", "position": 2, "name": name, "item": f"{SITE_URL}#{tool_id}"},
                 {"@type": "ListItem", "position": 3, "name": version_name},
             ],
@@ -904,7 +919,7 @@ def _render_static_page(
   <link rel="canonical" href="{escape(url, quote=True)}">
 {alternate_links}  <meta name="robots" content="max-image-preview:large">
   <meta property="og:type" content="article">
-  <meta property="og:site_name" content="AI_UPDATES.LOG">
+  <meta property="og:site_name" content="AI Updates">
   <meta property="og:locale" content="{'en_US' if english else 'zh_TW'}">
   <meta property="og:locale:alternate" content="{'zh_TW' if english else 'en_US'}">
   <meta property="og:title" content="{escape(title, quote=True)}">
@@ -913,12 +928,12 @@ def _render_static_page(
   <meta property="og:image" content="{SITE_URL}og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="{'AI_UPDATES.LOG: Plain-language AI tool release notes for Claude Code, Codex, Antigravity, Usage, and GitHub CLI' if english else 'AI_UPDATES.LOG：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新'}">
+  <meta property="og:image:alt" content="{'AI Updates: Plain-language AI tool release notes for Claude Code, Codex, Antigravity, Usage, and GitHub CLI' if english else 'AI Updates：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新'}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{escape(title, quote=True)}">
   <meta name="twitter:description" content="{escape(description, quote=True)}">
   <meta name="twitter:image" content="{SITE_URL}og-image.png">
-  <meta name="twitter:image:alt" content="{'AI_UPDATES.LOG: Plain-language AI tool release notes for Claude Code, Codex, Antigravity, Usage, and GitHub CLI' if english else 'AI_UPDATES.LOG：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新'}">
+  <meta name="twitter:image:alt" content="{'AI Updates: Plain-language AI tool release notes for Claude Code, Codex, Antigravity, Usage, and GitHub CLI' if english else 'AI Updates：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新'}">
   <link rel="icon" href="{assets}favicon.svg" type="image/svg+xml">
   <link rel="preload" href="{assets}fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{assets}fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -927,7 +942,7 @@ def _render_static_page(
   <script>try{{var t=localStorage.getItem("ai-updates-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head>
 <body>
-  <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="{'Page path' if english else '頁面路徑'}"><ol><li><a href="{SITE_URL}">AI_UPDATES.LOG</a></li><li><a href="{SITE_URL}#{tool_id}">{escape(name)}</a></li><li aria-current="page">{escape(version_name)}</li></ol></nav><h1 class="version-heading">{escape(name)} {escape(version_name)}</h1><p class="release-period">{'Released: ' if english else '發布日期：'}{escape(period)}</p></header><main>{language_sections}</main><footer><nav aria-label="{'Version navigation' if english else '版本導覽'}"><a href="{SITE_URL}#{tool_id}/{version_name}">{'Back to interactive view' if english else '回到互動版'}</a>{previous_link}{next_link}{language_link}</nav></footer></div><button class="back-to-top" id="back-to-top" type="button" aria-label="{'Back to top' if english else '回到頂端'}" title="{'Back to top' if english else '回到頂端'}" hidden><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+  <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="{'Page path' if english else '頁面路徑'}"><ol><li><a href="{SITE_URL}">AI Updates</a></li><li><a href="{SITE_URL}#{tool_id}">{escape(name)}</a></li><li aria-current="page">{escape(version_name)}</li></ol></nav><h1 class="version-heading">{escape(name)} {escape(version_name)}</h1><p class="release-period">{'Released: ' if english else '發布日期：'}{escape(period)}</p></header><main>{language_sections}</main><footer><nav aria-label="{'Version navigation' if english else '版本導覽'}"><a href="{SITE_URL}#{tool_id}/{version_name}">{'Back to interactive view' if english else '回到互動版'}</a>{previous_link}{next_link}{language_link}</nav></footer></div><button class="back-to-top" id="back-to-top" type="button" aria-label="{'Back to top' if english else '回到頂端'}" title="{'Back to top' if english else '回到頂端'}" hidden><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
   <script>const backToTop=document.getElementById("back-to-top"),reducedMotion=matchMedia("(prefers-reduced-motion: reduce)");function updateBackToTop(){{backToTop.hidden=scrollY<=innerHeight*2}}addEventListener("scroll",updateBackToTop,{{passive:true}});updateBackToTop();backToTop.addEventListener("click",()=>scrollTo({{top:0,behavior:reducedMotion.matches?"auto":"smooth"}}));</script>
 </body>
 </html>
@@ -953,7 +968,7 @@ def _write_not_found_page() -> None:
   <script>try{{var t=localStorage.getItem("ai-updates-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head>
 <body>
-  <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="頁面路徑"><ol><li><a href="{SITE_URL}">AI_UPDATES.LOG</a></li><li aria-current="page">404</li></ol></nav><h1>404</h1><p class="release-period">找不到這個頁面 · Page not found</p></header><main><div class="log-item-card"><p class="error-line">ERR 404  route not found<span class="error-cursor" aria-hidden="true"></span></p><p class="log-prose-text">這個網址不存在，或是版本號打錯了。首頁列出五個工具的最新版本，每個工具都能往回翻完整的歷史紀錄。</p><p class="log-prose-text" lang="en">This page does not exist. The home page lists the latest release for all five tools, each with its full version history.</p><nav class="error-tools" aria-label="工具導覽"><p>TOOLS / 工具</p><ul><li><a href="{SITE_URL}#claude_code">Claude Code</a></li><li><a href="{SITE_URL}#codex">Codex</a></li><li><a href="{SITE_URL}#agy">Antigravity</a></li><li><a href="{SITE_URL}#usage">Usage</a></li><li><a href="{SITE_URL}#gh_cli">GitHub CLI</a></li></ul></nav></div></main><footer><nav aria-label="站內導覽"><a href="{SITE_URL}">回到首頁</a><a href="{SITE_URL}feed.xml">訂閱 RSS</a></nav></footer></div>
+  <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="頁面路徑"><ol><li><a href="{SITE_URL}">AI Updates</a></li><li aria-current="page">404</li></ol></nav><h1 class="version-heading">404</h1><p class="release-period">找不到這個頁面 · Page not found</p></header><main><div class="log-item-card"><p class="log-prose-text">這個網址不存在，或是版本號打錯了。首頁列出五個工具的最新版本，每個工具都能往回翻完整的歷史紀錄。</p><p class="log-prose-text" lang="en">This page does not exist. The home page lists the latest release for all five tools, each with its full version history.</p><nav class="error-tools" aria-label="工具導覽"><p>工具導覽</p><ul><li><a href="{SITE_URL}#claude_code">Claude Code</a></li><li><a href="{SITE_URL}#codex">Codex</a></li><li><a href="{SITE_URL}#agy">Antigravity</a></li><li><a href="{SITE_URL}#usage">Usage</a></li><li><a href="{SITE_URL}#gh_cli">GitHub CLI</a></li></ul></nav><div class="error-actions"><a href="{SITE_URL}">回到首頁</a><a href="{SITE_URL}feed.xml">訂閱 RSS</a></div></div></main></div>
 </body>
 </html>
 """

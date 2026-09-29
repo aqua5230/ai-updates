@@ -1,218 +1,112 @@
 ---
 version: alpha
-name: AI_UPDATES.LOG
-description: AI 工具更新速報的清爽科技站介面規格；首頁、版本頁與 404 共用字級、控制項及色票。
-colors:
-  background: "oklch(0.975 0.003 240)"
-  sidebar: "oklch(1 0 0)"
-  card: "oklch(1 0 0)"
-  code: "oklch(0.955 0.004 240)"
-  soft-surface: "oklch(0.96 0.003 240)"
-  border: "oklch(0.905 0.006 240)"
-  text: "oklch(0.34 0.012 240)"
-  text-bright: "oklch(0.18 0.008 240)"
-  muted: "oklch(0.43 0.01 240)"
-  primary: "oklch(0.18 0.008 240)"
-  on-primary: "oklch(1 0 0)"
-  link: "oklch(0.37 0.05 240)"
-  tag-new: "oklch(0.472000 0.137103 150.069)"
-  tag-fix: "oklch(0.473000 0.215157 27.325)"
-  tag-perf: "oklch(0.501000 0.145505 48.998)"
-  background-dark: "oklch(0.18 0.005 240)"
-  sidebar-dark: "oklch(0.22 0.005 240)"
-  card-dark: "oklch(0.25 0.005 240)"
-  code-dark: "oklch(0.30 0.005 240)"
-  soft-surface-dark: "oklch(0.30 0.005 240)"
-  border-dark: "oklch(0.36 0.005 240)"
-  text-dark: "oklch(0.86 0.005 240)"
-  text-bright-dark: "oklch(0.97 0.003 240)"
-  muted-dark: "oklch(0.73 0.005 240)"
-  primary-dark: "oklch(0.96 0.003 240)"
-  on-primary-dark: "oklch(0.18 0.005 240)"
-  link-dark: "oklch(0.84 0.025 240)"
-  tag-new-dark: "oklch(0.695081 0.180928 145.621)"
-  tag-fix-dark: "oklch(0.719000 0.204594 26.960)"
-  tag-perf-dark: "oklch(0.719551 0.140145 79.915)"
-typography:
-  display:
-    fontFamily: Inter
-    fontSize: 4rem
-    fontWeight: 500
-  title:
-    fontFamily: Inter
-    fontSize: 1.375rem
-    fontWeight: 600
-    lineHeight: 1.5
-  heading:
-    fontFamily: Inter
-    fontSize: 1.125rem
-    fontWeight: 500
-  body-lead:
-    fontFamily: Inter
-    fontSize: 1rem
-    fontWeight: 400
-    lineHeight: 1.7
-  body:
-    fontFamily: Inter
-    fontSize: 0.9375rem
-    fontWeight: 400
-    lineHeight: 1.8
-  ui:
-    fontFamily: Inter
-    fontSize: 0.8125rem
-    fontWeight: 500
-  label:
-    fontFamily: Inter
-    fontSize: 0.75rem
-    fontWeight: 500
-  caption:
-    fontFamily: Inter
-    fontSize: 0.6875rem
-    fontWeight: 500
-rounded:
-  sm: 4px
-  md: 8px
-  code: 10px
-  soft: 12px
-  card: 16px
-  full: 999px
-spacing:
-  2xs: 0.25rem
-  xs: 0.5rem
-  sm: 0.75rem
-  md: 1rem
-  lg: 1.5rem
-  xl: 2rem
-components:
-  card:
-    backgroundColor: "{colors.card}"
-    rounded: "{rounded.card}"
-    padding: 1.75rem
-  card-compact:
-    backgroundColor: "{colors.card}"
-    rounded: "{rounded.card}"
-    padding: 1.75rem
-  badge-new:
-    textColor: "{colors.tag-new}"
-    typography: "{typography.label}"
-  badge-fix:
-    textColor: "{colors.tag-fix}"
-    typography: "{typography.label}"
-  badge-perf:
-    textColor: "{colors.tag-perf}"
-    typography: "{typography.label}"
-  filter-chip:
-    typography: "{typography.label}"
-    rounded: "{rounded.full}"
-    height: 32px
-  filter-chip-active:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    rounded: "{rounded.full}"
-  tab-button:
-    typography: "{typography.label}"
-    rounded: "{rounded.full}"
-    height: 44px
-  tab-button-active:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    rounded: "{rounded.full}"
-  tool-button-active:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.ui}"
-    rounded: "{rounded.full}"
-    height: 44px
-  small-button:
-    typography: "{typography.label}"
-    rounded: "{rounded.md}"
-    height: 32px
+name: AI Updates
+description: AI 工具更新速報的藍色柔光版面規格；首頁、版本頁與 404 共用主題色。
+tokens:
+  size:
+    --fs-2xs: ".6875rem"
+    --fs-xs: ".75rem"
+    --fs-sm: ".8125rem"
+    --fs-base: ".9375rem"
+    --fs-md: "1rem"
+    --fs-lg: "1.125rem"
+    --fs-xl: "1.375rem"
+    --control-sm: "32px"
+    --control-md: "36px"
+    --control-lg: "44px"
+  light:
+    --bg-color: "#ffffff"
+    --sidebar-bg: "#ffffff"
+    --card-bg: "#ffffff"
+    --code-bg: "#f6f9fc"
+    --soft-surface: "#f6f9fc"
+    --border-color: "#d8e3ee"
+    --text-color: "#425466"
+    --text-bright: "#061b31"
+    --muted-color: "#586a82"
+    --accent-color: "#2563eb"
+    --accent-contrast: "#ffffff"
+    --accent-glow: "#eff6ff"
+    --link-color: "#2156ca"
+    --tag-new: "#087a56"
+    --tag-fix: "#b13f43"
+    --tag-perf: "#925b08"
+    --item-rule: "#e5edf5"
+    --chip-bg: "#f6f9fc"
+    --analogy-text: "#425466"
+    --analogy-start: "oklch(0.77 0.11 255 / .16)"
+    --analogy-end: "oklch(0.80 0.09 205 / .13)"
+    --analogy-border: "#d8e3ee"
+    --badge-bg: "#ffffff"
+    --glow-wash-1: "rgb(34 211 238 / 17%)"
+    --glow-wash-2: "rgb(56 140 255 / 15%)"
+    --glow-wash-3: "rgb(99 102 241 / 18%)"
+    --glass-fill: "rgb(255 255 255 / 70%)"
+    --glass-border: "#d8e3ee"
+    --glass-shadow: "0 10px 28px rgb(10 37 64 / 8%)"
+    --selected-gradient: "linear-gradient(110deg,#2563eb,#0369a1)"
+    --serial-1: "#1575a2"
+    --serial-2: "#2563c9"
+    --serial-3: "#4158bc"
+    --font-ui: "\"Inter\",-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif"
+  dark:
+    --bg-color: "#0a2540"
+    --sidebar-bg: "#0a2540"
+    --card-bg: "#0f3056"
+    --code-bg: "#102e4e"
+    --soft-surface: "#173b62"
+    --border-color: "#31516f"
+    --text-color: "#bed0e4"
+    --text-bright: "#ffffff"
+    --muted-color: "#aac0d8"
+    --accent-color: "#2563eb"
+    --accent-contrast: "#ffffff"
+    --accent-glow: "#243f75"
+    --link-color: "#93c5fd"
+    --tag-new: "#85d9bc"
+    --tag-fix: "#ffa99e"
+    --tag-perf: "#f9cf82"
+    --item-rule: "rgb(255 255 255 / 10%)"
+    --chip-bg: "#173b62"
+    --analogy-text: "#bed0e4"
+    --analogy-start: "oklch(0.51 0.16 255 / .22)"
+    --analogy-end: "oklch(0.55 0.10 205 / .16)"
+    --analogy-border: "rgb(255 255 255 / 12%)"
+    --badge-bg: "rgb(255 255 255 / 6%)"
+    --glow-wash-1: "rgb(34 211 238 / 27%)"
+    --glow-wash-2: "rgb(56 140 255 / 29%)"
+    --glow-wash-3: "rgb(99 102 241 / 38%)"
+    --glass-fill: "rgb(10 37 64 / 69%)"
+    --glass-border: "rgb(255 255 255 / 18%)"
+    --glass-shadow: "0 12px 36px rgb(0 12 34 / 18%)"
+    --selected-gradient: "linear-gradient(110deg,#2563eb,#0369a1)"
+    --serial-1: "#50c7f1"
+    --serial-2: "#4dacf6"
+    --serial-3: "#6d9aff"
+    --font-ui: "\"Inter\",-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif"
 ---
+# AI Updates 設計規格
 
-# AI_UPDATES.LOG 設計規格
+## 方向與顏色
 
-## Overview
+網站用藍色柔光背景、固定側欄與瑞士網格。主內容保留足夠留白，更新卡片與歷史卡片使用同一種毛玻璃表面。淺色卡有淡藍邊框；深色卡靠亮度與半透明邊框分層。四組主題色分別是預設深色、系統淺色、手動淺色、手動深色；上方 YAML 的值直接對應 CSS。
 
-清爽科技站使用冷灰白頁底、白色側欄與卡片、近黑文字。Inter 承載標題、導覽與中文內文；等寬字只用在數字和程式碼。工具、分頁與篩選的選中狀態都是近黑實心膠囊配白字。深色模式用近黑中性底、略亮的卡片與近白膠囊。
+`--text-color` 用於正文，`--text-bright` 用於標題，`--muted-color` 用於日期與輔助文字，`--link-color` 用於連結。藍色漸層的選中狀態使用 `--selected-gradient`，文字使用 `--accent-contrast`。`--serial-1/2/3` 專供大序號，淺色與深色各色標對卡片底至少 3:1。內文和控制項文字對比至少 4.5:1。
 
-## Colors
+## 字體與中文排版
 
-- 淺色四層：頁底 `--bg-color`、白色 `--sidebar-bg`／`--card-bg`、淡灰 `--soft-surface`、程式碼底 `--code-bg`。
-- 深色底與卡片的色相約 240、彩度 0.005；卡片和軟底逐層變亮。深色沒有可見卡片陰影。
-- `--text-color` 放內文；`--text-bright` 放標題；`--muted-color` 放日期、序號、徽章與輔助文字。連結使用 `--link-color`。
-- `--tag-new`（綠）、`--tag-fix`（紅）、`--tag-perf`（橘）只用在卡片的類型徽章文字，也是複製成功提示的綠色；篩選 chip 與企業／團隊徽章維持中性灰，不拿類型色裝飾。
-- `:root` 與 `[data-theme="dark"]` 同色；`@media(prefers-color-scheme:light)` 與 `[data-theme="light"]` 同色。文字與所處底色的 WCAG 對比至少 4.5:1，改完用 axe 的 `color-contrast` 驗。含字的控制項不用 `opacity` 淡化。
-- 顏色一律寫 token，要半透明就用 `color-mix(in srgb,var(--token) N%,transparent)`，不寫死 `rgba()`／`#hex`。
+Inter 承載標題、導覽和中文內文；JetBrains Mono 只用在程式碼。字級限用七個 `--fs-*`：`--fs-2xs` 11px、`--fs-xs` 12px、`--fs-sm` 13px、`--fs-base` 15px、`--fs-md` 16px、`--fs-lg` 18px、`--fs-xl` 22px。版本大標、更新標題和大序號可用 `clamp()` 隨寬度縮放。中文字最小 12px；含中文的元素不加字距、不套大寫。長段中文行距 1.7～1.9。英文專用字距只寫在 `:lang(en)` 規則。
 
-## Typography
+## 版面與元件
 
-CSS 裡的字級一律寫 `var(--fs-*)`，共七級：
+- 桌機側欄固定 280px，主內容最多 880px；內容區沒有左右直導引線。卡片內是 64px 序號欄、20px 欄距與正文欄；序號下放類型膠囊。1023px 以下改成單欄，600px 以下縮小內距。
+- 更新卡與歷史手風琴卡使用 20px 圓角、`--glass-fill`、`--glass-border` 與 `--glass-shadow`。手機不使用卡片的 `backdrop-filter`，保留相同填色和邊框。卡片 hover 不位移。
+- 比喻框是 14px 圓角的淡藍漸層區塊，內文行距 1.8。原始 CHANGELOG 使用 12px 圓角、有框的程式碼底。行內程式碼 4px，搜尋框 8px，一般小按鈕 8px，選中工具、分頁、篩選與徽章使用完整膠囊。
+- 側欄 Usage App 卡片使用可見的 `--border-color`；搜尋框、搜尋結果、分享選單與回到頂端按鈕也延續毛玻璃外觀。點擊區使用 `--control-sm` 32px、`--control-md` 36px、`--control-lg` 44px；手機控制項至少 44px。
+- 版本頁與 404 共用 `scripts/build.py` 的 `PAGE_CSS`、四組主題色、背景光暈與卡片。版本大標用 Inter 細字重。404 以一般連結與按鈕導回首頁、RSS 和工具頁。
 
-| token | 值 | 用在哪 |
-|---|---|---|
-| `--fs-2xs` | 11px | 英文與數字：版本小字、計數 |
-| `--fs-xs` | 12px | 標籤、按鈕、篩選 chip、說明文字 |
-| `--fs-sm` | 13px | 工具名稱、日期、比喻框、程式碼 |
-| `--fs-base` | 15px | 卡片內文 |
-| `--fs-md` | 16px | 導言、歷史展開內的卡片標題、緊湊卡標題 |
-| `--fs-lg` | 18px | 歷史版本標題、版本頁段落標題 |
-| `--fs-xl` | 22px | 最新版本卡片標題 |
+## 保留的互動
 
-- 唯一字級例外是版本號大標的 `clamp()`；行內程式碼、程式碼框與比喻框也使用 `--fs-*`。
-- 中文排版照 W3C clreq：會換行的中文內文與說明文字，行距（`line-height`）落在 1.5～2.0；中文不加字距（密排），字距只寫在 `:lang(en)` 規則裡；中文最小用 `--fs-xs`（12px），`--fs-2xs` 只給英文與數字；介面文字的冒號跟著語言走（繁中全形「：」）。`font` 簡寫會把行距重設成 `normal`，簡寫後面要明寫 `line-height`。
-- 標題層級：外層標題一定比裡面的標題大。歷史版本標題用 `--fs-lg`，所以展開內容的卡片標題用 `--fs-md`。
-- 頁面標題順序不跳級：`h1`（logo 或頁名）→ `h2`（版本號，歷史分頁用隱藏的 `h2`）→ `h3`（卡片標題）。
-- 字體自架在 `docs/fonts/`（Inter、JetBrains Mono 可變字型，latin 與 latin-ext 子集，OFL 授權），`font-display:swap`，不再連 Google Fonts。
+工具清單依資料順序固定；切換工具或版本不重排清單。搜尋至少輸入兩字後才載入索引，結果最多 30 筆。篩選 chip 顯示數量；0 筆類型停用，已選中的仍可取消。企業／團隊向開關預設關閉，與類型篩選獨立。保留語言、主題、RSS、分享、歷史展開、錨點、回到頂端與跳到主要內容連結。
 
-## Layout
-
-- 桌機側欄固定 280px；主內容使用寬鬆內距，最寬 1100px。版本頁正文最寬 46rem。
-- 1023px 以下工具列橫向捲動、觸控控制項至少 44px；600px 以下主內容縮小內距。頁面不出現整頁橫向捲軸。
-- 首頁卡片的序號是徽章前的小灰字；沒有時間軸軌道與圓點。版本頁使用相同卡片、字體、比喻框與程式碼框。
-- 搜尋結果、分享選單、歷史手風琴、企業／團隊開關與卡片錨點沿用既有互動。
-
-## Elevation & Depth
-
-淺色卡片使用極淡、範圍較大的陰影；hover 只改陰影，不移動卡片。深色卡片靠底色亮度分層，陰影 token 是透明。分享選單可用陰影表示浮在內容上方。卡片進場只動 `translate`。
-
-## Shapes
-
-- 16px：更新卡片與歷史版本卡。
-- 12px：比喻框、原始 CHANGELOG 區、側欄 Usage App 卡。
-- 10px：搜尋框、結果面板與程式碼框。
-- 8px：設定與一般小按鈕。
-- 4px：行內程式碼。
-- 999px：工具、分頁、篩選 chip、最新發布標記。
-
-## Components
-
-- 更新卡片白底、無邊框、圓角 16px，內距 1.75rem。一般標題 `--fs-xl`，緊湊卡與歷史展開內標題 `--fs-md`。
-- 工具與分頁選中狀態為 `--accent-color` 實心底與 `--accent-contrast` 字；深色主題兩者互換亮暗。分頁和工具都維持 44px 觸控高度。
-- 篩選 chip 桌機高 32px、1023px 以下高 44px、字級 `--fs-xs`，選中同樣使用實心膠囊；類型徽章是沒有框與圖示的彩色小字（字重 600，顏色讀 `--tag-*`）。企業／團隊徽章與隱藏開關使用中性灰。
-- 最新發布標記為實心小膠囊。比喻框使用淡灰底與 12px 圓角，不加左色條。原始 CHANGELOG 摺疊區也用淡灰底與 12px 圓角。
-- 版本頁麵包屑用 Inter 小字、深灰連結；版本大標用 Inter 500。404 與版本頁共用 `PAGE_CSS`；404 的圖示和字體使用絕對網址。
-- **工具清單**：依資料順序固定排列，點擊不重排。
-- **篩選 chip 計數**：標籤後用數字顯示目前版本的各類卡片數，切換工具或版本時同步更新。0 張卡的類型 chip 停用（muted 色），但已選中的仍可點掉。
-- **企業／團隊向**：`data.json` 的 `enterprise` 卡片序號標出，徽章放在類型徽章旁；「隱藏企業／團隊向」是獨立開關，預設關、不寫入 localStorage，與類型 chip 互不影響。
-- **搜尋框**：放在主內容區最上方、分頁列之上，高度 `--control-lg`、字級 `--fs-base`；第一次聚焦或輸入才載入 `search-index.json`，至少 2 個字元才搜。結果面板貼在輸入框下方、最多 30 筆，第一行（`aria-live="polite"`）顯示筆數，連結到靜態版本頁的 `#card-<n>`（英文介面連到 `/en/`）。按 Esc 收起面板。
-- **分享選單**：浮在按鈕下方，不推擠版面；超出視窗時改從左側對齊。
-- **側欄設定按鈕**：主題與複製 RSS 按鈕用 16px 行內 SVG 加文字；主題依目前模式顯示太陽或月亮，RSS 固定顯示 RSS 圖示。
-- **回到頂端按鈕**：捲過兩個螢幕高才以 fixed 顯示在右下角，44px 正方形、只放箭頭圖示（文字放 `aria-label` 與 `title`），並避開 safe area。
-- **跳到主要內容連結**：`<body>` 第一個可聚焦元素，平常藏在視窗上緣外，取得焦點時滑入左上角，高度 `--control-lg`。
-- **版本頁麵包屑**：`AI_UPDATES.LOG / 工具名 / 版本號`，連結高度至少 24px（axe `target-size`）。
-- **404 錯誤資訊**：保留中英文說明、回首頁和訂閱 RSS；內容卡先顯示 `ERR 404  route not found` 與閃爍方塊游標，再列五個工具的首頁 hash 連結。
-- 資料載入前，1023px 以下先保留工具列高度與一個螢幕高的主內容，避免版面跳動（CLS）。
-
-## Do's and Don'ts
-
-- Do：新增字級使用七個 `--fs-*`；控制項高度使用 `--control-sm`（32px）、`--control-md`（36px）、`--control-lg`（44px）。
-- Do：中文不加字距；英文需要字距時只寫在 `:lang(en)` 規則。會換行的中文內文行距維持 1.5～2.0。
-- Do：改首頁 CSS 時同步改 `scripts/build.py` 的 `PAGE_CSS`，再跑 `python3 scripts/build.py`。
-- Do：保留 RSS、skip link、語言與主題切換、搜尋、歷史手風琴、分享、錨點與 `prefers-reduced-motion`。
-- Do：跨頁導覽用 `@view-transition{navigation:auto}` 淡入淡出；首頁內切換工具或版本不套轉場。
-- Do：`.log-item-card` 在支援 `animation-timeline:view()` 時由下移 12px 滑至原位，範圍 `entry 0% entry 35%`。只動畫獨立的 `translate`，不動 `transform` 與 `opacity`（半透明的字會被 Lighthouse／axe 判成對比不足）；首屏卡片維持完整狀態。
-- Do：`prefers-reduced-motion: reduce` 時關閉跨頁轉場、卡片進場及 404 游標閃爍。
-- Do：上線前跑 `python3 -m pytest -q`，並用 axe 檢查對比度、標題層級與點擊區；深色、淺色、手機 WebKit 都要截圖看過。
-- Don't：讓點擊或載入改變已經在畫面上的內容位置。
-- Don't：徽章加框、底色或圖示；時間軸軌道；卡片 hover 位移；中文大寫字距。
-- Don't：寫死字級或把中文縮到 11px。
+跨頁導覽用 `@view-transition`；支援 `animation-timeline:view()` 時卡片可輕微進場。`prefers-reduced-motion: reduce` 會停用轉場和進場。首頁 CSS 與 `PAGE_CSS` 的字級和主題變數須同步；改完執行 `python3 scripts/build.py` 與 `python3 -m pytest -q`。
