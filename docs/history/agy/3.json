@@ -5,6 +5,155 @@
   "pages": 6,
   "versions": [
     {
+      "version": "1.1.22",
+      "raw": {
+        "version": "1.1.22",
+        "period": "2026-08-27",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-08-27",
+        "entries": [
+          "Added a `/model <name>` argument that switches to a model by name, slug or label and saves it as your default in one step, with the rest of the first matching name offered as ghost text while you type; `/model` on its own still opens the picker, and an unrecognized name prints the valid ones.",
+          "Improved the `/effort` hint so it completes what you have actually typed instead of always showing a fixed `[low|medium|high]` placeholder.",
+          "Improved artifact handling in conversations that produce many files by coalescing bursts of filesystem events into a single rescan.",
+          "Fixed selectable reasoning effort for Gemini 3.1 Pro and Gemini 3.5 Flash when you authenticate with a Gemini API key.",
+          "Fixed the interface redrawing continuously while the tasks panel or a subagent detail panel was open with nothing running, which held process CPU near 32% instead of the roughly 10% it now settles at.",
+          "Fixed a running subagent's elapsed timer freezing on screen whenever the parent agent was itself waiting.",
+          "Fixed an HTTP 502 from the model endpoint ending the whole run instead of being retried, so a transient bad gateway is now treated as the temporary outage it is.",
+          "Fixed a `self` subagent launched from a conversation with no recorded agent configuration re-resolving its setup from scratch and drifting from its parent, most visibly by running interactively when the parent was in autonomous mode.",
+          "Fixed file deletions failing on Windows with a sharing violation while another process still held the file open, which is now retried with backoff for about a second before reporting failure.",
+          "Fixed headless daemon printing an `Open in your browser: http://localhost:<port>` line in its startup banner, which was never a supported way to connect and, under a service manager, was written to the log on every restart.",
+          "Fixed the built-in `migrate-workflows` skill assuming POSIX home directories and path separators, so it now resolves and reports paths correctly on Windows."
+        ]
+      },
+      "curated": {
+        "version": "1.1.22",
+        "period": "2026-08-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "模型切換支援直接指定名稱，輸入即時提示並自動設為預設",
+              "en": "Switch and save default models by name with inline ghost text completion"
+            },
+            "body": {
+              "zh-TW": "⟦就像在餐廳點餐，熟客可以直接喊出菜名並設為每次必點，店員聽到前幾個字時還會主動幫忙接下去，忘記全名也能隨時看完整菜單。⟧ 想快速切換底層的大型語言模型時，現在只要輸入 `/model <name>` 並代入模型名稱、代稱（slug，簡短的英文識別標籤）或別名，就能直接完成切換，並在同一步驟中存為預設值。打字過程中，系統會以幽靈文字（ghost text，輸入框中預先呈現的淡灰色補全提示）即時顯示第一個符合的名稱。如果不加參數單獨輸入 `/model`，依然會開啟選單介面供你挑選；萬一輸入了無法辨識的名稱，終端機也會印出所有合法的可用模型清單。",
+              "en": "⟦Like a regular customer ordering a favorite dish by name and making it their standing order, with the waiter guessing the dish from the first syllable while the full menu remains available on request.⟧ When switching your underlying language model, you can now run `/model <name>` with a model name, slug (a short identifier), or label to switch and save it as your default in one step. While you type, the rest of the first matching name appears as ghost text (a faint inline preview of the suggested completion). Running `/model` by itself still opens the interactive picker, and typing an unrecognized name prints the full list of valid choices."
+            },
+            "original": "Added a `/model <name>` argument that switches to a model by name, slug or label and saves it as your default in one step, with the rest of the first matching name offered as ghost text while you type; `/model` on its own still opens the picker, and an unrecognized name prints the valid ones."
+          },
+          {
+            "title": {
+              "zh-TW": "思考強度指令提示升級，依輸入即時動態補全",
+              "en": "The /effort prompt dynamically completes what you type instead of showing a static placeholder"
+            },
+            "body": {
+              "zh-TW": "調整思考強度（effort，模型在回答前進行深度推演的運算檔位）時，指令提示變得更加即時流暢。在終端機中輸入 `/effort` 後，後方出現的補全提示現在會根據你實際鍵入的字母動態延伸；例如當你輸入部分文字時，提示會自動對齊相符的選項。過去不論你輸入了什麼內容，畫面都只會固定顯示 `[low|medium|high]` 這串靜態的佔位文字。⟦這好比搜尋框依據你已鍵入的字母動態補全選項，不再死板地展示整行固定預設提示。⟧",
+              "en": "When adjusting reasoning effort (the computational depth the model uses before answering), the command hint is now much more responsive. After typing `/effort`, the inline completion dynamically fills in based on the characters you have actually typed, adapting seamlessly as you type each letter. Previously, the prompt strictly displayed the static `[low|medium|high]` placeholder regardless of what you entered. ⟦Like a search bar that dynamically suggests matching queries based on the letters you type rather than always displaying a generic static hint.⟧"
+            },
+            "original": "Improved the `/effort` hint so it completes what you have actually typed instead of always showing a fixed `[low|medium|high]` placeholder."
+          },
+          {
+            "title": {
+              "zh-TW": "批次產檔合併單次掃描，大幅減少重複檢查開銷",
+              "en": "Artifact handling coalesces filesystem event bursts into a single rescan"
+            },
+            "body": {
+              "zh-TW": "⟦如同收發室面對一口氣送達的整批包裹時，集中清點登記一次，而不是每簽收一件就全棟廣播巡邏一遍。⟧ 當你讓代理處理產出大量產物（artifact，對話過程中生成的程式碼或文件檔案）的任務時，檔案處理效率大幅提升。過去每當對話短時間內密集寫入多個檔案，連續觸發的檔案系統事件會引發多次重複的全盤掃描；現在系統會把短時間內爆發的事件合併為單一次重新掃描，省下無謂的重複開銷。",
+              "en": "⟦Like a mailroom receiving a large batch of packages at once, cataloging the entire bundle in a single pass rather than making a full delivery run for every individual envelope.⟧ Handling artifacts (code or document files generated during conversations) is now much faster in workflows that output multiple files. Previously, when a burst of files was created in quick succession, repeated filesystem events triggered multiple redundant rescans; the system now coalesces bursts of filesystem events into a single efficient rescan."
+            },
+            "original": "Improved artifact handling in conversations that produce many files by coalescing bursts of filesystem events into a single rescan."
+          },
+          {
+            "title": {
+              "zh-TW": "自備金鑰支援調整思考深度，解鎖專業模型推演選項",
+              "en": "Selectable reasoning effort enabled for Gemini 3.1 Pro and 3.5 Flash with Gemini API keys"
+            },
+            "body": {
+              "zh-TW": "使用 Gemini API key（應用程式介面金鑰，存取模型服務的專屬授權憑證）進行身分驗證時，模型設定變得更加完整。過去在這種認證模式下搭配 Gemini 3.1 Pro 與 Gemini 3.5 Flash 模型時，介面會無法自由調整思考推理強度（reasoning effort，模型回答前深入推演的運算檔位）；現在這項功能已完成修復，你可以隨時指定不同的思考深度以滿足任務需求。⟦好比自備貴賓通行證入園時，設施的各檔變速旋鈕都能正常調校，不再被莫名鎖在固定檔位。⟧",
+              "en": "When authenticating with a Gemini API key (a private key granting access to model services), model configuration is now fully unlocked. Previously, when using Gemini 3.1 Pro and Gemini 3.5 Flash with an API key, selecting reasoning effort (the computational depth used to think before answering) was broken; this has been fixed so you can freely adjust reasoning depth to match the complexity of your task. ⟦Like bringing your own VIP pass to an attraction and finding all adjustable gear dials fully operational rather than locked in a single fixed mode.⟧"
+            },
+            "original": "Fixed selectable reasoning effort for Gemini 3.1 Pro and Gemini 3.5 Flash when you authenticate with a Gemini API key."
+          },
+          {
+            "title": {
+              "zh-TW": "修復面板閒置持續重繪，處理器佔用大幅降低",
+              "en": "Idle tasks and subagent panels stop redrawing continuously, reducing CPU usage"
+            },
+            "body": {
+              "zh-TW": "⟦彷彿無人值班的櫃檯顯示器不再以每秒數十次的速度瘋狂刷新空白畫面，讓處理器得以在待機時好好休息。⟧ 開啟任務面板或子代理（subagent，負責分擔特定子任務的輔助代理）詳情面板時，即使背景完全沒有任務在執行，過去介面依然會持續不斷重繪畫面。這導致程式在閒置時，處理器佔用率一直卡在 32% 左右的高檔；現在畫面重繪判定已修正，完全閒置時會穩定降至約 10% 的水準。",
+              "en": "⟦Like an unattended lobby screen that stops frantically refreshing a blank page dozens of times a second so the hardware can finally rest.⟧ When keeping the tasks panel or a subagent (a helper agent assigned to a subtask) detail panel open with nothing running, the user interface used to redraw continuously. This bug held CPU usage near 32% even while completely idle; the redraw loop has been fixed so the process now settles at roughly 10% CPU."
+            },
+            "original": "Fixed the interface redrawing continuously while the tasks panel or a subagent detail panel was open with nothing running, which held process CPU near 32% instead of the roughly 10% it now settles at."
+          },
+          {
+            "title": {
+              "zh-TW": "主代理等待不影響背景任務，子代理計時器持續正常跳動",
+              "en": "Subagent elapsed timers no longer freeze when the parent agent is waiting"
+            },
+            "body": {
+              "zh-TW": "追蹤背景任務進度時，計時器顯示變得精準可靠。過去當你派出子代理（subagent，負責執行特定子任務的獨立工作單元）在背景運作時，只要主要的主代理自身處於等待狀態，畫面上子代理已耗費時間的碼表計時器就會莫名凍結；現在兩者的計時更新邏輯已分開處理，無論主代理是否在等待，子代理的計時器都會在畫面上持續正常跳動。⟦宛如主管在辦公室等待簽核時，外勤人員手上的碼表依然持續走動，不再因主管停步而跟著凍結。⟧",
+              "en": "When monitoring background jobs, on-screen timers now reflect progress accurately. Previously, when a subagent (an auxiliary agent executing a separate task) was running, its elapsed timer on screen would freeze whenever the parent agent was waiting; the timing loop has now been decoupled so the running subagent's timer continues ticking smoothly regardless of the parent agent's state. ⟦Like field workers whose stopwatches keep running while the manager in the office pauses to wait for paperwork, rather than having all clocks frozen in place.⟧"
+            },
+            "original": "Fixed a running subagent's elapsed timer freezing on screen whenever the parent agent was itself waiting."
+          },
+          {
+            "title": {
+              "zh-TW": "模型端點通訊異常自動重試，遇短暫斷線不中斷任務",
+              "en": "HTTP 502 Bad Gateway errors from model endpoints are automatically retried"
+            },
+            "body": {
+              "zh-TW": "⟦如同電話線路出現短暫雜音時自動重新撥號，而不是直接掛斷並終止整場通話。⟧ 遇到雲端伺服器短暫波動時，執行中的任務不再輕易中途夭折。過去當模型端點回傳 HTTP 502 錯誤（Bad Gateway，伺服器閘道暫時故障的網路狀態碼）時，系統會直接崩潰並終止整趟執行；現在系統會把這類暫時性的通訊異常視為短暫斷線並自動重試，讓整個工作流程更加平穩耐震。",
+              "en": "⟦Like a phone system that automatically redials when a line experiences momentary static rather than hanging up and abruptly canceling the entire conference call.⟧ Transient network hiccups from AI servers no longer derail your ongoing workflow. Previously, receiving an HTTP 502 error (Bad Gateway, a temporary server connection failure) from the model endpoint immediately terminated the entire run; the client now recognizes these errors as temporary outages and retries the request automatically."
+            },
+            "original": "Fixed an HTTP 502 from the model endpoint ending the whole run instead of being retried, so a transient bad gateway is now treated as the temporary outage it is."
+          },
+          {
+            "title": {
+              "zh-TW": "自我衍生子代理完整繼承設定，自主模式不再意外切回互動",
+              "en": "Self subagents properly inherit parent configurations and preserve autonomous mode"
+            },
+            "body": {
+              "zh-TW": "在未特別記錄代理設定的對話中啟動 `self` 子代理時，子代理現在會完整繼承主代理的運作狀態。過去如果當前對話沒有記錄具體的代理配置，衍生出的子代理會重新從頭解析環境設定，進而與主代理產生行為偏差。最明顯的狀況就是當主代理處於自主模式（autonomous mode，無需人類逐步確認即可自主執行的運作模式）時，子代理卻突然跳回互動模式向你發問。現在設定繼承邏輯已修正，子代理會忠實延續相同的運作環境。⟦這就像徒弟分頭出任務時完整繼承師父當下的工作守則，不會因為沒看見成文手冊就擅自切換回實習生模式。⟧",
+              "en": "When spawning a `self` subagent from a session that lacks explicit agent configuration records, the new subagent now faithfully inherits its parent's setup. Previously, such subagents would re-resolve their settings from scratch and drift from the parent agent; most noticeably, they would run interactively and prompt for input even when the parent was running in autonomous mode (a hands-off mode executing tasks without manual confirmation). The inheritance behavior has been corrected to keep subagents fully aligned with their parent. ⟦Like an apprentice stepping out on an errand and adhering to their mentor's current rules of engagement rather than reverting to trainee mode just because no written handbook was in sight.⟧"
+            },
+            "original": "Fixed a `self` subagent launched from a conversation with no recorded agent configuration re-resolving its setup from scratch and drifting from its parent, most visibly by running interactively when the parent was in autonomous mode."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 刪除檔案支援退避重試，化解程式佔用衝突",
+              "en": "Windows file deletions retry with backoff to prevent sharing violations"
+            },
+            "body": {
+              "zh-TW": "在 Windows 環境下刪除檔案時，遇到其他程式佔用不再立刻報錯中止。過去當代理嘗試刪除檔案時，若恰好有其他處理程序尚未關閉該檔案，系統會觸發共用違規（sharing violation，因其他程式佔用檔案而無法存取的衝突狀態）錯誤並直接宣告刪除失敗。現在系統在遇到這類衝突時，會自動進行退避重試（retry with backoff，每次重試間隔逐步拉長以等待資源釋放的機制），持續嘗試約一秒鐘後才回報失敗，大幅降低短暫檔案鎖定造成的干擾。⟦正如清潔人員看見有人正翻閱文件時稍後幾步再來收拾，不會一伸手被擋就立刻回報清理失敗。⟧",
+              "en": "Deleting files on Windows no longer fails immediately when another program temporarily holds the file open. Previously, attempting to delete a file that was still opened by another process would trigger a sharing violation error (a conflict where a file is locked by an active process) and immediately abort the action. The delete operation now automatically retries with backoff for about a second before reporting a failure, smoothly handling transient file locks. ⟦Like a cleaner stepping back for a moment when someone is reading a document rather than immediately logging a cleaning failure the second they encounter a busy desk.⟧"
+            },
+            "original": "Fixed file deletions failing on Windows with a sharing violation while another process still held the file open, which is now retried with backoff for about a second before reporting failure."
+          },
+          {
+            "title": {
+              "zh-TW": "無頭常駐行程日誌淨化，移除誤導性網頁連結提示",
+              "en": "Headless daemon removes unsupported browser URL from startup logs"
+            },
+            "body": {
+              "zh-TW": "無頭模式（headless，沒有終端機視窗且在背景運行的工作模式）的日誌輸出變得更加乾淨準確。過去背景守護行程在啟動時，橫幅資訊中總會印出一行 `Open in your browser: http://localhost:<port>` 提示，但這從來不是受支援的連線方式；若透過服務管理工具監管，每次行程重啟時這行無用訊息都會被重複寫入記錄檔。現在這行誤導性的提示已被移除，保持日誌的整潔。⟦猶如無人機房的後台伺服器啟動時不再廣播多餘的訪客櫃檯指引，維持紀錄簿的整潔。⟧",
+              "en": "Startup logs for the headless daemon (a background process running without a graphical terminal interface) are now much cleaner. Previously, the daemon's startup banner printed `Open in your browser: http://localhost:<port>`, which was never a supported connection method; when managed by a service manager, this spurious line cluttered logs on every single restart. The misleading line has been removed to keep background logs focused and accurate. ⟦Like an unmanned server rack that boots silently without broadcasting unneeded visitor desk directions, keeping the system event log pristine.⟧"
+            },
+            "original": "Fixed headless daemon printing an `Open in your browser: http://localhost:<port>` line in its startup banner, which was never a supported way to connect and, under a service manager, was written to the log on every restart."
+          },
+          {
+            "title": {
+              "zh-TW": "工作流程移轉技能相容 Windows，路徑解析與回報精準無誤",
+              "en": "The migrate-workflows skill supports Windows paths and home directories"
+            },
+            "body": {
+              "zh-TW": "在 Windows 上移轉工作流程時，路徑解析不再發生混亂。內建的 `migrate-workflows` 技能（skill，擴充代理專業任務的工具包）先前存在系統相容問題。它過去預設採用 POSIX（類 Unix 作業系統標準規範）的主目錄結構與路徑分隔符號，導致在 Windows 系統中無法正確定位檔案；現在已能正確解析並回報 Windows 上的完整路徑。⟦恰如導航軟體學會了不同城市的門牌編碼規則，在各地圖系統上都能正確指引路徑。⟧",
+              "en": "Migrating workflows on Windows now handles paths smoothly without cross-platform errors. The built-in `migrate-workflows` skill (a specialized tool package extending agent capabilities) previously suffered from compatibility issues. It assumed POSIX (Unix-like operating system standards) home directories and forward slash path separators, breaking path resolution on Windows. It now resolves and reports file paths using the appropriate Windows directory format. ⟦Like a navigation system learning the local street numbering rules of different cities so it gives accurate directions anywhere in the world.⟧"
+            },
+            "original": "Fixed the built-in `migrate-workflows` skill assuming POSIX home directories and path separators, so it now resolves and reports paths correctly on Windows."
+          }
+        ]
+      }
+    },
+    {
       "version": "1.1.21",
       "raw": {
         "version": "1.1.21",
@@ -1205,181 +1354,6 @@
               "en": "When you press `Esc` to leave the artifact viewer, reviews completed in earlier turns no longer trigger a stray submission confirmation; submitting also stops reporting those same old reviews again. Collapsed and expanded tool groups now restore the tool-call line for `invoke_subagent`, `send_message`, `manage_subagents`, `define_subagent`, and `generate_image`, instead of showing only `(ctrl+o to expand)`. In Cloud Shell, the web terminal now automatically uses a conservative rendering mode to avoid a distorted startup banner caused by cursor-optimization escape sequences. It is like opening a receipt folder and seeing each receipt's heading again, while already stamped applications stay out of the submission pile."
             },
             "original": "Fixed a distorted startup banner in Cloud Shell, where the web terminal mishandles the cursor-optimization escape sequences the renderer emits; a conservative rendering mode now turns on automatically there.\nFixed `Esc` in the artifact viewer showing a spurious submit confirmation for reviews that had completed in earlier turns, and fixed submitting re-reporting those same reviews.\nFixed `invoke_subagent`, `send_message`, `manage_subagents`, `define_subagent`, and `generate_image` rendering with no tool call line at all in collapsed and expanded tool groups, leaving a bare `(ctrl+o to expand)` hint with no tool name."
-          }
-        ]
-      }
-    },
-    {
-      "version": "1.1.12",
-      "raw": {
-        "version": "1.1.12",
-        "period": "2026-08-11",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-08-11",
-        "entries": [
-          "Added a heading outline to the artifact viewer, opened with `t`, so a long markdown document's structure is visible at a glance and you can jump straight to a section instead of scrolling.",
-          "Added non-interactive answers for more read-only slash commands in print mode, so `-p \"/permissions\"`, `/hooks`, `/help`, `/changelog` and `/config` each emit one tab-separated record per line — or a structured payload under `--output-format json` and `stream-json` — without starting an agent turn, spending quota or leaving a conversation behind, with `/help` listing exactly the commands print mode answers and `/changelog` printing the release notes.",
-          "Added machine-readable output to the `models` and `agents` subcommands through an `--output-format` flag accepting `json` and `stream-json`, and moved their error messages and progress spinner off stdout so captured output contains only the list.",
-          "Added a `disable-slash-command: true` flag for a skill's `SKILL.md` frontmatter, which hides that skill from the `/` menu and from `/name` resolution while leaving it discoverable and invocable by the model, so a large skill library no longer floods the command menu.",
-          "Added rendering for alert callouts (`[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`) and for carousel blocks in markdown artifacts, which previously showed as raw markup.",
-          "Improved terminal hyperlink support, enabling clickable links over SSH and in hyperlink-capable `tmux`, keeping word-wrapped URLs clickable past their first line, linking URLs that the markdown renderer had left as plain text including ones inside code blocks, no longer highlighting unrelated links together on hover, and fixing horizontal scrolling and text selection on lines that contain a link.",
-          "Improved tool call headers so every native and MCP tool call carries a short summary of what it is doing instead of a bare name or a raw argument blob, with the same summary naming background tasks and subagents in the activity list and the matching action phrase describing the request in permission prompts.",
-          "Improved headroom for large toolsets by raising the per-session limit on tool declarations, so heavy MCP, plugin and skill setups stop being rejected for having too many tools.",
-          "Improved sign-in with Application Default Credentials by resolving the quota project automatically, so service-account logins work without extra configuration.",
-          "Improved repository detection so a Git repository nested inside a larger multi-repository checkout resolves to the intended root, with submodules and worktrees covered.",
-          "Improved headless `-p` runs so the agent settles a choice itself where it would otherwise ask, instead of stalling on a question nobody is there to answer.",
-          "Improved the `schedule` tool by dropping the redundant `Timer Cancelled` notification when a one-shot timer with an early-termination condition is cancelled, and by naming both the condition and the exact sender whose message satisfied it in the step result.",
-          "Improved file paths in tool step lines by collapsing your home directory to `~` instead of truncating the front of the path, so the interesting end of a long path stays on screen.",
-          "Fixed `--mode` being ignored in headless `-p` runs, where a valid value such as `accept-edits` or `plan` was never applied and an unrecognized value produced no warning at all.",
-          "Fixed startup diagnostics being swallowed into the log file instead of reaching the terminal, including crash notices, the `--conversation` not-found warning, the `--print` and `--prompt-interactive` conflict, conversation load errors, and the `--mode` and `--agent` warnings.",
-          "Fixed a character disappearing from your submitted prompt where it wrapped at the terminal's right edge, caused by the echoed prompt being indented after it had already been wrapped to the full width.",
-          "Fixed file citations in a response losing their line numbers, so a cited range renders as `path:10-25` again instead of just the file name.",
-          "Fixed a write-in answer in a multi-select question discarding the boxes you had already ticked, and fixed a stale write-in being submitted after you went back to a predefined option.",
-          "Fixed large background tasks crowding out the prompt by limiting each active item below the input box to a single line.",
-          "Fixed corruption of `config.json` by writing user config atomically, so a crash or a concurrent writer can no longer leave a truncated file that silently breaks settings persistence.",
-          "Fixed the CLI giving up on a slow OS keyring after one second and falling back to empty storage, which forced a re-login; it now waits five seconds, as every other keyring operation already did.",
-          "Fixed conversation preview titles derived from the first user message by cutting them at the first line and capping them at 500 characters, so a large pasted or scripted prompt no longer produces a multi-megabyte stored title.",
-          "Fixed a crash on Windows when resolving the conversation transcript path, by honoring the path's drive letter in the trajectory log artifact converter.",
-          "Fixed a subagent going silent on its parent when its own message failed to send, and fixed the parent being handed an empty notice when a subagent went idle without a final response.",
-          "Fixed the `read_url_content` tool leaking a connection on every call, which could eventually exhaust the machine's available ports.",
-          "Fixed the status line reporting model quota that was always one fetch out of date, so it now matches the quota you actually have left."
-        ]
-      },
-      "curated": {
-        "version": "1.1.12",
-        "period": "2026-08-11",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "長文件有目錄，Markdown 警示也會正常顯示",
-              "en": "Long documents get an outline, and Markdown alerts render properly"
-            },
-            "body": {
-              "zh-TW": "讀到很長的 Markdown 文件時，現在按 `t` 就能打開標題大綱，直接跳到要看的段落，不必一直捲動找位置。Markdown（用符號排版的純文字格式）裡的提醒框也終於會畫成提醒框：`[!NOTE]`、`[!WARNING]` 等標記不再原樣露在畫面上，輪播區塊也能顯示。像一本原本只有密密麻麻文字的說明書，補上目錄和醒目的注意貼紙；找章節與辨認警告都快得多。",
-              "en": "When a Markdown document runs long, press `t` to open its heading outline and jump straight to a section instead of scrolling for it. Markdown is plain text marked up with simple symbols. Alert blocks such as `[!NOTE]` and `[!WARNING]`, plus carousel blocks, now render instead of showing their raw markers. It is like adding a table of contents and visible warning stickers to a dense manual."
-            },
-            "original": "Added a heading outline to the artifact viewer, opened with `t`, so a long markdown document's structure is visible at a glance and you can jump straight to a section instead of scrolling.\nAdded rendering for alert callouts (`[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`) and for carousel blocks in markdown artifacts, which previously showed as raw markup."
-          },
-          {
-            "title": {
-              "zh-TW": "列印模式可直接查指令，結果也能交給程式讀",
-              "en": "Print mode answers more commands, with output scripts can read"
-            },
-            "body": {
-              "zh-TW": "想在腳本裡查權限、掛鉤或設定時，現在可用 print mode（列印模式，只輸出答案就結束）執行 `-p \"/permissions\"`、`/hooks`、`/help`、`/changelog`、`/config`。它不會啟動代理、不花額度，也不留下對話；每行是一筆以 Tab 分隔的資料，改用 `--output-format json` 或 `stream-json` 則會給結構化結果。`models` 與 `agents` 子指令也同樣能輸出 JSON，錯誤訊息和轉圈提示搬離標準輸出，接收清單的程式不會混到雜訊。像市場的秤貨單：品項整齊列出，攤販的招呼聲留在一旁。",
-              "en": "When a script needs permissions, hooks, help, release notes, or config, print mode can answer `-p \"/permissions\"`, `/hooks`, `/help`, `/changelog`, and `/config` without starting an agent, using quota, or leaving a conversation. It emits tab-separated rows, or structured JSON with `--output-format json` or `stream-json`. The `models` and `agents` subcommands now do the same, while errors and spinners stay off stdout. Like a market receipt: items are listed cleanly, while vendor chatter stays aside."
-            },
-            "original": "Added non-interactive answers for more read-only slash commands in print mode, so `-p \"/permissions\"`, `/hooks`, `/help`, `/changelog` and `/config` each emit one tab-separated record per line — or a structured payload under `--output-format json` and `stream-json` — without starting an agent turn, spending quota or leaving a conversation behind, with `/help` listing exactly the commands print mode answers and `/changelog` printing the release notes.\nAdded machine-readable output to the `models` and `agents` subcommands through an `--output-format` flag accepting `json` and `stream-json`, and moved their error messages and progress spinner off stdout so captured output contains only the list."
-          },
-          {
-            "title": {
-              "zh-TW": "技能可退出斜線選單，工具很多也不再被拒絕",
-              "en": "Skills can leave slash menu while larger toolsets still load"
-            },
-            "body": {
-              "zh-TW": "技能庫越裝越多，`/` 選單不必跟著塞滿。只要在技能的 `SKILL.md` 前置資料加上 `disable-slash-command: true`，它會從選單與 `/名稱` 查找中隱藏，但模型仍找得到、也能呼叫它。SKILL.md（技能說明檔）像工具箱上的標籤：先把不需手動拿的工具收進抽屜，不等於丟掉。另一邊，單一工作階段允許宣告的工具數量提高；MCP、外掛與技能都裝很重的環境，不會因為工具太多而被拒在門外。工具呼叫標頭也改成短摘要，背景任務、子代理和權限詢問會顯示正在做什麼，而非只丟名稱或一串參數。",
-              "en": "A growing skill library no longer has to flood the `/` menu. Add `disable-slash-command: true` to a skill's `SKILL.md` frontmatter and it disappears from the menu and `/name` lookup, while the model can still discover and invoke it. Think of moving rarely hand-picked tools into a drawer, not throwing them away. Sessions also accept more tool declarations, so heavy MCP, plugin, and skill setups are not rejected. Tool-call headers now state a short action summary for activity lists and permission prompts instead of a bare name or argument blob."
-            },
-            "original": "Added a `disable-slash-command: true` flag for a skill's `SKILL.md` frontmatter, which hides that skill from the `/` menu and from `/name` resolution while leaving it discoverable and invocable by the model, so a large skill library no longer floods the command menu.\nImproved tool call headers so every native and MCP tool call carries a short summary of what it is doing instead of a bare name or a raw argument blob, with the same summary naming background tasks and subagents in the activity list and the matching action phrase describing the request in permission prompts.\nImproved headroom for large toolsets by raising the per-session limit on tool declarations, so heavy MCP, plugin and skill setups stop being rejected for having too many tools."
-          },
-          {
-            "title": {
-              "zh-TW": "終端機連結能跨 SSH 點開，換行也不斷",
-              "en": "Terminal links stay clickable over SSH and across wrapped lines"
-            },
-            "body": {
-              "zh-TW": "你在 SSH（遠端登入另一台電腦的連線方式）裡看到網址，現在也能直接點開；支援超連結的 `tmux` 終端機同樣適用。網址折到下一行時，整段仍是一個可點的連結，不再只剩第一行有效。Markdown 沒自動連結的網址，包括程式碼區塊裡的網址，也會補上連結；滑過去不會連無關網址一起反白，含連結的行也能正常橫向捲動和選取文字。像跨行寫下的樂譜，換到下一行仍是同一段旋律。",
-              "en": "URLs in an SSH session can now be opened directly, including in hyperlink-capable `tmux`. A URL that wraps onto another line remains one clickable link rather than losing everything after line one. URLs the Markdown renderer missed, including URLs inside code blocks, also become links. Hovering no longer highlights unrelated links, and linked lines still scroll sideways and select text correctly. Like sheet music continuing onto another line: it is still one melody."
-            },
-            "original": "Improved terminal hyperlink support, enabling clickable links over SSH and in hyperlink-capable `tmux`, keeping word-wrapped URLs clickable past their first line, linking URLs that the markdown renderer had left as plain text including ones inside code blocks, no longer highlighting unrelated links together on hover, and fixing horizontal scrolling and text selection on lines that contain a link."
-          },
-          {
-            "title": {
-              "zh-TW": "登入少填一步，巢狀 Git 專案也找對根目錄",
-              "en": "Sign-in needs less setup, and nested Git repositories find right root"
-            },
-            "body": {
-              "zh-TW": "用 Application Default Credentials（雲端服務帳號的預設登入憑證）登入時，現在會自動找出 quota project（用來計算用量的雲端專案），服務帳號不必再額外補設定才用得起來。另一項改善發生在把多個 Git 專案放進大資料夾的人身上：工具會辨認內層的儲存庫才是目標，不會誤把外層目錄當根目錄；子模組和工作樹也算進去。像機場分揀行李：認出最終航廈，行李才會送到正確轉盤，不會只停在第一站。",
-              "en": "Application Default Credentials, the default cloud-account sign-in credentials, now resolve the quota project automatically, so service-account logins do not need extra setup. Repository detection also recognizes when the intended Git repository sits inside a larger multi-repository checkout. Submodules and worktrees are included. It is like airport baggage sorting: once the final terminal is identified, the bag reaches the right carousel instead of stopping at the first one."
-            },
-            "original": "Improved sign-in with Application Default Credentials by resolving the quota project automatically, so service-account logins work without extra configuration.\nImproved repository detection so a Git repository nested inside a larger multi-repository checkout resolves to the intended root, with submodules and worktrees covered."
-          },
-          {
-            "title": {
-              "zh-TW": "無頭執行會自己判斷，模式錯了也看得到警告",
-              "en": "Headless runs decide when needed and report mode mistakes"
-            },
-            "body": {
-              "zh-TW": "把 `-p` 放進排程或自動流程時，沒人能回覆追問，現在它遇到本來會問你的選項會自行做決定，不再停在原地等人。無頭模式（沒有互動視窗的執行方式）也終於會套用 `--mode accept-edits` 或 `--mode plan`；傳入不認得的模式則會警告，不再悄悄忽略。啟動時的崩潰通知、找不到 `--conversation`、`--print` 與 `--prompt-interactive` 衝突、載入對話失敗，以及 mode 或 agent 警告，也會印到終端機，不再只藏在日誌。像夜間值班的機器，遇到岔路能照規則走，規則寫錯時還會亮起警示燈。",
-              "en": "Put `-p` into a scheduled or automated flow and nobody is there to answer questions. It now settles a choice itself rather than waiting forever. Headless mode, meaning execution without an interactive window, also honors `--mode accept-edits` and `--mode plan`; unknown values produce a warning instead of being silently ignored. Startup crashes, missing conversations, conflicting print flags, load errors, and mode or agent warnings now reach the terminal instead of hiding in a log. Like an overnight attendant that can take a marked route and turns on a light when the instructions are wrong."
-            },
-            "original": "Improved headless `-p` runs so the agent settles a choice itself where it would otherwise ask, instead of stalling on a question nobody is there to answer.\nFixed `--mode` being ignored in headless `-p` runs, where a valid value such as `accept-edits` or `plan` was never applied and an unrecognized value produced no warning at all.\nFixed startup diagnostics being swallowed into the log file instead of reaching the terminal, including crash notices, the `--conversation` not-found warning, the `--print` and `--prompt-interactive` conflict, conversation load errors, and the `--mode` and `--agent` warnings."
-          },
-          {
-            "title": {
-              "zh-TW": "排程結束時少一條廢通知，原因和來信者寫清楚",
-              "en": "Schedules skip redundant notices and name what ended them"
-            },
-            "body": {
-              "zh-TW": "設定一次性的 schedule（排程工具）在收到某個訊息後提早結束時，以前還會再跳一則沒有幫助的 `Timer Cancelled` 通知；現在那則重複訊息拿掉了。步驟結果則會寫出是哪個條件成立，以及哪位傳訊者剛好滿足它。像社團活動提早結束，公告只留一張，並註明哪個規則與哪位成員的訊息觸發，不會再多貼一張內容完全相同的公告。",
-              "en": "When a one-shot schedule ends early after receiving a qualifying message, it used to add an unhelpful `Timer Cancelled` notice. That duplicate notice is gone. The step result now names both the condition that was met and the sender whose message met it. Scheduling behavior has not changed; the receipt is clearer, like a club posting one notice when an event ends early and naming the rule and member message that triggered it."
-            },
-            "original": "Improved the `schedule` tool by dropping the redundant `Timer Cancelled` notification when a one-shot timer with an early-termination condition is cancelled, and by naming both the condition and the exact sender whose message satisfied it in the step result."
-          },
-          {
-            "title": {
-              "zh-TW": "長路徑看得到尾端，引用和送出文字也不再少字",
-              "en": "Long paths, citations, and submitted prompts keep their missing pieces"
-            },
-            "body": {
-              "zh-TW": "工具步驟顯示很長的檔案路徑時，現在會把家目錄縮成 `~`，保留真正有辨識力的尾端，不再從前面硬截到看不出是哪個檔案。回答裡的檔案引用也會恢復行號，範圍能正確顯示成 `path:10-25`。另一個更隱密的錯誤也修好了：你送出的提示詞剛好在終端機最右邊換行時，回顯文字不會因縮排而少掉一個字。像校稿室整理長篇手稿：封面縮短前綴仍留住章節末段，引用標明行號，排到行尾也不漏字。",
-              "en": "Long paths in tool steps now collapse your home directory to `~`, preserving the informative ending instead of chopping it off from the front. File citations regain their line numbers, so ranges render as `path:10-25`. A subtler issue is fixed too: if a submitted prompt wrapped at the terminal's right edge, its echoed text no longer loses one character because of indentation. Like an editor preparing a long manuscript: the cover shortens its prefix but keeps the chapter ending, citations retain line numbers, and no letter drops at a line end."
-            },
-            "original": "Improved file paths in tool step lines by collapsing your home directory to `~` instead of truncating the front of the path, so the interesting end of a long path stays on screen.\nFixed a character disappearing from your submitted prompt where it wrapped at the terminal's right edge, caused by the echoed prompt being indented after it had already been wrapped to the full width.\nFixed file citations in a response losing their line numbers, so a cited range renders as `path:10-25` again instead of just the file name."
-          },
-          {
-            "title": {
-              "zh-TW": "多選自填不會清掉勾選，背景任務也不擋輸入框",
-              "en": "Write-ins keep multi-select choices, and tasks stop crowding prompt"
-            },
-            "body": {
-              "zh-TW": "回答多選題時，先勾好的方塊不會因為填入自訂答案就被清空；你回頭改選預設選項，也不會把舊的自訂文字一起送出。這讓同時選幾項再補一句的人不必重來。背景任務很多時，輸入框下方每個進行中項目則限制為一行，不會把你要打字的位置擠到看不見。像活動報名表：補填其他選項不會抹掉已勾的場次，工作人員的處理清單也一行顯示，不會蓋住下一格讓人填寫。",
-              "en": "In a multi-select question, adding a write-in answer no longer clears boxes you already ticked. If you go back to a predefined option, stale write-in text is not submitted either. That matters when you choose several items and add one note. With many background tasks, each active item below the prompt is now limited to one line, so the list does not push the input box away. Like an event sign-up form: adding “other” does not erase checked sessions, and a one-line staff list does not cover the next field."
-            },
-            "original": "Fixed a write-in answer in a multi-select question discarding the boxes you had already ticked, and fixed a stale write-in being submitted after you went back to a predefined option.\nFixed large background tasks crowding out the prompt by limiting each active item below the input box to a single line."
-          },
-          {
-            "title": {
-              "zh-TW": "設定寫入更安全，登入不再因慢鑰匙圈被迫重試",
-              "en": "Config saves safely, and slow keyrings no longer log you out"
-            },
-            "body": {
-              "zh-TW": "`config.json` 現在採原子寫入（先寫好完整新檔，再一次替換舊檔），程式崩潰或同時有別的程式寫入時，不會留下半截設定檔，害設定悄悄失效。OS keyring（作業系統保存登入密碼的保管庫）若反應慢，也從等一秒就當成空白改為等五秒，避免被迫重新登入。對話預覽標題則只取第一行、最多 500 個字元；大量貼上的提示詞不會變成數 MB 的標題。像辦公室歸檔：先完成整份文件再替換舊檔，查保管櫃較慢時多等一下，索引標籤只取首行並限字數。",
-              "en": "`config.json` now uses atomic writes: it prepares a complete new file, then replaces the old one in one move. A crash or concurrent writer cannot leave a truncated config that silently breaks settings. If the OS keyring, the store for login secrets, responds slowly, the CLI now waits five seconds rather than treating it as empty after one and forcing a login. Conversation preview titles also stop at first line and 500 characters, so a large pasted prompt cannot create a multi-megabyte title. Like office filing: complete the whole document before replacing the old file, wait a little longer for a slow records cabinet, and keep an index label to its first line and set length."
-            },
-            "original": "Fixed corruption of `config.json` by writing user config atomically, so a crash or a concurrent writer can no longer leave a truncated file that silently breaks settings persistence.\nFixed the CLI giving up on a slow OS keyring after one second and falling back to empty storage, which forced a re-login; it now waits five seconds, as every other keyring operation already did.\nFixed conversation preview titles derived from the first user message by cutting them at the first line and capping them at 500 characters, so a large pasted or scripted prompt no longer produces a multi-megabyte stored title."
-          },
-          {
-            "title": {
-              "zh-TW": "Windows 路徑不再當機，子代理也會把結果送回來",
-              "en": "Windows paths stop crashing, and subagents report back reliably"
-            },
-            "body": {
-              "zh-TW": "Windows 上處理對話逐字稿路徑時，會尊重路徑中的磁碟機代號，轉換軌跡日誌成產物時不再因此崩潰。另一個修正在代理協作：子代理自己的訊息送不出去時，以前可能對父代理安靜消失；子代理閒置卻沒有最終回答時，父代理又會收到空通知。現在兩種狀況都補好了。像劇場控台：燈光表上的舞台代號不被換掉，燈光師傳訊失敗會回報控台；未交最後回覆就離開，也不會留下一張空白訊號紙。",
-              "en": "On Windows, converting a trajectory log into a transcript artifact now honors the drive letter in its path, avoiding a crash. Agent collaboration gets two fixes too: a subagent whose own message failed to send no longer falls silent to its parent, and a subagent that goes idle without a final response no longer leaves the parent an empty notice. Like a theater control booth: a stage code stays intact, a lighting technician reports a failed message, and leaving without a final response does not leave a blank signal slip."
-            },
-            "original": "Fixed a crash on Windows when resolving the conversation transcript path, by honoring the path's drive letter in the trajectory log artifact converter.\nFixed a subagent going silent on its parent when its own message failed to send, and fixed the parent being handed an empty notice when a subagent went idle without a final response."
-          },
-          {
-            "title": {
-              "zh-TW": "讀網址不再慢慢耗光連線，額度顯示也跟得上",
-              "en": "Reading URLs stops leaking connections, and quota display catches up"
-            },
-            "body": {
-              "zh-TW": "反覆使用 `read_url_content` 讀網址時，每次呼叫原本都會漏掉一條網路連線；累積久了可能耗盡電腦可用的連接埠，現在會正確關閉。連接埠（讓電腦程式進出網路的編號）像飯店房間鑰匙：客人走了就得交回，否則後來的人沒房可住。狀態列顯示的模型 quota（本次可用額度）也不再慢一輪更新，會對上你實際剩下多少。讀很多網址或盯著剩餘額度工作時，畫面終於不會給你過期數字。",
-              "en": "Repeated calls to `read_url_content` used to leak one network connection each time, eventually risking exhaustion of available machine ports; connections now close correctly. A port is a numbered network doorway for a program, like a hotel key that must be returned after checkout. The status line's model quota, the quota remaining, also no longer lags one fetch behind and now matches what remains. Heavy URL reading and quota watching no longer rely on stale numbers."
-            },
-            "original": "Fixed the `read_url_content` tool leaking a connection on every call, which could eventually exhaust the machine's available ports.\nFixed the status line reporting model quota that was always one fetch out of date, so it now matches the quota you actually have left."
           }
         ]
       }

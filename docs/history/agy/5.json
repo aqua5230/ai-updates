@@ -5,6 +5,123 @@
   "pages": 6,
   "versions": [
     {
+      "version": "1.1.1",
+      "raw": {
+        "version": "1.1.1",
+        "period": "2026-07-13",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Added the `--agent` flag and `agent/agents` subcommand, allowing users to select a custom agent at launch and list available agents.",
+          "Added in-file keyword search (`/`) and jump navigation (`n/N`) to the artifact detail viewer, allowing users to find and cycle through matches without disrupting terminal escape sequences or image grids.",
+          "Fixed print mode (`--print` / `-p`) silently exiting with a success code and empty output when a request failed server-side, now writing the error to stderr and returning a non-zero exit code.",
+          "Fixed `agy -p` hanging when run inside a shell script or subprocess by no longer reading stdin when a prompt is provided via a flag.",
+          "Fixed a data race on the `/btw` cancellation function.",
+          "Added support for displaying nested subagents (grandchild and deeper) and handling tool confirmation requests across all subagent depths by recursively relaying nested subtrajectory updates to the root conversation.",
+          "Changed the default mode to respect write_file permissions allowlisted in `settings.json` under `permission.allow`, so pre-approved file writes no longer prompt for review.",
+          "Changed the default name for the newly initialized project to `CLI Project` for clearer workspace identification.",
+          "Improved the session exit output by placing the resume command on its own line, making it easier to copy and paste in terminals and tools like tmux.",
+          "Fixed interactive `/diff` viewer defects in Jujutsu (jj) workspaces by correctly prioritizing `.jj` over `.git` in colocated repos, fixing commit hash regex boundaries, and correctly highlighting active `@` graph nodes.",
+          "Fixed workspace-local hooks defined in `<workspace>/.agents/hooks.json` not loading after trusting a folder by reloading hooks whenever workspaces change.",
+          "Fixed misaligned markdown tables containing file links in chat output."
+        ]
+      },
+      "curated": {
+        "version": "1.1.1",
+        "period": "2026-07-08 ~ 07-11",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "預設改成「寫檔前先給你過目」：逐行看差異、想留哪段自己挑",
+              "en": "New default: Antigravity pauses before writing files and shows a line-level diff"
+            },
+            "body": {
+              "zh-TW": "Antigravity 動你的檔案之前，現在預設會先停下來給你過目。新的 request-review 模式（顧名思義「請求審核」——動你的檔案前先請你過目）在每次寫檔前攤開逐行差異預覽（diff preview，把改前改後逐行並排、標紅標綠的對照畫面，按 f 開啟），你可以整批接受，也可以一段留一段丟；連新建檔案都有專屬的「Create file」預覽，讓你先看內容再點頭。就像裁縫改衣服前先讓你試穿別上珠針的版本，滿意哪段留哪段，而不是改完才給你看成品。",
+              "en": "Before Antigravity touches your files, it now pauses by default and shows its work. The new request-review mode spreads out a line-level diff preview before every write (a view marking removals red and additions green line by line, opened with f), letting you accept the whole batch or keep some chunks and toss others; even brand-new files get their own \"Create file\" preview so you approve the content first. Like a tailor pinning the alterations and letting you try them on before sewing, instead of showing you the finished jacket."
+            },
+            "original": "Added `request-review` (default) mode as the default execution behavior: automatically pauses before file write operations to display an interactive, line-level diff preview (`f` shortcut) where users can review, accept, or reject individual code modifications before they are saved to disk. Added a dedicated \"Create file\" confirmation preview for new file creations (`write_to_file` without overwrite): renders new content as an addition-only diff preview. (1.1.0)"
+          },
+          {
+            "title": {
+              "zh-TW": "shift+tab 循環三種執行模式，/plan 取代 /planning",
+              "en": "Cycle execution modes with shift+tab; /plan replaces /planning"
+            },
+            "body": {
+              "zh-TW": "執行模式切換正式開放：按 shift+tab 就能在 default（每次寫檔先問）、accept-edits（放行編輯）、plan（只規劃不動手）三檔之間循環。指令也整併了——/plan 取代舊的 /planning、/fast 直接移除，切換方式收斂成一套，不再多頭馬車。就像檯燈從三顆分開的開關變成一顆旋鈕，轉一下換一檔。",
+              "en": "Execution-mode switching is now public: shift+tab cycles through default (ask before each write), accept-edits (edits sail through), and plan (plan only, hands off). Commands got consolidated too — /plan replaces the old /planning and /fast is removed, folding mode switching into one coherent set. Like a lamp trading three scattered switches for a single knob you click through."
+            },
+            "original": "Agent execution mode cycling is now publicly available: `default` -> `accept-edits` -> `plan`. Added `/plan` mode to replace legacy `/planning`, and removed `/fast` slash commands: consolidated and simplified execution mode switching around `shift+tab` mode cycling and the `/plan` mode prefix. (1.1.0)"
+          },
+          {
+            "title": {
+              "zh-TW": "預設模式進 /settings 面板，改完立刻生效",
+              "en": "Set your default execution mode right in /settings"
+            },
+            "body": {
+              "zh-TW": "想固定用某個執行模式，現在到 /settings 面板挑 Agent Mode 就好，改完即時生效，不用再手動編輯 settings.json（設定檔）、也不用每次啟動都掛 --mode 參數。就像冷氣終於有了遙控器上的「預設模式」鈕，不必每次開機都爬去主機上按。",
+              "en": "To make one execution mode your default, just pick Agent Mode in the /settings panel — it takes effect immediately, with no more hand-editing settings.json (the config file) and no more passing --mode at every launch. Like an air conditioner finally getting a \"default mode\" button on the remote, so you stop climbing up to the unit each time."
+            },
+            "original": "Added an `Agent Mode` option to the `/settings` panel so users can set and persist a default execution mode (`default`, `accept-edits`, `plan`) without manually editing `settings.json` or passing `--mode` on startup, with real-time synchronization so changes take effect immediately. (1.1.0)"
+          },
+          {
+            "title": {
+              "zh-TW": "啟動就能指定要用哪個自訂代理",
+              "en": "Pick a custom agent right at launch with --agent"
+            },
+            "body": {
+              "zh-TW": "啟動時就能指定要用哪個自訂代理（custom agent，你事先寫好個性與專長的分身）：掛上 --agent 旗標直接點名，agent／agents 子指令還能列出手上有哪些分身可挑。以前得先進門再換人，現在像叫車 App 直接指定司機，上車前就選好。",
+              "en": "You can now pick a custom agent (a persona you've pre-written with its own skills and style) right at launch: name it with the --agent flag, and the agent/agents subcommands list which personas you have. You used to have to walk in first and swap afterwards; now it's like a ride-hailing app that lets you choose the driver before getting in."
+            },
+            "original": "Added the `--agent` flag and `agent/agents` subcommand, allowing users to select a custom agent at launch and list available agents. (1.1.1)"
+          },
+          {
+            "title": {
+              "zh-TW": "成果檢視器能按 / 搜尋、n/N 跳轉了",
+              "en": "Search inside artifacts with / and hop between matches with n/N"
+            },
+            "body": {
+              "zh-TW": "在成果檢視器（artifact viewer，看代理產出的檔案或報告的畫面）裡按 / 就能就地搜尋關鍵字，n 跳下一個、N 跳上一個，長報告不用再用眼睛慢慢掃。就像看紙本說明書終於改成看 PDF，Ctrl+F 一按直達你要的那行。",
+              "en": "In the artifact viewer (the screen for reading files and reports an agent produced), press / to search for a keyword in place, then n and N to hop between matches — no more eyeball-scanning long reports. Like trading a paper manual for a PDF where one Ctrl+F jumps straight to the line you need."
+            },
+            "original": "Added in-file keyword search (`/`) and jump navigation (`n/N`) to the artifact detail viewer, allowing users to find and cycle through matches without disrupting terminal escape sequences or image grids. (1.1.1)"
+          },
+          {
+            "title": {
+              "zh-TW": "腳本派工救星：-p 失敗會老實報錯，也不再卡住不動",
+              "en": "Script users rejoice: -p now reports failures honestly and never hangs"
+            },
+            "body": {
+              "zh-TW": "用腳本呼叫 agy 的人這條最有感：print 模式（--print／-p，不開介面、印完答案就走的無頭用法）以前伺服器端失敗時會裝沒事——回傳成功代碼、輸出空白，害你的腳本以為任務完成了；現在錯誤會寫進 stderr（標準錯誤輸出，專門裝錯誤訊息的通道）並回傳非零代碼。另外在 shell 腳本或子程序裡跑 agy -p 會卡住等輸入的毛病也修了。就像外送員以前送失敗會默默把空袋子掛你門口，現在會確實打電話告訴你「餐沒送到」。",
+              "en": "If you call agy from scripts, this is your fix: print mode (--print / -p, the headless usage that prints an answer and exits) used to play innocent when a request failed server-side — exiting with a success code and empty output, so your script believed the job was done; failures now go to stderr (the standard error stream, the channel reserved for error messages) with a non-zero exit code. The bug where agy -p hung waiting for input inside shell scripts and subprocesses is fixed too. Like a delivery courier who used to silently hang an empty bag on your door after a failed run — now they actually call to say the food didn't make it."
+            },
+            "original": "Fixed print mode (`--print` / `-p`) silently exiting with a success code and empty output when a request failed server-side, now writing the error to stderr and returning a non-zero exit code. Fixed `agy -p` hanging when run inside a shell script or subprocess by no longer reading stdin when a prompt is provided via a flag. (1.1.1)"
+          },
+          {
+            "title": {
+              "zh-TW": "放行過的寫檔不再重複問",
+              "en": "Pre-approved file writes skip the review prompt"
+            },
+            "body": {
+              "zh-TW": "你在 settings.json 的 permission.allow 允許清單（事先放行的白名單）裡核准過的寫檔動作，預設模式現在會直接放行，不再每次都跳審查。就像機場的常客快速通關——身家早就查核過的人，不必每趟都重新排安檢。",
+              "en": "File writes you've already allowlisted under permission.allow in settings.json (the pre-approved whitelist) now sail through in default mode instead of prompting for review every time. Like an airport trusted-traveler lane — once you've been vetted, you don't re-queue for screening on every trip."
+            },
+            "original": "Changed the default mode to respect write_file permissions allowlisted in `settings.json` under `permission.allow`, so pre-approved file writes no longer prompt for review. (1.1.1)"
+          },
+          {
+            "title": {
+              "zh-TW": "介面細節總打磨：差異預覽、快捷鍵提示、表格對齊都變順眼",
+              "en": "A round of UI polish: diff previews, keybinding hints, and table alignment"
+            },
+            "body": {
+              "zh-TW": "這輪順手把一圈介面細節磨亮了：檔案編輯的差異預覽補上前後文和分段線更好讀；各面板頁尾的快捷鍵提示會尊重你自訂的鍵位、不再寫死；/resume 選單裡重新命名對話的輸入框不再把長標題吃掉；聊天輸出裡帶檔案連結的 Markdown 表格也不再歪掉。像車子進廠保養——沒換引擎，但每個按鈕都變順手了。",
+              "en": "A lap of interface polish landed this round: file-edit diff previews gain context lines and section separators for easier reading; footer keybinding hints across panels now respect your customized keys instead of showing hardcoded ones; the rename box in the /resume picker stops swallowing long titles; and Markdown tables with file links in chat output stop skewing. Like a car service visit — same engine, but every knob feels smoother."
+            },
+            "original": "Improved file-edit diff preview rendering: computed accurate line-level diffs with context lines (3 lines) and hunk separators. Improved UI footer keybinding hints across all panels by replacing hardcoded hint strings with centralized layout helpers that dynamically respect customized keybinding configurations. Improved the multiline conversation rename view in the `/resume` picker. Fixed misaligned markdown tables containing file links in chat output. (1.1.0–1.1.1)"
+          }
+        ]
+      }
+    },
+    {
       "version": "1.1.0",
       "raw": {
         "version": "1.1.0",
@@ -595,73 +712,6 @@
               "en": "The system's defense lines are now drawn much tighter. The system strictly forbids unauthorized programs from messing with your project's .git folder (the heart of your version control history), preventing any malicious tampering with your crucial history. It is also much stricter when checking command permissions: PowerShell scripts and complex output redirections (like > or 2>&1) now require an exact string match, plugging loopholes that might let bad actors escape the sandbox (a secure isolation zone that restricts program privileges). But it's not all restrictions: previously, if you allowlisted a \"command with quotes\" (like python -c \"print(1)\"), the system would fail to handle the spaces inside the quotes and wouldn't recognize it, forcing you to manually approve it anyway; this silly bug is now fixed, and the allowlist works as intended. Like corporate security: it now strictly forbids strangers from sneaking into the archives room, but the guards have finally learned how to read foreign visitor names with spaces in them, so they no longer turn away guests who already made a reservation."
             },
             "original": "Hardened command execution permission checks by enforcing strict exact-match verification for PowerShell scripts, complex shell redirections ( `>` , `2>&1` ), and unparseable strings to prevent sandbox escapes.\nHardened sandbox execution by adding `.git` to the core list of dangerous paths, preventing unauthorized or destructive repository modifications.\nFixed a bug where allowlisted terminal commands with quoted arguments (e.g., `python -c \"print(1)\"`) would silently fail to match at runtime due to flawed whitespace tokenization."
-          }
-        ]
-      }
-    },
-    {
-      "version": "1.0.8",
-      "raw": {
-        "version": "1.0.8",
-        "period": "2026-07-13",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-07-13",
-        "entries": [
-          "Added support for capturing slash command history, allowing users to use the up arrow to replay previously entered slash commands.",
-          "Redesigned the \"Models & Quota\" page (enabled by default, replacing the legacy usage page) to gracefully handle disabled quota buckets by displaying a dimmed \"Disabled\" status and omitting the progress bar.",
-          "Added display of quota usage and execution mode in the status line.",
-          "Improved `/btw` to be more token efficient and support streaming responses for a smoother user experience and fixed premature truncation.",
-          "Fixed a bug where the `/hooks` command wrote configurations to `~/.gemini/antigravity-cli/hooks.json` instead of the shared `~/.gemini/config/hooks.json`, ensuring hooks remain synchronized between the TUI and the backend.",
-          "Fixed a CPU compatibility issue (SIGILL on non-AES-NI CPUs), preventing immediate crashes on startup on older CPUs (like Intel Ivy Bridge) or VM environments that lack AES-NI support.",
-          "Added a per-line guard against extremely long single-line pastes in the TUI prompt editor to prevent performance lag, replacing them with an expandable placeholder.",
-          "Redesigned the `/resume` conversation picker to align the workspace column and added adaptive column dropping (workspace, time, steps) to support narrow terminals.",
-          "Redesigned the `/tasks` list and detail views for better alignment and readability, placing start times on the left, right-aligning status, and capping the panel height.",
-          "Fixed dynamic reloading of custom skills and system slash commands, ensuring they are instantly discovered in autocomplete upon conversation switch or `/add-dir`.",
-          "Improved configuration saving by propagating write failures as transient error flashes on the statusline.",
-          "Improved settings inheritance by ensuring the CLI inherits the `use_ai_credits` setting from global user settings on startup.",
-          "Fixed a TUI hang in the artifact view during long sessions by optimizing the rendering complexity of large step histories.",
-          "Fixed an autocomplete bug where a command that is an exact prefix of another (e.g., `/conv` vs `/conv-switch`) would aggressively auto-complete and hide the suggestions menu.",
-          "Fixed a race condition where sending a message immediately after denying a permission request would fail due to incomplete backend cleanup.",
-          "Fixed potential OOM risks when reading large clipboard files by verifying file size before reading.",
-          "Fixed Windows and Wayland-only Linux distributions clipboard image and file reading."
-        ]
-      },
-      "curated": {
-        "version": "1.0.8",
-        "period": "2026-07-13",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "「模型與額度」頁面重新設計",
-              "en": "Smarter UI layout and slash command history support"
-            },
-            "body": {
-              "zh-TW": "終端機介面變得更實用也更美觀了。現在你可以像一般打指令一樣，按方向鍵「上」來找回之前打過的快捷指令（slash commands，像 /plan 這些），不用每次都重打，而且在選單裡打字時，也不會再發生「打 /conv 結果系統硬是幫你補全成 /conv-switch 並關掉選單」這種自作聰明的毛病。「模型與額度」頁面重新設計，畫面最底下的狀態列也會隨時告訴你現在用了多少額度和處於什麼執行模式。當你在看歷史對話或任務清單時，如果你的視窗太窄，系統會自動隱藏不重要的欄位以免版面擠爆，而且時間和狀態也會對齊得清清楚楚。就像你常去的咖啡廳重新裝潢，不但點單機終於會記住你常點的隱藏菜單，而且就算用小桌子，服務生也會幫你把餐盤排得整整齊齊。",
-              "en": "The terminal interface is now much more practical and better looking. You can finally press the \"Up\" arrow key to recall previously entered slash commands (like /plan), saving you from retyping them every time. When typing in the autocomplete menu, it will no longer mistakenly \"help\" you by forcefully auto-completing /conv into /conv-switch and then abruptly closing the menu. The completely redesigned \"Models & Quota\" page is now live, and the status bar at the very bottom will always keep you informed of your current quota usage and execution mode. When viewing your conversation history or task lists, if your terminal window is too narrow, the system will automatically drop less important columns to prevent layout chaos, while ensuring times and statuses align perfectly. Like your favorite cafe getting a remodel: the register finally remembers your secret menu orders, and even if you sit at a tiny table, the waiter still manages to arrange your plates perfectly."
-            },
-            "original": "Added support for capturing slash command history, allowing users to use the up arrow to replay previously entered slash commands.\nRedesigned the \"Models & Quota\" page (enabled by default, replacing the legacy usage page) to gracefully handle disabled quota buckets by displaying a dimmed \"Disabled\" status and omitting the progress bar.\nAdded display of quota usage and execution mode in the status line.\nRedesigned the `/resume` conversation picker to align the workspace column and added adaptive column dropping (workspace, time, steps) to support narrow terminals.\nRedesigned the `/tasks` list and detail views for better alignment and readability, placing start times on the left, right-aligning status, and capping the panel height.\nFixed an autocomplete bug where a command that is an exact prefix of another (e.g., `/conv` vs `/conv-switch`) would aggressively auto-complete and hide the suggestions menu."
-          },
-          {
-            "title": {
-              "zh-TW": "解決貼上大量文字與舊電腦當機的問題",
-              "en": "Fixes performance on large text pastes, legacy CPUs, and clipboard issues"
-            },
-            "body": {
-              "zh-TW": "大量單行貼上不再拖慢輸入框。以前如果你一次貼上超級長（例如好幾萬字）的一行文字，輸入框會因為來不及處理而卡住很久；現在它會聰明地把它折疊成一個小圖示，不再拖垮效能。用 /btw 更省 token，並支援串流回覆，也改用一邊生成一邊印字的方式，不再斷尾。如果你用的是很舊的電腦（沒有支援硬體加速的 CPU），以前一開程式就會直接崩潰，現在也能正常打開了。另外，Windows 與部分 Linux 系統（Wayland）的剪貼簿讀取也修好了，而且系統現在會檢查剪貼簿裡的檔案大小，防止你貼上超大檔案時把記憶體整個吃光。就像換了更強的抽水馬達，以前如果一次倒太多水進去水管就會塞住甚至爆管，現在它會先幫你打包分流，連舊房子的老水管也能撐得住，而且還順便把幾個地方漏水的問題修好了。",
-              "en": "A slew of performance issues that could freeze or crash the program have been resolved. Previously, if you pasted a ridiculously long single line of text (like tens of thousands of characters), the input box would choke and freeze for ages; now, it smartly collapses it into a little placeholder icon, keeping performance smooth. When you use /btw to ask the agent for a quick favor, its replies are now faster and stream in word by word instead of getting prematurely truncated. If you're on a very old computer (with a CPU that lacks hardware acceleration), the program used to instantly crash on startup, but now it opens perfectly. In addition, clipboard reading on Windows and certain Linux setups (Wayland) has been fixed, and the system now checks the file size before reading the clipboard so pasting massive files won't devour all your RAM. Like installing a much stronger water pump: previously, dumping too much water at once would clog or burst the pipes, but now it automatically bundles and reroutes the flow so even the old plumbing in an aging house can handle it, while fixing a few leaks along the way."
-            },
-            "original": "Improved `/btw` to be more token efficient and support streaming responses for a smoother user experience and fixed premature truncation.\nFixed a CPU compatibility issue (SIGILL on non-AES-NI CPUs), preventing immediate crashes on startup on older CPUs (like Intel Ivy Bridge) or VM environments that lack AES-NI support.\nAdded a per-line guard against extremely long single-line pastes in the TUI prompt editor to prevent performance lag, replacing them with an expandable placeholder.\nFixed a TUI hang in the artifact view during long sessions by optimizing the rendering complexity of large step histories.\nFixed potential OOM risks when reading large clipboard files by verifying file size before reading.\nFixed Windows and Wayland-only Linux distributions clipboard image and file reading."
-          },
-          {
-            "title": {
-              "zh-TW": "設定檔終於寫對位置，拒絕權限後不再卡死",
-              "en": "Hooks save to the correct path, and denying permissions no longer causes hangs"
-            },
-            "body": {
-              "zh-TW": "系統裡的設定與狀態同步現在變得更精準了。以前你用 /hooks 幫系統掛上自動執行腳本時，它會傻傻地把設定檔寫錯資料夾，導致你設定半天背後的程式卻讀不到；現在終於會乖乖寫進共用的設定檔目錄裡了。當你切換專案或加入新目錄時，你自己寫的快捷指令和技能也會立刻在自動補齊選單裡現身，不用再重開程式。如果你儲存設定失敗，狀態列現在會立刻閃紅燈警告你。另外，以前如果你拒絕了代理的某個執行權限，然後馬上又傳訊息給它，它會因為還沒從被拒絕的錯愕中回過神來而當機；現在這個「反應慢半拍」的毛病也治好了。就像你去辦公所，以前你在櫃檯填的申請單會被收進錯的檔案櫃，而且就算你剛加入新部門的通訊錄，也要等隔天大家才查得到你；現在這些資料都即時連線了，而且如果你剛拒絕推銷員，他也不會再擋在門口不讓你跟下一個客人講話。",
-              "en": "Settings and state synchronization within the system are now much more precise. Previously, when you used /hooks to attach automated scripts, the system would foolishly write the config file into the wrong folder, meaning your backend wouldn't read anything despite all your setup work; it now correctly writes to the shared configuration directory. When you switch projects or add a new directory, any custom slash commands or skills you wrote will instantly appear in the autocomplete menu without you needing to restart the program. If saving a configuration fails, the status bar will now immediately flash a red warning alert. Additionally, if you denied an agent's permission request and then immediately sent it a new message, the backend used to hang because it hadn't finished cleaning up after the denial; this \"slow reaction\" bug is now cured. Like visiting a government office: the application forms you filled out at the counter used to be filed in the wrong cabinet, and if you just joined a new department, it took a whole day before anyone could find you in the directory; now everything is instantly synced, and if you turn away a salesperson, they no longer block the doorway preventing you from talking to the next person."
-            },
-            "original": "Fixed a bug where the `/hooks` command wrote configurations to `~/.gemini/antigravity-cli/hooks.json` instead of the shared `~/.gemini/config/hooks.json`, ensuring hooks remain synchronized between the TUI and the backend.\nFixed dynamic reloading of custom skills and system slash commands, ensuring they are instantly discovered in autocomplete upon conversation switch or `/add-dir`.\nImproved configuration saving by propagating write failures as transient error flashes on the statusline.\nImproved settings inheritance by ensuring the CLI inherits the `use_ai_credits` setting from global user settings on startup.\nFixed a race condition where sending a message immediately after denying a permission request would fail due to incomplete backend cleanup."
           }
         ]
       }
