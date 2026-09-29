@@ -15,9 +15,9 @@ colors:
   primary: "oklch(0.18 0.008 240)"
   on-primary: "oklch(1 0 0)"
   link: "oklch(0.37 0.05 240)"
-  tag-new: "oklch(0.43 0.01 240)"
-  tag-fix: "oklch(0.43 0.01 240)"
-  tag-perf: "oklch(0.43 0.01 240)"
+  tag-new: "oklch(0.472000 0.137103 150.069)"
+  tag-fix: "oklch(0.473000 0.215157 27.325)"
+  tag-perf: "oklch(0.501000 0.145505 48.998)"
   background-dark: "oklch(0.18 0.005 240)"
   sidebar-dark: "oklch(0.22 0.005 240)"
   card-dark: "oklch(0.25 0.005 240)"
@@ -30,9 +30,9 @@ colors:
   primary-dark: "oklch(0.96 0.003 240)"
   on-primary-dark: "oklch(0.18 0.005 240)"
   link-dark: "oklch(0.84 0.025 240)"
-  tag-new-dark: "oklch(0.73 0.005 240)"
-  tag-fix-dark: "oklch(0.73 0.005 240)"
-  tag-perf-dark: "oklch(0.73 0.005 240)"
+  tag-new-dark: "oklch(0.695081 0.180928 145.621)"
+  tag-fix-dark: "oklch(0.719000 0.204594 26.960)"
+  tag-perf-dark: "oklch(0.719551 0.140145 79.915)"
 typography:
   display:
     fontFamily: Inter
@@ -93,13 +93,13 @@ components:
     rounded: "{rounded.card}"
     padding: 1.75rem
   badge-new:
-    textColor: "{colors.muted}"
+    textColor: "{colors.tag-new}"
     typography: "{typography.label}"
   badge-fix:
-    textColor: "{colors.muted}"
+    textColor: "{colors.tag-fix}"
     typography: "{typography.label}"
   badge-perf:
-    textColor: "{colors.muted}"
+    textColor: "{colors.tag-perf}"
     typography: "{typography.label}"
   filter-chip:
     typography: "{typography.label}"
@@ -140,7 +140,7 @@ components:
 - 淺色四層：頁底 `--bg-color`、白色 `--sidebar-bg`／`--card-bg`、淡灰 `--soft-surface`、程式碼底 `--code-bg`。
 - 深色底與卡片的色相約 240、彩度 0.005；卡片和軟底逐層變亮。深色沒有可見卡片陰影。
 - `--text-color` 放內文；`--text-bright` 放標題；`--muted-color` 放日期、序號、徽章與輔助文字。連結使用 `--link-color`。
-- `--tag-new`、`--tag-fix`、`--tag-perf` 三者在各主題完全相同，更新類型不靠顏色區分。
+- `--tag-new`（綠）、`--tag-fix`（紅）、`--tag-perf`（橘）只用在卡片的類型徽章文字，也是複製成功提示的綠色；篩選 chip 與企業／團隊徽章維持中性灰，不拿類型色裝飾。
 - `:root` 與 `[data-theme="dark"]` 同色；`@media(prefers-color-scheme:light)` 與 `[data-theme="light"]` 同色。文字與所處底色的 WCAG 對比至少 4.5:1，改完用 axe 的 `color-contrast` 驗。含字的控制項不用 `opacity` 淡化。
 - 顏色一律寫 token，要半透明就用 `color-mix(in srgb,var(--token) N%,transparent)`，不寫死 `rgba()`／`#hex`。
 
@@ -188,7 +188,7 @@ CSS 裡的字級一律寫 `var(--fs-*)`，共七級：
 
 - 更新卡片白底、無邊框、圓角 16px，內距 1.75rem。一般標題 `--fs-xl`，緊湊卡與歷史展開內標題 `--fs-md`。
 - 工具與分頁選中狀態為 `--accent-color` 實心底與 `--accent-contrast` 字；深色主題兩者互換亮暗。分頁和工具都維持 44px 觸控高度。
-- 篩選 chip 桌機高 32px、1023px 以下高 44px、字級 `--fs-xs`，選中同樣使用實心膠囊；類型徽章是沒有框與圖示的中性灰小字。企業／團隊徽章與隱藏開關使用同一套中性灰。
+- 篩選 chip 桌機高 32px、1023px 以下高 44px、字級 `--fs-xs`，選中同樣使用實心膠囊；類型徽章是沒有框與圖示的彩色小字（字重 600，顏色讀 `--tag-*`）。企業／團隊徽章與隱藏開關使用中性灰。
 - 最新發布標記為實心小膠囊。比喻框使用淡灰底與 12px 圓角，不加左色條。原始 CHANGELOG 摺疊區也用淡灰底與 12px 圓角。
 - 版本頁麵包屑用 Inter 小字、深灰連結；版本大標用 Inter 500。404 與版本頁共用 `PAGE_CSS`；404 的圖示和字體使用絕對網址。
 - **工具清單**：依資料順序固定排列，點擊不重排。
@@ -214,5 +214,5 @@ CSS 裡的字級一律寫 `var(--fs-*)`，共七級：
 - Do：`prefers-reduced-motion: reduce` 時關閉跨頁轉場、卡片進場及 404 游標閃爍。
 - Do：上線前跑 `python3 -m pytest -q`，並用 axe 檢查對比度、標題層級與點擊區；深色、淺色、手機 WebKit 都要截圖看過。
 - Don't：讓點擊或載入改變已經在畫面上的內容位置。
-- Don't：加彩色類型徽章、徽章圖示、時間軸軌道、卡片 hover 位移或中文大寫字距。
+- Don't：徽章加框、底色或圖示；時間軸軌道；卡片 hover 位移；中文大寫字距。
 - Don't：寫死字級或把中文縮到 11px。
