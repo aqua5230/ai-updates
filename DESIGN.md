@@ -190,7 +190,7 @@ CSS 裡的字級一律寫 `var(--fs-*)`，共七級：
 ## Do's and Don'ts
 
 - 跨頁導覽用 CSS `@view-transition{navigation:auto}` 淡入淡出；首頁內切換工具或版本不套轉場。
-- 首頁與版本頁的 `.log-item-card` 在支援 `animation-timeline:view()` 時，隨進入視窗由透明、下移 12px 漸至原位，範圍為 `entry 0% entry 35%`。只動畫 `opacity` 和獨立的 `translate`，不動 hover 使用的 `transform`；首屏卡片維持完整狀態，不支援的瀏覽器維持原狀。
+- 首頁與版本頁的 `.log-item-card` 在支援 `animation-timeline:view()` 時，隨進入視窗由下移 12px 滑至原位，範圍為 `entry 0% entry 35%`。只動畫獨立的 `translate`，不動 hover 使用的 `transform`，也不動 `opacity`（半透明的字會被 Lighthouse／axe 判成對比不足，2026-09-29 拿掉）；首屏卡片維持完整狀態，不支援的瀏覽器維持原狀。
 - `prefers-reduced-motion: reduce` 時，關閉跨頁轉場、卡片淡入及 404 游標閃爍，卡片保持完整顯示。
 
 - Do：新增文字用 `--fs-*`，新增按鈕用 `--control-*`。
