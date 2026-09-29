@@ -1,0 +1,498 @@
+{
+  "id": "usage",
+  "name": "Usage",
+  "page": 5,
+  "pages": 21,
+  "versions": [
+    {
+      "version": "0.29.26",
+      "raw": {
+        "version": "0.29.26",
+        "period": "2026-08-12",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-12",
+        "entries": [
+          "**Codex's status line now shows the Git branch and the session's token count.** The segment set usage writes into `~/.codex/config.toml` grew from five entries to seven, adding `git-branch` and `used-tokens`, so a session reads `usage · main · 5h 39% left · weekly 50% left · Context 95% left · 12.3K used · gpt-5.6-sol high`. Codex's status line accepts only its own built-in segments — there is no command hook like Claude Code's, which is why the wording, the colors and the ` · ` separator are Codex's own and why a progress bar or a reset countdown cannot be rendered on that side. The `5h` segment is omitted until Codex holds a rate-limit snapshot that actually contains a five-hour window.",
+          "**Upgrading the segments no longer files usage's own older set as your original status line.** `_setup_codex()` backed up whatever it found before overwriting, which was correct for a status line you configured yourself but wrong for one an earlier version of usage installed: changing the segment set would have written the previous usage-installed list into `~/.codex/usage-backup.json`, and a later removal would have \"restored\" that instead of your real configuration — silently overwriting the only copy of it. Segment sets that usage has shipped are now recognized as its own and upgraded in place, leaving any existing backup untouched.",
+          "**Removing the Codex status line works on installs still holding an older segment set.** The removal path required an exact match against the current segments, so anyone who had not re-run setup was told the status line was not usage's and nothing happened. Every set usage has shipped is now accepted; the restore sequence itself is unchanged, including writing the recovered configuration before deleting the backup.",
+          "**The new segments apply without pressing anything.** Startup self-healing upgrades a status line that still holds a set from an earlier version of usage. It only ever matches those sets — a status line you configured yourself, and one already on the current set, are both left alone.",
+          "**Tests can no longer reach the real `~/.codex/config.toml`.** The self-healing path above reads that file, and no test overrode the path constant, so a full test run on a developer's machine rewrote their own Codex configuration and made an unrelated assertion about the self-heal log depend on the state of that machine. An autouse fixture now points the Codex configuration and both backup paths at a temporary directory, matching how the log directory is already isolated."
+        ]
+      },
+      "curated": {
+        "version": "0.29.26",
+        "period": "2026-08-12",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Codex 狀態列看得到分支與已用 token",
+              "en": "Codex status line now shows branch and token use"
+            },
+            "body": {
+              "zh-TW": "你在終端機裡連續做了幾輪工作，想知道自己在哪個 Git 分支、這個工作階段（session，一次開啟到結束的工作過程）已用了多少 token（AI 處理文字的計量單位）？Codex 的狀態列（終端機最底下那行摘要）現在多了 `git-branch` 和 `used-tokens`，設定檔裡的區段也由五個增為七個。它像車上的儀表板：分支和已用 token 會同列顯示，但表板零件只能選 Codex 內建項目；不能接像 Claude Code 那樣的指令掛鉤，所以文字、顏色與 ` · ` 分隔符號都由 Codex 決定，也不能加進度條或重設倒數。`5h` 則要等 Codex 真的拿到含五小時視窗的限流快照才會出現。",
+              "en": "After several rounds in your terminal, you may want to know both your Git branch and how many tokens this session has used. Codex's status line now adds `git-branch` and `used-tokens`, taking the segment list in its config from five to seven. Think of it as a car dashboard: those readings can sit together, but only Codex's built-in gauges fit. Unlike Claude Code, it has no command hook, so Codex controls wording, colors, and the ` · ` separator; it cannot show a progress bar or reset countdown. The `5h` reading stays hidden until Codex has a rate-limit snapshot that contains a five-hour window."
+            },
+            "original": "**Codex's status line now shows the Git branch and the session's token count.** The segment set usage writes into `~/.codex/config.toml` grew from five entries to seven, adding `git-branch` and `used-tokens`, so a session reads `usage · main · 5h 39% left · weekly 50% left · Context 95% left · 12.3K used · gpt-5.6-sol high`. Codex's status line accepts only its own built-in segments — there is no command hook like Claude Code's, which is why the wording, the colors and the ` · ` separator are Codex's own and why a progress bar or a reset countdown cannot be rendered on that side. The `5h` segment is omitted until Codex holds a rate-limit snapshot that actually contains a five-hour window."
+          },
+          {
+            "title": {
+              "zh-TW": "更新或移除狀態列，不會誤蓋你的原始設定",
+              "en": "Status-line upgrades and removal preserve your original setup"
+            },
+            "body": {
+              "zh-TW": "你以前用 usage 裝過 Codex 狀態列，後來想換新版或移除它，原本自己設的狀態列不該被舊版 usage 的清單冒充。現在 usage 認得自己歷來發過的區段組合，遇到舊組合會原地升級，不會把它另存成你的原始設定，也不會碰既有備份。移除時同樣接受所有舊組合；回復設定仍是先寫回找回的內容，再刪備份。啟動時還會檢查舊組合並自動更新，但只比對 usage 發過的組合，使用者自訂狀態列與已是新版的設定都不動。像寄物櫃管理員看得懂哪張標籤是店家舊款，換新標籤時不會把舊標籤誤收成你的私人物品。",
+              "en": "If you installed a Codex status line with usage before, then upgrade or remove it, an older usage list should not masquerade as the status line you originally configured. Usage now recognizes every segment set it has shipped. It upgrades an older set in place instead of backing it up as yours, and leaves an existing backup alone. Removal accepts those older sets too; restoring still writes recovered settings before deleting the backup. At startup, usage also upgrades old sets automatically, but matches only sets it shipped, leaving both your custom line and a current set untouched. It is like a locker attendant who recognizes an old store label and replaces it without mistaking it for your personal property."
+            },
+            "original": "**Upgrading the segments no longer files usage's own older set as your original status line.** `_setup_codex()` backed up whatever it found before overwriting, which was correct for a status line you configured yourself but wrong for one an earlier version of usage installed: changing the segment set would have written the previous usage-installed list into `~/.codex/usage-backup.json`, and a later removal would have \"restored\" that instead of your real configuration — silently overwriting the only copy of it. Segment sets that usage has shipped are now recognized as its own and upgraded in place, leaving any existing backup untouched.\n**Removing the Codex status line works on installs still holding an older segment set.** The removal path required an exact match against the current segments, so anyone who had not re-run setup was told the status line was not usage's and nothing happened. Every set usage has shipped is now accepted; the restore sequence itself is unchanged, including writing the recovered configuration before deleting the backup.\n**The new segments apply without pressing anything.** Startup self-healing upgrades a status line that still holds a set from an earlier version of usage. It only ever matches those sets — a status line you configured yourself, and one already on the current set, are both left alone."
+          },
+          {
+            "title": {
+              "zh-TW": "測試不會再改到開發者真正的 Codex 設定",
+              "en": "Tests no longer touch a developer's real Codex settings"
+            },
+            "body": {
+              "zh-TW": "開發者跑完整套測試時，原本不該拿自己的 `~/.codex/config.toml` 當測試材料。先前啟動時的自我修復會讀這個真實設定檔，但測試沒有把路徑換掉；因此測試可能改寫開發者的 Codex 設定，連驗證自我修復日誌的結果也會隨那台電腦的狀態改變。現在自動套用的 fixture（每個測試先準備好的共用環境）會把 Codex 設定檔與兩個備份路徑全指向暫存資料夾，和原本已隔離的日誌資料夾一致。這像舞台彩排不再借用真實控制室的開關：演員怎麼測，都只影響臨時布景。",
+              "en": "When a developer runs the full test suite, their own `~/.codex/config.toml` should never become test material. Startup self-healing read that real file, but tests did not override its path. A test run could therefore rewrite a developer's Codex configuration, while an unrelated assertion about the self-heal log also depended on that machine's state. An autouse fixture (shared setup applied before every test) now points the Codex config and both backup paths to a temporary directory, matching the already-isolated log directory. It is like a stage rehearsal no longer borrowing switches from the real control room: every experiment affects only temporary scenery."
+            },
+            "original": "**Tests can no longer reach the real `~/.codex/config.toml`.** The self-healing path above reads that file, and no test overrode the path constant, so a full test run on a developer's machine rewrote their own Codex configuration and made an unrelated assertion about the self-heal log depend on the state of that machine. An autouse fixture now points the Codex configuration and both backup paths at a temporary directory, matching how the log directory is already isolated."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.25",
+      "raw": {
+        "version": "0.29.25",
+        "period": "2026-08-11",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-12",
+        "entries": [
+          "**The status line switch now covers the Antigravity CLI too.** The panel's single switch has always installed Claude Code's status line; it now mirrors the same quota display onto Antigravity when its CLI is installed. The hook is copied to `~/.gemini/antigravity-cli/` and runs under macOS's built-in `/usr/bin/python3`, so it stays stdlib-only and independent of the app's virtual environment. A status line you configured yourself is backed up to a sidecar file first and restored when the switch is turned off; the deployed script is deliberately left behind, because deleting it races with any CLI that is starting and would leave that session showing a status line error for its whole lifetime. A machine without the Antigravity CLI is untouched — no directory and no file is created, and the switch keeps working for Claude Code exactly as before.",
+          "**Startup self-healing keeps the Antigravity status line current.** Installing it only on the switch's rising edge would have hidden the feature from everyone whose switch was already on, and would have frozen the deployed script at whatever version first installed it. Self-heal now reinstalls it when it is missing and re-copies it when its bytes differ from the bundled source, both gated on the switch being on — so turning the switch off keeps it off. The Antigravity branch is isolated from the rest of self-heal and only records a log entry when the install actually succeeds.",
+          "**A short burst no longer classifies you as a heavy user.** Burn-rate classification divided tokens by an elapsed span as small as one minute, so a single message's cache-creation tokens could produce a rate high enough for Heavy on their own. The minimum span is now five minutes, matching the forecast floor `burn_rate.py` already used.",
+          "**`pip` and `uv` installs ship the Antigravity hook.** `usage_statusline_agy` was missing from `py-modules`, so a non-bundle install could not resolve the script and the switch silently did nothing for Antigravity.",
+          "**Non-macOS platforms no longer touch Antigravity's settings.** The Windows tray shares the same toggle, and `~/.gemini/antigravity-cli/settings.json` expands there too, so a Windows user with the CLI would have had `/usr/bin/python3` written into their configuration. The sync is now a no-op off macOS.",
+          "The menu's two toggles are grouped together without the separator that used to sit between them; both are plain on/off switches, so the divider implied a distinction that does not exist."
+        ]
+      },
+      "curated": {
+        "version": "0.29.25",
+        "period": "2026-08-11",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Antigravity 也有額度狀態列，開關會自己補齊",
+              "en": "Antigravity gets the quota status line, and its switch keeps it current"
+            },
+            "body": {
+              "zh-TW": "你若同時用 Claude Code 和 Antigravity CLI，面板的狀態列（status line，顯示在終端機最底下）開關，現在也會把額度顯示裝到後者；未裝 Antigravity 不建資料夾或檔案。macOS 把掛鉤（hook，事件觸發的小程式）放進 `~/.gemini/antigravity-cli/`，由內建 `/usr/bin/python3` 執行，因此不依賴 App 的虛擬環境。像在兩台車上加同款儀表板：原來那台會先備份，關掉開關時再還原。新腳本會留著，免得正在啟動的 CLI 撞上刪檔，整個工作階段都出錯。已開啟者會在啟動時補裝遺失檔案、更新不同版本腳本；關掉就不會再裝。用 `pip` 或 `uv` 安裝也會帶上此掛鉤，Windows 系統匣等非 macOS 平台不碰 Antigravity 設定，避免寫入 `/usr/bin/python3`。",
+              "en": "If you use both Claude Code and the Antigravity CLI, the panel's existing status line (the readout at the bottom of a terminal) switch now puts the same quota display on Antigravity too. Machines without Antigravity remain untouched: no folder or file is created. On macOS it places a hook (a small program triggered by an event) in `~/.gemini/antigravity-cli/` and runs it with built-in `/usr/bin/python3`, independent of the app's virtual environment. Think of fitting matching dashboards to two cars: your existing dashboard is backed up first and restored when you turn the switch off. The new script stays behind so a CLI already starting does not collide with its deletion and show an error for its whole session. Startup replaces a missing or outdated script only while the switch is on. `pip` and `uv` installs now include it; non-macOS platforms leave Antigravity settings alone, avoiding `/usr/bin/python3` on Windows."
+            },
+            "original": "**The status line switch now covers the Antigravity CLI too.** The panel's single switch has always installed Claude Code's status line; it now mirrors the same quota display onto Antigravity when its CLI is installed. The hook is copied to `~/.gemini/antigravity-cli/` and runs under macOS's built-in `/usr/bin/python3`, so it stays stdlib-only and independent of the app's virtual environment. A status line you configured yourself is backed up to a sidecar file first and restored when the switch is turned off; the deployed script is deliberately left behind, because deleting it races with any CLI that is starting and would leave that session showing a status line error for its whole lifetime. A machine without the Antigravity CLI is untouched — no directory and no file is created, and the switch keeps working for Claude Code exactly as before.\n**Startup self-healing keeps the Antigravity status line current.** Installing it only on the switch's rising edge would have hidden the feature from everyone whose switch was already on, and would have frozen the deployed script at whatever version first installed it. Self-heal now reinstalls it when it is missing and re-copies it when its bytes differ from the bundled source, both gated on the switch being on — so turning the switch off keeps it off. The Antigravity branch is isolated from the rest of self-heal and only records a log entry when the install actually succeeds.\n**`pip` and `uv` installs ship the Antigravity hook.** `usage_statusline_agy` was missing from `py-modules`, so a non-bundle install could not resolve the script and the switch silently did nothing for Antigravity.\n**Non-macOS platforms no longer touch Antigravity's settings.** The Windows tray shares the same toggle, and `~/.gemini/antigravity-cli/settings.json` expands there too, so a Windows user with the CLI would have had `/usr/bin/python3` written into their configuration. The sync is now a no-op off macOS."
+          },
+          {
+            "title": {
+              "zh-TW": "短暫高用量不再被判成 Heavy",
+              "en": "A brief burst no longer marks you Heavy"
+            },
+            "body": {
+              "zh-TW": "剛送出一則內容很多的訊息，狀態卻立刻把你標成 Heavy，現在不會這麼快下結論。先前 burn rate（用量燃燒率，把 token 除以經過時間算出的速度）最短拿一分鐘來算；單則訊息的快取（cache，把算過或查過的結果暫存起來直接用）建立 token（AI 處理與計費的文字單位）就可能把數字推得很高。現在最短觀察時間改成五分鐘，跟 `burn_rate.py` 原本用來預估的下限一致。這像用車速表判斷你是否超速：不能只看起步那一下的猛踩，得看一小段路。它不是把用量藏起來，而是少讓短暫尖峰替你貼上重度使用者標籤。",
+              "en": "After you send one especially large message, the status display will no longer rush to label you Heavy. Burn rate (the pace calculated by dividing tokens, units of AI text processing and billing, by elapsed time) used to use a span as short as one minute. Cache creation from one message could therefore push the rate high on its own. The shortest span is now five minutes, matching the forecasting floor already used by `burn_rate.py`. It is like judging speed from a car's gauge: you cannot call someone a speeder from one hard press at the starting line; you need a short stretch of road. Usage is not hidden; a brief spike is simply less likely to attach a heavy-user label."
+            },
+            "original": "**A short burst no longer classifies you as a heavy user.** Burn-rate classification divided tokens by an elapsed span as small as one minute, so a single message's cache-creation tokens could produce a rate high enough for Heavy on their own. The minimum span is now five minutes, matching the forecast floor `burn_rate.py` already used."
+          },
+          {
+            "title": {
+              "zh-TW": "兩個選單開關並排，少一條多餘分隔線",
+              "en": "Two menu toggles now sit together without a misleading divider"
+            },
+            "body": {
+              "zh-TW": "打開選單想調整兩個開關時，現在它們會排在同一組，中間那條分隔線拿掉了。兩者原本都是單純的開／關選項，線條卻像在菜單上把同類配菜切成兩區，讓人以為它們有不同身分或用途。畫面沒有增加新控制項，也沒有改掉任何一個開關能做的事；只是讓排列跟實際關係一致。你看到兩個並列開關，就知道它們同樣是可獨立啟用或停用的選項，不必猜那條線暗示了什麼差別。",
+              "en": "When you open the menu to adjust its two toggles, they now appear as one group, with the separator between them removed. Both were always simple on/off controls, but the line was like splitting matching side dishes into separate sections of a menu: it suggested they had different roles. No new control has appeared, and neither toggle does anything different. The layout now matches their actual relationship. Seeing two switches side by side tells you they are both options you can turn on or off independently, without making you guess what distinction the divider was meant to signal."
+            },
+            "original": "The menu's two toggles are grouped together without the separator that used to sit between them; both are plain on/off switches, so the divider implied a distinction that does not exist."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.24",
+      "raw": {
+        "version": "0.29.24",
+        "period": "2026-08-11",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-11",
+        "entries": [
+          "**A Catppuccin panel theme.** Same blueprint layout (drafting grid, ruler-tick progress bars, drafting-paper corner marks) recolored with the official [Catppuccin](https://github.com/catppuccin/catppuccin) palette — Latte, Frappé, Macchiato, and Mocha, switchable from four swatches at the bottom of the panel. The choice is saved to preferences (not `localStorage`, which WebKit blocks under the panel's null-origin load) and applies on both macOS and the Windows tray."
+        ]
+      },
+      "curated": {
+        "version": "0.29.24",
+        "period": "2026-08-11",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "面板換上 Catppuccin 四色主題，格線設計照舊",
+              "en": "Catppuccin brings four color themes to the panel without changing its blueprint look"
+            },
+            "body": {
+              "zh-TW": "眼前的面板想換個色調，現在可以選 Catppuccin 的四套官方配色。草稿紙般的藍圖格線、尺刻度進度條和角落記號仍在，只是換上 Latte、Frappé、Macchiato 或 Mocha；在面板底部按四個色票就能選。這像同一張製圖桌換四種墨水，尺線與格紙不動，整張圖卻能依喜好改色。選擇會存進偏好設定（記住你選項的地方），而非 localStorage（瀏覽器暫存網站資料的地方）；面板在 WebKit 以 null origin 載入時，後者會被擋住。macOS 與 Windows 系統匣的面板都會套用這個選擇。",
+              "en": "Want the panel in a different mood? It now offers Catppuccin's four official palettes. The drafting-paper grid, ruler-tick progress bars, and corner marks stay put; choose Latte, Frappé, Macchiato, or Mocha from four swatches along the panel's bottom edge. It is like using four inks on one drafting table: the rulers and paper do not move, but the drawing takes on your chosen color. Your pick is saved in preferences, rather than localStorage (browser storage for website data), because WebKit blocks localStorage when the panel loads with a null origin. The choice appears in both the macOS and Windows tray panels."
+            },
+            "original": "**A Catppuccin panel theme.** Same blueprint layout (drafting grid, ruler-tick progress bars, drafting-paper corner marks) recolored with the official [Catppuccin](https://github.com/catppuccin/catppuccin) palette — Latte, Frappé, Macchiato, and Mocha, switchable from four swatches at the bottom of the panel. The choice is saved to preferences (not `localStorage`, which WebKit blocks under the panel's null-origin load) and applies on both macOS and the Windows tray."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.23",
+      "raw": {
+        "version": "0.29.23",
+        "period": "2026-08-10",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-11",
+        "entries": [
+          "**Two new panel themes: Stained Glass and Origami.** Stained Glass renders the quota cards behind irregular polygon color fields with leaded dividers and a slow light sweep; Origami folds the same layout into monochrome triangle facets that unfold once on load instead of looping like the other panels. Both are available on macOS and in the Windows tray, reuse Classic's measured panel height since their DOM structure is identical, and are picked from \"Switch Panel\". A regression test now asserts the Windows panel list and height table stay in sync with the macOS panel registry — nothing previously caught a new panel being added to one and not the other.",
+          "**The contribution heatmap has a snake easter egg.** Triple-click the heatmap title within 1.5 seconds and a snake eats its way across the grid along a serpentine path, then the grid restores itself automatically. The path starts at the first week with data so an all-empty year doesn't spin uselessly, it's skipped when `prefers-reduced-motion` is set, and it's stopped and reset before any HTML/CSV/PNG export so an export can never catch the grid mid-bite.",
+          "**Eight panels were silently missing the Codex stale/quota/history warnings, and five had no Install Hook button.** Extracting nine panels to a shared `panel_core.js` (see Changed) surfaced how far the independently-copied logic had drifted — averaging 200+ lines apiece — and with the drift came real feature gaps nobody had audited for: depending on which panel happened to be open, a card that should show a Codex staleness banner, a quota bar, or a history-load error sometimes just didn't. Win95's stale-state clearing also had a small bug. All nine now go through the same binding logic, so a gap in one is a gap in none.",
+          "**Nine card panels now share one core script instead of nine divergent copies.** `classic`, `matrix`, `win95`, `newspaper`, `cloud_observation`, `aquarium`, `prism_arcade`, `black_hole`, and `lepidoptera` all inject the same `panel_core.js` through the existing placeholder mechanism; only the genuinely panel-specific pieces stay behind — progress-bar material, project-row layout, the theme-switch button treatment, and decorative animation. A regression test now blocks a future panel from being built by copy-pasting the whole script again.",
+          "**The public website picked up nine polish passes** — spotlight cursor tracking, scroll-triggered fade-ins, spring-eased hover states, and full keyboard navigation among them — drawn from patterns in Framer Motion, GSAP, Aceternity, Radix, and Magic UI and reimplemented in plain CSS/vanilla JS so nothing new was added as a dependency.",
+          "World Cup 2026's panel description no longer claims the Antigravity card and drag-to-reorder exist there — it's the one panel without either. The theme gallery gained screenshots for Classic, Cloud Observation, Prism Arcade, and Lepidoptera; every README got a quick-jump section list; and DEVELOPMENT's panel-card description now mentions Antigravity. The website nav also swapped its emoji brand mark for a hand-drawn SVG paw print, added the official GitHub icon next to the repository link, corrected wording in the five-language resume explainer (the CLI does keep a record — it just doesn't reattach automatically), and dropped four outdated feature cards along with their translation keys."
+        ]
+      },
+      "curated": {
+        "version": "0.29.23",
+        "period": "2026-08-10",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "兩款新面板，像彩繪玻璃或摺紙般看用量",
+              "en": "Two new ways to view usage: stained glass and origami"
+            },
+            "body": {
+              "zh-TW": "想換個心情看額度卡嗎？「Switch Panel」現在多了 Stained Glass 與 Origami 兩種面板（顯示用量卡片的外觀）。前者把卡片放在不規則彩色多邊形與鉛條分隔裡，光影會緩緩掃過；後者用單色三角摺面呈現，載入時展開一次便停住，不像其他面板持續循環。兩者都可在 macOS 和 Windows 系統匣選用，因為結構相同，沿用 Classic 的固定高度。像把同一份帳單放進彩繪玻璃窗或折好的紙雕裡：內容沒變，看的感覺換了。另有測試會核對 Windows 清單與高度表是否和 macOS 面板名冊一致，避免只加到其中一邊。",
+              "en": "Want a different mood while checking your quota cards? Switch Panel now includes Stained Glass and Origami, two panel themes (the visual treatment around those cards). Stained Glass places them behind irregular colored polygons and leaded dividers, with light slowly sweeping over them. Origami uses monochrome triangular folds that open once on load, then stop rather than looping. Both are available on macOS and from the Windows tray, and reuse Classic's measured height because their structure is the same. It is like putting the same bill in a stained-glass window or a folded paper sculpture: the contents stay put, but the view changes. A test also checks that Windows' panel list and height table match macOS' registry, so a theme cannot quietly be added to only one side."
+            },
+            "original": "**Two new panel themes: Stained Glass and Origami.** Stained Glass renders the quota cards behind irregular polygon color fields with leaded dividers and a slow light sweep; Origami folds the same layout into monochrome triangle facets that unfold once on load instead of looping like the other panels. Both are available on macOS and in the Windows tray, reuse Classic's measured panel height since their DOM structure is identical, and are picked from \"Switch Panel\". A regression test now asserts the Windows panel list and height table stay in sync with the macOS panel registry — nothing previously caught a new panel being added to one and not the other."
+          },
+          {
+            "title": {
+              "zh-TW": "連點熱圖標題，貪食蛇會來吃格子",
+              "en": "Triple-click the heatmap title to summon a snake"
+            },
+            "body": {
+              "zh-TW": "貢獻熱圖（用格子顯示每天活動量的圖）標題藏了一個小遊戲：1.5 秒內連按三下，貪食蛇就會沿著格子來回穿梭，最後自行還原。蛇從第一週有資料的位置起步，所以整年空白時不會白跑；若裝置設為 `prefers-reduced-motion`（要求網站少用動態效果的偏好），遊戲會略過。要把熱圖匯出成 HTML、CSV 或 PNG 前，蛇也會先停止並重設，因此輸出的網頁、表格或圖片不會拍到蛇吃到一半。這像筆記本角落的翻頁動畫：想看時才叫它出來，交出去的正式副本仍是原本那頁。",
+              "en": "The contribution heatmap (a grid showing activity by day) hides a tiny game. Triple-click its title within 1.5 seconds and a snake winds back and forth through the grid, then restores it on its own. It starts at the first week with data, so it does not run pointlessly across an empty year. If your device uses `prefers-reduced-motion` (a setting that asks websites to limit motion), the game is skipped. Before an HTML, CSV, or PNG export, the snake also stops and resets, so your exported webpage, spreadsheet, or image never catches it mid-bite. Think of it as a flip-book animation in a notebook corner: call it up when you want it, while the copy you hand over remains the original page."
+            },
+            "original": "**The contribution heatmap has a snake easter egg.** Triple-click the heatmap title within 1.5 seconds and a snake eats its way across the grid along a serpentine path, then the grid restores itself automatically. The path starts at the first week with data so an all-empty year doesn't spin uselessly, it's skipped when `prefers-reduced-motion` is set, and it's stopped and reset before any HTML/CSV/PNG export so an export can never catch the grid mid-bite."
+          },
+          {
+            "title": {
+              "zh-TW": "九種面板改共用同一套骨架，警示不再漏顯示",
+              "en": "Nine panels now share one backbone, so warnings stop going missing"
+            },
+            "body": {
+              "zh-TW": "原本挑不同面板看用量，看到的資訊可能不一樣：八個面板漏了 Codex 過期、額度或歷史資料載入失敗的警示，五個也沒有 Install Hook 按鈕；Win95 還有一個過期狀態清除問題。原因像九間各自抄同一份作業的分店，每份腳本平均超過兩百行，久了改到各走各的。現在 classic、matrix、win95 等九種卡片面板都接到同一支 `panel_core.js` 核心腳本（共用處理邏輯的檔案），所以綁定資訊的規則一致。進度條材質、專案列排法、切換按鈕和裝飾動畫仍各自保留；測試也會攔下日後再複製整份腳本的新面板。",
+              "en": "Choosing a different usage panel used to change which information you saw: eight panels omitted Codex stale, quota, or history-load warnings; five had no Install Hook button; and Win95 had a small stale-state clearing bug. It was like nine branches copying the same homework: each script had grown past 200 lines on average, then drifted apart. Now all nine card panels, including classic, matrix, and win95, feed into `panel_core.js`, a core script (a file holding shared handling rules), so their bindings are consistent. Their real visual differences remain: progress-bar materials, project-row layouts, theme-switch buttons, and decorative animation. A test also blocks future panels from being made by copying the whole script again."
+            },
+            "original": "**Eight panels were silently missing the Codex stale/quota/history warnings, and five had no Install Hook button.** Extracting nine panels to a shared `panel_core.js` (see Changed) surfaced how far the independently-copied logic had drifted — averaging 200+ lines apiece — and with the drift came real feature gaps nobody had audited for: depending on which panel happened to be open, a card that should show a Codex staleness banner, a quota bar, or a history-load error sometimes just didn't. Win95's stale-state clearing also had a small bug. All nine now go through the same binding logic, so a gap in one is a gap in none.\n**Nine card panels now share one core script instead of nine divergent copies.** `classic`, `matrix`, `win95`, `newspaper`, `cloud_observation`, `aquarium`, `prism_arcade`, `black_hole`, and `lepidoptera` all inject the same `panel_core.js` through the existing placeholder mechanism; only the genuinely panel-specific pieces stay behind — progress-bar material, project-row layout, the theme-switch button treatment, and decorative animation. A regression test now blocks a future panel from being built by copy-pasting the whole script again."
+          },
+          {
+            "title": {
+              "zh-TW": "網站互動更細緻，說明內容同步校正",
+              "en": "Website interactions get polish, while its copy catches up"
+            },
+            "body": {
+              "zh-TW": "逛公開網站時，游標聚光、捲動後淡入、帶彈性的滑過效果與完整鍵盤操作等九項細修，讓頁面回應更豐富；它們參考 Framer Motion、GSAP 等常見做法，卻以原生 CSS 和 JavaScript 重寫，沒有新增相依套件。網站也把容易誤會的說明補正：World Cup 2026 面板其實沒有 Antigravity 卡或拖曳排序；五語說明改為「CLI 會保留紀錄，但不會自動重新附回」。主題圖庫加入 Classic、Cloud Observation、Prism Arcade、Lepidoptera 截圖，README 加快速跳轉清單，DEVELOPMENT 補寫 Antigravity。導覽列換成手繪 SVG 腳印與官方 GitHub 圖示，並移除四張過時功能卡和翻譯鍵。像展場重新掛好指示牌：燈光更會跟著人走，地圖也不再標出不存在的展品。",
+              "en": "While you browse the public website, nine polish passes now add things such as cursor spotlights, fade-ins after scrolling, springy hover states, and full keyboard navigation. They draw on familiar patterns from Framer Motion and GSAP, but were rewritten in plain CSS and JavaScript, with no new dependency added. The copy has caught up too: the World Cup 2026 panel does not have an Antigravity card or drag-to-reorder, and the five-language explanation now says the CLI keeps a record but does not automatically reattach it. The gallery adds screenshots for Classic, Cloud Observation, Prism Arcade, and Lepidoptera; READMEs gain jump lists; DEVELOPMENT mentions Antigravity. Navigation now uses a hand-drawn SVG paw and official GitHub icon, while four outdated feature cards and their translation keys are gone. Like rehanging a museum's signs: lighting responds more gracefully, and the map no longer points to exhibits that are not there."
+            },
+            "original": "**The public website picked up nine polish passes** — spotlight cursor tracking, scroll-triggered fade-ins, spring-eased hover states, and full keyboard navigation among them — drawn from patterns in Framer Motion, GSAP, Aceternity, Radix, and Magic UI and reimplemented in plain CSS/vanilla JS so nothing new was added as a dependency.\nWorld Cup 2026's panel description no longer claims the Antigravity card and drag-to-reorder exist there — it's the one panel without either. The theme gallery gained screenshots for Classic, Cloud Observation, Prism Arcade, and Lepidoptera; every README got a quick-jump section list; and DEVELOPMENT's panel-card description now mentions Antigravity. The website nav also swapped its emoji brand mark for a hand-drawn SVG paw print, added the official GitHub icon next to the repository link, corrected wording in the five-language resume explainer (the CLI does keep a record — it just doesn't reattach automatically), and dropped four outdated feature cards along with their translation keys."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.22",
+      "raw": {
+        "version": "0.29.22",
+        "period": "2026-08-10",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-10",
+        "entries": [
+          "**Codex data was unreadable for anyone with a custom `CODEX_HOME`.** Every path into Codex's local data (`codex_loader.py`, `adapters/codex.py`, `session_hooks.py`, `setup_hook.py`, `fsevents_watch.py`, `menubar_state.py`, `analyzer/subscription.py`) was hardcoded to `~/.codex/...`, so anyone who set the `CODEX_HOME` environment variable — multiple accounts, containerized setups — got an empty Codex section with no explanation. All of them now resolve through a single `codex_paths.codex_home()` helper that honors `CODEX_HOME` and falls back to `~/.codex/` when it's unset."
+        ]
+      },
+      "curated": {
+        "version": "0.29.22",
+        "period": "2026-08-10",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "自訂 Codex 資料夾不再變成空白頁",
+              "en": "Custom Codex data folders no longer look empty"
+            },
+            "body": {
+              "zh-TW": "你把 Codex 資料放到另一個地方時，usage 原本可能把它當成不存在，畫面只留空白的 Codex 區塊，還不告訴你原因。問題出在 `CODEX_HOME` 環境變數（程式啟動前交給它的隱藏設定）：它本來能指定 Codex 資料夾，適合多個帳號或容器化設定，但 usage 裡讀取資料的七個入口仍死盯著預設的 `~/.codex/`。像搬家後把新住址寫在信封上，七位送件員卻全往舊址跑。現在它們先交給同一個 `codex_paths.codex_home()` 幫手確認地址；有 `CODEX_HOME` 就照它找，沒設才回到 `~/.codex/`。因此自訂資料夾的使用者能重新看到 Codex 資料。",
+              "en": "If you keep Codex data somewhere other than its default folder, usage could previously treat it as nonexistent: the Codex section appeared empty, with no explanation. The culprit was the `CODEX_HOME` environment variable, a hidden setting supplied before a program starts. It can point to a Codex data folder for multiple accounts or containerized setups, but seven places in usage that read the data were still hardcoded to `~/.codex/`. It was like moving house, updating your address, and having seven delivery drivers continue to visit the old one. They now all ask the same `codex_paths.codex_home()` helper for directions: use `CODEX_HOME` when set, otherwise fall back to `~/.codex/`. Your custom-folder data can show up again."
+            },
+            "original": "**Codex data was unreadable for anyone with a custom `CODEX_HOME`.** Every path into Codex's local data (`codex_loader.py`, `adapters/codex.py`, `session_hooks.py`, `setup_hook.py`, `fsevents_watch.py`, `menubar_state.py`, `analyzer/subscription.py`) was hardcoded to `~/.codex/...`, so anyone who set the `CODEX_HOME` environment variable — multiple accounts, containerized setups — got an empty Codex section with no explanation. All of them now resolve through a single `codex_paths.codex_home()` helper that honors `CODEX_HOME` and falls back to `~/.codex/` when it's unset."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.21",
+      "raw": {
+        "version": "0.29.21",
+        "period": "2026-08-09",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-09",
+        "entries": [
+          "**Windows quota panels opened taller than their content.** `wintray.py`'s `PANEL_HEIGHTS` still held the numbers from before 64a7c0b recalibrated the Mac panel heights; that commit missed the Windows fallback table, so eight panels rendered 17–24pt too tall for the brief window before the WebView reports its real content height. The numbers now match, with a comment recording where they come from so the next recalibration doesn't miss this table too.",
+          "**Adding a new quota card silently reset everyone's saved card order.** `_valid_quota_card_order()` required the saved order's length to match the current default list exactly, so a newly added card (a fourth quota source, say) made every existing saved order look invalid and quietly fall back to default. It now only rejects duplicate or unknown ids; an order that's missing a newer card gets that card appended instead of the whole preference being discarded.",
+          "**The CLI status line moved to a cooler color palette.** The project name, branch, and metric labels shifted from the original green/blue/magenta mix to a teal-and-blue variant; usage-percentage colors by severity are unchanged."
+        ]
+      },
+      "curated": {
+        "version": "0.29.21",
+        "period": "2026-08-09",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 額度面板不再高出一截",
+              "en": "Windows quota panels no longer stand too tall"
+            },
+            "body": {
+              "zh-TW": "Windows 使用者打開額度面板時，畫面不會再像穿了大一號外套。面板（popover，浮在原畫面上的小視窗）曾沿用舊的高度數字；在網頁內容回報實際高度前，八個面板會高出 17 到 24 點。現在 Windows 的備援高度表已對齊 Mac 的重新校準結果，程式也留下數字來源註記，之後調整不易漏改。就像先拿錯尺寸的相框，照片尺寸一量到才換掉；現在相框一開始就合身。",
+              "en": "On Windows, quota panels no longer look like they put on a coat one size too big. The popovers — small panels that float above the main screen — still used old height values, so eight of them stood 17 to 24 points too tall until their web content reported its real height. Their Windows defaults now match Mac's recalibrated values, and a comment records where those numbers came from so a later recalibration is less likely to miss them. It is like starting with the right-sized picture frame instead of swapping it after measuring the photo."
+            },
+            "original": "**Windows quota panels opened taller than their content.** `wintray.py`'s `PANEL_HEIGHTS` still held the numbers from before 64a7c0b recalibrated the Mac panel heights; that commit missed the Windows fallback table, so eight panels rendered 17–24pt too tall for the brief window before the WebView reports its real content height. The numbers now match, with a comment recording where they come from so the next recalibration doesn't miss this table too."
+          },
+          {
+            "title": {
+              "zh-TW": "新增額度卡，原本排序照樣保留",
+              "en": "A new quota card no longer resets your order"
+            },
+            "body": {
+              "zh-TW": "你排好額度卡片的順序後，新增來源不會把整份排序洗回預設。額度卡（quota card，顯示各項使用額度的卡片）原先要求已儲存順序的長度和預設清單完全一致；多一張新卡時，舊順序就被當成無效。現在只拒絕重複或不存在的識別碼（id，用來辨認項目的代號）；少掉的新卡會接在原順序最後。像書架多買一本書，不必把整櫃重排，只把新書放到最後。",
+              "en": "After you arrange your quota cards, adding another source will not wash the whole order back to the default. A quota card is a card showing one usage allowance. Previously, the saved order had to be exactly as long as the default list, so one new card made the old order look invalid. Now only duplicate or unknown ids — identifiers for the cards — are rejected; a newly missing card joins the end of your order. It is like buying one more book for a shelf: you add it at the end instead of rearranging the whole bookcase."
+            },
+            "original": "**Adding a new quota card silently reset everyone's saved card order.** `_valid_quota_card_order()` required the saved order's length to match the current default list exactly, so a newly added card (a fourth quota source, say) made every existing saved order look invalid and quietly fall back to default. It now only rejects duplicate or unknown ids; an order that's missing a newer card gets that card appended instead of the whole preference being discarded."
+          },
+          {
+            "title": {
+              "zh-TW": "命令列狀態列換上青綠與藍色",
+              "en": "CLI status line gets a teal-and-blue palette"
+            },
+            "body": {
+              "zh-TW": "看命令列（CLI，用文字指令操作的介面）時，專案名稱、分支和數值標籤換成青綠與藍的配色。使用百分比依嚴重程度顯示的顏色沒有改。這不是功能或判斷方式改了，而是同一張儀表板換了表面：你讀到的資訊與警示顏色都照舊，只有原本綠、藍、洋紅混用的幾個標籤改成了新的色調。因此看見青綠與藍時，不代表數值的嚴重程度跟著改變；百分比的顏色規則仍和之前相同。",
+              "en": "When you look at the command-line interface, or CLI — the text-based place where you enter commands — project names, branches, and metric labels now use teal and blue. The colors for usage percentages at different severity levels have not changed. This is not a new feature or a new way of judging usage; it is the same dashboard with a different face. Its information and warning colors stay put, while the labels that once mixed green, blue, and magenta take on the new shades."
+            },
+            "original": "**The CLI status line moved to a cooler color palette.** The project name, branch, and metric labels shifted from the original green/blue/magenta mix to a teal-and-blue variant; usage-percentage colors by severity are unchanged."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.20",
+      "raw": {
+        "version": "0.29.20",
+        "period": "2026-08-08",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-09",
+        "entries": [
+          "**Saving a setting turned a symlinked config file into a regular one.** Every settings write goes through `_atomic_write_text()`, which writes a temporary file and then `os.replace()`s it over the target — the standard way to make sure a crash mid-write cannot leave half a file behind. `os.replace()` does not follow symlinks, though, so for anyone who manages `~/.claude/settings.json` or `~/.codex/config.toml` from a dotfiles repository, the symlink was silently replaced by a plain file: the repository copy stopped receiving updates, nothing warned, and the divergence only showed up the next time those dotfiles were deployed somewhere else. The target is now resolved to its real path before the replace, and the temporary file is created next to that real path rather than next to the link — putting it beside the link would move the rename across filesystems, which fails outright with `Invalid cross-device link` and would have traded one silent breakage for a louder one. The atomic write itself is unchanged. `statusline_settings.py` had grown its own copy of this sequence and now calls the shared helper, so `settings.json`, `config.toml` and `hooks.json` are all covered by one implementation.",
+          "**The self-heal log could discard settings Claude Code had just written.** `_append_self_heal_log()` reads `settings.json`, appends an entry and writes the whole file back. Claude Code writes the same file, and anything it stored between that read and that write — a newly granted `permissions.allow` entry, for instance — was overwritten by the older copy still held in memory. The window is milliseconds wide, which is exactly why it would have been diagnosed as a mystery rather than as a race. The read-modify-write is now held under a `flock`, reusing the lock helper the status line already uses. It takes its own `usage-settings.lock` rather than sharing the status line's `usage-status.lock`: that one guards a different file written on every message, and sharing it would serialise two unrelated things for no benefit.",
+          "**A short secret redacted every occurrence of its characters.** `_redact_environment_values()` masks sensitive environment values out of transcripts by substring replacement. Nothing bounded how short a value could be, so an environment variable matching the sensitive-name pattern whose value happened to be `1` turned every `1` in the message into `[REDACTED]` — timestamps, token counts, error codes. Values shorter than eight characters are now skipped; a secret that short is not one worth protecting, and treating it as one destroys the surrounding text.",
+          "**The vendored instate CLI was bundled and executed without being verified.** `scripts/build_app.sh` downloads the binary from a release when the local `instate` project is not present, then packages it into the `.app` as-is. There was nothing to detect a substituted or corrupted download. The build now pins the expected SHA-256 in `scripts/instate-cli.sha256` and refuses to continue when the downloaded binary does not match, deleting it rather than leaving a suspect file behind for the next run to reuse. The fingerprint is committed to this repository rather than published beside the release asset on purpose: a checksum stored next to the binary can be rewritten by whoever rewrites the binary, which verifies nothing. A download that fails outright still logs a warning and continues — that is a missing panel, not a compromised one.",
+          "**Three passages of duplicated code were extracted.** The sharded disk caches for Claude and Codex history held sixty-three identical lines, and `codex_disk_cache.py` reached across to import `history_disk_cache.py`'s private serialisers and re-export them under its own `__all__` — a detour that made the real owner of that code impossible to see. Serialisation, shard paths and index, stale-cache removal and the payload read/write now live in `disk_cache_common.py`. The disk-cache lifecycle shared verbatim by all three loaders — the one-time seed check, the throttled flush and the best-effort flush on termination — moved to `disk_cache_lifecycle.py`. The loaders themselves are still three separate modules and stay that way; they parse three unrelated formats, and only the cache plumbing around them was ever the same. In `session_hooks.py`, three pairs of `_is_X_entry`/`_strip_X_hooks` differing only in a marker constant were parameterised, with the six original names kept as thin wrappers. `agy_disk_cache.py` was deliberately left out: it is a single JSON file with no sharding, and forcing it into the shared shape would have meant changing its behaviour to fit. Net 218 lines removed, with no behavioural change.",
+          "**Dead constants, two unused functions and thirteen orphaned translation keys were removed.** The keys came from renames and from the AI-updates feature moving to its own repository. Finding them took more care than the count suggests: a plain text search over the source reported 159 orphans, of which 146 were false. Keys are frequently assembled at runtime rather than written out — `discussion.html` builds `discussion_status_round1_running` by lowercasing a `SessionStatus` value, and `ui/html_report.py` prepends `report_` to every key it looks up, so four live `report_wrapped_beast_*` entries appear nowhere in the source under their full names. `agy_loader.recent_input_output_tokens()` looks equally dead from inside this repository and was kept: its only caller is a script outside it."
+        ]
+      },
+      "curated": {
+        "version": "0.29.20",
+        "period": "2026-08-08",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "設定檔的捷徑不再被存檔動作換掉",
+              "en": "Saving settings no longer replaces your config shortcut"
+            },
+            "body": {
+              "zh-TW": "你若把 `~/.claude/settings.json` 或 `~/.codex/config.toml` 放進 dotfiles（集中管理個人設定檔的儲存庫），這次不用再怕存個設定就和儲存庫走散。這些檔案常做成符號連結（指向另一個位置的捷徑檔）；舊做法先寫暫存檔，再用 `os.replace()` 蓋過目標，原本是防止程式中斷留下半份檔案，卻會把捷徑檔換成普通檔。之後設定雖然存得進去，儲存庫那份卻不再更新。現在會先找到實際的檔案位置，並在同一處建立暫存檔，避免跨檔案系統搬動失敗。像要替住址改收件資料，從前竟把門口的指路牌拆掉；如今信件會送到收件地址。`settings.json`、`config.toml` 和 `hooks.json` 都共用同一套處理。",
+              "en": "If you keep `~/.claude/settings.json` or `~/.codex/config.toml` in a dotfiles repository, saving a setting will no longer quietly split it from that repository. These files are often symlinks, shortcut files that point elsewhere. The old safe-save routine wrote a temporary file and used `os.replace()` to prevent a crash from leaving half a file, but that replacement swapped out the shortcut itself for a plain file. Settings still saved, while the repository copy stopped changing. It now resolves the real target first and creates the temporary file beside it, avoiding a failed move across filesystems. It was like replacing an address sign instead of delivering mail to the address; now the delivery reaches the real place. `settings.json`, `config.toml`, and `hooks.json` use the same helper."
+            },
+            "original": "**Saving a setting turned a symlinked config file into a regular one.** Every settings write goes through `_atomic_write_text()`, which writes a temporary file and then `os.replace()`s it over the target — the standard way to make sure a crash mid-write cannot leave half a file behind. `os.replace()` does not follow symlinks, though, so for anyone who manages `~/.claude/settings.json` or `~/.codex/config.toml` from a dotfiles repository, the symlink was silently replaced by a plain file: the repository copy stopped receiving updates, nothing warned, and the divergence only showed up the next time those dotfiles were deployed somewhere else. The target is now resolved to its real path before the replace, and the temporary file is created next to that real path rather than next to the link — putting it beside the link would move the rename across filesystems, which fails outright with `Invalid cross-device link` and would have traded one silent breakage for a louder one. The atomic write itself is unchanged. `statusline_settings.py` had grown its own copy of this sequence and now calls the shared helper, so `settings.json`, `config.toml` and `hooks.json` are all covered by one implementation."
+          },
+          {
+            "title": {
+              "zh-TW": "自動修復記錄不再蓋掉剛授權的設定",
+              "en": "Self-heal logging no longer overwrites fresh permissions"
+            },
+            "body": {
+              "zh-TW": "剛允許一項權限，設定卻莫名消失的狀況少了一個來源。自動修復記錄會讀取 `settings.json`、加上一筆紀錄，再把整份檔案寫回去；若 Claude Code 正好在這個空檔寫入新的 `permissions.allow`，舊的記憶體副本便會把它蓋掉。空檔只有幾毫秒，才特別像難以重現的怪問題。現在這段讀取、修改、寫回會拿 `flock`（讓同一檔案一次只給一個人改的鎖）保護。它另用 `usage-settings.lock`，不與每則訊息都會寫入的狀態列鎖共用。像兩位職員同時改同一張表格，先拿走舊副本的人以前會把後來新增的核准欄蓋掉；現在先鎖住表格，輪到誰就由誰寫完。",
+              "en": "A newly allowed permission should no longer disappear for no obvious reason. The self-heal log reads `settings.json`, adds an entry, and writes back the full file. If Claude Code wrote a new `permissions.allow` entry in the tiny gap, the logger's older in-memory copy could overwrite it. The gap lasts milliseconds, which made the bug look mysterious. That read-modify-write sequence now uses `flock`, a lock that lets only one writer change the file at a time. It has its own `usage-settings.lock`, separate from the status-line lock that protects a different file written on every message. Picture two clerks editing one form: the clerk holding an old copy used to erase a newly approved field. Now the form is locked until each clerk finishes their turn."
+            },
+            "original": "**The self-heal log could discard settings Claude Code had just written.** `_append_self_heal_log()` reads `settings.json`, appends an entry and writes the whole file back. Claude Code writes the same file, and anything it stored between that read and that write — a newly granted `permissions.allow` entry, for instance — was overwritten by the older copy still held in memory. The window is milliseconds wide, which is exactly why it would have been diagnosed as a mystery rather than as a race. The read-modify-write is now held under a `flock`, reusing the lock helper the status line already uses. It takes its own `usage-settings.lock` rather than sharing the status line's `usage-status.lock`: that one guards a different file written on every message, and sharing it would serialise two unrelated things for no benefit."
+          },
+          {
+            "title": {
+              "zh-TW": "短敏感值不再把整段紀錄塗滿",
+              "en": "Short sensitive values no longer blot out whole transcripts"
+            },
+            "body": {
+              "zh-TW": "查看使用紀錄時，時間、token（AI 處理與計費的文字單位）數或錯誤碼不會再因一個過短的敏感值變成一片 `[REDACTED]`。程式會從逐字稿隱藏符合敏感名稱的環境變數（程式啟動前預先塞進去的隱藏值）；以前它以子字串替換，若值剛好是 `1`，訊息裡每個 `1` 都被遮掉。現在少於八個字元的值不再列入遮蔽，因為這種敏感值本就不值得保護，硬遮只會毀掉周圍文字。像拿油漆滾筒遮住一個門牌號碼，從前連所有含 `1` 的門牌都一起刷黑；現在只處理足夠長、確實需要保密的內容。",
+              "en": "When you inspect a transcript, timestamps, token counts, and error codes should no longer turn into `[REDACTED]` because of a very short secret. The program hides sensitive-named environment variables, hidden values supplied before a program starts, by replacing matching substrings. Previously, if a value happened to be `1`, every `1` in the message was hidden. Values shorter than eight characters are now skipped: such a sensitive value is not worth protecting, while masking it destroys surrounding text. It was like using a paint roller to hide one house number and blacking out every address containing `1`; now the roller is reserved for values long enough to need it."
+            },
+            "original": "**A short secret redacted every occurrence of its characters.** `_redact_environment_values()` masks sensitive environment values out of transcripts by substring replacement. Nothing bounded how short a value could be, so an environment variable matching the sensitive-name pattern whose value happened to be `1` turned every `1` in the message into `[REDACTED]` — timestamps, token counts, error codes. Values shorter than eight characters are now skipped; a secret that short is not one worth protecting, and treating it as one destroys the surrounding text."
+          },
+          {
+            "title": {
+              "zh-TW": "打包的 instate 工具多了驗貨關卡",
+              "en": "Bundled instate tool now gets a verification check"
+            },
+            "body": {
+              "zh-TW": "從原始碼製作 App、電腦又沒有本機 instate 專案時，下載來的 instate CLI（命令列工具，在終端機用文字指令操作的程式）現在先驗過才會被包進 App。過去 `scripts/build_app.sh` 會抓 release 裡的執行檔後直接使用，若下載檔被替換或損壞，沒有檢查能發現。現在會拿 `scripts/instate-cli.sha256` 裡固定的 SHA-256（把檔案算成一串可核對的指紋）比對；不相符便停止建置並刪掉下載檔，不留下可在下次重用的可疑檔案。這份指紋放在此儲存庫，而非和 release 檔放一起，因為能換掉執行檔的人也能一起改旁邊的指紋。下載完全失敗仍只記警告並繼續，少的是面板，不是把不可信的檔案放進去。像收貨時拿店內留存的驗貨單核對封條，而不是相信包裹自己附的紙條。",
+              "en": "When building the App from source without a local instate project, the downloaded instate CLI now has to pass inspection before it is bundled. `scripts/build_app.sh` previously downloaded a release binary and used it as-is, so a substituted or corrupted file had no check to catch it. The build now compares it with the fixed SHA-256 in `scripts/instate-cli.sha256`, a fingerprint calculated from a file. A mismatch stops the build and deletes the download, so no suspect binary waits around for the next build. The fingerprint lives in this repository rather than beside the release asset: someone able to replace the binary could replace its neighboring checksum too. A download that fails completely still logs a warning and continues; that means a missing panel, not an untrusted binary. It is like checking a package seal against an inspection sheet kept in the store, not a note inside the package."
+            },
+            "original": "**The vendored instate CLI was bundled and executed without being verified.** `scripts/build_app.sh` downloads the binary from a release when the local `instate` project is not present, then packages it into the `.app` as-is. There was nothing to detect a substituted or corrupted download. The build now pins the expected SHA-256 in `scripts/instate-cli.sha256` and refuses to continue when the downloaded binary does not match, deleting it rather than leaving a suspect file behind for the next run to reuse. The fingerprint is committed to this repository rather than published beside the release asset on purpose: a checksum stored next to the binary can be rewritten by whoever rewrites the binary, which verifies nothing. A download that fails outright still logs a warning and continues — that is a missing panel, not a compromised one."
+          },
+          {
+            "title": {
+              "zh-TW": "共用快取管線收好，沒用的程式碼也清掉",
+              "en": "Shared cache plumbing was gathered up and dead code removed"
+            },
+            "body": {
+              "zh-TW": "這次也整理了看不見的後台線路，目標是讓日後修改不必在多處重複動刀。Claude 與 Codex 的分片磁碟快取（把算過／查過的結果暫存起來直接用）原有 63 行相同程式碼，現在把序列化、分片路徑與索引、清除過期快取、讀寫資料搬到共同模組；三個載入器仍各自解析不同格式。它們共通的啟動檢查、延後寫入和結束時盡力寫入，也另收成一個模組；單一 JSON 檔的 agy 快取沒有硬塞進來。另把六個 hook（特定事件發生時被觸發的小程式）判斷與清除函式改成共用邏輯，但保留原名稱作薄包裝。整體刪掉 218 行且行為不變。還移除了死常數、兩個未用函式與 13 個孤兒翻譯鍵；檢查時沒有誤刪動態組出的鍵，也保留外部腳本仍會呼叫的函式。像整理機房線路：共用的線收到同一束，三台不同設備仍接自己的插頭。",
+              "en": "Some invisible back-room wiring was tidied so future changes do not require the same edit in several places. Claude and Codex's sharded disk caches, stored results reused directly, had 63 identical lines. Serialization, shard paths and index, stale-cache removal, and payload read/write now live in a common module, while the three loaders still parse their own unrelated formats. Their shared startup check, delayed flush, and best-effort flush at shutdown moved to another module; agy's single-JSON cache was not forced into that shape. Six hook check-and-strip functions now share logic while retaining their original names as thin wrappers. This removes 218 lines with no behavior change. Dead constants, two unused functions, and 13 orphaned translation keys also went away, without deleting runtime-built keys or a function called by an outside script. Like sorting a server room's cables: shared wires go in one bundle, while three different devices keep their own plugs."
+            },
+            "original": "**Three passages of duplicated code were extracted.** The sharded disk caches for Claude and Codex history held sixty-three identical lines, and `codex_disk_cache.py` reached across to import `history_disk_cache.py`'s private serialisers and re-export them under its own `__all__` — a detour that made the real owner of that code impossible to see. Serialisation, shard paths and index, stale-cache removal and the payload read/write now live in `disk_cache_common.py`. The disk-cache lifecycle shared verbatim by all three loaders — the one-time seed check, the throttled flush and the best-effort flush on termination — moved to `disk_cache_lifecycle.py`. The loaders themselves are still three separate modules and stay that way; they parse three unrelated formats, and only the cache plumbing around them was ever the same. In `session_hooks.py`, three pairs of `_is_X_entry`/`_strip_X_hooks` differing only in a marker constant were parameterised, with the six original names kept as thin wrappers. `agy_disk_cache.py` was deliberately left out: it is a single JSON file with no sharding, and forcing it into the shared shape would have meant changing its behaviour to fit. Net 218 lines removed, with no behavioural change.\n**Dead constants, two unused functions and thirteen orphaned translation keys were removed.** The keys came from renames and from the AI-updates feature moving to its own repository. Finding them took more care than the count suggests: a plain text search over the source reported 159 orphans, of which 146 were false. Keys are frequently assembled at runtime rather than written out — `discussion.html` builds `discussion_status_round1_running` by lowercasing a `SessionStatus` value, and `ui/html_report.py` prepends `report_` to every key it looks up, so four live `report_wrapped_beast_*` entries appear nowhere in the source under their full names. `agy_loader.recent_input_output_tokens()` looks equally dead from inside this repository and was kept: its only caller is a script outside it."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.19",
+      "raw": {
+        "version": "0.29.19",
+        "period": "2026-08-06",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-07",
+        "entries": [
+          "**The app told Homebrew users to run a command that cannot work.** With no status file on disk, the popover footer said `Run python3 main.py --setup and open Claude Code once` — an instruction written for people who cloned the repo. Someone who installed the cask has no repo, so the natural next move is to look inside the bundle, and `main.py` really is in there: py2app copies it to `Contents/Resources/`. Running that copy with the system `python3` dies on `ImportError: cannot import name 'packaged_resource_path' from 'i18n'`, which points at the wrong thing entirely. The modules `main.py` imports are compiled into `lib/python313.zip`, and only the bundle's own interpreter has that on `sys.path`; with the real `i18n.py` unreachable, an unrelated PyPI package also named `i18n` in the user's site-packages answers the import instead. Both footer messages now name the \"Set Up Status Line\" button, which does the same job in one click and exists in every install regardless of how it was obtained. The bundled `main.py` additionally exits with an explanation when it is started without py2app's `RESOURCEPATH`, so the dead end says what it is instead of raising. (#92, reported by @kyang-06)"
+        ]
+      },
+      "curated": {
+        "version": "0.29.19",
+        "period": "2026-08-06",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Homebrew 安裝後，設定狀態列不再走錯路",
+              "en": "Homebrew installs now point you to the right status-line setup"
+            },
+            "body": {
+              "zh-TW": "你用 Homebrew 安裝 Usage，卻看到「跑 `python3 main.py --setup`」時，現在不會再被帶進死巷。Homebrew（macOS 的套件安裝工具）裝的是應用程式，沒有原始碼資料夾；以前畫面下方的提示仍叫你照原始碼使用者的方式跑指令。你若翻進應用程式包裡執行 `main.py`，還會撞上看似無關的 `ImportError`，因為它必須由 py2app（把 Python 程式包成 macOS App 的工具）隨附的解譯器啟動。現在兩種提示都改指向「Set Up Status Line」按鈕，按一下就能設定顯示在終端機最底下的狀態列；直接誤跑內附的 `main.py` 時，也會明說為何不能這樣開。像買了組裝好的咖啡機，說明書不再叫你拆機找零件，而是帶你按面板上的設定鍵。",
+              "en": "If you installed Usage through Homebrew and saw `python3 main.py --setup`, that instruction no longer sends you down a dead end. Homebrew installs an app, not a source-code folder, but the footer once gave cask users the directions meant for people who cloned the repository. Digging into the app bundle and running its `main.py` only produced a misleading `ImportError`, because it needs the interpreter packaged by py2app. Both messages now point to the “Set Up Status Line” button, which does the job in one click for every type of install. And if the bundled `main.py` is launched directly, it explains why it cannot run that way. It is like buying an assembled coffee machine: the manual now points to its setup button instead of telling you to open the casing and hunt for parts."
+            },
+            "original": "**The app told Homebrew users to run a command that cannot work.** With no status file on disk, the popover footer said `Run python3 main.py --setup and open Claude Code once` — an instruction written for people who cloned the repo. Someone who installed the cask has no repo, so the natural next move is to look inside the bundle, and `main.py` really is in there: py2app copies it to `Contents/Resources/`. Running that copy with the system `python3` dies on `ImportError: cannot import name 'packaged_resource_path' from 'i18n'`, which points at the wrong thing entirely. The modules `main.py` imports are compiled into `lib/python313.zip`, and only the bundle's own interpreter has that on `sys.path`; with the real `i18n.py` unreachable, an unrelated PyPI package also named `i18n` in the user's site-packages answers the import instead. Both footer messages now name the \"Set Up Status Line\" button, which does the same job in one click and exists in every install regardless of how it was obtained. The bundled `main.py` additionally exits with an explanation when it is started without py2app's `RESOURCEPATH`, so the dead end says what it is instead of raising. (#92, reported by @kyang-06)"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.18",
+      "raw": {
+        "version": "0.29.18",
+        "period": "2026-08-06",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-06",
+        "entries": [
+          "**The panel window oscillated between two heights.** Opening it snapped the window once, and it kept flicking back and forth afterwards. A panel's height has two sources: `popover_dimensions()` estimates it in Python from a registered base plus per-card adjustments, and the page measures itself for real once it has been laid out and reports the number back. The measurement is meant to win — it is saved to `NSUserDefaults` and read back by `resolve_panel_size()` on the next pass. It never was. `NSUserDefaults.objectForKey_()` hands PyObjC an Objective-C `__NSDictionaryI`, and `isinstance(value, dict)` on that is `False`, so the guard rejected the saved `{classic: 974}` every single time and fell back to the 1004 estimate. The write path had the same guard and therefore discarded every other panel's saved height whenever one was stored. What made this hard to see is that saving worked while loading did not: `defaults read com.lollapalooza.usage` showed the correct 974 sitting on disk the whole time, so the data looked healthy from the outside. The 30-point gap between the two values happens to equal `status_wrap_extra_height`, which is a coincidence worth ignoring — the estimate being wrong is not what caused the loop; the measurement being rejected is. Both guards now accept `collections.abc.Mapping`. The estimate is still used, but only for panels that can never report a measurement — `ErrorPanelView` has no JavaScript bridge, so waiting for one would leave it at the wrong size forever. The regression test substitutes a `MappingProxyType`, which like `NSDictionary` is a `Mapping` that is not a `dict`; a test double built from a plain `dict` passes whether or not the bug is present.",
+          "**The Japanese and Korean locales shipped sixty-three blank labels each.** Flagged one version earlier and fixed here. Both locales carried all 489 keys, so `test_every_language_has_the_same_keys` compared key sets, found them identical, and passed — while `loading`, `no_data`, `session_title`, `col_time` and `model_breakdown` rendered as empty space for anyone running the app in either language. A present-but-empty value is invisible to a parity check by construction, which is the same blind spot that let fifty-two Simplified Chinese strings sit in the Traditional Chinese locale until last version. Two assertions now close it: no translated value may be blank, and every value's `{placeholder}` set must match English exactly. The second guards a failure the first cannot see — a translation that drops or renames a placeholder does not look wrong in the file, it raises at `format` time in front of the user. Rich markup (`[dim]`), format specs (`{m:02d}`) and command names were left in English."
+        ]
+      },
+      "curated": {
+        "version": "0.29.18",
+        "period": "2026-08-06",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "面板視窗不再忽高忽低",
+              "en": "Panel windows stop flickering between heights"
+            },
+            "body": {
+              "zh-TW": "從選單列打開面板（popover，浮在其他視窗上的小視窗）時，視窗先跳一下又在兩個高度間來回閃動的問題修好了。它原本像服飾店先按尺寸表猜衣服大小，網頁排好版後再量一次實際尺寸；量到的尺寸本該存下來，供下次優先採用，卻被程式誤認為不是可讀的對照資料而丟掉，於是每次又退回舊的預估值。現在讀寫都接受 Mapping（能用鍵查值的對照資料），已量到的高度會留下來；只有不能回報尺寸的錯誤面板，才繼續使用預估值。測試也改用不是一般 dict 的對照資料，確保這個判斷不會再退回舊路。",
+              "en": "Opening a panel window from the menu bar no longer makes it snap once and then flicker between two heights. Think of a tailor who first guesses from a size chart, then measures the actual garment after it is laid out. The real measurement should have been saved and used next time, but the app mistook that saved value for unreadable data and threw it away, so it kept falling back to the estimate. Reading and writing now accept a Mapping (key-value data, even when it is not a plain Python dict), preserving measured heights. Only the error panel, which cannot report a measurement, continues to use an estimate. The regression test now uses that non-dict kind of Mapping too."
+            },
+            "original": "**The panel window oscillated between two heights.** Opening it snapped the window once, and it kept flicking back and forth afterwards. A panel's height has two sources: `popover_dimensions()` estimates it in Python from a registered base plus per-card adjustments, and the page measures itself for real once it has been laid out and reports the number back. The measurement is meant to win — it is saved to `NSUserDefaults` and read back by `resolve_panel_size()` on the next pass. It never was. `NSUserDefaults.objectForKey_()` hands PyObjC an Objective-C `__NSDictionaryI`, and `isinstance(value, dict)` on that is `False`, so the guard rejected the saved `{classic: 974}` every single time and fell back to the 1004 estimate. The write path had the same guard and therefore discarded every other panel's saved height whenever one was stored. What made this hard to see is that saving worked while loading did not: `defaults read com.lollapalooza.usage` showed the correct 974 sitting on disk the whole time, so the data looked healthy from the outside. The 30-point gap between the two values happens to equal `status_wrap_extra_height`, which is a coincidence worth ignoring — the estimate being wrong is not what caused the loop; the measurement being rejected is. Both guards now accept `collections.abc.Mapping`. The estimate is still used, but only for panels that can never report a measurement — `ErrorPanelView` has no JavaScript bridge, so waiting for one would leave it at the wrong size forever. The regression test substitutes a `MappingProxyType`, which like `NSDictionary` is a `Mapping` that is not a `dict`; a test double built from a plain `dict` passes whether or not the bug is present."
+          },
+          {
+            "title": {
+              "zh-TW": "日韓語介面不再有空白標籤",
+              "en": "Japanese and Korean interfaces no longer show blank labels"
+            },
+            "body": {
+              "zh-TW": "日文與韓文介面先前各有 63 個標籤看起來像憑空消失，現在已補上翻譯。檢查原本只核對 489 個文字鍵是否都存在，像倉庫清點到每個紙箱卻沒打開看裡面有沒有東西；因此 `loading`、`no_data`、`session_title`、`col_time` 與 `model_breakdown` 雖有鍵名，畫面仍只留下空白。新檢查會拒絕空字串，也會比對 placeholder（顯示時才填入資料的位置）是否和英文一致；少掉或改名都可能在顯示時出錯。帶格式的標記、格式寫法與指令名稱則維持英文，不會被誤譯。",
+              "en": "Japanese and Korean users were each seeing 63 labels vanish into blank space; those translations are now filled in. The old check only confirmed that all 489 text keys existed, like counting every box in a warehouse without opening it to see whether it contains anything. That let `loading`, `no_data`, `session_title`, `col_time`, and `model_breakdown` exist as keys yet render blank. New checks reject empty translations and compare every placeholder (a slot filled with data at display time) with English. A missing or renamed placeholder can otherwise fail when the text is formatted. Rich markup, format specifications, and command names remain in English."
+            },
+            "original": "**The Japanese and Korean locales shipped sixty-three blank labels each.** Flagged one version earlier and fixed here. Both locales carried all 489 keys, so `test_every_language_has_the_same_keys` compared key sets, found them identical, and passed — while `loading`, `no_data`, `session_title`, `col_time` and `model_breakdown` rendered as empty space for anyone running the app in either language. A present-but-empty value is invisible to a parity check by construction, which is the same blind spot that let fifty-two Simplified Chinese strings sit in the Traditional Chinese locale until last version. Two assertions now close it: no translated value may be blank, and every value's `{placeholder}` set must match English exactly. The second guards a failure the first cannot see — a translation that drops or renames a placeholder does not look wrong in the file, it raises at `format` time in front of the user. Rich markup (`[dim]`), format specs (`{m:02d}`) and command names were left in English."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.17",
+      "raw": {
+        "version": "0.29.17",
+        "period": "2026-08-06",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-06",
+        "entries": [
+          "**The offline price table overcharged Opus 4.6 and 4.7 threefold, and valued Opus 5 at nothing.** `_fallback_pricing()` is what the cost estimate falls back on when the LiteLLM table cannot be downloaded or its cache has expired. It is written by hand and nothing ever reconciled it against the live table, so it drifted in silence: `claude-opus-4-6` and `claude-opus-4-7` still carried the Opus 4.1-era $15/$75 per Mtok long after Anthropic dropped Opus to $5/$25, `claude-haiku-4-5-20251001` was twenty percent low, and `claude-opus-5` was missing outright — and a missing key makes `calculate_cost()` return `0.0`, so Opus 5 usage was reported as costing nothing. The corrected figures come from reconciling against the cached LiteLLM table rather than from the changelog: Claude Code 2.1.219 announced Opus 5 at `$10/$50 per Mtok`, but that is the fast-mode price, not the standard one. What makes this class of bug worth naming is when it surfaces — only offline, which is exactly the moment nobody thinks to doubt the number on screen.",
+          "**Fifty-two keys in the Traditional Chinese locale contained Simplified Chinese.** The TUI and report strings had been copied across from `zh-CN` without conversion, so a Traditional Chinese user opening the TUI read `检测到`, `时间`, `来源`, `项目` and `消息`. A hand-written list of Simplified characters found only some of them — it missed `来` and `项` — so every value was instead run through OpenCC's `s2twp` and the differences reviewed one by one. Nine of those differences were the converter overreaching on text that was already correct (`發送`→`傳送`, `吹回`→`吹迴`, `連接詞`→`連線詞`) and were left alone. The golden HTML snapshot was patched for the two strings that actually changed rather than regenerated, because regenerating it would also replace the frozen timestamp and version the test asserts on. The same region of `ja` and `ko` holds sixty-three empty strings each; those are missing translations rather than wrong ones and are left for a separate change.",
+          "**`_refresh_in_background` moved into `menubar_refresh.py`.** At 203 lines it was the largest method in `menubar.py`, which had four lines left under its ceiling — and a ceiling exists on that file precisely because it has been split apart and grown back twice. Only three lines of the method touch PyObjC, the three `performSelectorOnMainThread` calls, and those stay behind along with every selector: an AppDelegate method is bound by name, so relocating one breaks the binding. What moved is the data work between them, split into `load_sources()` and `build_result()`, with the app passed in behind a `typing.Protocol` so the new module imports no PyObjC at all — the same rule that keeps `menubar_state.py` clean. `menubar.py` goes from 2116 lines to 1934 and the ceiling was lowered to match rather than raised, since raising it to get CI green would dismantle the only thing stopping the file from growing back a third time. Behaviour is unchanged, and that was verified rather than assumed: the six `refresh_timing` stages, the fifteen state assignments on the degraded path, and the `submitted`/`finally` guard that keeps a failed refresh from wedging the app were each compared line by line against the original."
+        ]
+      },
+      "curated": {
+        "version": "0.29.17",
+        "period": "2026-08-06",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "斷網時的費用估算，終於不再把價格算歪",
+              "en": "Cost estimates stay accurate when you're offline"
+            },
+            "body": {
+              "zh-TW": "出門沒網路卻想核對用量花多少錢，螢幕上的數字本該是你的依據，這回卻曾把 Opus 4.6、4.7 算成三倍，還把 Opus 5 算成零元。程式抓不到 LiteLLM 的價格表，或快取（把查過的結果暫存起來直接用）過期時，會改查手寫的備援價格表；它長期沒和目前表格比對，舊價格便一路留著。現在已按快取的 LiteLLM 表校正：4.6、4.7 的每百萬計費文字單位從舊的 $15/$75 改為 $5/$25，Haiku 4.5 也補回少算的兩成，原本缺席的 Opus 5 也不會再回傳 $0。像離線收銀機翻出過期價目表，現在換回正確版本；斷網時更該能信帳單。",
+              "en": "When you are away from the internet and checking what your usage cost, the number on screen needs to be dependable. It was not: Opus 4.6 and 4.7 were priced at three times their rate, while Opus 5 appeared to cost nothing. If LiteLLM's price table could not be downloaded, or its cache (saved lookup results kept for reuse) had expired, the app used a hand-maintained fallback table that had drifted from the current one. It is now reconciled with LiteLLM's cached table: 4.6 and 4.7 move from $15/$75 to $5/$25 per million billing units, Haiku 4.5 regains its missing twenty percent, and Opus 5 no longer returns $0. Think of an offline checkout pulling out an old price sheet; it now has the right sheet when you need it most."
+            },
+            "original": "**The offline price table overcharged Opus 4.6 and 4.7 threefold, and valued Opus 5 at nothing.** `_fallback_pricing()` is what the cost estimate falls back on when the LiteLLM table cannot be downloaded or its cache has expired. It is written by hand and nothing ever reconciled it against the live table, so it drifted in silence: `claude-opus-4-6` and `claude-opus-4-7` still carried the Opus 4.1-era $15/$75 per Mtok long after Anthropic dropped Opus to $5/$25, `claude-haiku-4-5-20251001` was twenty percent low, and `claude-opus-5` was missing outright — and a missing key makes `calculate_cost()` return `0.0`, so Opus 5 usage was reported as costing nothing. The corrected figures come from reconciling against the cached LiteLLM table rather than from the changelog: Claude Code 2.1.219 announced Opus 5 at `$10/$50 per Mtok`, but that is the fast-mode price, not the standard one. What makes this class of bug worth naming is when it surfaces — only offline, which is exactly the moment nobody thinks to doubt the number on screen."
+          },
+          {
+            "title": {
+              "zh-TW": "繁中介面混入 52 處簡體字，這次修正",
+              "en": "Traditional Chinese screens had 52 Simplified Chinese strings mixed in, now fixed"
+            },
+            "body": {
+              "zh-TW": "你選繁體中文開啟文字介面（TUI，用文字排成、在終端機操作的畫面）或報表，卻看到「检测到」「时间」這種簡體字，像一本校對到一半的書。問題出在 52 個字串直接從簡中 `zh-CN` 複製過來，沒有轉換。先前靠人工列簡體字清單，只抓到一部分，連「来」和「项」都漏了；這次把每個值交給 OpenCC 的 `s2twp` 逐一轉換，再逐項檢視差異。轉換器想把原本正確的「發送」改成「傳送」等九處，則沒有採用。實際改動的兩個 HTML 測試畫面也只補那兩句，免得連固定的時間與版本都被重生。日文、韓文各有 63 個空字串是尚未翻譯，這次沒有假裝修好它們。",
+              "en": "If you chose Traditional Chinese and opened the text interface (TUI, a screen operated in a terminal with text), you could meet Simplified Chinese such as `检测到` and `时间`—like opening a book only half proofread. Fifty-two strings had been copied from the Simplified Chinese `zh-CN` locale without conversion. A hand-written list of Simplified characters had caught only some of them, missing even `来` and `项`. Every value now went through OpenCC's `s2twp` conversion and each difference was reviewed. Nine suggested replacements, including `發送` to `傳送`, were left alone because the existing text was already correct. Only two changed strings in the HTML test snapshot were patched, preserving its fixed timestamp and version. Japanese and Korean each still have sixty-three empty strings; those are missing translations, not this bug, so they remain for later work."
+            },
+            "original": "**Fifty-two keys in the Traditional Chinese locale contained Simplified Chinese.** The TUI and report strings had been copied across from `zh-CN` without conversion, so a Traditional Chinese user opening the TUI read `检测到`, `时间`, `来源`, `项目` and `消息`. A hand-written list of Simplified characters found only some of them — it missed `来` and `项` — so every value was instead run through OpenCC's `s2twp` and the differences reviewed one by one. Nine of those differences were the converter overreaching on text that was already correct (`發送`→`傳送`, `吹回`→`吹迴`, `連接詞`→`連線詞`) and were left alone. The golden HTML snapshot was patched for the two strings that actually changed rather than regenerated, because regenerating it would also replace the frozen timestamp and version the test asserts on. The same region of `ja` and `ko` holds sixty-three empty strings each; those are missing translations rather than wrong ones and are left for a separate change."
+          },
+          {
+            "title": {
+              "zh-TW": "選單列更新工作搬家，畫面行為照舊",
+              "en": "Menu-bar refresh work moves house without changing behavior"
+            },
+            "body": {
+              "zh-TW": "你會看到選單列照常更新，只是背後那段 203 行的工作搬了家。`menubar.py` 已經拆過又長回來兩次，原先離檔案長度上限只差四行；與其把上限往上推，開發者把背景更新的資料處理拆到 `menubar_refresh.py`，分成 `load_sources()` 和 `build_result()`。畫面相關的三次 `performSelectorOnMainThread` 呼叫與所有 selector（靠名稱找到要執行方法的標記）留在原檔，因為 AppDelegate 的方法就是按名稱綁定，搬走會斷線。新檔透過 `typing.Protocol` 描述需要的 App 介面，完全不載入 PyObjC。像把塞爆的廚房分出備料間：接客的窗口不動，備料移到隔壁，送餐流程仍照原本走。六個更新計時階段、降級路徑的 15 次狀態寫入，以及失敗後避免卡死的保護，都逐行比對確認沒變。",
+              "en": "This is not a new button: your menu-bar refresh still looks the same, but its 203-line back-room job has moved. `menubar.py` had been split apart twice and then grown again, leaving only four lines below its size limit. Instead of raising that limit, the data work of the background refresh moved to `menubar_refresh.py`, divided into `load_sources()` and `build_result()`. The three `performSelectorOnMainThread` calls and every selector (a name used to locate a method to run) stay in the original file, because AppDelegate methods are bound by name and moving them would break that connection. The new module describes the App it needs through `typing.Protocol` and imports no PyObjC. It is like moving prep work from an overcrowded kitchen into a side room: the service window stays put and meals follow the same path. Six timing stages, fifteen degraded-path state assignments, and the guard against a failed refresh getting stuck were compared line by line."
+            },
+            "original": "**`_refresh_in_background` moved into `menubar_refresh.py`.** At 203 lines it was the largest method in `menubar.py`, which had four lines left under its ceiling — and a ceiling exists on that file precisely because it has been split apart and grown back twice. Only three lines of the method touch PyObjC, the three `performSelectorOnMainThread` calls, and those stay behind along with every selector: an AppDelegate method is bound by name, so relocating one breaks the binding. What moved is the data work between them, split into `load_sources()` and `build_result()`, with the app passed in behind a `typing.Protocol` so the new module imports no PyObjC at all — the same rule that keeps `menubar_state.py` clean. `menubar.py` goes from 2116 lines to 1934 and the ceiling was lowered to match rather than raised, since raising it to get CI green would dismantle the only thing stopping the file from growing back a third time. Behaviour is unchanged, and that was verified rather than assumed: the six `refresh_timing` stages, the fifteen state assignments on the degraded path, and the `submitted`/`finally` guard that keeps a failed refresh from wedging the app were each compared line by line against the original."
+          }
+        ]
+      }
+    }
+  ]
+}

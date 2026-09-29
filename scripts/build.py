@@ -37,6 +37,7 @@ BUILD_OUTPUTS = (
     "ai_updates.json",
     "daily.json",
     "docs/data.json",
+    "docs/search-index.json",
     "docs/index.html",
     "docs/404.html",
     "docs/feed.xml",
@@ -48,6 +49,12 @@ BUILD_OUTPUTS = (
 )
 SITE_URL = "https://aqua5230.github.io/ai-updates/"
 LANGUAGES = ("zh-TW", "en")
+HISTORY_PAGE_SIZE = 10
+ENTERPRISE_CARD_RE = re.compile(
+    r"managed settings|managed polic|gateway|(?<!non-)enterprise|organization|"
+    r"\badmin|identity provider|\bSSO\b|OTLP|^\[Claude Tag\]",
+    re.IGNORECASE,
+)
 PLACEHOLDER_PREFIXES = (
     "bug fixes and reliability improvements",
     "no user-facing changes",
@@ -283,6 +290,12 @@ def is_placeholder(raw: dict[str, Any], version: str) -> bool:
 def _write(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def _is_enterprise_card(item: dict[str, Any]) -> bool:
+    lines = [line for line in item.get("original", "").splitlines() if line.strip()]
+    matches = sum(bool(ENTERPRISE_CARD_RE.search(line)) for line in lines)
+    return bool(lines) and matches * 5 >= len(lines) * 3
 
 
 def _page_url(tool_id: str, version: str) -> str:
@@ -867,6 +880,7 @@ def build() -> None:
     history_tools: list[dict[str, Any]] = []
     site_tools: list[dict[str, Any]] = []
     daily_tools: list[dict[str, Any]] = []
+    search_cards: list[list[Any]] = []
     loaded = _load_and_validate_data()
     for tool_id, name in TOOLS:
         raw, curated = loaded[tool_id]
@@ -890,22 +904,43 @@ def build() -> None:
             ],
         }
         history_tools.append(history_tool)
+        for version in history_tool["versions"]:
+            if not version["curated"]:
+                continue
+            for number, item in enumerate(version["curated"]["items"], 1):
+                snippets = re.findall(
+                    r"(?<!`)`([^`\n]+)`(?!`)",
+                    " ".join((item["body"]["zh-TW"], item["body"]["en"], item["original"])),
+                )
+                keywords = " ".join(dict.fromkeys(text for text in snippets if len(text) <= 40))
+                search_cards.append([
+                    tool_id, version["version"], number,
+                    item["title"]["zh-TW"], item["title"]["en"], keywords,
+                ])
         latest = next(
             (version for version in history_tool["versions"] if version["curated"]),
             history_tool["versions"][0] if history_tool["versions"] else None,
         )
+        site_versions = []
+        for version in history_tool["versions"]:
+            summary = {
+                "version": version["version"],
+                "period": (version["curated"] or version["raw"] or {}).get("period", ""),
+            }
+            if version["curated"]:
+                enterprise = [
+                    number for number, item in enumerate(version["curated"]["items"], 1)
+                    if _is_enterprise_card(item)
+                ]
+                if enterprise:
+                    summary["enterprise"] = enterprise
+            site_versions.append(summary)
         site_tools.append(
             {
                 "id": tool_id,
                 "name": name,
                 "latest": latest,
-                "versions": [
-                    {
-                        "version": version["version"],
-                        "period": (version["curated"] or version["raw"] or {}).get("period", ""),
-                    }
-                    for version in history_tool["versions"]
-                ],
+                "versions": site_versions,
             }
         )
 
@@ -926,12 +961,37 @@ def build() -> None:
         daily_tools.append({"id": tool_id, "name": name, "versions": daily_versions})
 
     _write(ROOT / "ai_updates.json", {"generated_at": generated_at, "tools": app_tools})
-    _write(ROOT / "docs" / "data.json", {"generated_at": generated_at, "tools": site_tools})
+    _write(
+        ROOT / "docs" / "data.json",
+        {"generated_at": generated_at, "history_page_size": HISTORY_PAGE_SIZE, "tools": site_tools},
+    )
+    search_path = ROOT / "docs" / "search-index.json"
+    search_path.write_text(
+        json.dumps(
+            {"generated_at": generated_at, "cards": search_cards},
+            ensure_ascii=False, separators=(",", ":"),
+        ),
+        encoding="utf-8",
+    )
+    history_root = ROOT / "docs" / "history"
+    if history_root.exists():
+        shutil.rmtree(history_root)
+    history_root.mkdir(parents=True)
     for history_tool in history_tools:
-        _write(
-            ROOT / "docs" / "history" / f"{history_tool['id']}.json",
-            history_tool,
-        )
+        versions = history_tool["versions"]
+        pages = (len(versions) + HISTORY_PAGE_SIZE - 1) // HISTORY_PAGE_SIZE
+        for index in range(pages):
+            page = index + 1
+            _write(
+                history_root / history_tool["id"] / f"{page}.json",
+                {
+                    "id": history_tool["id"],
+                    "name": history_tool["name"],
+                    "page": page,
+                    "pages": pages,
+                    "versions": versions[index * HISTORY_PAGE_SIZE:page * HISTORY_PAGE_SIZE],
+                },
+            )
     _write(ROOT / "daily.json", {"generated_at": generated_at, "tools": daily_tools})
     _write_static_pages(history_tools)
     _write_not_found_page()

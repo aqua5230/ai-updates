@@ -1,0 +1,331 @@
+{
+  "id": "usage",
+  "name": "Usage",
+  "page": 12,
+  "pages": 21,
+  "versions": [
+    {
+      "version": "0.24.2",
+      "raw": {
+        "version": "0.24.2",
+        "period": "2026-07-05",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Session-resume handoff could surface skill-expansion noise and duplicate the same request**: `usage_session_resume.py`'s `_parse_session` collected every `type: \"user\"` transcript entry as a candidate \"recently working on\" request without checking Claude Code's `isMeta` flag, so skill/command expansions injected into the transcript (e.g. a full `SKILL.md` body) could show up as if they were a real request. Dedup also only compared against the immediately preceding request, so the same request separated by one of these injected entries counted twice, wasting handoff slots that are capped at 3. `isMeta: true` entries are now skipped, and dedup checks against every request seen so far, not just the last one. (Reported in #46 by @apple8409.)"
+        ]
+      },
+      "curated": {
+        "version": "0.24.2",
+        "period": "2026-07-05",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "恢復工作對話不再被指令碼洗版，也不會重複抓取任務",
+              "en": "Session handoffs filter out noisy tool injections and correctly deduplicate task history"
+            },
+            "body": {
+              "zh-TW": "當你接續之前的對話紀錄時，系統提議的「你最近在做什麼」清單，不再會被那些落落長的工具說明書洗版了。以前系統在整理你的對話紀錄時，只要看到是標示為「使用者發出」的內容就全抓進來，根本不管那是不是系統自己為了擴充技能（skill，輔助執行特定任務的指令檔）而偷塞的冗長說明，結果把這些雜訊也當成你的工作進度；而且因為它只跟上一句話比對，同一句話如果被這些雜訊隔開，就會被重複計算，白白浪費了最多只能顯示三筆的珍貴名額。現在系統學會了跳過這些標記為內部後設資料（isMeta）的雜訊，並且會跟整份清單比對來剔除重複。就像你請秘書整理昨天開會的重點，以前他會連你在會上念的一大本操作手冊都逐字抄進去當作討論結論，而且你重複講了兩次的話他還會當成兩件不同的事記下來；現在他懂得只挑出真正的行動方案，並且把重複講的話自動合併成一條。",
+              "en": "When you resume a previous conversation, the \"what you were recently working on\" suggestions will no longer be overwhelmed by giant walls of tool documentation. Previously, the system blindly scooped up every transcript entry marked as a \"user\" message, failing to realize that some of these were actually long instructions injected by the system itself to expand skills (skill files that help execute specific tasks). This allowed noisy text to masquerade as your real work progress. Furthermore, because the system only checked for duplicates against the very last message, a single real request interrupted by one of these noise entries would get counted twice, wasting your precious three handoff slots. The system now correctly skips these system-injected metadata entries (`isMeta`) and checks for duplicates against the entire list. It's like asking an assistant to summarize yesterday's meeting: they used to copy down an entire 100-page manual you happened to read aloud as if it were a decision, and if you repeated a point twice they logged it as two separate tasks. Now, they know to extract only the actual action items and merge repeats into a single line."
+            },
+            "original": "**Session-resume handoff could surface skill-expansion noise and duplicate the same request**: `usage_session_resume.py`'s `_parse_session` collected every `type: \"user\"` transcript entry as a candidate \"recently working on\" request without checking Claude Code's `isMeta` flag, so skill/command expansions injected into the transcript (e.g. a full `SKILL.md` body) could show up as if they were a real request. Dedup also only compared against the immediately preceding request, so the same request separated by one of these injected entries counted twice, wasting handoff slots that are capped at 3. `isMeta: true` entries are now skipped, and dedup checks against every request seen so far, not just the last one. (Reported in #46 by @apple8409.)"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.1",
+      "raw": {
+        "version": "0.24.1",
+        "period": "2026-07-05",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Menu bar could peg a full CPU core after launch on machines with unpriced models in their history**: `pricing.py`'s model-to-price lookup ran a full linear scan of the entire LiteLLM pricing table for every history entry whose model wasn't in it, with no caching of the \"not found\" result — so every refresh re-scanned the same unresolvable models (e.g. sessions logged by a non-Anthropic/OpenAI backend) from scratch, thousands of times per refresh on machines with a lot of that history. The lookup is now memoized per pricing-table generation, so a given unresolvable model is only scanned once.",
+          "**Claude Code history reparsed from scratch on every relaunch**: `history_loader.py`'s per-file JSONL parse cache only lived in memory, unlike the matching Codex-side cache added in 0.24.0, so every app restart — including auto-launch at login — paid the full history reparse again (measured 5+ seconds on a long-lived install). It now persists to disk the same way the Codex loader already does."
+        ]
+      },
+      "curated": {
+        "version": "0.24.1",
+        "period": "2026-07-05",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "修復 CPU 滿載過熱問題，程式啟動速度大幅提升",
+              "en": "Fixed full CPU core lockups and slow startup times caused by excessive scanning"
+            },
+            "body": {
+              "zh-TW": "電腦不會再被兩個效能問題拖慢了。首先，如果你曾經用過一些系統價目表上沒有的冷門 AI 模型，以前系統在每次更新數字時，都會為了找它的價格，把整張上千筆的價目表從頭到尾翻過一遍，而且找不到還不會記取教訓，下一秒又重新翻一次，這會把你的處理器（CPU）操到滿載；現在系統學會了，如果找不到，它就會把這個名字記在黑名單，下次直接跳過。其次，以前每次重新開啟應用程式，系統都會把你全部的 Claude 對話歷史重新讀取一遍（歷史越長要等越久，有時要等 5 秒以上），因為它把這份記憶放在會揮發的記憶體裡；現在它懂得把讀過的結果存進硬碟裡了。就像是結帳店員以前遇到刷不出條碼的商品，每次都要把整本兩千頁的商品目錄重翻一遍，現在他終於懂得把沒建檔的品項貼在收銀機旁直接略過；而且以前他每天上班都要把你過去十年的消費明細重看一次才能開始工作，現在他只看今天的帳本就好了。",
+              "en": "Your computer won't be bogged down by two performance bugs anymore. First, if you had history containing obscure AI models missing from the system's pricing sheet, the app would wildly scan the entire thousand-item price list from top to bottom on every single refresh trying to find them. Worse, it never remembered failing, so it repeated the scan immediately after, pinning your processor (CPU) at 100%; the system now smartly memoizes \"not found\" results and skips them next time. Second, every time you restarted the app (or when it auto-launched at login), it parsed your entire Claude chat history completely from scratch because its cache only lived in temporary memory, which could take over 5 seconds on older installs. It now safely persists that parsed cache to your disk. It's like a checkout clerk who used to flip through a massive 2,000-page catalog every single time they encountered an unbarcoded item; now they simply tape a \"not found\" note to the register and skip it. Plus, they no longer need to re-read your entire 10-year purchase history from page one every morning just to clock in."
+            },
+            "original": "**Menu bar could peg a full CPU core after launch on machines with unpriced models in their history**: `pricing.py`'s model-to-price lookup ran a full linear scan of the entire LiteLLM pricing table for every history entry whose model wasn't in it, with no caching of the \"not found\" result — so every refresh re-scanned the same unresolvable models (e.g. sessions logged by a non-Anthropic/OpenAI backend) from scratch, thousands of times per refresh on machines with a lot of that history. The lookup is now memoized per pricing-table generation, so a given unresolvable model is only scanned once.\n**Claude Code history reparsed from scratch on every relaunch**: `history_loader.py`'s per-file JSONL parse cache only lived in memory, unlike the matching Codex-side cache added in 0.24.0, so every app restart — including auto-launch at login — paid the full history reparse again (measured 5+ seconds on a long-lived install). It now persists to disk the same way the Codex loader already does."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.0",
+      "raw": {
+        "version": "0.24.0",
+        "period": "2026-07-05",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**AI Talent Market**: a new menu-bar panel for installing curated teams of Claude Code subagent personas — organized by scenario (a one-person law practice, a solo software studio, and more) — straight into `~/.claude/agents/`; once installed, call a persona by name in any Claude Code conversation. Search or browse by team, drill into a role for a full write-up and one-click launch into a new Terminal session, and pick which folder each launch targets instead of it being guessed for you. Runs fully local through a bundled companion CLI — no account, no network call.",
+          "**Menu bar refresh could take 17+ seconds on long-running installs**: the Claude Code / Codex history loaders cached parsed JSONL files behind a 512-entry LRU, too small once a machine has accumulated more sessions than that — every refresh evicted and fully re-parsed files that had just been cached the tick before. Both loaders now parse incrementally from the last confirmed byte offset instead of re-reading whole files, the cache is sized to hold a real working set, and a redundant title update that forced a full relayout on every critter-animation frame has been removed too."
+        ]
+      },
+      "curated": {
+        "version": "0.24.0",
+        "period": "2026-07-05",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "內建 AI 人才市場，選單列讀取再也不用等到天荒地老",
+              "en": "The AI Talent Market arrives, and 17-second menu bar freezes are gone"
+            },
+            "body": {
+              "zh-TW": "選單列上現在多了一個超強的「AI 人才市場」面板。這是一個完全離線、不用辦帳號的百寶箱，裡面幫你配好了各種情境的專屬 AI 助手團隊（例如：單人律師事務所、個人軟體工作室），你可以把它們安裝進你的電腦裡，以後在對話中只要叫他們的名字，就能隨時請他們幫忙；你甚至可以點擊任何一個角色看他的詳細履歷，並點一下讓他降落到你指定的資料夾開始工作。同時，這次也解決了老用戶選單列更新超級慢（有時甚至卡住 17 秒以上）的問題。以前當你累積的對話紀錄太多時，系統那小小的暫存區（cache）會被塞爆，導致它剛記住的檔案下一秒就被踢出去，每次更新都在把整坨檔案重新讀一遍；現在暫存區被加大，而且系統學會了「從上次讀到的地方接續看」，不再每次都從頭讀起。就像是你原本有個只能裝 10 本書的書架，書一多你每天都要把舊書丟掉重買，現在不只換了個大書籤，還學會了夾書籤；而且家裡還新開了一間人才仲介所，裡面分門別類坐著律師、工程師，你看中誰就能馬上拉他去指定的房間上工。",
+              "en": "The menu bar now features an incredibly powerful \"AI Talent Market\" panel. This is a fully offline, no-account-required catalog of curated AI assistant teams tailored for specific scenarios (like a one-person law practice or a solo software studio). You can install these personas directly onto your machine with one click and summon them by name in any conversation; you can even click a specific role to read their full profile and instantly launch them into a specific target folder. At the same time, we've entirely eliminated the agonizing 17+ second menu bar freezes that plagued long-time users. Previously, when you accumulated too many conversation logs, the system's tiny cache (temporary memory) would overflow—files it just remembered were instantly kicked out, forcing it to re-read the entire history from scratch on every tick. The cache has now been appropriately upsized, and the system now smartly parses incrementally from where it left off. It's like having a bookshelf that only held 10 books, forcing you to throw out and re-buy books every day; now you have a massive shelf and finally learned to use bookmarks. Plus, a brand-new temp agency just opened in your house, full of lawyers and engineers ready to be dispatched to any room the moment you point."
+            },
+            "original": "**AI Talent Market**: a new menu-bar panel for installing curated teams of Claude Code subagent personas — organized by scenario (a one-person law practice, a solo software studio, and more) — straight into `~/.claude/agents/`; once installed, call a persona by name in any Claude Code conversation. Search or browse by team, drill into a role for a full write-up and one-click launch into a new Terminal session, and pick which folder each launch targets instead of it being guessed for you. Runs fully local through a bundled companion CLI — no account, no network call.\n**Menu bar refresh could take 17+ seconds on long-running installs**: the Claude Code / Codex history loaders cached parsed JSONL files behind a 512-entry LRU, too small once a machine has accumulated more sessions than that — every refresh evicted and fully re-parsed files that had just been cached the tick before. Both loaders now parse incrementally from the last confirmed byte offset instead of re-reading whole files, the cache is sized to hold a real working set, and a redundant title update that forced a full relayout on every critter-animation frame has been removed too."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.23.2",
+      "raw": {
+        "version": "0.23.2",
+        "period": "2026-07-04",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Matrix panel's countdown and footer text was too dim to read**: `--muted` opacity was bumped up and a subtle glow (matching the card titles) added to the reset countdown and footer status lines.",
+          "**Black Hole panel's signature animation was barely visible**: the accretion-disk scene was drawn directly behind the cards, and their 16px frosted-glass blur was smearing it into a faint blob; the blur is now much lighter so the disk, event horizon, and particle stream actually show through.",
+          "**Newspaper and Win95 panels could clip the last project row**: both panels' outer layout was missing the `flex: none` / `flex: 1` split every other panel uses to absorb variable content height, so with 3 projects showing, the bottom of the list (and sometimes the footer) got silently cut off by `overflow: hidden`. Layout fixed and registered panel heights recalibrated to the real measured minimum for each panel (Win95 800→870, others tightened after also trimming row spacing).",
+          "**Newspaper panel's row spacing was looser than every other panel**: track height, line-heights, and card padding are now in line with Classic's proportions, so the panel isn't noticeably taller without needing extra clipping-avoidance padding.",
+          "**Newspaper panel now leans into the \"aged paper\" look**: deeper amber tone, a faint compass-rose watermark, ink-shadowed titles, and a double-line decorative border.",
+          "**Terse Mode now covers Codex CLI too**: the same menu-bar toggle installs a matching SessionStart hook for Codex when it's detected on the machine, using Codex's native hooks system (`[features] hooks = true` plus a `~/.codex/hooks.json` entry). No separate switch — one toggle, both tools. Turning it off only removes usage's own hook entry; it leaves the `hooks` feature flag and any other hooks you've installed for Codex untouched."
+        ]
+      },
+      "curated": {
+        "version": "0.23.2",
+        "period": "2026-07-04",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "多款主題面板變得更好看，最底下的字不再被切斷",
+              "en": "Several theme panels look better and no longer clip the bottom text"
+            },
+            "body": {
+              "zh-TW": "現在切換到特殊主題面板時，畫面不再殘缺或看不清了。駭客任務（Matrix）面板的倒數計時跟狀態文字變亮，不再暗到看不見；黑洞（Black Hole）面板的背景吸積盤跟粒子流不會再被毛玻璃糊成一團，現在能清楚看透。對報紙（Newspaper）與 Win95 面板來說，專案一多，最下面一行的專案甚至底部的文字不會再被悄悄裁掉（原本版面高度計算有誤）。同時，報紙面板現在行距更緊湊，並加上更深的琥珀底色、羅盤浮水印、雙線裝飾框等設計，更有泛黃古紙的味道。就像去主題餐廳，原本有些區塊燈光太暗看不見菜單，或者桌子太小讓最後一道菜掉出桌外，現在不但燈光和桌子都調整好了，裝潢也變得更有沉浸感。",
+              "en": "When switching to special theme panels, the interface is no longer clipped or unreadable. On the Matrix panel, the countdown and status text are now brighter, instead of being too dim to read; for the Black Hole panel, the background accretion disk and particle stream are no longer smeared into a blob by the frosted glass, showing through clearly now. As for the Newspaper and Win95 panels, having multiple projects will no longer silently cut off the bottom row or the footer (due to previous layout height miscalculations). Meanwhile, the Newspaper panel now features tighter row spacing and leans into an \"aged paper\" look with a deeper amber tone, a compass-rose watermark, and a double-line decorative border. It's like visiting a themed restaurant where some areas used to be too dim to read the menu, or the tables were too small causing the last dish to fall off; now, not only are the lights and tables fixed, but the decor is also much more immersive."
+            },
+            "original": "**Matrix panel's countdown and footer text was too dim to read**: `--muted` opacity was bumped up and a subtle glow (matching the card titles) added to the reset countdown and footer status lines.\n**Black Hole panel's signature animation was barely visible**: the accretion-disk scene was drawn directly behind the cards, and their 16px frosted-glass blur was smearing it into a faint blob; the blur is now much lighter so the disk, event horizon, and particle stream actually show through.\n**Newspaper and Win95 panels could clip the last project row**: both panels' outer layout was missing the `flex: none` / `flex: 1` split every other panel uses to absorb variable content height, so with 3 projects showing, the bottom of the list (and sometimes the footer) got silently cut off by `overflow: hidden`. Layout fixed and registered panel heights recalibrated to the real measured minimum for each panel (Win95 800→870, others tightened after also trimming row spacing).\n**Newspaper panel's row spacing was looser than every other panel**: track height, line-heights, and card padding are now in line with Classic's proportions, so the panel isn't noticeably taller without needing extra clipping-avoidance padding.\n**Newspaper panel now leans into the \"aged paper\" look**: deeper amber tone, a faint compass-rose watermark, ink-shadowed titles, and a double-line decorative border."
+          },
+          {
+            "title": {
+              "zh-TW": "精簡模式也支援 Codex，開一次開關讓兩位助理講話變精簡",
+              "en": "Terse Mode supports Codex too, making both assistants concise with one click"
+            },
+            "body": {
+              "zh-TW": "你想讓 AI 講話簡短一點時，現在開一次開關就能同時設定兩套工具了。精簡模式（Terse Mode，讓 AI 回答變短的開關）現在不只管 Claude Code，也涵蓋 Codex（另一套在終端機運作的 AI 寫程式工具）。只要在選單列開一次這個開關，系統會偵測你電腦上有沒有裝 Codex，有的話就會透過 Codex 原生的掛鉤機制（hooks，讓你在程式啟動時自動跑一段自訂指令的設定檔）幫它裝好對應的規則。不用分開找兩顆開關——一顆開關兩邊都生效。而且當你關掉它時，系統只會拿掉自己裝的那條掛鉤設定，絕對不會動到你自己幫 Codex 裝的其他掛鉤。就像你想讓辦公室裡的兩個助理講話都簡潔一點，以前你要分開個別下指令，現在只要廣播一次開關，兩個人就都會照做，而且當你收回命令時，也不會干擾他們原本在忙的其他工作。",
+              "en": "When you want the AI to speak more concisely, you can now set up both tools simultaneously with one click. Terse Mode (the toggle that makes AI responses shorter) now covers not only Claude Code but also Codex (another AI coding tool running in the terminal). By flipping this single toggle in the menu bar, the system detects if you have Codex installed and automatically sets up the matching rule using Codex's native hooks system (a configuration that runs custom commands automatically on startup). You don't need to hunt for separate switches—one toggle works for both tools. Furthermore, when you turn it off, the system only removes its own hook entry, leaving any other hooks you've manually installed for Codex completely untouched. It's like wanting two assistants in your office to speak more concisely: you used to have to instruct them individually, but now you just make one broadcast and they both comply, and when you rescind the order, it doesn't interfere with their other ongoing tasks."
+            },
+            "original": "**Terse Mode now covers Codex CLI too**: the same menu-bar toggle installs a matching SessionStart hook for Codex when it's detected on the machine, using Codex's native hooks system (`[features] hooks = true` plus a `~/.codex/hooks.json` entry). No separate switch — one toggle, both tools. Turning it off only removes usage's own hook entry; it leaves the `hooks` feature flag and any other hooks you've installed for Codex untouched."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.23.0",
+      "raw": {
+        "version": "0.23.0",
+        "period": "2026-07-04",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Terse Mode**: a new menu-bar toggle that asks Claude Code to answer more tersely for the whole session — cutting hedging, filler, and repeated preamble while keeping code, commands, file paths, and error messages byte-exact. Fully local (just a SessionStart hook, no API calls), off by default, and announces itself at the start of your first reply — merged into the Progress Concierge's greeting when both are on, or on its own line otherwise. Like any style instruction, it's a request rather than a hard constraint: on a very long conversation it can gradually fade and drift back to Claude's normal verbosity, at which point a one-line reminder brings it back."
+        ]
+      },
+      "curated": {
+        "version": "0.23.0",
+        "period": "2026-07-04",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "選單列加開關，要 Claude Code 少廢話只講重點",
+              "en": "A menu-bar toggle asks Claude Code to cut the chatter and get to the point"
+            },
+            "body": {
+              "zh-TW": "想讓 Claude Code 少廢話、直接講重點，現在選單列多了一個開關能搞定。這個新開關叫「Terse Mode（精簡模式）」，打開後它會要求 Claude Code 在你整個工作階段（session，一段連續的對話期間）裡回答得更精簡——砍掉那些模稜兩可的墊話（hedge，像「可能、也許、我不太確定」這類弱化語氣、沒把話講死的字）、填充廢話（filler，湊字數卻沒訊息量的話），以及每次開頭都重複講一遍的引言（preamble）；但同時會原封不動保留程式碼、指令、檔案路徑跟錯誤訊息，這些技術細節一個字都不會改。它完全跑在你自己電腦上（其實只是一個 SessionStart hook，也就是每次開新對話時自動執行的小設定腳本，不會呼叫任何 API），預設是關閉的。打開後，它會在你第一則回覆的開頭先自我介紹一下——如果同時也開了 Progress Concierge（進度管家，另一個開場打招呼的功能），就併進管家的招呼詞裡一起講，不然就自己單獨一行。要留意的是，跟任何「風格指令」一樣，這是一個請求而非硬性限制：當對話拖得很長時，它會慢慢淡化、漂回 Claude 平常比較囉嗦的樣子，這時你只要再提醒一句就能把它叫回來。就像跟一個話很多的同事說「簡短講重點就好」，他會乖乖精簡，但聊著聊著又會不知不覺越講越長，這時你只要再咳一聲提醒他就行。",
+              "en": "Want Claude Code to cut the chatter and get straight to the point? A new menu-bar toggle handles it. This new switch, \"Terse Mode\", asks Claude Code to answer more tersely for your entire session (session — one continuous stretch of a conversation) — trimming hedging (hedge — words that soften the claim without committing, like \"maybe, perhaps, I'm not entirely sure\"), filler (empty words that pad length but carry no information), and the repeated preamble it prints every time it starts; but it leaves code, commands, file paths, and error messages byte-exact, so not a single technical detail is altered. It runs fully on your own machine (it's really just a SessionStart hook — a small setup script that runs automatically whenever a new conversation starts, making no API call), and is off by default. Once on, it announces itself at the start of your first reply — folded into the Progress Concierge's greeting if that other feature (an opener that greets you at the start of a session) is also on, or on its own line otherwise. Note that, like any \"style instruction\", it's a request rather than a hard constraint: in a very long conversation it can gradually fade and drift back to Claude's normal verbosity, at which point a one-line reminder brings it back. It's like telling a talkative coworker \"keep it short, just the point\"; they'll trim their words, but as the chat rolls on they'll unconsciously start rambling again — at which point a single cleared throat is enough to rein them in."
+            },
+            "original": "**Terse Mode**: a new menu-bar toggle that asks Claude Code to answer more tersely for the whole session — cutting hedging, filler, and repeated preamble while keeping code, commands, file paths, and error messages byte-exact. Fully local (just a SessionStart hook, no API calls), off by default, and announces itself at the start of your first reply — merged into the Progress Concierge's greeting when both are on, or on its own line otherwise. Like any style instruction, it's a request rather than a hard constraint: on a very long conversation it can gradually fade and drift back to Claude's normal verbosity, at which point a one-line reminder brings it back."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.22.14",
+      "raw": {
+        "version": "0.22.14",
+        "period": "2026-07-03",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Archived Codex sessions could show stale data**: usage counted `~/.codex/archived_sessions/` when computing totals but didn't watch it for changes, so edits there might not refresh the menu bar until an unrelated refresh happened; the archived folder is now included in the same change-detection that drives live updates.",
+          "**A broken usage-data hook no longer causes constant background rescanning**: when Claude Code's status hook goes stale, usage now caches the \"is there recent activity\" check briefly instead of rescanning your entire `~/.claude/projects` tree on every poll.",
+          "**A small warning badge appears if local usage history can't be read**: previously, a failed read silently fell back to the last known data with no visible sign anything was wrong; the Project Usage card now shows a brief note (hover for detail) so you can tell \"no new data\" apart from \"something broke.\"",
+          "**Faster per-refresh history scans**: each refresh previously walked the Claude/Codex session directories multiple times (once to detect changes, again per data source); it's now scanned once and reused."
+        ]
+      },
+      "curated": {
+        "version": "0.22.14",
+        "period": "2026-07-03",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "歷史讀取更穩更快，壞掉時會坦白告訴你",
+              "en": "History reads are faster, stabler, and tell you honestly when they break"
+            },
+            "body": {
+              "zh-TW": "你現在會發現歷史讀取更穩更快，而且壞掉時也會坦白告訴你了。背後整理歷史紀錄的機制做了大掃除，現在只要掃描一次目錄，就能同時算好數字並找出有變動的地方，不用重複多跑好幾趟；而且如果你把 Codex 對話封存（archive）了，它也能即時跟上變化，不會再顯示舊數字。此外，萬一系統讀不到你的對話紀錄，以前它會悄悄拿上次的舊資料充數、讓你以為沒人在講話，現在它會在卡片旁邊掛一個小徽章，老實告訴你「我讀不到資料」；如果背後負責更新狀態的程式（hook）壞了，它也不會再像無頭蒼蠅一樣瘋狂重掃整個資料夾。就像以前計分板壞了會一直顯示 0 分讓你以為沒人得分，現在它會掛個牌子說「機器故障」，而且修理工人不會再為了找問題把整個球場的地板掀開。",
+              "en": "You'll notice that reading your history is now faster, more stable, and more honest when things break. The engine that crunches your history in the background has been completely overhauled. It now scans your directories just once to both calculate the numbers and spot any changes, rather than making multiple redundant trips; also, if you archive your Codex chats, the system now tracks those edits instantly instead of showing stale data. Additionally, if the system fails to read your chat logs, it used to quietly fall back to the last known data, making you think you simply hadn't typed anything; now, it hangs a small warning badge on the card, honestly confessing that it can't read the data. And if the background updater program (the hook) breaks, it will no longer frantically rescan your entire folder tree over and over. It's like a broken stadium scoreboard that used to freeze at zero and make you think no one was scoring, but now it hangs a \"Broken\" sign — and the repair crew no longer rips up the entire field trying to find the problem."
+            },
+            "original": "**Archived Codex sessions could show stale data**: usage counted `~/.codex/archived_sessions/` when computing totals but didn't watch it for changes, so edits there might not refresh the menu bar until an unrelated refresh happened; the archived folder is now included in the same change-detection that drives live updates.\n**A broken usage-data hook no longer causes constant background rescanning**: when Claude Code's status hook goes stale, usage now caches the \"is there recent activity\" check briefly instead of rescanning your entire `~/.claude/projects` tree on every poll.\n**A small warning badge appears if local usage history can't be read**: previously, a failed read silently fell back to the last known data with no visible sign anything was wrong; the Project Usage card now shows a brief note (hover for detail) so you can tell \"no new data\" apart from \"something broke.\"\n**Faster per-refresh history scans**: each refresh previously walked the Claude/Codex session directories multiple times (once to detect changes, again per data source); it's now scanned once and reused."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.22.13",
+      "raw": {
+        "version": "0.22.13",
+        "period": "2026-07-02",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**HTML report gets an \"Avg per Message\" KPI card**: a sixth summary card shows total tokens divided by message count, giving a quick read on how much each message burns (this includes cache tokens, so it reflects burn per message rather than literal message length)."
+        ]
+      },
+      "curated": {
+        "version": "0.22.13",
+        "period": "2026-07-02",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "報告多了一張卡，幫你算平均講一句話燒多少錢",
+              "en": "A new report card shows how much you burn per average message"
+            },
+            "body": {
+              "zh-TW": "HTML 報告的頂部多了一張「平均每則訊息」的統計卡片。它會把你燒掉的總 token（AI 閱讀與產出文字的計量單位，包含快取重送的 token）數量除以你的總訊息數量，讓你知道自己平均講一句話會消耗多少資源。這個數字反映的是「燒耗量」而不是你打字的長度——如果對話拖得很長，即使你只打幾個字，背後也可能帶著一大包歷史紀錄在燒錢。就像你的車子儀表板本來只有總油耗，現在多了一個「平均每踩一次油門花多少錢」的指標，讓你知道自己的開車習慣有多傷荷包。",
+              "en": "The HTML report now features a new \"Avg per Message\" stats card at the top. It divides your total burnt tokens (the base unit AI uses to measure text, including cached tokens resent in the background) by your total message count, giving you a quick read on how many resources you consume per reply. This number reflects your \"burn rate\" rather than your literal typing length — if a conversation drags on, even a few typed words could be dragging a massive bag of history behind them, costing you heavily. It's like having a car dashboard that used to only show total fuel consumed, but now includes an \"average cost per press of the gas pedal\" meter, revealing exactly how expensive your driving habits are."
+            },
+            "original": "**HTML report gets an \"Avg per Message\" KPI card**: a sixth summary card shows total tokens divided by message count, giving a quick read on how much each message burns (this includes cache tokens, so it reflects burn per message rather than literal message length)."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.22.12",
+      "raw": {
+        "version": "0.22.12",
+        "period": "2026-07-01",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**New model pricing refreshes as soon as usage sees an unknown model**: fresh cached pricing could hide newly-added models until the 7-day TTL expired, temporarily rendering them as $0.00/unknown. A pricing miss now triggers a debounced background refresh, and Claude Sonnet 5 has an offline fallback price so first-run or offline usage still estimates cost."
+        ]
+      },
+      "curated": {
+        "version": "0.22.12",
+        "period": "2026-07-01",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "看到沒見過的新模型會馬上查價格，不再假裝免費",
+              "en": "The system instantly looks up prices for unknown models instead of pretending they're free"
+            },
+            "body": {
+              "zh-TW": "遇到還沒見過的新模型時，現在能立刻查到正確價格，不會再被誤算成 0 元。以前為了省網路，系統會把價格表快取 7 天，結果剛上線的新模型會因為查不到價格，被當成 0 元顯示好幾天；現在只要一遇到沒見過的新模型，它就會在背後觸發帶有防抖動（debounce，短時間內重複觸發只算最後一次，避免頻繁重新整理）機制的延遲更新去抓最新的價格表，而且還內建了一份 Claude Sonnet 5 這個型號的保底價格，讓你就算離線也算得出錢。就像收銀員以前遇到沒見過的條碼，會裝作不用錢讓你拿走，現在他懂得馬上打電話問店長，如果電話不通他也有備用的最新主打商品價目表可以查。",
+              "en": "Run into a model it's never seen before, and it now looks up the real price right away instead of quietly showing $0.00. Previously, to save network calls, it cached the master price list for 7 days. This meant that newly-released AI models wouldn't have a price, causing them to temporarily show up as completely free ($0.00) for days. Now, the moment it spots an unknown model, it triggers a debounced (debouncing delays the action and groups repeated rapid requests into a single one) background refresh to fetch the latest prices, and it even carries a built-in fallback price specifically for Claude Sonnet 5 so it can estimate costs even when you are fully offline. It's like a cashier who used to give away items for free if the barcode wouldn't scan; now they immediately call the manager to check the price, and keep a backup clipboard for the most popular new item just in case the phone lines are down."
+            },
+            "original": "**New model pricing refreshes as soon as usage sees an unknown model**: fresh cached pricing could hide newly-added models until the 7-day TTL expired, temporarily rendering them as $0.00/unknown. A pricing miss now triggers a debounced background refresh, and Claude Sonnet 5 has an offline fallback price so first-run or offline usage still estimates cost."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.22.11",
+      "raw": {
+        "version": "0.22.11",
+        "period": "2026-06-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Usage charts group days by your local time, not UTC**: the daily/weekly/monthly aggregates bucketed each entry by its UTC calendar day, so usage in the local pre-dawn hours (e.g. 00:00–08:00 at UTC+8) was credited to the previous day; timestamps are now converted to local time before bucketing, matching the HTML report.",
+          "**Archived Codex sessions are no longer undercounted**: usage now scans `~/.codex/archived_sessions/` alongside `~/.codex/sessions/`, so Codex sessions that have been archived still count toward your totals (no change when that directory doesn't exist)."
+        ]
+      },
+      "curated": {
+        "version": "0.22.11",
+        "period": "2026-06-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "用量圖表照你當地的時間換算，半夜不再被算成前一天",
+              "en": "Usage charts group days by your local time so late-night work isn't credited to yesterday"
+            },
+            "body": {
+              "zh-TW": "面板裡的每日、每週、每月用量圖表，現在會乖乖照你當地的時間來畫了。以前它是用國際標準時間（UTC）來劃分每一天，如果你在台灣（UTC+8）半夜或清晨用，系統會把你當作是在英國的「前一天」晚上，導致圖表上的用量看起來很奇怪；現在它會先換算成你電腦的時區再來畫圖。就像你明明是今天凌晨買的宵夜，記帳軟體以前卻硬說是昨天買的，現在它終於懂得看你牆上的時鐘來記帳了。",
+              "en": "The daily, weekly, and monthly usage charts in the panels now correctly align with your local time zone. Previously, the system bucketed everything by Universal Time (UTC), meaning if you were working in the pre-dawn hours of your local time, the system recorded it as the evening of the \"previous day\" in London, making your charts look baffling. Now, it converts timestamps to your machine's local time before drawing the graphs. It's like buying a midnight snack and having your budgeting app insist you bought it yesterday — the app has finally learned to look at the clock on your wall before logging the receipt."
+            },
+            "original": "**Usage charts group days by your local time, not UTC**: the daily/weekly/monthly aggregates bucketed each entry by its UTC calendar day, so usage in the local pre-dawn hours (e.g. 00:00–08:00 at UTC+8) was credited to the previous day; timestamps are now converted to local time before bucketing, matching the HTML report."
+          },
+          {
+            "title": {
+              "zh-TW": "封存的 Codex 舊紀錄不會再被漏算",
+              "en": "Archived Codex sessions are no longer left out of your totals"
+            },
+            "body": {
+              "zh-TW": "當系統在算你用掉多少 Codex 額度時，現在會把被你「封存」（archived）的舊對話一起算進去。以前它只會盯著正在活躍的對話資料夾，如果你把對話收進封存匣，那些用量就彷彿人間蒸發，沒有被算進總計裡；現在系統兩個資料夾都會一起掃描。就像以前會計只算桌子上的收據，被你收進抽屜裡的帳單就假裝沒看到，現在他懂得連抽屜一起打開來算了。",
+              "en": "When calculating your total Codex quota usage, the system now correctly includes the old sessions you've \"archived\". Previously, it only watched the active session folder, meaning if you tucked a chat into the archive directory, its usage vanished into thin air and wasn't added to your totals. Now, the system sweeps both folders together. It's like an accountant who used to only tally the receipts sitting on your desk and completely ignored the bills you stuffed in your drawer, but now finally knows to open the drawer too."
+            },
+            "original": "**Archived Codex sessions are no longer undercounted**: usage now scans `~/.codex/archived_sessions/` alongside `~/.codex/sessions/`, so Codex sessions that have been archived still count toward your totals (no change when that directory doesn't exist)."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.22.10",
+      "raw": {
+        "version": "0.22.10",
+        "period": "2026-06-24",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**The AI tool updates bulletin now ships in five languages**: each bulletin item previously carried only Traditional Chinese and English, so Simplified Chinese, Japanese, and Korean readers fell back to English; every item now includes zh-CN/ja/ko translations that keep each technical term's plain-language gloss and everyday metaphor in the reader's own language. The bulletin content was also refreshed to Claude Code 2.1.187, Codex 0.142.0, and Antigravity 1.0.11."
+        ]
+      },
+      "curated": {
+        "version": "0.22.10",
+        "period": "2026-06-24",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "更新速報現在支援五種語言，術語跟比喻都幫你翻好",
+              "en": "The AI tool update bulletin now ships in five languages with localized metaphors"
+            },
+            "body": {
+              "zh-TW": "HTML 報告裡的「AI 工具更新速報」本來只有繁體中文和英文，其他語系的讀者只能被迫看英文；現在它一次補齊了簡體中文、日文、韓文三種語言。而且它不是死板的機器翻譯，每一種語言都會保留對原本生硬術語的白話解釋，以及結尾那個容易懂的生活比喻。就像一本本來只有中英文的說明書，現在幫你翻成了五國語言，而且連裡面的在地笑話跟俗語都幫你換成當地人看得懂的版本。同時，這期的速報內容也同步更新到了最新的 AI 工具版本（包含 Claude Code 2.1.187、Codex 0.142.0 與 Antigravity 1.0.11）。",
+              "en": "The \"AI Tool Update Digest\" in your HTML report previously only offered Traditional Chinese and English, forcing readers of other languages to fall back to English. Now, it ships with full support for Simplified Chinese, Japanese, and Korean. Rather than being a stiff machine translation, each language carefully preserves the plain-language explanations of technical jargon and the relatable everyday metaphors at the end of each card. It's like an instruction manual that used to only come in English, but now arrives translated into five languages, with all the local idioms and jokes perfectly adapted for you to understand. Meanwhile, this edition's content has also been refreshed to cover the latest AI tool versions (including Claude Code 2.1.187, Codex 0.142.0, and Antigravity 1.0.11)."
+            },
+            "original": "**The AI tool updates bulletin now ships in five languages**: each bulletin item previously carried only Traditional Chinese and English, so Simplified Chinese, Japanese, and Korean readers fell back to English; every item now includes zh-CN/ja/ko translations that keep each technical term's plain-language gloss and everyday metaphor in the reader's own language. The bulletin content was also refreshed to Claude Code 2.1.187, Codex 0.142.0, and Antigravity 1.0.11."
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,878 @@
+{
+  "id": "usage",
+  "name": "Usage",
+  "page": 3,
+  "pages": 21,
+  "versions": [
+    {
+      "version": "0.30.8",
+      "raw": {
+        "version": "0.30.8",
+        "period": "2026-09-05",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-09-05",
+        "entries": [
+          "**The TUI launches from the app bundle again.** `rich` was listed in py2app's `includes`, which collects only what its static import graph can see — but `rich/_unicode_data/__init__.py` loads its per-version Unicode width tables through `import_module()` at render time, so the bundle shipped that package carrying `__init__` and `_versions` alone and `usage --tui` died with `ModuleNotFoundError: No module named 'rich._unicode_data.unicode17-0-0'` on the first table it drew. Menu bar mode, which never renders through `rich`, was unaffected. `rich` is now a `packages` entry, which copies the whole tree instead of the reachable parts of it. Reported by @dvakatsiienko in #125.",
+          "**Fable 5.1 has an offline price, and the fallback table's own audit no longer skips the entire Fable family.** Claude Code 2.1.257 made Fable 5.1 (`claude-fable-5-1`) the default of the Fable line, but the hard-coded fallback table only carried `claude-fable-5`, so whenever the downloaded price table was missing or stale every Fable 5.1 token was costed at $0. Its cache-read price is `0.25e-6` — a quarter of Fable 5's — so inheriting the older entry would not have been correct either. The gap went unreported because `scripts/check_fallback_pricing.py` matched only `opus|sonnet|haiku`: no `fable` model, old or new, was ever in scope for the audit that exists to catch exactly this.",
+          "**A dated model no longer falls back to a newer version's pricing.** `_resolve_model_key` matched any table key that started with the queried name followed by a hyphen, so `claude-opus-4-20250514` resolved to `claude-opus-4-6` and was costed at $5/M instead of $15/M — a third of the real figure — whenever the offline table was in use. A query that already carries its own version number now rejects a candidate that merely appends another digit, while a version-less name like `claude-sonnet` still resolves, and among equally specific keys the newest version wins. Named variants (`gpt-5` → `gpt-5-pro`) are unaffected. The five models still in service that the table had never carried — `claude-opus-4`, `claude-opus-4-1`, `claude-opus-4-5`, `claude-sonnet-4`, `claude-sonnet-4-5` — were added, and a Bedrock version suffix is now stripped so `claude-sonnet-4-5-20250929-v1:0` prices correctly.",
+          "**The fallback pricing audit reports what actually fails to resolve, instead of a list nobody could act on.** Both directions of `compare_pricing` diffed raw dictionary keys, but the fallback table drops date suffixes on purpose — so models that price perfectly well, such as `claude-haiku-4-5` and `claude-opus-4-7-20260416`, were reported as missing. Three of the twelve reported gaps were false, the script's exit code had been 1 for as long as that was true, and a real gap was indistinguishable from the noise. Both directions now resolve through `_resolve_model_key`.",
+          "**The usage table shows a name for Opus 5 and Fable 5.1.** `MODEL_SHORT` had no entry for either, so both were printed as their raw model IDs.",
+          "**Quota warnings now fire at 50% as well as 90%, and one reading sends at most one notification.** Codex 0.153.0 began warning Plus and Team users once a five-hour window is less than half remaining; usage waited until 90%, so the tool it monitors warned earlier than the monitor did. The default is now `[50.0, 90.0]` on macOS and Windows alike, still overridable through `quota_notification_thresholds`. Because a single reading can cross both thresholds at once — the app launching when quota is already at 95%, or a single large jump — only the highest crossed threshold sends a notification and the rest are latched, so one observation never produces two alerts saying the same thing."
+        ]
+      },
+      "curated": {
+        "version": "0.30.8",
+        "period": "2026-09-05",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "macOS 應用程式套件的文字介面又能開了，字寬表完整打包不閃退",
+              "en": "The TUI launches from the macOS app bundle again, packing complete character width tables without crashing"
+            },
+            "body": {
+              "zh-TW": "從 macOS 應用程式套件啟動終端文字介面時，畫面不再因缺漏字寬資料而當場閃退。⟦出門施工若只帶工具本體，漏掉夾層裡的零件，到現場就無法開工；整箱連同配件帶齊才不缺件。⟧打包工具 py2app 原本把 `rich` 列在 `includes`，只收集靜態引用掃得到的檔案。但 `rich/_unicode_data/__init__.py` 是在繪圖當下以 `import_module()` 動態載入各版本 Unicode 字寬表，導致打包出的 app 僅帶了 `__init__` 與 `_versions`，一畫第一張表格就當場崩潰：\n```\nusage --tui  # 拋出 ModuleNotFoundError: No module named 'rich._unicode_data.unicode17-0-0'\n```\n不經過 `rich` 渲染的選單列模式不受影響。現在 `rich` 改列在 `packages`，整包目錄直接複製而非只收掃得到的片段，文字介面（TUI，終端文字操作畫面）恢復正常。",
+              "en": "When launching the terminal text user interface from the macOS app bundle, the screen no longer crashes on the spot due to missing character width data. ⟦If you head out to a job site carrying only the main tool while leaving the parts in the compartment behind, you cannot start work once you arrive; bringing the whole case along with all accessories ensures nothing is missing.⟧ The packaging tool py2app previously listed `rich` under `includes`, collecting only files reachable by static import scans. However, `rich/_unicode_data/__init__.py` dynamically loads per-version Unicode width tables via `import_module()` at render time, causing the packaged app to carry only `__init__` and `_versions` and crash immediately upon drawing the first table:\n```\nusage --tui  # throws ModuleNotFoundError: No module named 'rich._unicode_data.unicode17-0-0'\n```\nMenu bar mode, which does not render through `rich`, is unaffected. `rich` is now listed under `packages` so the entire directory is copied directly rather than only scanned fragments, restoring the text user interface (TUI) to normal."
+            },
+            "original": "**The TUI launches from the app bundle again.** `rich` was listed in py2app's `includes`, which collects only what its static import graph can see — but `rich/_unicode_data/__init__.py` loads its per-version Unicode width tables through `import_module()` at render time, so the bundle shipped that package carrying `__init__` and `_versions` alone and `usage --tui` died with `ModuleNotFoundError: No module named 'rich._unicode_data.unicode17-0-0'` on the first table it drew. Menu bar mode, which never renders through `rich`, was unaffected. `rich` is now a `packages` entry, which copies the whole tree instead of the reachable parts of it. Reported by @dvakatsiienko in #125."
+          },
+          {
+            "title": {
+              "zh-TW": "Fable 5.1 補上離線備援價格，對帳腳本不再整族跳過",
+              "en": "Fable 5.1 gains offline fallback pricing, and the audit script no longer skips the entire family"
+            },
+            "body": {
+              "zh-TW": "Claude Code 2.1.257 起將 Fable 5.1（`claude-fable-5-1`）設為預設，離線計價缺口如今補齊。先前寫死的備援價目表只有 `claude-fable-5`，每當下載價目表缺失或過期，Fable 5.1 的每個 token（AI 計費單位）都被算成 $0。它的快取重讀價是 `0.25e-6`，只有 Fable 5 的四分之一，沿用舊資料也不正確。此缺口過去未被察覺，因 `scripts/check_fallback_pricing.py` 只比對 `opus|sonnet|haiku`，不論新舊皆跳過 Fable 家族。現在 Fable 5.1 已補上離線價格，對帳腳本也納入稽核。⟦保險費率表漏記新車的備援費率，斷線時計價直接歸零，查帳員還只抽查舊車；現在費率與稽核皆已補齊。⟧",
+              "en": "Claude Code 2.1.257 set Fable 5.1 (`claude-fable-5-1`) as the default, and the offline pricing gap is now filled. The hard-coded fallback price table previously only contained `claude-fable-5`, so whenever the downloaded price table was missing or expired, every Fable 5.1 token was costed at $0. Its cache-read price is `0.25e-6`, only a quarter of Fable 5's, so inheriting older data would also be incorrect. This gap went unnoticed in the past because `scripts/check_fallback_pricing.py` only matched `opus|sonnet|haiku`, skipping the Fable family regardless of whether models were old or new. Now Fable 5.1 has its offline price added, and the audit script includes it in checks. ⟦An insurance rate sheet missed fallback rates for new car models, resetting pricing to zero during outages while auditors only sampled old cars; now both the rates and audit coverage are complete.⟧"
+            },
+            "original": "**Fable 5.1 has an offline price, and the fallback table's own audit no longer skips the entire Fable family.** Claude Code 2.1.257 made Fable 5.1 (`claude-fable-5-1`) the default of the Fable line, but the hard-coded fallback table only carried `claude-fable-5`, so whenever the downloaded price table was missing or stale every Fable 5.1 token was costed at $0. Its cache-read price is `0.25e-6` — a quarter of Fable 5's — so inheriting the older entry would not have been correct either. The gap went unreported because `scripts/check_fallback_pricing.py` matched only `opus|sonnet|haiku`: no `fable` model, old or new, was ever in scope for the audit that exists to catch exactly this."
+          },
+          {
+            "title": {
+              "zh-TW": "帶日期模型不再退回新版價格，補齊五款服役中模型",
+              "en": "Dated models no longer fall back to newer version pricing, adding five active models"
+            },
+            "body": {
+              "zh-TW": "查詢帶日期的舊模型離線價格時，程式不再誤退回到較新版本的便宜價格。⟦公車站牌若只看開頭數字，想搭四號公車的乘客會被載上四之六號新線；現在完整對齊路線才放行。⟧先前 `_resolve_model_key` 只要鍵名以查詢字串加連字號開頭就算命中。這讓 `claude-opus-4-20250514` 被解析成 `claude-opus-4-6`，離線時每百萬 token（AI 計費單位）算 $5 而非真實的 $15，只有真實費用的三分之一。現在查詢自帶版本號時，不再接受追加尾數的候選；無版本號的泛稱如 `claude-sonnet` 照舊解析得到，同等具體程度取較新版本，具名變體（gpt-5 到 gpt-5-pro）不受影響。表裡原本缺失但仍在服務的五個模型一併補上，並剝除 Bedrock 版本後綴讓查詢正確計價：\n```\nclaude-opus-4\nclaude-opus-4-1\nclaude-opus-4-5\nclaude-sonnet-4\nclaude-sonnet-4-5\nclaude-sonnet-4-5-20250929-v1:0  # 剝除 Bedrock 後綴（v1:0）後正確計價\n```",
+              "en": "When querying offline prices for older dated models, the program no longer mistakenly falls back to the cheaper price of a newer version. ⟦If a bus stop sign only looks at the leading digit, passengers looking for Bus 4 would be carried onto the newer 4-6 line; now the full route must match before letting them board.⟧ Previously, `_resolve_model_key` counted any key starting with the query string followed by a hyphen as a hit. This caused `claude-opus-4-20250514` to resolve to `claude-opus-4-6`, costing $5 per million tokens offline instead of the actual $15—only one-third of the real cost. When a query carries its own version number, candidates with an appended trailing digit are no longer accepted. Generic names without version numbers like `claude-sonnet` still resolve as before, picking the newer version among equally specific keys, while named variants (`gpt-5` to `gpt-5-pro`) remain unaffected. Five models still in service that were previously missing from the table have been added, and Bedrock version suffixes are stripped so queries price correctly:\n```\nclaude-opus-4\nclaude-opus-4-1\nclaude-opus-4-5\nclaude-sonnet-4\nclaude-sonnet-4-5\nclaude-sonnet-4-5-20250929-v1:0  # prices correctly after stripping Bedrock suffix (v1:0)\n```"
+            },
+            "original": "**A dated model no longer falls back to a newer version's pricing.** `_resolve_model_key` matched any table key that started with the queried name followed by a hyphen, so `claude-opus-4-20250514` resolved to `claude-opus-4-6` and was costed at $5/M instead of $15/M — a third of the real figure — whenever the offline table was in use. A query that already carries its own version number now rejects a candidate that merely appends another digit, while a version-less name like `claude-sonnet` still resolves, and among equally specific keys the newest version wins. Named variants (`gpt-5` → `gpt-5-pro`) are unaffected. The five models still in service that the table had never carried — `claude-opus-4`, `claude-opus-4-1`, `claude-opus-4-5`, `claude-sonnet-4`, `claude-sonnet-4-5` — were added, and a Bedrock version suffix is now stripped so `claude-sonnet-4-5-20250929-v1:0` prices correctly."
+          },
+          {
+            "title": {
+              "zh-TW": "備援價目表對帳改採解析比對，消除誤報與常態錯誤結束代碼",
+              "en": "Fallback pricing audit switches to resolution matching, eliminating false positives and persistent error exit codes"
+            },
+            "body": {
+              "zh-TW": "檢查備援價目表的對帳腳本現在只回報解析失敗的模型，不再給出一份無人能處理的混亂清單。先前 `compare_pricing` 兩個方向都用字面鍵名相減，但備援價目表本就刻意不帶日期後綴。這讓明明算得出價格的模型（例如 `claude-haiku-4-5` 與 `claude-opus-4-7-20260416`）都被報成缺漏。回報的 12 筆缺口有 3 筆是假的，腳本的結束代碼也因此長期為 1，真的缺口混在雜訊裡看不出來。現在兩個方向都改用 `_resolve_model_key` 判斷。⟦門禁警報若死板比對整串卡號，刻意省略換證日期的合格卡全被誤報成黑名單，警示燈常亮反而掩蓋了真正的闖入者；改採對照解析後才恢復平靜。⟧",
+              "en": "The audit script checking fallback pricing tables now only reports models that actually fail to resolve, rather than outputting a confusing list that no one could act on. Previously, `compare_pricing` diffed raw literal keys in both directions, even though the fallback table deliberately omits date suffixes. This caused models that could calculate prices perfectly well (such as `claude-haiku-4-5` and `claude-opus-4-7-20260416`) to be flagged as missing. Three of the 12 reported gaps were false, keeping the script's exit code at 1 persistently and making real gaps indistinguishable from the noise. Both directions now evaluate models through `_resolve_model_key`. ⟦If an access control alarm rigidly compares full card numbers, valid cards deliberately omitting renewal dates get falsely flagged as blacklisted, and a constantly lit warning light ends up masking real intruders; switching to lookup resolution restores calm.⟧"
+            },
+            "original": "**The fallback pricing audit reports what actually fails to resolve, instead of a list nobody could act on.** Both directions of `compare_pricing` diffed raw dictionary keys, but the fallback table drops date suffixes on purpose — so models that price perfectly well, such as `claude-haiku-4-5` and `claude-opus-4-7-20260416`, were reported as missing. Three of the twelve reported gaps were false, the script's exit code had been 1 for as long as that was true, and a real gap was indistinguishable from the noise. Both directions now resolve through `_resolve_model_key`."
+          },
+          {
+            "title": {
+              "zh-TW": "用量表格顯示 Opus 5 與 Fable 5.1 簡稱，不再只印原始代號",
+              "en": "Usage table displays short names for Opus 5 and Fable 5.1 instead of raw model IDs"
+            },
+            "body": {
+              "zh-TW": "打開終端機檢視用量表格時，畫面本該為各個模型顯示簡短易讀的名稱，方便一眼掌握用量分佈。但先前簡稱字典 `MODEL_SHORT` 裡缺少了 Opus 5 與 Fable 5.1 這兩款新條目，導致表格在列出用量時，只能直接印出長串的原始模型代號（raw model IDs），讓整行排版顯得雜亂又難以閱讀。現在用量表格已補齊這兩款模型的對照設定，會正確顯示簡短名稱。⟦手機通訊錄若漏填好友姓名，來電時螢幕只能秀出一長串電話號碼；補上暱稱後，一眼就能認出是誰撥來。⟧",
+              "en": "When opening the terminal to view usage tables, the screen should display short, readable names for each model to help grasp usage distribution at a glance. However, the short-name dictionary `MODEL_SHORT` previously lacked entries for Opus 5 and Fable 5.1, forcing the table to print long raw model IDs and making the layout cluttered and difficult to read. The usage table now includes mapping entries for both models, displaying clean short names properly. ⟦If a phone contact list misses a friend's name, incoming calls only show a long phone number on the screen; once the nickname is added, you can recognize who is calling at a glance.⟧"
+            },
+            "original": "**The usage table shows a name for Opus 5 and Fable 5.1.** `MODEL_SHORT` had no entry for either, so both were printed as their raw model IDs."
+          },
+          {
+            "title": {
+              "zh-TW": "配額提醒提早至用掉一半即發送，單次讀數最多一則通知",
+              "en": "Quota warnings fire earlier at 50% usage, sending at most one notification per reading"
+            },
+            "body": {
+              "zh-TW": "你的配額通知現在會提早跳出提醒，且單次讀數絕不連續送出兩則重複通知。Codex 0.153.0 起，五小時視窗剩不到一半就會提醒 Plus 與 Team 使用者。但 `usage` 先前等到 90% 才提醒，等於被監控的工具比監控端還早出聲。預設門檻在 macOS 與 Windows 一致改為 `[50.0, 90.0]`，仍可透過 `quota_notification_thresholds` 自行調整。單次讀數可能一口氣跨過兩個門檻，例如 app 在配額已達 95% 時才啟動，或用量單次大跳；這時只有跨過的最高門檻會發送通知，其餘標記為已通知並鎖定，一次觀測絕不冒出兩則重複提醒。⟦河川警戒在水位達一半與九成時各廣播一次，若暴雨讓水位瞬間破九成，警報只響最緊急的紅燈，不重複播送低階警訊。⟧",
+              "en": "Your quota alerts now trigger earlier, and a single reading never sends two consecutive duplicate notifications. Starting with Codex 0.153.0, Plus and Team users are warned once less than half of the five-hour window remains. However, `usage` previously waited until 90% before alerting, meaning the monitored tool warned earlier than the monitor itself. The default threshold is now consistently set to `[50.0, 90.0]` across macOS and Windows, while remaining customizable via `quota_notification_thresholds`. A single reading can cross both thresholds at once, such as when the app launches with quota already at 95% or during a single large usage jump. In this situation, only the highest crossed threshold sends a notification while the rest are latched as notified, ensuring one observation never generates two duplicate alerts. ⟦A river warning system broadcasts once at half and once at ninety percent water levels; if a torrential storm pushes water past ninety percent instantly, only the most urgent red alert sounds without replaying lower-level warnings.⟧"
+            },
+            "original": "**Quota warnings now fire at 50% as well as 90%, and one reading sends at most one notification.** Codex 0.153.0 began warning Plus and Team users once a five-hour window is less than half remaining; usage waited until 90%, so the tool it monitors warned earlier than the monitor did. The default is now `[50.0, 90.0]` on macOS and Windows alike, still overridable through `quota_notification_thresholds`. Because a single reading can cross both thresholds at once — the app launching when quota is already at 95%, or a single large jump — only the highest crossed threshold sends a notification and the rest are latched, so one observation never produces two alerts saying the same thing."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.30.7",
+      "raw": {
+        "version": "0.30.7",
+        "period": "2026-09-01",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-09-01",
+        "entries": [
+          "**Self-heal no longer takes over a user's own script that merely shares part of a hook's filename.** Both the hook-removal path and the migration path that keeps an installed hook's command current used a plain substring check against markers like `usage-terse-mode`, so a user's own script — say, a backup named `usage-terse-mode-backup.py` — matched and was silently rewritten to the official command. The removal path was fixed first, requiring a path separator, quote, whitespace, or string boundary around the marker and a trailing `.py`; the same precise check is now used at the four remaining call sites in the migration logic that decide whether to overwrite a hook's command.",
+          "**Language detection no longer misreads plain English words as Japanese or Korean, or a made-up Chinese-script tag as a real one.** The `_normalize_lang` logic — duplicated across four files — matched `ja`/`ko` with an unbounded `startswith`, so `jargon` and `koala` were read as Japanese and Korean; a POSIX `@modifier` suffix wasn't stripped, so `zh_TW@variant` fell through to English; and `zh-HK` didn't accept further BCP 47 subtags the way `zh-TW`/`zh-Hant` did. A second pass found the same unbounded-prefix bug in `zh-Hant`/`zh-Hans` (letting a nonsense `zh-Hantasy` match as Traditional Chinese) and a missing `zh-SG-` prefix (dropping a legitimate `zh-SG-x-private` tag to English). All four duplicated copies now require a boundary after every prefix.",
+          "**A non-UTF-8 terminal no longer crashes terse mode or session resume, and a truncated or corrupted version marker no longer wedges self-heal.** The SessionStart/UserPromptSubmit hooks wrote JSON without `ensure_ascii`, so a terminal using an encoding like cp950 raised `UnicodeEncodeError` and lost the entire message; output is now forced to ASCII-safe JSON with the write wrapped in `try`/`except OSError`. The four version-marker readers used `split` and choked on a truncated line or invalid bytes, which meant a broken installed script was never recognized as needing reinstalling; they now use `partition` and also catch `UnicodeDecodeError`. Separately, a stale terse-mode sidecar whose content had rotted was never rebuilt as long as the hook version hadn't changed, because staleness was checked with a plain `exists()`; it's now checked by validating the sidecar's content.",
+          "**Session resume's stdin and stdout failures are handled the same way its sibling hooks already were, and a corrupted newest session log falls back to an older one instead of going silent.** `_read_stdin_utf8()` could raise `OSError` on a broken pipe, and unlike terse mode and the terse reminder, session resume didn't catch it — an I/O hiccup crashed the hook instead of exiting 0. Separately, `_parse_session()` caught `OSError` but not `UnicodeDecodeError`, so a session log with invalid UTF-8 bytes made the whole resume prompt disappear instead of falling through to the next older, valid log the way an empty log already did.",
+          "**The health-check reminder's own state write no longer takes the whole resume prompt down with it, a bare punctuation reply is no longer read as a real request, and a newly created but uncommitted directory now shows up in the \"not saved yet\" list.** Saving the health-check reminder's dedup state could raise `OSError` (a full disk, a permissions error) and that exception propagated out far enough to swallow the main resume prompt along with it; it's now scoped with `contextlib.suppress(OSError)`. Separately, `_has_structural_signal` treated any punctuation anywhere in the text as a sign of real content, so short replies like `ok.` or `/clear` were kept as if they were substantive; it now requires alphanumeric characters on both sides of the mark. And `git status`'s trailing slash on an untracked directory path made `basename` return an empty string, which was silently dropped, so a brand-new uncommitted folder never appeared in the uncommitted-work summary.",
+          "**A todo list is now cleared once every item on it is marked done.** The resume hook only overwrote its stored todo list when the new one was non-empty, so the last `TodoWrite` call of a session — the one that marks everything complete, leaving an empty list — was ignored, and the next session's resume prompt kept reporting work that was already finished.",
+          "**The quota-restored notification fires again, and a warning now fires on the very first reading if quota is already past the threshold.** Any reading below 100% cleared the \"was depleted\" flag, regardless of how small the drop was, so by the time a genuine reset was detected — a single-step drop large enough to distinguish a real period rollover from noise — the flag had already been cleared by an earlier, tiny fluctuation, and the restored notification never fired. It's now cleared only by that same reset detection. Separately, a warning threshold could only be crossed relative to a previous reading, so quota that was already above the threshold on the very first observation — for instance, the app launching mid-session at 95% — produced no warning at all, unlike the depleted notification, which always fires on a first reading of 100%.",
+          "**A dead plist key was removed, and a Windows registry read failure can no longer take down the whole tray menu.** `StartDelay` isn't a key `launchd.plist(5)` recognizes, so it had no effect and was doing nothing since it was added; it's gone. Separately, the Windows login-item's `is_enabled()` caught only `FileNotFoundError`, but it's called once per menu render to draw the \"launch at login\" checkbox — a registry permission error there propagated out and could break the whole tray menu instead of just that one row; it now catches any `OSError` and reports \"not enabled.\"",
+          "**Terse mode's plain-language rule now also covers text pasted verbatim from a subagent.** The mode's own prompt only governed sentences Claude wrote itself, leaving no instruction for handling a subagent's report or a tool's raw output when quoted directly — jargon inside it went unexplained. A line was added after the existing \"explain a term on first use\" rule, in all five languages."
+        ]
+      },
+      "curated": {
+        "version": "0.30.7",
+        "period": "2026-09-01",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "自癒不再把名字像的自製腳本改成官方指令",
+              "en": "Self-heal stops taking over your own script that just looks like a hook"
+            },
+            "body": {
+              "zh-TW": "⟦郵差看到門牌上有「三號」兩個字就把信投進去，結果那是「二十三號」；現在他會確認整個門牌號碼相符才投。⟧你自己留了一份備份檔叫 `usage-terse-mode-backup.py`，`usage` 的自癒功能卻把它認成自家的掛鉤（hook，特定事件發生時被觸發的小程式），悄悄改寫成官方指令。原因是它只拿 `usage-terse-mode` 這串字去比對，名字含這幾個字就算數。移除那條路徑先修好，要求這串字前後得是路徑分隔符號、引號、空白或字串邊界，並且結尾是 `.py`。現在遷移邏輯裡另外四處判斷要不要覆蓋掛鉤指令的地方，也都改用同一套嚴格比對。",
+              "en": "⟦A postman drops the letter off because the plate contains \"3\", when the address is \"23\"; now he checks that the whole number matches before posting it.⟧ You keep your own backup named `usage-terse-mode-backup.py`, and `usage`'s self-heal treated it as one of its own hooks and silently rewrote it to the official command. The cause was a plain substring check against a marker like `usage-terse-mode`: any filename containing those characters counted. The removal path was fixed first, requiring a path separator, quote, whitespace, or string boundary around the marker and a trailing `.py`. The same precise check is now used at the four remaining call sites in the migration logic that decide whether to overwrite a hook's command."
+            },
+            "original": "**Self-heal no longer takes over a user's own script that merely shares part of a hook's filename.** Both the hook-removal path and the migration path that keeps an installed hook's command current used a plain substring check against markers like `usage-terse-mode`, so a user's own script — say, a backup named `usage-terse-mode-backup.py` — matched and was silently rewritten to the official command. The removal path was fixed first, requiring a path separator, quote, whitespace, or string boundary around the marker and a trailing `.py`; the same precise check is now used at the four remaining call sites in the migration logic that decide whether to overwrite a hook's command."
+          },
+          {
+            "title": {
+              "zh-TW": "英文單字不再被當成日文或韓文",
+              "en": "Plain English words are no longer read as Japanese or Korean"
+            },
+            "body": {
+              "zh-TW": "語言代碼是拿來標示介面該講哪種語言的短代號，`ja` 是日文、`ko` 是韓文。`usage` 判斷代碼時只看開頭幾個字母就算數，於是 `jargon` 被讀成日文、`koala` 被讀成韓文。另外幾種寫法也判錯：`zh_TW@variant` 因為沒有先去掉 `@` 後面那段而掉回英文；`zh-HK` 不像 `zh-TW` 那樣接受後面再加細分代碼。再查一輪還發現 `zh-Hant` 和 `zh-Hans` 有同樣的開頭比對問題，亂編的 `zh-Hantasy` 也會被當成繁體中文，而缺了 `zh-SG-` 這個開頭讓合法的 `zh-SG-x-private` 掉成英文。這段判斷在四個檔案裡各有一份，現在四份都要求開頭之後有明確邊界。⟦查字典時只憑前兩個字母就翻到某一頁，`jar` 開頭的字全被歸進同一欄；現在得把整個詞對完才算。⟧",
+              "en": "A language code is the short tag that says which language the interface should speak: `ja` for Japanese, `ko` for Korean. `usage` matched those with an unbounded prefix test, so `jargon` was read as Japanese and `koala` as Korean. Other forms were misread too: `zh_TW@variant` fell through to English because the part after `@` was not stripped, and `zh-HK` did not accept further subtags the way `zh-TW` and `zh-Hant` did. A second pass found the same unbounded-prefix bug in `zh-Hant` and `zh-Hans`, letting a nonsense `zh-Hantasy` match as Traditional Chinese, and a missing `zh-SG-` prefix that dropped a legitimate `zh-SG-x-private` to English. This logic was duplicated across four files; all four now require a boundary after every prefix. ⟦Looking a word up by its first two letters alone files everything starting with \"jar\" in one column; now the whole word has to match.⟧"
+            },
+            "original": "**Language detection no longer misreads plain English words as Japanese or Korean, or a made-up Chinese-script tag as a real one.** The `_normalize_lang` logic — duplicated across four files — matched `ja`/`ko` with an unbounded `startswith`, so `jargon` and `koala` were read as Japanese and Korean; a POSIX `@modifier` suffix wasn't stripped, so `zh_TW@variant` fell through to English; and `zh-HK` didn't accept further BCP 47 subtags the way `zh-TW`/`zh-Hant` did. A second pass found the same unbounded-prefix bug in `zh-Hant`/`zh-Hans` (letting a nonsense `zh-Hantasy` match as Traditional Chinese) and a missing `zh-SG-` prefix (dropping a legitimate `zh-SG-x-private` tag to English). All four duplicated copies now require a boundary after every prefix."
+          },
+          {
+            "title": {
+              "zh-TW": "終端機編碼不合就整段訊息不見的問題修好了",
+              "en": "A non-UTF-8 terminal no longer swallows the whole message"
+            },
+            "body": {
+              "zh-TW": "⟦電線只要有一小段接觸不良，整條走廊的燈都熄掉；現在那截線路獨立起來，其餘照明不受影響。⟧工作階段開始與送出訊息時各有一個掛鉤，終端機用 cp950 這類非 UTF-8 編碼時，它們寫出 JSON 沒有轉成安全字元，會拋出 `UnicodeEncodeError`，你整段訊息就此消失。現在輸出一律轉成 ASCII 安全的 JSON，寫入動作也包在 `try`／`except OSError` 裡。另一個問題在版本標記：四個讀取器用 `split` 拆字串，遇到被截斷的一行或無效位元組就卡住，壞掉的腳本因此永遠不被認定需要重裝；現在改用 `partition`，也一併接住 `UnicodeDecodeError`。還有精簡模式的附屬檔內容爛掉時，只要掛鉤版本沒變就不會重建，因為判斷方式只是看檔案在不在；現在改成驗證內容本身。",
+              "en": "⟦One bad contact in the wiring used to darken the whole corridor; that stretch is now isolated, and the rest of the lights stay on.⟧ When a terminal uses a non-UTF-8 encoding such as cp950, `usage`'s hooks wrote JSON without escaping, raised `UnicodeEncodeError`, and lost your entire message. Output is now forced to ASCII-safe JSON, with the write wrapped in `try`/`except OSError`. A second problem sat in the version marker: four readers used `split` and choked on a truncated line or invalid bytes, so a broken installed script was never recognized as needing reinstalling; they now use `partition` and also catch `UnicodeDecodeError`. And when a terse-mode sidecar's content had rotted, it was never rebuilt as long as the hook version was unchanged, because staleness was checked with a plain `exists()`; it is now checked by validating the sidecar's content."
+            },
+            "original": "**A non-UTF-8 terminal no longer crashes terse mode or session resume, and a truncated or corrupted version marker no longer wedges self-heal.** The SessionStart/UserPromptSubmit hooks wrote JSON without `ensure_ascii`, so a terminal using an encoding like cp950 raised `UnicodeEncodeError` and lost the entire message; output is now forced to ASCII-safe JSON with the write wrapped in `try`/`except OSError`. The four version-marker readers used `split` and choked on a truncated line or invalid bytes, which meant a broken installed script was never recognized as needing reinstalling; they now use `partition` and also catch `UnicodeDecodeError`. Separately, a stale terse-mode sidecar whose content had rotted was never rebuilt as long as the hook version hadn't changed, because staleness was checked with a plain `exists()`; it's now checked by validating the sidecar's content."
+          },
+          {
+            "title": {
+              "zh-TW": "續接提示不再因為一個小錯就整段消失",
+              "en": "The resume prompt no longer vanishes over one small failure"
+            },
+            "body": {
+              "zh-TW": "⟦一台機器只要有一個零件卡住就整台停擺；現在那個零件卡住時會單獨跳掉，機器照跑。⟧續接工作階段時 `usage` 會給你一段提示，講你上次做到哪。以前這段提示很容易整個不見：讀取標準輸入遇到管線斷掉會拋 `OSError`，但續接不像精簡模式那樣接住它，一個輸入輸出的小狀況就讓掛鉤當掉而不是正常結束。解析工作階段紀錄只接住 `OSError`，沒接 `UnicodeDecodeError`，紀錄裡有無效的 UTF-8 位元組時整段提示就消失，不會像遇到空紀錄那樣退回上一份還能用的舊紀錄。現在這兩種狀況都接住了，續接提示照樣出現。",
+              "en": "⟦One jammed part used to stop the entire machine; now that part trips on its own and the machine keeps running.⟧ When you resume a session, `usage` gives you a prompt saying where you left off, and that prompt used to disappear whole. `_read_stdin_utf8()` could raise `OSError` on a broken pipe and, unlike terse mode and the terse reminder, session resume did not catch it, so an I/O hiccup crashed the hook instead of exiting 0. `_parse_session()` caught `OSError` but not `UnicodeDecodeError`, so a session log with invalid UTF-8 bytes made the whole resume prompt vanish instead of falling through to the next older, valid log the way an empty log already did. Both are now caught, and the resume prompt still appears."
+            },
+            "original": "**Session resume's stdin and stdout failures are handled the same way its sibling hooks already were, and a corrupted newest session log falls back to an older one instead of going silent.** `_read_stdin_utf8()` could raise `OSError` on a broken pipe, and unlike terse mode and the terse reminder, session resume didn't catch it — an I/O hiccup crashed the hook instead of exiting 0. Separately, `_parse_session()` caught `OSError` but not `UnicodeDecodeError`, so a session log with invalid UTF-8 bytes made the whole resume prompt disappear instead of falling through to the next older, valid log the way an empty log already did."
+          },
+          {
+            "title": {
+              "zh-TW": "全部做完的待辦清單會清掉，只回一個標點不算數",
+              "en": "A finished todo list gets cleared, and a lone punctuation reply does not count"
+            },
+            "body": {
+              "zh-TW": "上次的事情都做完了，下次續接時提示還在報那些已完成的工作。續接掛鉤只有在新清單非空時才覆蓋舊的，而一次工作階段最後那筆 `TodoWrite`，也就是把每項都標成完成、留下空清單的那一筆，就被忽略了。現在全部項目標記完成後，清單會被清掉。同一批還修了三件事。健康檢查提醒存去重狀態時碰上磁碟滿了或權限不足，錯誤會往外冒把續接提示一起吞掉；現在用 `contextlib.suppress(OSError)` 框住。判斷回覆有沒有實質內容時，只要文字裡有標點就算數，`ok.` 或 `/clear` 這種短回覆因此被留下；現在要求標點兩側都得有字母或數字。另外，`git status` 給未追蹤目錄的路徑帶著結尾斜線，取檔名得到空字串被默默丟掉，剛建好還沒提交的資料夾因此沒出現在未提交清單裡。⟦清單上每格都打了勾，整張才收走；旁邊只畫了一撇的那格不算填過。⟧",
+              "en": "Everything from last time was finished, yet the next resume prompt kept reporting that work. The resume hook only overwrote its stored todo list when the new one was non-empty, so the last `TodoWrite` call of a session — the one that marks everything complete, leaving an empty list — was ignored. A todo list is now cleared once every item on it is marked done. Three more fixes landed alongside it. Saving the health-check reminder's dedup state could raise `OSError` on a full disk or a permissions error, and that exception propagated far enough to swallow the main resume prompt; it is now scoped with `contextlib.suppress(OSError)`. `_has_structural_signal` treated any punctuation anywhere in the text as a sign of real content, so short replies like `ok.` or `/clear` were kept as if they were substantive; it now requires alphanumeric characters on both sides of the mark. And `git status`'s trailing slash on an untracked directory path made `basename` return an empty string, which was silently dropped, so a brand-new uncommitted folder never appeared in the uncommitted-work summary. ⟦Only when every box on the sheet is ticked does the sheet get taken away; a stray stroke beside a box does not count as filled in.⟧"
+            },
+            "original": "**A todo list is now cleared once every item on it is marked done.** The resume hook only overwrote its stored todo list when the new one was non-empty, so the last `TodoWrite` call of a session — the one that marks everything complete, leaving an empty list — was ignored, and the next session's resume prompt kept reporting work that was already finished.\n**The health-check reminder's own state write no longer takes the whole resume prompt down with it, a bare punctuation reply is no longer read as a real request, and a newly created but uncommitted directory now shows up in the \"not saved yet\" list.** Saving the health-check reminder's dedup state could raise `OSError` (a full disk, a permissions error) and that exception propagated out far enough to swallow the main resume prompt along with it; it's now scoped with `contextlib.suppress(OSError)`. Separately, `_has_structural_signal` treated any punctuation anywhere in the text as a sign of real content, so short replies like `ok.` or `/clear` were kept as if they were substantive; it now requires alphanumeric characters on both sides of the mark. And `git status`'s trailing slash on an untracked directory path made `basename` return an empty string, which was silently dropped, so a brand-new uncommitted folder never appeared in the uncommitted-work summary."
+          },
+          {
+            "title": {
+              "zh-TW": "額度回復的通知回來了，一開啟就超標也會提醒",
+              "en": "The quota-restored notification is back, and a first reading past the threshold warns"
+            },
+            "body": {
+              "zh-TW": "⟦油表警示燈只要指針稍微晃回來就自己熄掉，等真的加滿油了反而沒有任何提示；而上車時油量本來就見底，它也一聲不吭。⟧額度用完後回復時，`usage` 應該通知你，實際上這則通知一直沒出現。原因是任何低於 100% 的讀數都會把「曾經用完」這個記號清掉，不管跌幅多小；等到真正的重置被認出來，記號早就被先前的小波動清掉了。那個重置指的是一次夠大的單步下降，用來跟雜訊區分開。現在只有那個重置判斷本身會清掉它。另外，警告門檻以前只能靠跟前一筆讀數比較才跨得過去，所以第一次觀測就已經超過門檻的情況完全不會警告，例如程式在你的工作階段進行到 95% 時才啟動。這不像用完的通知，那個第一次讀到 100% 就一定會發。",
+              "en": "⟦A fuel warning light that goes out the moment the needle twitches back says nothing when the tank is actually refilled, and stays silent when you get in with the tank already low.⟧ `usage` is supposed to tell you when depleted quota comes back, and that notification never fired. Any reading below 100% cleared the \"was depleted\" flag, regardless of how small the drop was, so by the time a genuine reset was detected — a single-step drop large enough to distinguish a real period rollover from noise — the flag had already been cleared by an earlier, tiny fluctuation. It is now cleared only by that same reset detection. Separately, a warning threshold could only be crossed relative to a previous reading, so quota that was already above the threshold on the very first observation — the app launching mid-session at 95%, for instance — produced no warning at all, unlike the depleted notification, which always fires on a first reading of 100%."
+            },
+            "original": "**The quota-restored notification fires again, and a warning now fires on the very first reading if quota is already past the threshold.** Any reading below 100% cleared the \"was depleted\" flag, regardless of how small the drop was, so by the time a genuine reset was detected — a single-step drop large enough to distinguish a real period rollover from noise — the flag had already been cleared by an earlier, tiny fluctuation, and the restored notification never fired. It's now cleared only by that same reset detection. Separately, a warning threshold could only be crossed relative to a previous reading, so quota that was already above the threshold on the very first observation — for instance, the app launching mid-session at 95% — produced no warning at all, unlike the depleted notification, which always fires on a first reading of 100%."
+          },
+          {
+            "title": {
+              "zh-TW": "系統匣選單不再被一個讀取失敗整個拖垮",
+              "en": "One registry read failure no longer takes down the tray menu"
+            },
+            "body": {
+              "zh-TW": "Windows 上點開選單列的圖示，整個系統匣選單可能整個壞掉打不開。壞的其實只有一列：畫「開機時啟動」那個勾選框時，程式要去讀登錄檔（registry，Windows 存放系統與程式設定的資料庫）確認狀態，而它只接住找不到檔案這一種錯誤。權限不足時錯誤就往外冒，整份系統匣選單跟著垮。現在它接住所有 `OSError`，那一列直接顯示為未啟用。同一批也清掉一個沒有作用的設定鍵 `StartDelay`。`launchd.plist(5)` 根本不認得它，從加進去那天起就沒起過任何作用。⟦儀表板上一顆燈的線路壞了，整片儀表就黑掉；現在那顆燈只顯示未亮，其他讀數照常。⟧",
+              "en": "On Windows, clicking the menu bar icon could leave the whole tray menu broken. Only one row was actually at fault: to draw the \"launch at login\" checkbox, the app reads the registry, the database where Windows keeps system and program settings, and its `is_enabled()` caught only `FileNotFoundError`. A registry permission error therefore propagated out and could break the whole tray menu instead of just that one row; it now catches any `OSError` and reports \"not enabled.\" The same batch removed a dead settings key, `StartDelay`: `launchd.plist(5)` does not recognize it, so it had no effect and was doing nothing since it was added. ⟦When the wiring behind one dashboard lamp failed, the entire panel went dark; now that lamp simply shows unlit and the other readings stay up.⟧"
+            },
+            "original": "**A dead plist key was removed, and a Windows registry read failure can no longer take down the whole tray menu.** `StartDelay` isn't a key `launchd.plist(5)` recognizes, so it had no effect and was doing nothing since it was added; it's gone. Separately, the Windows login-item's `is_enabled()` caught only `FileNotFoundError`, but it's called once per menu render to draw the \"launch at login\" checkbox — a registry permission error there propagated out and could break the whole tray menu instead of just that one row; it now catches any `OSError` and reports \"not enabled.\""
+          },
+          {
+            "title": {
+              "zh-TW": "精簡模式的白話規則也管到子代理貼過來的字",
+              "en": "Terse mode's plain-language rule now covers text pasted from a subagent"
+            },
+            "body": {
+              "zh-TW": "⟦導遊全程用大家聽得懂的話講解，換成當地人代講那段時卻整段原話照搬，聽眾一下子跟丟；現在那段也要用同樣的說法轉述。⟧精簡模式（terse mode）要求把話講白，但這條規則以前只管 Claude 自己寫的句子。子代理的回報、工具的原始輸出被直接引用時，模式的提示裡沒有任何指示，裡面的術語就這樣原封不動貼出來，沒人解釋。現在在既有的「術語第一次出現時要解釋」那條規則後面加了一行，五種語言都加了。",
+              "en": "⟦A guide explains everything in words the group follows, then quotes a local speaker verbatim for one stretch and loses the group; now that stretch has to be relayed in the same plain words.⟧ Terse mode asks for plain language, but the rule used to govern only sentences Claude wrote itself. When a subagent's report or a tool's raw output was quoted directly, the mode's own prompt gave no instruction for it, so jargon inside went unexplained. A line was added after the existing \"explain a term on first use\" rule, in all five languages."
+            },
+            "original": "**Terse mode's plain-language rule now also covers text pasted verbatim from a subagent.** The mode's own prompt only governed sentences Claude wrote itself, leaving no instruction for handling a subagent's report or a tool's raw output when quoted directly — jargon inside it went unexplained. A line was added after the existing \"explain a term on first use\" rule, in all five languages."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.30.6",
+      "raw": {
+        "version": "0.30.6",
+        "period": "2026-08-31",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-09-01",
+        "entries": [
+          "**Grok CLI now gets its own `usage` status line.** Grok CLI supports the same command-style status line mechanism as Claude Code, so `usage_statusline_grok.py` joins the existing install / remove / self-heal flow behind the switch already shared with Claude Code and Antigravity. Grok's stdin payload carries no rate-limit summary (its documentation says so explicitly), so the script tails `~/.grok/logs/unified.jsonl` for `creditUsagePercent` and `currentPeriod.end`; when neither can be read the segment is omitted rather than printed as placeholder characters. Only the weekly axis is shown — Grok has no 5-hour window and reports no cache hit ratio, and neither is estimated.",
+          "**The status line's second row now shows prompt cache hit rate and a countdown to expiry.** Claude Code 2.1.251 added a `prompt_cache` object to the status line hook's stdin JSON; `usage` was already storing the whole payload in `usage-status.json` without reading it. A new `color_by_pct_inverted()` mirrors the thresholds, so a 91% hit rate reads as good instead of borrowing the quota palette's red, and `progress_bar()` takes an optional `color_func` leaving existing callers unchanged. The segment is skipped entirely when `caching_observed` is not `True` or the ratio is unavailable, so older Claude Code versions silently omit it; an expired `expires_at` drops only the countdown and keeps the bar. Narrow terminals degrade in two further steps: the countdown goes first, then the whole segment.",
+          "**The HTML report's usage habits section now has a first-pass rate, compared across models.** The card measures what share of your turns this period ran without an interruption and without a blocked tool call, split by model — a quality axis rather than another quota count. Both signals are structural, read from `~/.claude/projects`: `interruptedMessageId` on user lines, and permission-denial strings inside `tool_result` content; nothing is inferred semantically. The denominator is user turns rather than assistant messages, because a single exchange emits a dozen assistant messages and would compress every model above 99.5%. Multiple interruptions inside one turn count once. Angle-bracketed internal markers such as `<synthetic>` are excluded. Interrupted assistant messages are frequently aborted before reaching disk, so unresolvable signals go to an unattributed bucket and are not shown rather than being assigned to a model. The insight line is written only when the spread between the highest and lowest model exceeds 15 points.",
+          "**The report's trend section now draws a day-by-day curve for the period, and prints properly.** `daily_trend` already held 30 days of data that no chart used, leaving the peak day named in the header with nothing to check it against. A daily area line now sits above the weekly rollup, marking the highest day and labelling only the period's first and last dates. The stylesheet also gained a `@media print` block: sections avoid internal page breaks, interactive controls are hidden, shadows and offsets are removed, and colors invert to dark-on-white so a PDF stays readable when the reader is in dark mode.",
+          "**The report's heaviest-sessions table, active-hours chart, and section rhythm were filled in.** The five heaviest sessions were the report's only all-text table; the tokens column now carries a thin bar scaled against the largest of the five, colored by the same provider palette the model table uses. The active-hours chart, previously hour labels alone, now marks its peak value in muted type in the lower right, with no gridlines or Y axis added. The ten sections shared one identical treatment; insights and the heatmap now carry heavier shadows while the recent-work and tools sections are lighter with `--faint` borders — shadows and borders only, since the persona section holds two cards and a background change would make their height difference conspicuous.",
+          "**Project and model rows in the report now carry share bars.** Comparing ten stacked rows previously meant reading the numbers; each name now has a 4px solid proportion bar beneath it — solid rather than gradient, so the color is not misread as carrying meaning. The donut's \"Other\" slice, which used to draw the palette's seventh color and read as nearly the same green as the first, is now a neutral `#8b8577`, selected inside `_donut_svg` by a synthetic flag rather than guessed from its index.",
+          "**A third-party status line with a similar name is no longer mistaken for our own.** Hook ownership was decided by the substring test `\"usage-statusline\" in cmd`, so someone else's `usage-statusline-pro.py` was treated as a `usage` installation: taken over without a backup, and its configuration deleted on uninstall. The comparison now matches the complete filename, derived from `HOOK_TARGET.name` and its siblings instead of a hardcoded string, requiring a path separator, quote, whitespace, or string boundary on each side. It deliberately does not compare full paths — the command string shifts with interpreter location, quoting, and Windows backslashes, and a path comparison would stop `usage` recognizing itself.",
+          "**The status line's file lock now times out instead of hanging a message.** `_exclusive_lock()`'s POSIX branch used a plainly blocking `flock(LOCK_EX)` while the Windows branch already had a 10-second `_LOCK_TIMEOUT_S` guard, so a process holding the lock stalled the status line on every message. The POSIX branch now polls with `LOCK_EX | LOCK_NB` and, on timeout, follows the `msvcrt` path: the atomic write proceeds without the lock.",
+          "**Uninstalling now restores Grok's original status line.** `unsetup()` handled Claude Code and Codex but skipped Grok, so after `--unsetup` the user's `~/.grok/config.toml` still pointed at a `usage` script with no supported way back to their own `[ui.status_line]`. The old test exercised only the private `_unsetup_grok()`, which is why this slipped through; the new one enters through the public `unsetup()`.",
+          "**Interruptions and denied tools on messages with no model name are no longer dropped.** A message carrying `message.id` but no `message.model` was indexed as an empty string, while the later check tested only `model is None` — so those events were neither attributed to a model nor counted as unattributed, undercounting interruptions in the first-pass rate.",
+          "**The Antigravity model name no longer mixes two languages.** Antigravity's `display_name` already ends in an English effort suffix such as `(High)`, and `usage` appended a localized one after it, naming the same level twice in two languages. The English suffix is now stripped and only the localized label is kept; when `display_name` carries no effort field, the stripped suffix becomes the source.",
+          "**Installed status line copies now actually update.** `needs_update()` compares `__version__` in `~/.claude/usage-statusline.py` against `HOOK_VERSION` and skips the copy when they match, so rendering changes that shipped without a version bump never reached an installed copy, silently and with no error. Both constants were bumped, and a drift test was added — the Token Saver hook had that guard already; the status line was missing it.",
+          "**A week still in progress is no longer compared against a complete one.** The weekly trend measured the current partial week against the previous full one, which on Monday 2026-08-31 produced \"W36 ↘ −97%\" and the conclusion that this week was 97% lighter. The final week is now marked in progress when its Sunday falls after `date_to` (new `trend_week_in_progress` key, added in all five languages) and shows no percentage, and `_trend_summary()` compares the last two completed weeks instead.",
+          "**A report with no usage now renders a clean empty state.** At zero usage the narrative sentence interpolated zeros and placeholders — \"---- -- -- was the peak (0/day), main LLM 未知\" — above seven sections each saying only \"nothing here yet\", which is what a new user saw on first open. When both `total_tokens` and `messages` are zero the narrative is replaced by `report_empty_state_hint` (added in all five languages) and only the header, stat cards, and sponsor section render. Output with data is byte-identical; the untouched `full_zh_tw` and `full_en` snapshots are the proof.",
+          "**The heatmap's month labels no longer skip or mislabel a month.** A column's month was taken from its Monday, so a week spanning a month boundary was credited to the old month it barely touched, and a label suppressed by the spacing rule was lost permanently — real output dropped September entirely. The month is now read from the column's Thursday and compared against the last month actually labelled, so a suppressed month reappears at the next column that satisfies the spacing.",
+          "**The project donut's percentages now agree with the table beneath it.** The donut divided by the sum of `by_project[:10]` while the table's percentage used total tokens, so one project showed 42.5% in the chart and 36.1% in the table, and the center figure read as a total it was not. The denominator is now `summary.total_tokens`, with everything not shown — including projects outside the top ten — combined into an \"Other\" slice reusing the existing `report_chart_other` string.",
+          "**The status line dims what isn't the number.** Empty progress cells, the context window total, and the `|` separators were pure white and brighter than the figures themselves; they are now grey 240 / dim, leaving usage as the only lit element. The second row is secondary information, so a cache hit rate of 80% or better takes that row's muted purple and only turns orange below 80% and red below 50% — good news does not need to glow.",
+          "**The cache countdown now says \"left\", matching the 5-hour and 7-day segments.** The previous wording was a literal rendering of warm/cold that read as nothing in particular; it now reuses the existing `remaining_prefix`, giving `(59min left)` in English alongside the two segments before it. `cache_cold_suffix`, used in exactly one place, was removed, so five languages no longer need a separate word for it.",
+          "**The menu bar title tightened up.** The interpunct separator was removed, since the provider icons already separate the figures, and icon spacing was reduced to two spaces.",
+          "**Weekly burn trend bars are now CSS gradients.** The weekly trend drew its bars with `█` characters while the donut, heatmap, and active-hours chart on the same page were graphical. The four-column layout and terminal styling are unchanged; the rendering moved into a new `ui/report_charts.py`.",
+          "Documented prompt cache health in all five READMEs under real-time visibility, noting it needs Claude Code 2.1.251 or newer, and removed the website's description of the AI Tool Update Digest, a report section that no longer exists."
+        ]
+      },
+      "curated": {
+        "version": "0.30.6",
+        "period": "2026-08-31",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Grok CLI 也有自己的用量狀態列了",
+              "en": "Grok CLI gets its own usage status line"
+            },
+            "body": {
+              "zh-TW": "⟦餐廳新開一家分店，總部把同一套點餐看板裝上去；撤店時也會把店家原本掛的那塊招牌放回原位，不是空著就走。⟧Grok CLI 支援跟 Claude Code 一樣的狀態列（statusLine，顯示在終端機最底下的資訊列）機制，所以 `usage_statusline_grok.py` 加進了既有的安裝／移除／自癒流程，用的是本來就跟 Claude Code 和 Antigravity 共用的那個開關。Grok 從標準輸入送進來的資料裡沒有用量摘要，官方文件明講了，所以腳本改去讀 `~/.grok/logs/unified.jsonl` 裡的 `creditUsagePercent` 與 `currentPeriod.end`；兩者都讀不到就整段不顯示，不會印出佔位符號。只顯示週的軸線。Grok 沒有 5 小時視窗，也不回報快取命中率，兩者都不會拿去推估。",
+              "en": "⟦A restaurant chain opens a new branch and fits it with the same order board; when the branch closes, the owner's original sign goes back up rather than being left bare.⟧ Grok CLI supports the same command-style status line mechanism as Claude Code, so `usage_statusline_grok.py` joins the existing install / remove / self-heal flow behind the switch already shared with Claude Code and Antigravity. Grok's stdin payload carries no rate-limit summary — its documentation says so explicitly — so the script tails `~/.grok/logs/unified.jsonl` for `creditUsagePercent` and `currentPeriod.end`; when neither can be read the segment is omitted rather than printed as placeholder characters. Only the weekly axis is shown, since Grok has no 5-hour window and reports no cache hit ratio, and neither is estimated."
+            },
+            "original": "**Grok CLI now gets its own `usage` status line.** Grok CLI supports the same command-style status line mechanism as Claude Code, so `usage_statusline_grok.py` joins the existing install / remove / self-heal flow behind the switch already shared with Claude Code and Antigravity. Grok's stdin payload carries no rate-limit summary (its documentation says so explicitly), so the script tails `~/.grok/logs/unified.jsonl` for `creditUsagePercent` and `currentPeriod.end`; when neither can be read the segment is omitted rather than printed as placeholder characters. Only the weekly axis is shown — Grok has no 5-hour window and reports no cache hit ratio, and neither is estimated."
+          },
+          {
+            "title": {
+              "zh-TW": "狀態列第二行看得到快取命中率與到期倒數",
+              "en": "The status line's second row shows cache hit rate and a countdown"
+            },
+            "body": {
+              "zh-TW": "Claude Code 2.1.251 在狀態列掛鉤從標準輸入收到的資料裡加了一個 `prompt_cache` 物件，`usage` 本來就把整包資料存進 `usage-status.json`，只是沒去讀它。現在第二行會顯示快取（cache，把算過的結果暫存起來直接用）命中率與到期倒數。新的 `color_by_pct_inverted()` 把配色門檻反過來，91% 的命中率讀起來是好事，不會借用額度那套紅色。`caching_observed` 不是 `True` 或比率讀不到時整段跳過，舊版 Claude Code 就安靜地不顯示；`expires_at` 過期只掉倒數、留下長條。終端機太窄還會再降兩級：先拿掉倒數，再整段收起來。⟦儀表板空間不夠時先收掉次要讀數，再收整組，而不是把數字硬擠成一團。⟧",
+              "en": "Claude Code 2.1.251 added a `prompt_cache` object to the status line hook's stdin JSON, and `usage` was already storing the whole payload in `usage-status.json` without reading it. The second row now shows the prompt cache hit rate and a countdown to expiry. A new `color_by_pct_inverted()` mirrors the thresholds, so a 91% hit rate reads as good instead of borrowing the quota palette's red, and `progress_bar()` takes an optional `color_func`, leaving existing callers unchanged. The segment is skipped entirely when `caching_observed` is not `True` or the ratio is unavailable, so older Claude Code versions silently omit it; an expired `expires_at` drops only the countdown and keeps the bar. Narrow terminals degrade in two further steps: the countdown goes first, then the whole segment. ⟦When a dashboard runs out of room it drops the secondary reading first, then the whole cluster, rather than cramming the figures together.⟧"
+            },
+            "original": "**The status line's second row now shows prompt cache hit rate and a countdown to expiry.** Claude Code 2.1.251 added a `prompt_cache` object to the status line hook's stdin JSON; `usage` was already storing the whole payload in `usage-status.json` without reading it. A new `color_by_pct_inverted()` mirrors the thresholds, so a 91% hit rate reads as good instead of borrowing the quota palette's red, and `progress_bar()` takes an optional `color_func` leaving existing callers unchanged. The segment is skipped entirely when `caching_observed` is not `True` or the ratio is unavailable, so older Claude Code versions silently omit it; an expired `expires_at` drops only the countdown and keeps the bar. Narrow terminals degrade in two further steps: the countdown goes first, then the whole segment."
+          },
+          {
+            "title": {
+              "zh-TW": "狀態列只把數字點亮，其餘壓暗",
+              "en": "The status line lights up the numbers and dims everything else"
+            },
+            "body": {
+              "zh-TW": "⟦舞台燈只打在講者身上，佈景與走道壓暗，觀眾的眼睛自然落在該看的地方。⟧空的進度格、脈絡視窗總量和 `|` 分隔線以前都是純白，比數字本身還亮。現在它們改成灰 240／暗色，用量成為唯一被點亮的元素。第二行是次要資訊，所以快取命中率在 80% 以上時採用那一行的靜音紫，低於 80% 才轉橘、低於 50% 才轉紅——好消息不需要發光。同一批也調了快取倒數的措辭：原本是把冷熱狀態直譯出來，讀起來沒有明確意思，現在改用既有的 `remaining_prefix`，英文顯示成 `(59min left)`，跟前面兩段的 5 小時與 7 天寫法一致。只用在一個地方的 `cache_cold_suffix` 被移除，五種語言不必再各自為它想一個詞。",
+              "en": "⟦Stage lights fall on the speaker while the set and the aisles go dark, so the audience looks where it should.⟧ Empty progress cells, the context window total, and the `|` separators were pure white and brighter than the figures themselves; they are now grey 240 / dim, leaving usage as the only lit element. The second row is secondary information, so a cache hit rate of 80% or better takes that row's muted purple and only turns orange below 80% and red below 50% — good news does not need to glow. The same batch reworded the cache countdown. The previous wording was a literal rendering of warm/cold that read as nothing in particular; it now reuses the existing `remaining_prefix`, giving `(59min left)` in English alongside the two segments before it. `cache_cold_suffix`, used in exactly one place, was removed, so five languages no longer need a separate word for it."
+            },
+            "original": "**The status line dims what isn't the number.** Empty progress cells, the context window total, and the `|` separators were pure white and brighter than the figures themselves; they are now grey 240 / dim, leaving usage as the only lit element. The second row is secondary information, so a cache hit rate of 80% or better takes that row's muted purple and only turns orange below 80% and red below 50% — good news does not need to glow.\n**The cache countdown now says \"left\", matching the 5-hour and 7-day segments.** The previous wording was a literal rendering of warm/cold that read as nothing in particular; it now reuses the existing `remaining_prefix`, giving `(59min left)` in English alongside the two segments before it. `cache_cold_suffix`, used in exactly one place, was removed, so five languages no longer need a separate word for it."
+          },
+          {
+            "title": {
+              "zh-TW": "別人的同名狀態列腳本不再被當成自己的接管",
+              "en": "A third-party status line with a similar name is no longer taken over"
+            },
+            "body": {
+              "zh-TW": "⟦倉庫管理員看到箱子上有「電池」兩個字就當成自家貨收走，其實那是「電池測試儀」；現在他核對整組品名相符才動手。⟧判斷一個掛鉤是不是自家的，以前靠 `\"usage-statusline\" in cmd` 這種部分比對，所以別人的 `usage-statusline-pro.py` 被當成 `usage` 裝的：沒備份就被接管，解除安裝時連他的設定一起刪掉。現在比對完整檔名，這個名字從 `HOOK_TARGET.name` 與同層檔案推出來，不再寫死字串，並要求名字兩側是路徑分隔符號、引號、空白或字串邊界。它刻意不比對完整路徑——指令字串會隨直譯器位置、引號寫法和 Windows 的反斜線改變，拿路徑比對反而會讓 `usage` 認不出自己。",
+              "en": "⟦A warehouse keeper hauls off a box because it says \"battery\", when the label reads \"battery tester\"; now the whole product name has to match before anything moves.⟧ Hook ownership was decided by the substring test `\"usage-statusline\" in cmd`, so someone else's `usage-statusline-pro.py` was treated as a `usage` installation: taken over without a backup, and its configuration deleted on uninstall. The comparison now matches the complete filename, derived from `HOOK_TARGET.name` and its siblings instead of a hardcoded string, requiring a path separator, quote, whitespace, or string boundary on each side. It deliberately does not compare full paths: the command string shifts with interpreter location, quoting, and Windows backslashes, and a path comparison would stop `usage` recognizing itself."
+            },
+            "original": "**A third-party status line with a similar name is no longer mistaken for our own.** Hook ownership was decided by the substring test `\"usage-statusline\" in cmd`, so someone else's `usage-statusline-pro.py` was treated as a `usage` installation: taken over without a backup, and its configuration deleted on uninstall. The comparison now matches the complete filename, derived from `HOOK_TARGET.name` and its siblings instead of a hardcoded string, requiring a path separator, quote, whitespace, or string boundary on each side. It deliberately does not compare full paths — the command string shifts with interpreter location, quoting, and Windows backslashes, and a path comparison would stop `usage` recognizing itself."
+          },
+          {
+            "title": {
+              "zh-TW": "狀態列的檔案鎖改成等一段時間就放行",
+              "en": "The status line's file lock times out instead of hanging"
+            },
+            "body": {
+              "zh-TW": "你每送出一則訊息，狀態列就卡住不動——因為有另一個處理程序抓著同一把鎖不放。`_exclusive_lock()` 的 POSIX 分支用的是 `flock(LOCK_EX)`，會一直等下去；Windows 分支早就有 10 秒的 `_LOCK_TIMEOUT_S` 保護。現在 POSIX 分支改用 `LOCK_EX | LOCK_NB` 輪詢，等超時就走 `msvcrt` 那條路：不拿鎖，直接做原子寫入。⟦公共洗衣機的門鎖若只等前一位用完，隊伍就一路停住；現在等一段時間仍沒動靜，就照安全程序自己開門。⟧",
+              "en": "Every message you sent left the status line stalled, because another process was holding the same lock. `_exclusive_lock()`'s POSIX branch used a plainly blocking `flock(LOCK_EX)`, while the Windows branch already had a 10-second `_LOCK_TIMEOUT_S` guard. The POSIX branch now polls with `LOCK_EX | LOCK_NB` and, on timeout, follows the `msvcrt` path: the atomic write proceeds without the lock. ⟦If a shared laundry room's door lock only ever waits for the previous user, the queue stops dead; now, after a set wait with no movement, it opens under the safe procedure.⟧"
+            },
+            "original": "**The status line's file lock now times out instead of hanging a message.** `_exclusive_lock()`'s POSIX branch used a plainly blocking `flock(LOCK_EX)` while the Windows branch already had a 10-second `_LOCK_TIMEOUT_S` guard, so a process holding the lock stalled the status line on every message. The POSIX branch now polls with `LOCK_EX | LOCK_NB` and, on timeout, follows the `msvcrt` path: the atomic write proceeds without the lock."
+          },
+          {
+            "title": {
+              "zh-TW": "已安裝的狀態列副本真的會跟著更新了",
+              "en": "Installed status line copies actually update now"
+            },
+            "body": {
+              "zh-TW": "⟦門市貼的價目表只在總表改版號時才換新，改了價卻忘了改版號，門市就一直掛著舊價。⟧`needs_update()` 拿 `~/.claude/usage-statusline.py` 裡的 `__version__` 跟 `HOOK_VERSION` 比，兩邊一樣就跳過複製。所以出貨時沒有跟著調版本號的畫面改動，永遠傳不到你已安裝的那份副本，而且過程無聲無息、不報任何錯。現在兩個常數都調高了，也補上一個偏移測試——Token Saver 掛鉤本來就有這道防護，只有狀態列漏了。",
+              "en": "⟦A shop's price board is only reprinted when the master list's revision number changes, so a price that moved without a new revision leaves the shop showing the old figure.⟧ `needs_update()` compares `__version__` in `~/.claude/usage-statusline.py` against `HOOK_VERSION` and skips the copy when they match, so rendering changes that shipped without a version bump never reached an installed copy, silently and with no error. Both constants were bumped, and a drift test was added: the Token Saver hook had that guard already; the status line was missing it."
+            },
+            "original": "**Installed status line copies now actually update.** `needs_update()` compares `__version__` in `~/.claude/usage-statusline.py` against `HOOK_VERSION` and skips the copy when they match, so rendering changes that shipped without a version bump never reached an installed copy, silently and with no error. Both constants were bumped, and a drift test was added — the Token Saver hook had that guard already; the status line was missing it."
+          },
+          {
+            "title": {
+              "zh-TW": "報表多了一項「一次過關率」，各模型分開比",
+              "en": "The report adds a first-pass rate, compared across models"
+            },
+            "body": {
+              "zh-TW": "⟦球隊除了看得分，也開始記「一次進攻就成功的比率」，同一批球員換不同打法時，這個數字看得出哪套順手。⟧報表的使用習慣區塊新增一張卡，量的是這段期間你有多少比例的回合沒被打斷、也沒有被擋下的工具呼叫，並依模型分開列。這是品質面向，不是又一個額度數字。兩個訊號都從 `~/.claude/projects` 讀出來：使用者那幾行的 `interruptedMessageId`，以及 `tool_result` 裡的權限拒絕字串，沒有任何語意上的推測。分母取使用者回合而不是助理訊息，因為一次來回會吐出十來則助理訊息，會把每個模型壓到 99.5% 以上。同一回合裡多次打斷只算一次。`<synthetic>` 這類角括號標記排除在外。被打斷的助理訊息常常還沒寫進磁碟就中止，查不出歸屬的訊號進未歸屬桶、不顯示，不硬塞給某個模型。最高與最低模型差距超過 15 分時，才會寫出那句洞察。",
+              "en": "⟦A team starts tracking not just points but the share of drives that score on the first attempt, and when the same squad tries different plays that number shows which one fits.⟧ The report's usage habits section gained a card measuring what share of your turns this period ran without an interruption and without a blocked tool call, split by model — a quality axis rather than another quota count. Both signals are structural, read from `~/.claude/projects`: `interruptedMessageId` on user lines, and permission-denial strings inside `tool_result` content; nothing is inferred semantically. The denominator is user turns rather than assistant messages, because a single exchange emits a dozen assistant messages and would compress every model above 99.5%. Multiple interruptions inside one turn count once. Angle-bracketed internal markers such as `<synthetic>` are excluded. Interrupted assistant messages are frequently aborted before reaching disk, so unresolvable signals go to an unattributed bucket and are not shown rather than being assigned to a model. The insight line is written only when the spread between the highest and lowest model exceeds 15 points. "
+            },
+            "original": "**The HTML report's usage habits section now has a first-pass rate, compared across models.** The card measures what share of your turns this period ran without an interruption and without a blocked tool call, split by model — a quality axis rather than another quota count. Both signals are structural, read from `~/.claude/projects`: `interruptedMessageId` on user lines, and permission-denial strings inside `tool_result` content; nothing is inferred semantically. The denominator is user turns rather than assistant messages, because a single exchange emits a dozen assistant messages and would compress every model above 99.5%. Multiple interruptions inside one turn count once. Angle-bracketed internal markers such as `<synthetic>` are excluded. Interrupted assistant messages are frequently aborted before reaching disk, so unresolvable signals go to an unattributed bucket and are not shown rather than being assigned to a model. The insight line is written only when the spread between the highest and lowest model exceeds 15 points."
+          },
+          {
+            "title": {
+              "zh-TW": "報表加了逐日曲線，列印出來也讀得下去",
+              "en": "The report draws a day-by-day curve and prints properly"
+            },
+            "body": {
+              "zh-TW": "報表標題早就寫著這段期間的高峰日，你卻沒有任何圖可以對照——`daily_trend` 裡放著 30 天的資料，沒有任何圖表用到它。現在週彙總上方多了一條逐日的面積線，標出最高的那一天，並且只標期間的第一天與最後一天。樣式表也加了一段 `@media print`：各區塊避免在內部斷頁、互動控制項隱藏、陰影與位移移除，顏色反轉成白底深字，這樣讀者開著深色模式時列印的 PDF 仍然讀得下去。⟦展場海報改成印刷版時，會把螢幕上的深色底換成白紙深字，互動按鈕拿掉，讓拿在手上的那份仍然清楚。⟧",
+              "en": "The report's header already named the period's peak day, but you had no chart to check it against: `daily_trend` held 30 days of data that no chart used. A daily area line now sits above the weekly rollup, marking the highest day and labelling only the period's first and last dates. The stylesheet also gained a `@media print` block: sections avoid internal page breaks, interactive controls are hidden, shadows and offsets are removed, and colors invert to dark-on-white so a PDF stays readable when the reader is in dark mode. ⟦Turning an exhibition poster into a printed handout swaps the screen's dark ground for dark type on white paper and drops the interactive buttons, so the copy in your hand still reads clearly.⟧"
+            },
+            "original": "**The report's trend section now draws a day-by-day curve for the period, and prints properly.** `daily_trend` already held 30 days of data that no chart used, leaving the peak day named in the header with nothing to check it against. A daily area line now sits above the weekly rollup, marking the highest day and labelling only the period's first and last dates. The stylesheet also gained a `@media print` block: sections avoid internal page breaks, interactive controls are hidden, shadows and offsets are removed, and colors invert to dark-on-white so a PDF stays readable when the reader is in dark mode."
+          },
+          {
+            "title": {
+              "zh-TW": "報表的表格、圖表與區塊層次都補上了",
+              "en": "The report's tables, charts, and section rhythm were filled in"
+            },
+            "body": {
+              "zh-TW": "⟦樂譜若整份都同一個力度記號，聽起來就平；標上強弱之後，同樣的音符才有了層次。⟧最重的五個工作階段本來是報表裡唯一純文字的表格，現在權杖那一欄多了一條細長條，比例以這五個裡最大的為基準，顏色沿用模型表格那套供應商配色。作息時段圖以前只有小時標籤，現在會在右下角用低調的字標出尖峰值，沒有另外加格線或 Y 軸。十個區塊本來長得一模一樣，現在洞察與熱圖採用較重的陰影，近期工作與工具兩區則較輕、用 `--faint` 邊框——只動陰影與邊框，因為人物誌那區放了兩張卡，改背景會讓它們的高度差變得刺眼。",
+              "en": "⟦A score marked at one dynamic throughout sounds flat; once the loud and soft marks go in, the same notes gain shape.⟧ The five heaviest sessions were the report's only all-text table; the tokens column now carries a thin bar scaled against the largest of the five, colored by the same provider palette the model table uses. The active-hours chart, previously hour labels alone, now marks its peak value in muted type in the lower right, with no gridlines or Y axis added. The ten sections shared one identical treatment; insights and the heatmap now carry heavier shadows while the recent-work and tools sections are lighter with `--faint` borders — shadows and borders only, since the persona section holds two cards and a background change would make their height difference conspicuous."
+            },
+            "original": "**The report's heaviest-sessions table, active-hours chart, and section rhythm were filled in.** The five heaviest sessions were the report's only all-text table; the tokens column now carries a thin bar scaled against the largest of the five, colored by the same provider palette the model table uses. The active-hours chart, previously hour labels alone, now marks its peak value in muted type in the lower right, with no gridlines or Y axis added. The ten sections shared one identical treatment; insights and the heatmap now carry heavier shadows while the recent-work and tools sections are lighter with `--faint` borders — shadows and borders only, since the persona section holds two cards and a background change would make their height difference conspicuous."
+          },
+          {
+            "title": {
+              "zh-TW": "報表的專案與模型列多了佔比條",
+              "en": "Project and model rows in the report carry share bars"
+            },
+            "body": {
+              "zh-TW": "十列疊在一起比較時，以前只能一個個讀數字。現在每個名稱下方有一條 4px 的實心比例條——選實心而不是漸層，免得顏色被誤讀成帶有其他意思。甜甜圈的「其他」那一塊以前畫的是配色裡的第七個顏色，看起來跟第一個綠色幾乎一樣；現在改成中性的 `#8b8577`，並且在 `_donut_svg` 裡由一個合成旗標挑出來，不再靠它排第幾個去猜。⟦圖書分類的書背色條若相鄰兩類幾乎同色，找書時就要逐本核對；把「其他」那一類換成灰色，一眼就能跳過。⟧",
+              "en": "Comparing ten stacked rows previously meant reading the numbers. Each name now has a 4px solid proportion bar beneath it — solid rather than gradient, so the color is not misread as carrying meaning. The donut's \"Other\" slice, which used to draw the palette's seventh color and read as nearly the same green as the first, is now a neutral `#8b8577`, selected inside `_donut_svg` by a synthetic flag rather than guessed from its index. ⟦When two adjacent shelf categories carry nearly the same spine color, finding a book means checking each one; making the \"other\" category grey lets the eye skip it at once.⟧"
+            },
+            "original": "**Project and model rows in the report now carry share bars.** Comparing ten stacked rows previously meant reading the numbers; each name now has a 4px solid proportion bar beneath it — solid rather than gradient, so the color is not misread as carrying meaning. The donut's \"Other\" slice, which used to draw the palette's seventh color and read as nearly the same green as the first, is now a neutral `#8b8577`, selected inside `_donut_svg` by a synthetic flag rather than guessed from its index."
+          },
+          {
+            "title": {
+              "zh-TW": "還沒過完的一週不再拿去跟完整的一週比",
+              "en": "A week still in progress is no longer compared against a complete one"
+            },
+            "body": {
+              "zh-TW": "⟦量體重時把還沒吃完的那一餐算進去，跟上週的完整紀錄比，數字會顯示你一夜之間輕了九成七。⟧週趨勢以前拿還沒過完的本週跟上一整週比，在 2026-08-31 那個星期一就產出「W36 ↘ −97%」，結論說本週輕了 97%。現在最後一週的星期日若落在 `date_to` 之後就標成進行中（新的 `trend_week_in_progress` 鍵，五語都加了），不顯示百分比，而 `_trend_summary()` 改比最近兩個完整的週。",
+              "en": "⟦Weighing yourself mid-meal and comparing that against last week's complete record makes the scale say you shed 97% overnight.⟧ The weekly trend measured the current partial week against the previous full one, which on Monday 2026-08-31 produced \"W36 ↘ −97%\" and the conclusion that this week was 97% lighter. The final week is now marked in progress when its Sunday falls after `date_to` (new `trend_week_in_progress` key, added in all five languages) and shows no percentage, and `_trend_summary()` compares the last two completed weeks instead. "
+            },
+            "original": "**A week still in progress is no longer compared against a complete one.** The weekly trend measured the current partial week against the previous full one, which on Monday 2026-08-31 produced \"W36 ↘ −97%\" and the conclusion that this week was 97% lighter. The final week is now marked in progress when its Sunday falls after `date_to` (new `trend_week_in_progress` key, added in all five languages) and shows no percentage, and `_trend_summary()` compares the last two completed weeks instead."
+          },
+          {
+            "title": {
+              "zh-TW": "Antigravity 的模型名不再兩種語言混寫，選單列標題也縮短",
+              "en": "The Antigravity model name stops mixing two languages, and the menu bar title tightens"
+            },
+            "body": {
+              "zh-TW": "⟦名牌上先印了英文職稱，旁邊又補一個中文職稱，同一件事寫了兩遍；現在只留讀者看得懂的那一個。⟧Antigravity 的 `display_name` 結尾本來就帶英文的強度後綴，例如 `(High)`，`usage` 又在後面接一個在地化的，同一個層級被寫了兩次、兩種語言。現在英文後綴會被拿掉，只留在地化的標籤；`display_name` 裡沒有強度欄位時，被拿掉的那個後綴就成為來源。選單列標題也收緊了：間隔號拿掉，因為供應商圖示本來就把數字分開了，圖示間距也縮成兩個空格。另外，五份 README 都在即時可見度那節補上快取健康度的說明，註明它需要 Claude Code 2.1.251 或更新版本；網站上關於 AI Tool Update Digest 的描述也移除了，那個報表區塊已經不存在。",
+              "en": "⟦A name badge printing the job title in English and then again in another language says the same thing twice; now only the one the reader understands stays.⟧ Antigravity's `display_name` already ends in an English effort suffix such as `(High)`, and `usage` appended a localized one after it, naming the same level twice in two languages. The English suffix is now stripped and only the localized label is kept; when `display_name` carries no effort field, the stripped suffix becomes the source. The menu bar title tightened up too: the interpunct separator was removed, since the provider icons already separate the figures, and icon spacing was reduced to two spaces. Separately, prompt cache health was documented in all five READMEs under real-time visibility, noting it needs Claude Code 2.1.251 or newer, and the website's description of the AI Tool Update Digest was removed, a report section that no longer exists."
+            },
+            "original": "**The Antigravity model name no longer mixes two languages.** Antigravity's `display_name` already ends in an English effort suffix such as `(High)`, and `usage` appended a localized one after it, naming the same level twice in two languages. The English suffix is now stripped and only the localized label is kept; when `display_name` carries no effort field, the stripped suffix becomes the source.\n**The menu bar title tightened up.** The interpunct separator was removed, since the provider icons already separate the figures, and icon spacing was reduced to two spaces.\nDocumented prompt cache health in all five READMEs under real-time visibility, noting it needs Claude Code 2.1.251 or newer, and removed the website's description of the AI Tool Update Digest, a report section that no longer exists."
+          },
+          {
+            "title": {
+              "zh-TW": "移除時會把 Grok 原本的狀態列放回去",
+              "en": "Uninstalling restores Grok's original status line"
+            },
+            "body": {
+              "zh-TW": "⟦租來的房子退租時，房東的原本那盞燈要裝回去；前一位房客把自己的燈拆走卻沒還原，下一位進門就只剩天花板上的線頭。⟧`unsetup()` 以前只處理 Claude Code 和 Codex，跳過了 Grok。所以你跑完 `--unsetup` 之後，`~/.grok/config.toml` 還指著一支 `usage` 的腳本，而且沒有任何正規方式回到你自己原本的 `[ui.status_line]`。這個情況現在修好了，移除時會把 Grok 原本的狀態列還原。會漏掉是因為舊的測試只走私有的 `_unsetup_grok()`，新的測試改從公開的 `unsetup()` 進去。",
+              "en": "⟦When a rented flat is handed back, the landlord's original lamp goes back up; a tenant who takes their own lamp and restores nothing leaves the next person with bare wires in the ceiling.⟧ `unsetup()` handled Claude Code and Codex but skipped Grok, so after `--unsetup` the user's `~/.grok/config.toml` still pointed at a `usage` script with no supported way back to their own `[ui.status_line]`. Uninstalling now restores Grok's original status line. The old test exercised only the private `_unsetup_grok()`, which is why this slipped through; the new one enters through the public `unsetup()`."
+            },
+            "original": "**Uninstalling now restores Grok's original status line.** `unsetup()` handled Claude Code and Codex but skipped Grok, so after `--unsetup` the user's `~/.grok/config.toml` still pointed at a `usage` script with no supported way back to their own `[ui.status_line]`. The old test exercised only the private `_unsetup_grok()`, which is why this slipped through; the new one enters through the public `unsetup()`."
+          },
+          {
+            "title": {
+              "zh-TW": "週燃燒趨勢的長條改用 CSS 漸層畫",
+              "en": "Weekly burn trend bars are now CSS gradients"
+            },
+            "body": {
+              "zh-TW": "同一頁上的甜甜圈、熱圖與作息時段圖都是畫出來的圖形，只有週趨勢的長條是用 `█` 這個字元排出來的，看起來像另一份文件貼過來的。現在這些長條改用 CSS 漸層繪製。四欄的版面與終端機風格都沒變，只是繪製的程式碼搬進新的 `ui/report_charts.py`。⟦一本畫冊裡的插圖都是印刷的，只有一頁是用打字機的符號拼出來的圖案；現在那頁也照同樣的方式印。⟧",
+              "en": "The donut, heatmap, and active-hours chart on the same page were all drawn graphics, while the weekly trend drew its bars with `█` characters, looking pasted in from another document. Those bars are now CSS gradients. The four-column layout and terminal styling are unchanged; the rendering moved into a new `ui/report_charts.py`. ⟦In an art book where every plate is printed, one page carries a picture assembled from typewriter symbols; that page is now printed the same way as the rest.⟧"
+            },
+            "original": "**Weekly burn trend bars are now CSS gradients.** The weekly trend drew its bars with `█` characters while the donut, heatmap, and active-hours chart on the same page were graphical. The four-column layout and terminal styling are unchanged; the rendering moved into a new `ui/report_charts.py`."
+          },
+          {
+            "title": {
+              "zh-TW": "熱圖不再漏標月份，甜甜圈的百分比跟表格對得上",
+              "en": "The heatmap stops skipping months, and the donut agrees with the table"
+            },
+            "body": {
+              "zh-TW": "⟦一週橫跨兩個月時，若一律用星期一那天決定它屬於哪個月，只沾到一天的舊月份就把整週收走；改看星期四，那週歸屬才符合它實際待得久的那一邊。⟧熱圖每一欄的月份以前就是從星期一取的，跨月的那一週被算給它幾乎沒沾到的舊月份，而被間距規則壓下去的標籤還會永久消失——真實輸出整個掉了九月。現在月份改從該欄的星期四讀出來，並跟上一個真正標出來的月份比對，被壓掉的月份會在下一個符合間距的欄位重新出現。另外，專案甜甜圈以前拿前十個專案的總和當分母，下方表格的百分比卻用總權杖數，所以同一個專案在圖上是 42.5%、在表格是 36.1%，中央那個數字也不是它看起來宣稱的總數。現在分母改成 `summary.total_tokens`，沒被列出來的部分（包含前十名以外的專案）併成一塊「其他」，沿用既有的 `report_chart_other` 字串。",
+              "en": "⟦When a week straddles two months, always deciding by its Monday hands the whole week to the old month it touched for a day; reading the Thursday instead puts the week on the side it actually spent longer in.⟧ A heatmap column's month was taken from its Monday, so a week spanning a month boundary was credited to the old month it barely touched, and a label suppressed by the spacing rule was lost permanently — real output dropped September entirely. The month is now read from the column's Thursday and compared against the last month actually labelled, so a suppressed month reappears at the next column that satisfies the spacing. Separately, the project donut divided by the sum of `by_project[:10]` while the table's percentage used total tokens, so one project showed 42.5% in the chart and 36.1% in the table, and the center figure read as a total it was not. The denominator is now `summary.total_tokens`, with everything not shown (including projects outside the top ten) combined into an \"Other\" slice reusing the existing `report_chart_other` string."
+            },
+            "original": "**The heatmap's month labels no longer skip or mislabel a month.** A column's month was taken from its Monday, so a week spanning a month boundary was credited to the old month it barely touched, and a label suppressed by the spacing rule was lost permanently — real output dropped September entirely. The month is now read from the column's Thursday and compared against the last month actually labelled, so a suppressed month reappears at the next column that satisfies the spacing.\n**The project donut's percentages now agree with the table beneath it.** The donut divided by the sum of `by_project[:10]` while the table's percentage used total tokens, so one project showed 42.5% in the chart and 36.1% in the table, and the center figure read as a total it was not. The denominator is now `summary.total_tokens`, with everything not shown — including projects outside the top ten — combined into an \"Other\" slice reusing the existing `report_chart_other` string."
+          },
+          {
+            "title": {
+              "zh-TW": "沒有模型名稱的打斷與被擋工具不再被丟掉",
+              "en": "Interruptions and denied tools on messages with no model name are no longer dropped"
+            },
+            "body": {
+              "zh-TW": "⟦點收貨物時，沒寫寄件人的那幾箱既不記在任何一家廠商名下，也沒放進「來源不明」那一堆，結果總數就少了幾箱。⟧帶著 `message.id` 卻沒有 `message.model` 的訊息，會被編成一個空字串，但後面的檢查只測 `model is None`。所以這些事件既沒有被歸給任何模型，也沒有被算進未歸屬那一桶，上一張卡講的那個一次過關率因此把打斷數算少了。這次修好了。",
+              "en": "⟦Checking in a delivery, the boxes with no sender written on them are filed under no supplier and never added to the \"unknown origin\" pile either, so the count comes up short.⟧ A message carrying `message.id` but no `message.model` was indexed as an empty string, while the later check tested only `model is None`. Those events were therefore neither attributed to a model nor counted as unattributed, undercounting interruptions in the first-pass rate described on the previous card. That is now fixed."
+            },
+            "original": "**Interruptions and denied tools on messages with no model name are no longer dropped.** A message carrying `message.id` but no `message.model` was indexed as an empty string, while the later check tested only `model is None` — so those events were neither attributed to a model nor counted as unattributed, undercounting interruptions in the first-pass rate."
+          },
+          {
+            "title": {
+              "zh-TW": "完全沒有用量時，報表會顯示乾淨的空狀態",
+              "en": "A report with no usage renders a clean empty state"
+            },
+            "body": {
+              "zh-TW": "用量為零時，敘述句會把零和佔位符號一起填進去，變成 `---- -- -- was the peak (0/day), main LLM 未知`，下方七個區塊全都只寫著「nothing here yet」——新使用者第一次打開看到的正是這個。現在 `total_tokens` 與 `messages` 都是零時，敘述改成 `report_empty_state_hint`，這個鍵五種語言都加了，並且只渲染標題、統計卡與贊助區塊。有資料時的輸出逐位元組相同，沒被動過的 `full_zh_tw` 與 `full_en` 快照就是證明。⟦餐廳還沒開始營業時，菜單上不該印出一排零元的品項，門口掛一塊「準備中」的牌子就夠了。⟧",
+              "en": "At zero usage the narrative sentence interpolated zeros and placeholders — \"---- -- -- was the peak (0/day), main LLM 未知\" — above seven sections each saying only \"nothing here yet\", which is what a new user saw on first open. When both `total_tokens` and `messages` are zero the narrative is now replaced by `report_empty_state_hint`, a key added in all five languages, and only the header, stat cards, and sponsor section render. Output with data is byte-identical; the untouched `full_zh_tw` and `full_en` snapshots are the proof. ⟦A restaurant not yet open for business should not print a menu full of zero-price dishes; a \"preparing\" sign on the door is enough.⟧"
+            },
+            "original": "**A report with no usage now renders a clean empty state.** At zero usage the narrative sentence interpolated zeros and placeholders — \"---- -- -- was the peak (0/day), main LLM 未知\" — above seven sections each saying only \"nothing here yet\", which is what a new user saw on first open. When both `total_tokens` and `messages` are zero the narrative is replaced by `report_empty_state_hint` (added in all five languages) and only the header, stat cards, and sponsor section render. Output with data is byte-identical; the untouched `full_zh_tw` and `full_en` snapshots are the proof."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.30.5",
+      "raw": {
+        "version": "0.30.5",
+        "period": "2026-08-30",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-30",
+        "entries": [
+          "**The menu bar no longer shows animated spirit companions; Grok now uses their space.** `menubar/critter_frames.py`, the shared NSTimer and `animateCritters_` selector, `critter_animation_tick()`, and `refresh.py`'s `animation_groups` data flow were removed, together with the 15 animation frames and `assets/critters/lion/`. `assets/grok_mono_menubar.png` and `_grok_menubar_icon()` now add Grok after Antigravity in `_menubar_attributed_title()` and `_compose_title()` when `not hide_grok` and `grok_weekly.percent is not None`, preserving the existing separator behavior; `hide_grok` remains `True` by default."
+        ]
+      },
+      "curated": {
+        "version": "0.30.5",
+        "period": "2026-08-30",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "選單列移除動態精靈夥伴，騰出空間顯示 Grok 用量",
+              "en": "Menu bar removes animated companions and allocates their space to Grok"
+            },
+            "body": {
+              "zh-TW": "⟦公仔換燈。⟧ 選單列移除動態精靈同伴，`menubar/critter_frames.py`、共用 NSTimer、`animateCritters_`、`critter_animation_tick()` 與 `refresh.py` 的 `animation_groups`，與 15 個影格及 `assets/critters/lion/` 移除。當 `not hide_grok` 且 `grok_weekly.percent is not None`，由 `assets/grok_mono_menubar.png`、`_grok_menubar_icon()` 在 `_menubar_attributed_title()` 與 `_compose_title()` 兩處把 Grok 加在 Antigravity 後，保留分隔符；`hide_grok` 預設開啟。",
+              "en": "⟦Like removing a bobblehead figurine and its motorized timer base from a car dashboard to free up a mounting slot for a warning indicator light.⟧ The menu bar no longer displays animated spirit companions, as `menubar/critter_frames.py`, the shared NSTimer, the `animateCritters_` selector, `critter_animation_tick()`, and `refresh.py`'s `animation_groups` data flow have all been removed alongside the 15 animation frames and the `assets/critters/lion/` directory. Grok now takes over that space: when `not hide_grok` and `grok_weekly.percent is not None`, `_menubar_attributed_title()` and `_compose_title()` use `assets/grok_mono_menubar.png` and `_grok_menubar_icon()` to insert Grok right after Antigravity while preserving the existing separator behavior. The `hide_grok` setting remains `True` by default."
+            },
+            "original": "**The menu bar no longer shows animated spirit companions; Grok now uses their space.** `menubar/critter_frames.py`, the shared NSTimer and `animateCritters_` selector, `critter_animation_tick()`, and `refresh.py`'s `animation_groups` data flow were removed, together with the 15 animation frames and `assets/critters/lion/`. `assets/grok_mono_menubar.png` and `_grok_menubar_icon()` now add Grok after Antigravity in `_menubar_attributed_title()` and `_compose_title()` when `not hide_grok` and `grok_weekly.percent is not None`, preserving the existing separator behavior; `hide_grok` remains `True` by default."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.30.4",
+      "raw": {
+        "version": "0.30.4",
+        "period": "2026-08-30",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-30",
+        "entries": [
+          "**Scaled Windows panels now show all their content, with no blank strip below the footer.** `_WindowsTrayController._apply_panel_zoom()` now calls `window.usageApplyPanelZoom()` from a background thread before passing only resize and move work to the UI thread, avoiding a WebView2 deadlock. `usageApplyPanelZoom()` receives the natural height, expands `body` before applying CSS `zoom`, and `naturalContentHeight()` temporarily removes that compensation while measuring, so the scaled layout has enough space instead of clipping cards.",
+          "**Windows now counts Grok CLI activity in today's cost, token total, and project list.** `_WindowsTrayController._load_entries()` now calls `grok_loader.load_entries()` alongside the Claude and Codex loaders. If reading the Grok log fails, its matching error handling leaves the Claude and Codex entries already collected intact.",
+          "**Token Saver now gives short replies three concrete rules for plainer language.** The `terse_mode_instruction` strings in `i18n.json` and their standalone copies in `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now turn nominalizations back into verbs, cut sentences that announce without informing, and put known information before new information, in all five languages. `TERSE_HOOK_VERSION` in `installer/session_hooks.py` and `__version__` in `usage_terse_mode.py` both move to 1.3, so `_installed_terse_version()` keeps installed sidecars current instead of rewriting them on every session."
+        ]
+      },
+      "curated": {
+        "version": "0.30.4",
+        "period": "2026-08-30",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 面板縮放完整呈現，消弭底部空白且防範死結",
+              "en": "Scaled Windows panels show full content without footer gaps or deadlocks"
+            },
+            "body": {
+              "zh-TW": "⟦就像裁縫師在布料縮水前先預留延伸長度，量測尺寸時暫時扣除這段預留值，處理完後版型恰好合身，既不緊繃也不拖地。⟧ Windows 上的經過縮放的面板能完整顯示所有內容，頁尾下方不再殘留空白條帶。控制器 `_WindowsTrayController._apply_panel_zoom()` 改由背景執行緒呼叫 `window.usageApplyPanelZoom()`，隨後僅將調整大小與位移交給 UI 執行緒，避開了 WebView2 的死結（deadlock，處理序互相等待而卡住）。函式 `usageApplyPanelZoom()` 接收自然高度並在套用 CSS `zoom` 前擴展 `body`，而 `naturalContentHeight()` 量測時會暫時移除該補償，確保縮放版面有足夠空間而不裁切卡片。",
+              "en": "⟦Like a tailor allowing extra length for fabric shrinkage and temporarily deducting that allowance during measurements, ensuring the finished garment fits neatly without being cropped or dragging.⟧ Scaled Windows panels now display all their content completely, eliminating the blank strip below the footer. `_WindowsTrayController._apply_panel_zoom()` now invokes `window.usageApplyPanelZoom()` from a background thread before delegating only resize and move work to the UI thread, avoiding a WebView2 deadlock. The `usageApplyPanelZoom()` function receives natural height and expands `body` before applying CSS `zoom`, while `naturalContentHeight()` temporarily removes that compensation during measurements so the scaled layout preserves ample space instead of clipping cards."
+            },
+            "original": "**Scaled Windows panels now show all their content, with no blank strip below the footer.** `_WindowsTrayController._apply_panel_zoom()` now calls `window.usageApplyPanelZoom()` from a background thread before passing only resize and move work to the UI thread, avoiding a WebView2 deadlock. `usageApplyPanelZoom()` receives the natural height, expands `body` before applying CSS `zoom`, and `naturalContentHeight()` temporarily removes that compensation while measuring, so the scaled layout has enough space instead of clipping cards."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 納入 Grok CLI 用量統計，日誌讀取失敗不影響既有紀錄",
+              "en": "Windows tracks Grok CLI activity with fault-isolated log loaders"
+            },
+            "body": {
+              "zh-TW": "在 Windows 開啟今日用量面板查看費用、token（AI 計費與文字計量單位）總數與專案清單時，Grok CLI 紀錄會一併出現。控制器 `_WindowsTrayController._load_entries()` 在載入既有的 Claude 與 Codex 資料時，會一併呼叫 `grok_loader.load_entries()` 讀取記錄。若 Grok 日誌讀取失敗，對應的錯誤處理機制會保留已收集的 Claude 與 Codex 項目。⟦像三條獨立水管流進同一個水槽，第三條堵住時，前兩條已流入的水仍留在槽裡。⟧",
+              "en": "When you open today's usage panel on Windows to check costs, token totals, and the project list, Grok CLI records now appear too. Inside `_WindowsTrayController._load_entries()`, the controller calls `grok_loader.load_entries()` alongside the existing Claude and Codex loaders. If reading the Grok log fails, dedicated error handling preserves the Claude and Codex entries already collected. ⟦Like three separate pipes feeding one tank, a blockage in the third pipe leaves the water from the first two in place.⟧"
+            },
+            "original": "**Windows now counts Grok CLI activity in today's cost, token total, and project list.** `_WindowsTrayController._load_entries()` now calls `grok_loader.load_entries()` alongside the Claude and Codex loaders. If reading the Grok log fails, its matching error handling leaves the Claude and Codex entries already collected intact."
+          },
+          {
+            "title": {
+              "zh-TW": "Token Saver 導入三項白話寫作規則，版號升級免除重複重寫",
+              "en": "Token Saver enforces three plain-language rules with versioned sidecars"
+            },
+            "body": {
+              "zh-TW": "你請 Token Saver 把一段回覆縮短時，這 3 條規則會套用。在 `i18n.json` 的 `terse_mode_instruction`，以及其在 `_DEFAULT_INSTRUCTION` 中的獨立副本裡，5 種語言皆要求將名詞化還原為動詞、刪除只報幕不提供資訊的句子，並先放已知資訊，再放新資訊。同時 `installer/session_hooks.py` 的 `TERSE_HOOK_VERSION` 與 `usage_terse_mode.py` 的 `__version__` 皆升至 1.3，讓 `_installed_terse_version()` 維持已安裝 sidecar（隨附輔助檔）最新，免於每個工作階段重寫。⟦像一台有三個調整鈕的機器，三種寫法依設定一起運作；標記升至 1.3 時，只替已裝好的小模組換新版。⟧",
+              "en": "When you ask Token Saver to shorten a reply, these three rules apply. Across all five languages, `terse_mode_instruction` in `i18n.json` and its standalone copies in `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` turn nominalizations back into verbs, cut sentences that announce without informing, and put known information before new information. Meanwhile, `TERSE_HOOK_VERSION` in `installer/session_hooks.py` and `__version__` in `usage_terse_mode.py` both move to 1.3, so `_installed_terse_version()` keeps installed sidecars current instead of rewriting them on every session. ⟦Like a machine with three adjustment knobs, the three writing rules work together; when its marker reaches 1.3, only the installed small module is swapped for the new version.⟧"
+            },
+            "original": "**Token Saver now gives short replies three concrete rules for plainer language.** The `terse_mode_instruction` strings in `i18n.json` and their standalone copies in `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now turn nominalizations back into verbs, cut sentences that announce without informing, and put known information before new information, in all five languages. `TERSE_HOOK_VERSION` in `installer/session_hooks.py` and `__version__` in `usage_terse_mode.py` both move to 1.3, so `_installed_terse_version()` keeps installed sidecars current instead of rewriting them on every session."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.30.3",
+      "raw": {
+        "version": "0.30.3",
+        "period": "2026-08-28",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-28",
+        "entries": [
+          "**Token Saver now keeps short replies easy to understand.** `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now makes plain language the style alongside brevity, adds a one-time gloss for unavoidable technical terms, and asks replies to close with the result and next step; `usage_terse_reminder.py`'s `_DEFAULT_REMINDER` reinforces the same rule. `TERSE_HOOK_VERSION` in `installer/session_hooks.py` was bumped so `_self_heal_terse_mode()` replaces existing sidecars instead of leaving them on the old wording.",
+          "**Token Saver's guidance now agrees with itself and starts in your language.** `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now permits the opening-greeting emoji and a one-line tool intent while still excluding them from the reply body. `_write_terse_sidecar()` in `installer/session_hooks.py` records `detect_lang()` under `lang`, and `_read_sidecar()` / `_detect_lang()` in both hook scripts read it after environment overrides, so sessions without language variables no longer default to the longer English prompt; missing or corrupt sidecars still safely fall back to English.",
+          "**Existing Token Saver reminder hooks now update instead of staying stale.** `_self_heal_terse_reminder()` in `installer/session_hooks.py` previously restored only a missing script or registration, leaving an installed older script unchanged. `TERSE_REMINDER_HOOK_VERSION` and `_installed_terse_reminder_version()` now compare versions and replace stale copies, recording `update_terse_reminder_hook` for diagnosis."
+        ]
+      },
+      "curated": {
+        "version": "0.30.3",
+        "period": "2026-08-28",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Token Saver 簡短回覆兼顧好懂，技術術語加註白話並提示下一步",
+              "en": "Token Saver keeps short replies plain and clear with term glosses and next steps"
+            },
+            "body": {
+              "zh-TW": "⟦像主管交代交接事項：話要精練且說白話，遇到行話加句白話註釋，結尾交代成果與下一步，並換掉舊指引便條。⟧ Token Saver 讓簡短回覆兼顧好懂。模組 `usage_terse_mode.py` 的 `_DEFAULT_INSTRUCTION` 將白話風格與精簡並列，規定不可避免的技術術語加一次性白話註釋，並要求回覆以結果與下一步收尾；`usage_terse_reminder.py` 的 `_DEFAULT_REMINDER` 也強化此規則。`installer/session_hooks.py` 提高 `TERSE_HOOK_VERSION`，使自我修復函式 `_self_heal_terse_mode()` 主動替換既有 sidecar（隨附設定檔），不再停留在舊措辭。",
+              "en": "⟦Like a manager briefing a team handoff: keeping updates brief while speaking plain language, adding a quick plain-words gloss whenever technical jargon is unavoidable, closing with the result and next action, and immediately swapping out obsolete guidelines.⟧ Token Saver now keeps concise replies easy to understand. In `usage_terse_mode.py`, `_DEFAULT_INSTRUCTION` pairs plain language directly alongside brevity, adds a one-time explanation for unavoidable technical terms, and instructs responses to conclude with the concrete result and next step; `usage_terse_reminder.py`'s `_DEFAULT_REMINDER` reinforces this exact requirement. Furthermore, `TERSE_HOOK_VERSION` in `installer/session_hooks.py` was bumped so `_self_heal_terse_mode()` actively replaces existing sidecar config files instead of leaving them on outdated prompt phrasing."
+            },
+            "original": "**Token Saver now keeps short replies easy to understand.** `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now makes plain language the style alongside brevity, adds a one-time gloss for unavoidable technical terms, and asks replies to close with the result and next step; `usage_terse_reminder.py`'s `_DEFAULT_REMINDER` reinforces the same rule. `TERSE_HOOK_VERSION` in `installer/session_hooks.py` was bumped so `_self_heal_terse_mode()` replaces existing sidecars instead of leaving them on the old wording."
+          },
+          {
+            "title": {
+              "zh-TW": "Token Saver 指引自我一致，放行問候表情並依語言載入提示",
+              "en": "Token Saver guidance reconciles rules and loads prompt in your language"
+            },
+            "body": {
+              "zh-TW": "Token Saver 提示指引消除矛盾，並自動以在地語言開啟。模組 `usage_terse_mode.py` 的 `_DEFAULT_INSTRUCTION` 允許開頭問候 emoji 與單行工具意圖，但仍排除在回覆正文之外。在 `installer/session_hooks.py` 中，`_write_terse_sidecar()` 將 `detect_lang()` 記錄於 `lang`，兩組 hook（事件發生時觸發的小程式）腳本內的 `_read_sidecar()` 與 `_detect_lang()` 會在環境變數覆蓋後讀取。未設語言變數的工作階段不再預設載入較長英文提示詞；若 sidecar 隨附檔遺失或損毀依然安全備援至英文。⟦宛如多語接待櫃台：服務員可開頭致意並亮出名牌，正文維持精練，依訪客母語遞上簡章而非預設長篇英文，簡章遺失時以英語備援。⟧",
+              "en": "Token Saver's prompt instructions now reconcile internal rules and launch directly in your local language. In `usage_terse_mode.py`, `_DEFAULT_INSTRUCTION` now permits an opening greeting emoji and a one-line tool intent while keeping them strictly outside the reply body. Inside `installer/session_hooks.py`, `_write_terse_sidecar()` writes the output of `detect_lang()` under `lang`, and `_read_sidecar()` / `_detect_lang()` in both hook scripts parse it after checking environment overrides. Consequently, sessions lacking explicit language environment variables no longer fall back to the longer English prompt; missing or corrupted sidecar files still safely default to English. ⟦It is like a multilingual reception desk: permitting the greeter to wave and display a one-line badge while keeping the response brief, handing visitors brochures in their native language instead of defaulting to a bulky English manual, and using English only as a safe fallback when records are lost.⟧"
+            },
+            "original": "**Token Saver's guidance now agrees with itself and starts in your language.** `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now permits the opening-greeting emoji and a one-line tool intent while still excluding them from the reply body. `_write_terse_sidecar()` in `installer/session_hooks.py` records `detect_lang()` under `lang`, and `_read_sidecar()` / `_detect_lang()` in both hook scripts read it after environment overrides, so sessions without language variables no longer default to the longer English prompt; missing or corrupt sidecars still safely fall back to English."
+          },
+          {
+            "title": {
+              "zh-TW": "既有提醒掛鉤支援版本比對，過期腳本主動換新不留舊版",
+              "en": "Existing reminder hooks upgrade automatically instead of staying stale"
+            },
+            "body": {
+              "zh-TW": "升級 usage 後，既有的 Token Saver 提醒掛鉤（hook，事件發生時觸發的小程式）現在會自動同步最新版。過去 `installer/session_hooks.py` 裡的自我修復函式 `_self_heal_terse_reminder()` 僅在腳本或註冊遺失時重新補上，已安裝的舊版腳本則原樣保留。現在系統透過 `TERSE_REMINDER_HOOK_VERSION` 與 `_installed_terse_reminder_version()` 比對版號並主動替換過期副本，記錄 `update_terse_reminder_hook` 供診斷。⟦恰似大樓巡檢廣播設備：以前檢查員只在設備遺失時才補裝，裝好的舊款從不更換；現在會核對型號主動換新，並在檢修日誌登記換裝明細以供備查。⟧",
+              "en": "After upgrading usage, existing Token Saver reminder hooks now update themselves to the latest version automatically. Previously, `_self_heal_terse_reminder()` in `installer/session_hooks.py` only intervened when a script file or its registration was entirely missing, leaving older installed scripts untouched on stale wording. The system now uses `TERSE_REMINDER_HOOK_VERSION` and `_installed_terse_reminder_version()` to compare version numbers and actively replace outdated script copies, logging an `update_terse_reminder_hook` event for future diagnostics. ⟦It is like a building inspector checking public address speakers: previously only replacing a unit if it was missing while leaving obsolete speakers in place, but now verifying serial numbers, actively replacing aged hardware, and logging the maintenance in service records.⟧"
+            },
+            "original": "**Existing Token Saver reminder hooks now update instead of staying stale.** `_self_heal_terse_reminder()` in `installer/session_hooks.py` previously restored only a missing script or registration, leaving an installed older script unchanged. `TERSE_REMINDER_HOOK_VERSION` and `_installed_terse_reminder_version()` now compare versions and replace stale copies, recording `update_terse_reminder_hook` for diagnosis."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.30.2",
+      "raw": {
+        "version": "0.30.2",
+        "period": "2026-08-28",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-28",
+        "entries": [
+          "**Panels that are too tall for the screen now scale down instead of clipping.** `clamp_content_height()` used the visible frame as its ceiling, leaving rows beyond that height unreachable. `panels/panel_scale.py` now calculates a fit scale, no lower than `MIN_PANEL_SCALE`, and macOS's `PopoverViewController.applyPanelScale()` and Windows's `_WindowsTrayController._apply_panel_zoom()` apply it to the whole panel through `window.usageApplyPanelZoom()`.",
+          "**Codex status lines now install and remove correctly when `config.toml` has no bare `[tui]` header.** Configurations that declare `tui` only through `[tui.*]` subtables or top-level dotted keys previously made the setup and unsetup paths silently write nothing while reporting success. `_insert_table_line()`, `_remove_table_line()`, and `_replace_table_line()` now handle both forms, validate every candidate with `tomllib.loads`, and report failure when no change can be safely made.",
+          "**Windows builds now point their hidden imports at the installer modules' current paths.** The v0.29.37 fix restored the missing `wintray.app` and `tui.app` entry points; after a separate refactor, `scripts/build_windows.ps1` still named `session_hooks` and `setup_hook` as obsolete top-level modules. The bundle was never broken — `main.py` imports both statically — but the flags were dead configuration of exactly the kind that shipped the unusable v0.29.34–36 builds. They now name `installer.session_hooks` and `installer.setup_hook`, so PyInstaller can diagnose a future omission.",
+          "**Toggling the macOS login item no longer fails when the app was opened by double-clicking.** Without `LANG`, `subprocess.run(..., text=True)` used ASCII and could raise `UnicodeDecodeError` while reading `launchctl` or `gh` output containing non-ASCII text. Those reads now explicitly use UTF-8 with replacement for invalid bytes.",
+          "**Claude cost totals now include advisor iterations and one-hour cache writes.** The Claude parsers now read `usage.iterations` and `usage.cache_creation.ephemeral_1h_input_tokens`; only `advisor_message` iterations get separate entries, avoiding double-counting ordinary messages. One-hour cache writes are priced at twice the base input rate, and the history cache schema is bumped so existing entries are reparsed.",
+          "**Dragging the Grok card no longer moves the panel differently from the other three on Windows.** The tray's WebKit shim turns a quota card's empty area into a native `pywebview` drag region, but its selector listed only Claude, Codex and Antigravity. Grok fell through to the shared card-reorder handler instead, so the same gesture that moved the window from the first three cards did something else from the fourth. The selector now matches all four, as `panel_core.js` already did on macOS.",
+          "Moved public contribution and security guides to `.github/` and localized README and changelog files to `docs/`, cleaning up the repository root and updating all links.",
+          "Backfilled the Grok CLI card into the Simplified Chinese, Japanese and Korean READMEs, which had missed the feature list entry, the Hide Sections list and the comparison-table row.",
+          "Bumped PyObjC to 12.2.2 and ruff to 0.16.4, closing five separately raised dependency updates in a single lockfile change."
+        ]
+      },
+      "curated": {
+        "version": "0.30.2",
+        "period": "2026-08-28",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "過高面板自動等比縮放，畫面完整呈現不被截斷",
+              "en": "Oversized panels scale down to fit screen instead of clipping"
+            },
+            "body": {
+              "zh-TW": "⟦像用相機拍攝高聳建築時自動切換廣角，把整棟大樓等比縮進觀景窗，而不是直接裁掉屋頂。⟧ 當螢幕直向空間不足而面板（popover）內容過長時，視窗現在會等比縮小而非裁切畫面。過去 `clamp_content_height()` 直接以可見畫面高度為上限，超出高度的資料列完全無法看見也點不到。新模組 `panels/panel_scale.py` 會計算適應螢幕的縮放比例，且不低於保底的 `MIN_PANEL_SCALE`；macOS 的 `PopoverViewController.applyPanelScale()` 與 Windows 的 `_WindowsTrayController._apply_panel_zoom()` 則透過 `window.usageApplyPanelZoom()` 將比例套用至整個面板，確保所有列完整呈現。",
+              "en": "⟦Like a camera automatically zooming out to wide-angle when capturing a tall skyscraper, fitting the entire building proportionally into the viewfinder instead of slicing off the roof.⟧ When a popover grows too tall for the screen, it now scales down proportionally rather than getting clipped. Previously, `clamp_content_height()` capped height strictly to the visible screen frame, leaving any lower rows unreachable and invisible. The new `panels/panel_scale.py` module computes a fit scale that stays above `MIN_PANEL_SCALE`, and macOS's `PopoverViewController.applyPanelScale()` together with Windows's `_WindowsTrayController._apply_panel_zoom()` apply it across the entire panel using `window.usageApplyPanelZoom()`."
+            },
+            "original": "**Panels that are too tall for the screen now scale down instead of clipping.** `clamp_content_height()` used the visible frame as its ceiling, leaving rows beyond that height unreachable. `panels/panel_scale.py` now calculates a fit scale, no lower than `MIN_PANEL_SCALE`, and macOS's `PopoverViewController.applyPanelScale()` and Windows's `_WindowsTrayController._apply_panel_zoom()` apply it to the whole panel through `window.usageApplyPanelZoom()`."
+          },
+          {
+            "title": {
+              "zh-TW": "Codex 狀態列支援點記法設定，安裝與移除不再靜默失敗",
+              "en": "Codex status lines install cleanly on dotted and subtable configs"
+            },
+            "body": {
+              "zh-TW": "在 Codex 設定檔 `config.toml` 未使用獨立 `[tui]` 區段標頭時，安裝與移除狀態列（status line，終端機最底下的即時資訊列）的功能現在能正確運作。以前若設定檔僅透過 `[tui.*]` 子表格或頂層點記法鍵值宣告，設定與解除流程會靜默跳過寫入卻回報成功。現在 `_insert_table_line()`、`_remove_table_line()` 與 `_replace_table_line()` 同時支援這兩種結構，每次修改皆透過 `tomllib.loads` 驗證語法，並在無法安全變更時明確回報失敗。⟦這好比水電師傅查驗配電箱：不論總標籤寫在總開關還是分路子面板上都能正確接線，送電前以電表驗證，無法安全施工時便明確告知而非假裝完工。⟧",
+              "en": "Codex status lines now install and remove reliably even when `config.toml` lacks a bare `[tui]` header. Configurations declaring `tui` solely through `[tui.*]` subtables or top-level dotted keys previously caused setup and removal routines to write nothing while falsely claiming success. Helper functions `_insert_table_line()`, `_remove_table_line()`, and `_replace_table_line()` now support both config structures, parse and validate every proposed edit with `tomllib.loads`, and raise a clear failure when no change can be made safely. ⟦It is like an electrician inspecting a breaker box: wiring connections correctly whether the label sits on the main switch or individual branch circuits, testing voltages before power-up, and flagging faults instead of pretending everything is installed.⟧"
+            },
+            "original": "**Codex status lines now install and remove correctly when `config.toml` has no bare `[tui]` header.** Configurations that declare `tui` only through `[tui.*]` subtables or top-level dotted keys previously made the setup and unsetup paths silently write nothing while reporting success. `_insert_table_line()`, `_remove_table_line()`, and `_replace_table_line()` now handle both forms, validate every candidate with `tomllib.loads`, and report failure when no change can be safely made."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 建置校正隱藏匯入路徑，清除無效模組設定",
+              "en": "Windows builds point hidden imports to current installer modules"
+            },
+            "body": {
+              "zh-TW": "Windows 建置腳本修復了打包設定中的過期模組路徑。先前 v0.29.37 修復了遺漏的 `wintray.app` 與 `tui.app` 進入點；但在獨立重構後，`scripts/build_windows.ps1` 仍將 `session_hooks` 與 `setup_hook` 列為舊版頂層模組。雖然 `main.py` 靜態匯入了兩者而未影響執行檔運作，但這些旗標屬於無效設定，正是過去導致 v0.29.34 至 v0.29.36 版無法啟動的同類隱患。現在旗標已更正為 `installer.session_hooks` 與 `installer.setup_hook`，讓 PyInstaller 未來能及早診斷遺漏。⟦宛如物流清單上的備忘地址：將舊門牌更新為正確路徑，才能在未來漏載時第一時間示警。⟧",
+              "en": "Windows build scripts now direct their hidden import flags to the current installer module paths. The v0.29.37 update restored the missing `wintray.app` and `tui.app` entry points; after a separate code refactor, `scripts/build_windows.ps1` still pointed to `session_hooks` and `setup_hook` as obsolete top-level modules. The packaged executable was never broken because `main.py` imports both statically, but the outdated flags were dead configuration of the exact kind that previously caused broken v0.29.34–36 builds. They now properly specify `installer.session_hooks` and `installer.setup_hook`, enabling PyInstaller to diagnose any future omissions. ⟦It is like updating warehouse addresses on a shipping checklist: keeping the registry accurate ensures the system catches a missing crate before trucks leave the dock.⟧"
+            },
+            "original": "**Windows builds now point their hidden imports at the installer modules' current paths.** The v0.29.37 fix restored the missing `wintray.app` and `tui.app` entry points; after a separate refactor, `scripts/build_windows.ps1` still named `session_hooks` and `setup_hook` as obsolete top-level modules. The bundle was never broken — `main.py` imports both statically — but the flags were dead configuration of exactly the kind that shipped the unusable v0.29.34–36 builds. They now name `installer.session_hooks` and `installer.setup_hook`, so PyInstaller can diagnose a future omission."
+          },
+          {
+            "title": {
+              "zh-TW": "macOS 雙擊啟動改用萬國碼讀取，切換開機項目不再崩潰",
+              "en": "Double-clicked macOS app toggles login items safely with UTF-8"
+            },
+            "body": {
+              "zh-TW": "⟦就像快遞員開箱驗貨：以前若沒人提醒語言就預設只認純英文字母，遇上外文標籤便當場罷工；現在一律配備萬國碼字典，遇到損壞字元自動替換並繼續派送。⟧ 在 macOS 上透過滑鼠連點開啟 App 時，切換開機啟動項目不再無預警失敗。雙擊啟動時環境中常缺少 `LANG` 變數，導致子行程（subprocess，由主程式分支出來處理特定任務的背景程序）呼叫 `subprocess.run(..., text=True)` 時預設採用 ASCII 編碼，讀取 `launchctl` 或 `gh` 產生的非 ASCII 文字時會拋出 `UnicodeDecodeError` 錯誤。現在這些讀取動作一律明確指定使用 UTF-8 編碼，並對無效位元組進行容錯替換。",
+              "en": "⟦Like a customs inspector who once defaulted to English-only and rejected any foreign package, now equipped with a universal dictionary to replace unreadable symbols and keep shipments moving.⟧ Toggling login items on macOS no longer fails when the app is launched via double-click. Without the `LANG` environment variable, `subprocess.run(..., text=True)` defaulted to ASCII, causing a `UnicodeDecodeError` whenever `launchctl` or `gh` outputs contained non-ASCII characters. These process outputs are now explicitly parsed using UTF-8 encoding, safely substituting replacement characters for any invalid byte sequences."
+            },
+            "original": "**Toggling the macOS login item no longer fails when the app was opened by double-clicking.** Without `LANG`, `subprocess.run(..., text=True)` used ASCII and could raise `UnicodeDecodeError` while reading `launchctl` or `gh` output containing non-ASCII text. Those reads now explicitly use UTF-8 with replacement for invalid bytes."
+          },
+          {
+            "title": {
+              "zh-TW": "Claude 費用納入顧問迭代與 1 小時快取，歷史紀錄重算更精準",
+              "en": "Claude cost totals add advisor iterations and one-hour cache writes"
+            },
+            "body": {
+              "zh-TW": "查看 Claude 的花費總額時，現在已完整納入顧問迭代與 1 小時快取寫入費用。解析器新增讀取 `usage.iterations` 與 `usage.cache_creation.ephemeral_1h_input_tokens` 欄位；其中僅有 `advisor_message` 迭代會拆分為獨立資料列，避免重複計算普通訊息。1 小時快取（cache，將資料暫存以加速讀取的機制）寫入則依基礎輸入費率的 2 倍計價，且歷史快取架構版本已同步更新，讓過往既有紀錄能自動重算。⟦這如同會計事務所升級審計帳本：把特別顧問的諮詢與專用保鮮費列入報銷，依雙倍費率計價並重審舊單據，避免多算也絕不漏計。⟧",
+              "en": "Claude cost totals now accurately capture advisor iterations and one-hour cache write expenses. Claude usage parsers now inspect `usage.iterations` and `usage.cache_creation.ephemeral_1h_input_tokens`, creating separate breakdown rows solely for `advisor_message` iterations to avoid double-counting regular turns. One-hour cache writes are priced at twice the base input token rate, and the history cache schema version has been bumped so past sessions are reparsed automatically. ⟦It is like an accounting firm updating its audit ledgers: billing special advisor consults and short-term secure storage at double rates, while auditing archived receipts to guarantee nothing is missed or duplicated.⟧"
+            },
+            "original": "**Claude cost totals now include advisor iterations and one-hour cache writes.** The Claude parsers now read `usage.iterations` and `usage.cache_creation.ephemeral_1h_input_tokens`; only `advisor_message` iterations get separate entries, avoiding double-counting ordinary messages. One-hour cache writes are priced at twice the base input rate, and the history cache schema is bumped so existing entries are reparsed."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 系統匣拖曳 Grok 卡片修正，視窗移動行為全數統一",
+              "en": "Dragging Grok card on Windows moves panel consistently with others"
+            },
+            "body": {
+              "zh-TW": "在 Windows 系統匣（tray，工作列右下角常駐圖示區）拖曳 Grok 額度卡片時，視窗移動行為不再與其他三家卡片不同步。系統匣的 WebKit 墊片原先會將額度卡片的空白區域轉為 `pywebview` 原生拖曳區，但其選取器過去僅列出 Claude、Codex 與 Antigravity。這導致 Grok 卡片掉入共用的卡片排序處理器，在第四張卡片上做出與前三張相同的拖曳手勢時卻引發不同反應。現在選取器已涵蓋全部四家服務商，與 macOS 上的 `panel_core.js` 保持一致。⟦如同控制台上的四組手把：前三組能平移整座台面，第四組因未貼標籤而只能移動自身；補齊設定後，四組操作手感完全一致。⟧",
+              "en": "Dragging the Grok card in the Windows tray now moves the entire panel smoothly, just like the other three provider cards. The tray's WebKit shim converts empty space on quota cards into native `pywebview` drag handles, but its element selector previously named only Claude, Codex, and Antigravity. As a result, dragging Grok fell through to the shared card-reordering logic, causing the fourth card to reorder itself rather than moving the window. The drag selector now includes all four providers, matching behavior already established in `panel_core.js` on macOS. ⟦It is like a control board with four grab handles: three shifted the entire deck while the fourth slipped because it missed a grip pad; outfitting all four ensures consistent handling everywhere.⟧"
+            },
+            "original": "**Dragging the Grok card no longer moves the panel differently from the other three on Windows.** The tray's WebKit shim turns a quota card's empty area into a native `pywebview` drag region, but its selector listed only Claude, Codex and Antigravity. Grok fell through to the shared card-reorder handler instead, so the same gesture that moved the window from the first three cards did something else from the fourth. The selector now matches all four, as `panel_core.js` already did on macOS."
+          },
+          {
+            "title": {
+              "zh-TW": "指南移至專屬目錄且整理說明文件，專案根目錄全面整潔",
+              "en": "Contribution guides and localized docs move to dedicated folders"
+            },
+            "body": {
+              "zh-TW": "⟦像圖書館整頓大廳：將讀者規約歸檔至管理處，把各語系導覽手冊移入閱覽室，讓大廳井然有序且指示牌一目了然。⟧ 專案根目錄進行了結構整理與檔案搬移。公開的貢獻指南與安全政策文件已移至 `.github/` 資料夾。各語言版本的說明文件（README，專案首頁介紹檔）與更新日誌 changelog 則統一集中至 `docs/` 目錄。這項整理清空了專案根目錄的雜亂檔案，並同步更新了所有相互參照的超連結。",
+              "en": "⟦Like a library tidying its lobby: filing reader policies into administrative offices and shelving multilingual guides in study rooms so the entrance stays clutter-free with clear signposts.⟧ The repository root has been cleaned up and reorganized. Public contribution guidelines and security policies have been relocated into `.github/`. Multilingual README documentation and changelog history files are now consolidated under `docs/`. This housekeeping cleans up the root directory and updates all internal navigation links across the project."
+            },
+            "original": "Moved public contribution and security guides to `.github/` and localized README and changelog files to `docs/`, cleaning up the repository root and updating all links."
+          },
+          {
+            "title": {
+              "zh-TW": "簡中日韓說明文件補齊 Grok 介紹，功能清單與比較表全面同步",
+              "en": "Simplified Chinese, Japanese, and Korean READMEs backfill Grok CLI"
+            },
+            "body": {
+              "zh-TW": "查閱非英文的專案說明文件時，各語言讀者現在都能獲得完整的 Grok CLI 功能介紹。先前在簡體中文、日文與韓文的說明文件（README，專案首頁介紹檔）中，遺漏了 Grok CLI 卡片於功能清單、「隱藏區塊」設定項目以及跨工具比較表中的資料列。本次更新將這三處缺漏逐一回填至三種語言的說明文件中，確保不同語系的使用者都能查閱到一致的規格與選項說明。⟦這恰似多國語言的商品目錄改版：為簡中、日語及韓語版本補印新產品的特色條目、選配開關與規格比較表，使所有語系的型錄內容完全同步。⟧",
+              "en": "Readers consulting localized documentation will now find complete coverage for the Grok CLI card. The Simplified Chinese, Japanese, and Korean README files previously missed mentions of the Grok card in their feature lists, the Hide Sections toggle documentation, and the provider comparison tables. This update backfills all three missing entries across all three translations, ensuring readers across every supported language have access to the exact same feature overviews and settings details. ⟦It is like updating international product catalogs: reprinting feature summaries, accessory switches, and comparison charts for localized editions so every market receives identical documentation.⟧"
+            },
+            "original": "Backfilled the Grok CLI card into the Simplified Chinese, Japanese and Korean READMEs, which had missed the feature list entry, the Hide Sections list and the comparison-table row."
+          },
+          {
+            "title": {
+              "zh-TW": "升級 PyObjC 與 ruff 工具，單次鎖定檔結案五項相依更新",
+              "en": "Bump PyObjC to 12.2.2 and ruff to 0.16.4 across dependency updates"
+            },
+            "body": {
+              "zh-TW": "專案相依套件與程式碼檢查工具進行了例行升級。本次將 macOS 系統橋接套件 PyObjC 升級至 12.2.2，並將靜態檢查工具 ruff 更新至 0.16.4。這項調整在單次鎖定檔（lockfile，記錄精確套件版本的設定檔）變更中，一次結案了先前分別提出的 5 項相依套件更新提案，確保建置環境與開發工具鏈維持在最新穩定狀態。⟦這宛若工廠保養時彙整五張零件更換單，統一升級操作面板元件與校準測量尺，一次鎖定新版規格而無須分批停機。⟧",
+              "en": "Project dependencies and linting toolchains have been upgraded to their latest releases. This update bumps the macOS system bridge PyObjC to 12.2.2 and the static analysis linter ruff to 0.16.4. By consolidating these version bumps into a single lockfile commit, the release cleanly resolves five separate dependency update requests at once, keeping the development environment and automated checks current. ⟦It is like factory maintenance consolidating five separate work orders into one shift, upgrading control circuits and calibrating measurement tools in a single scheduled pass without recurring downtime.⟧"
+            },
+            "original": "Bumped PyObjC to 12.2.2 and ruff to 0.16.4, closing five separately raised dependency updates in a single lockfile change."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.30.1",
+      "raw": {
+        "version": "0.30.1",
+        "period": "2026-08-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-27",
+        "entries": [
+          "**Cloud Observation's Grok staleness notice no longer swallows the card.** The Grok stale row was copy-pasted into `cloud_observation.html` carrying `codex-stale` / `codex-stale-info` / `codex-stale-tooltip`, but that panel defines `.stale` / `.stale-info` / `.stale-tooltip`. Nothing matched, so the hover tooltip rendered as inline body text, and the unstyled row lost `flex: none` / `white-space: nowrap` and squeezed the `Grok` heading to zero width. Cloud Observation was the only affected theme; the other twelve already resolved their classes."
+        ]
+      },
+      "curated": {
+        "version": "0.30.1",
+        "period": "2026-08-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "「Cloud Observation」主題修正 Grok 過期提示，標題不再被擠壓至寬度歸零",
+              "en": "Cloud Observation theme fixes Grok staleness notice without squeezing the header"
+            },
+            "body": {
+              "zh-TW": "切換至「Cloud Observation」面板主題查看 Grok 額度時，卡片標題不再被過期提示擠壓消失。該主題範本 `cloud_observation.html` 貼入 Grok 過期提示列時誤帶了 `codex-stale`、`codex-stale-info` 與 `codex-stale-tooltip`，但該面板定義的是 `.stale`、`.stale-info` 與 `.stale-tooltip`。因名稱不符，懸停提示掉成一般內文，未排版的列失去 `flex: none` 與 `white-space: nowrap`，將「Grok」標題擠成零寬度。修正後該主題已恢復正常，其餘 12 款主題先前早已正確對應。⟦這好比標籤貼錯代碼致使樣式失效，隱藏說明攤在門面把「Grok」招牌擠到看不見；更正後版面即恢復整齊。⟧",
+              "en": "When viewing Grok usage under the Cloud Observation panel theme, the card heading will no longer be squeezed out of sight by the staleness notice. The Grok stale row was previously pasted into `cloud_observation.html` carrying `codex-stale`, `codex-stale-info`, and `codex-stale-tooltip`, but that panel defines `.stale`, `.stale-info`, and `.stale-tooltip`. Because nothing matched, the hover tooltip rendered as plain inline body text, and the unstyled row lost its `flex: none` and `white-space: nowrap` layout properties, squeezing the `Grok` heading down to zero width. This release updates the template's class names, bringing Cloud Observation in line with the other twelve themes that already resolved their classes. ⟦It is like pasting an inventory label with the wrong department code onto a display plaque, causing the styling rules to miss it so that the hidden note sprawled across the front and crushed the \"Grok\" store sign down to nothing; aligning the class names restores the neat layout and floating popup.⟧"
+            },
+            "original": "**Cloud Observation's Grok staleness notice no longer swallows the card.** The Grok stale row was copy-pasted into `cloud_observation.html` carrying `codex-stale` / `codex-stale-info` / `codex-stale-tooltip`, but that panel defines `.stale` / `.stale-info` / `.stale-tooltip`. Nothing matched, so the hover tooltip rendered as inline body text, and the unstyled row lost `flex: none` / `white-space: nowrap` and squeezed the `Grok` heading to zero width. Cloud Observation was the only affected theme; the other twelve already resolved their classes."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.30.0",
+      "raw": {
+        "version": "0.30.0",
+        "period": "2026-08-26",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-27",
+        "entries": [
+          "**Grok CLI is now available as a fourth local quota card.** Reads the weekly credit percentage Grok CLI already writes to its own local debug log (`~/.grok/logs/unified.jsonl`), so the card needs no network call and starts/spawns nothing. No session/burn-rate data is available from that source, so unlike Claude, Codex, and Antigravity, the card shows a single weekly bar. Wired into the macOS popover, all 13 compatible panel themes (with per-theme icon styling matched to each theme's existing badge conventions), Windows tray, and i18n across all five languages.",
+          "**Grok CLI's per-request tokens now count toward today's cost and spend.** Grok CLI already writes per-turn prompt/completion/cached/reasoning token counts to its local debug log (`shell.turn.inference_done` events), correlated by session id with model-changed and session-created events for model and project attribution. This adds a loader that turns those into `UsageEntry` rows, so Grok activity now counts toward the popover's \"today\" cost/token total and project rows, same as Claude and Codex already do — still zero network calls. Also added Grok's log to the history fingerprint's always-restat file sources, so a Grok-only session between refreshes doesn't go stale.",
+          "**Codex CLI now auto-starts a 5-hour session keeper.** $20 plans hit a 5-hour rate limit window; $100/$200 plans don't. The keeper only pings when the local rate-limit data has ever reported a `five_hour_window_minutes` value, so unlimited plans stay untouched.",
+          "**Grok's icon sizing is fixed on WebKit and it is added to the Hide Sections toggle.** Five panel themes (`classic`, `catppuccin`, `origami`, `stained_glass`, `prism_arcade`) only scoped their SVG icon sizing/color rules to Antigravity's card, so the unscoped Grok icon rendered at WebKit's default intrinsic size of zero — invisible in the real app despite looking fine under Chromium-based testing. Extended those rules to cover Grok's own icon container. Also wires Grok into the \"Hide Sections\" menu (macOS and Windows) so it can be manually hidden like the other three providers, not just auto-hidden when no data is available.",
+          "**Grok now uses its own monochrome accent instead of Antigravity's purple.** Grok's brand is black and white, but its cards shipped with a hardcoded purple hex in all 13 themes — close enough to Antigravity's blue that the two providers read as variants of one another. Replaced with a per-theme `--grok` token (mirroring Antigravity's existing per-theme accent structure), matched to each theme's own visual language.",
+          "**Grok is now included in the demo panels so README screenshots no longer omit it.** The panel demo generator never got a Grok row when the card shipped, so every theme screenshot in the README showed three providers instead of four. Added the demo row and regenerated all panel screenshots.",
+          "**The yearly Wrapped card has a new glow, badge, and overflow fix.** Adds a radial-gradient glow behind the beast art in the HTML report's \"年度 Wrapped\" section, gives the WRAPPED badge a layered gradient with an inset highlight, and lets the art spill past its grid column so it doesn't read as dead space. Pure CSS, no functional change."
+        ]
+      },
+      "curated": {
+        "version": "0.30.0",
+        "period": "2026-08-26",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Grok CLI 支援本機額度卡片，讀取每週進度零網路請求",
+              "en": "Grok CLI joins as a fourth local quota card with zero network calls"
+            },
+            "body": {
+              "zh-TW": "想掌握 Grok CLI 的使用額度，現在打開面板就能直接看見每週進度條。⟦這就像看自家牆外的瓦斯表指針，不必打電話給瓦斯公司詢問，瞄一眼就知道本週用了多少。⟧ 系統直接讀取 Grok CLI 寫在本機記錄檔（`~/.grok/logs/unified.jsonl`）中的每週信用額度百分比，全程不需要任何網路請求，也不會啟動任何背景行程。由於該記錄檔未提供工作階段或消耗速率數據，因此不同於 Claude、Codex 與 Antigravity，本卡片只顯示單一每週進度條。這項功能已完整整合至 macOS 面板與 Windows 系統匣（tray，工作列右下角常駐圖示區）。介面同時支援五種語言，且全部 13 款主題的圖示風格皆比照既有徽章規範。",
+              "en": "When checking your Grok CLI usage, you can now see a weekly progress bar right inside the popover. ⟦It is like glancing at the gas meter on the outside wall: you know this week's total at a glance without calling the utility company.⟧ The card directly reads the weekly credit percentage Grok CLI already writes to its local debug log (`~/.grok/logs/unified.jsonl`), requiring zero network requests and spawning no extra background processes. Because this log file contains no session or burn-rate information, the card displays a single weekly bar unlike Claude, Codex, and Antigravity. This new card is fully integrated into the macOS popover and Windows tray. It supports all five languages, and its icon styling across all 13 panel themes strictly follows each theme's badge conventions."
+            },
+            "original": "**Grok CLI is now available as a fourth local quota card.** Reads the weekly credit percentage Grok CLI already writes to its own local debug log (`~/.grok/logs/unified.jsonl`), so the card needs no network call and starts/spawns nothing. No session/burn-rate data is available from that source, so unlike Claude, Codex, and Antigravity, the card shows a single weekly bar. Wired into the macOS popover, all 13 compatible panel themes (with per-theme icon styling matched to each theme's existing badge conventions), Windows tray, and i18n across all five languages."
+          },
+          {
+            "title": {
+              "zh-TW": "Grok CLI 每次請求納入今日花費，專案與模型歸屬精準核算",
+              "en": "Grok CLI token usage now feeds today's cost totals and project attribution"
+            },
+            "body": {
+              "zh-TW": "頻繁使用 Grok CLI 產出內容的開發者，今日花費面板現在能如實反映你的每一次呼叫。Grok CLI 原先就會在本地記錄檔寫入每輪提示、完成、快取與推論的 token（AI 處理與計費的文字單位）計數事件 `shell.turn.inference_done`。系統新增載入器將這些事件轉換為 `UsageEntry` 資料列，並透過工作階段識別碼串接模型變更與建立事件，精準歸屬模型與專案。這讓 Grok 的活動與 Claude、Codex 一樣計入面板的「今日」總花費、token 總量與專案明細，全程維持零網路請求。此外，該記錄檔已加入歷史指紋的重算清單，避免兩次重新整理之間純用 Grok 的工作階段數據過期。⟦這有如會計櫃檯將新收銀機的每筆明細單直接匯入當日帳冊，各專案開銷一清二楚，無須額外向銀行查帳。⟧",
+              "en": "Developers frequently using Grok CLI will now see every call reflected in the daily spend panel. Grok CLI already writes prompt, completion, cached, and reasoning token counts to its local debug log as `shell.turn.inference_done` events. A new loader converts these events into `UsageEntry` rows, correlating them by session id with model-changed and session-created events for model and project attribution. This allows Grok activity to feed into the popover's \"today\" cost, token total, and project rows just like Claude and Codex, while maintaining zero network calls. Grok's log has also been added to the history fingerprint's always-restat file sources, ensuring Grok-only sessions do not go stale between refreshes. ⟦It is like a cashier importing receipt slips from a new register directly into the daily ledger, tracking project costs clearly without external bank inquiries.⟧"
+            },
+            "original": "**Grok CLI's per-request tokens now count toward today's cost and spend.** Grok CLI already writes per-turn prompt/completion/cached/reasoning token counts to its local debug log (`shell.turn.inference_done` events), correlated by session id with model-changed and session-created events for model and project attribution. This adds a loader that turns those into `UsageEntry` rows, so Grok activity now counts toward the popover's \"today\" cost/token total and project rows, same as Claude and Codex already do — still zero network calls. Also added Grok's log to the history fingerprint's always-restat file sources, so a Grok-only session between refreshes doesn't go stale."
+          },
+          {
+            "title": {
+              "zh-TW": "Codex 20 美元方案自動啟動保活器，無限制方案不受影響",
+              "en": "Codex CLI auto-starts a 5-hour session keeper for $20 plans"
+            },
+            "body": {
+              "zh-TW": "⟦這好比隨身攜帶的定時鬧鐘：只在停車單註記了限時停車規則時才會輕聲提醒，若是全天暢停的通行證則保持靜默。⟧ 使用 Codex CLI 的 20 美元方案訂閱者，常會遇上 5 小時限流時間窗，而 100 美元與 200 美元方案則不受此限制。現在系統會為 20 美元方案自動啟動 5 小時工作階段（session，單次持續連線的工作週期）保活器。該保活機制極為謹慎，只有在本機限流資料曾回報過 `five_hour_window_minutes` 數值時才會發送探測訊號，確保無限制方案完全不被干擾。",
+              "en": "⟦It is like a smart parking timer that only beeps if your ticket has a time limit, staying completely silent for unlimited day passes.⟧ Subscribers on Codex CLI's $20 plan face a 5-hour rate limit window, while $100 and $200 plans do not. The app now automatically starts a 5-hour session keeper for eligible accounts. To keep things clean, the keeper only pings when local rate-limit data has actually reported a `five_hour_window_minutes` value, leaving unlimited plans completely untouched."
+            },
+            "original": "**Codex CLI now auto-starts a 5-hour session keeper.** $20 plans hit a 5-hour rate limit window; $100/$200 plans don't. The keeper only pings when the local rate-limit data has ever reported a `five_hour_window_minutes` value, so unlimited plans stay untouched."
+          },
+          {
+            "title": {
+              "zh-TW": "五款主題修正 Grok 圖示，WebKit 不再隱形",
+              "en": "Grok icon no longer vanishes in WebKit across five themes"
+            },
+            "body": {
+              "zh-TW": "在 `classic`、`catppuccin`、`origami`、`stained_glass` 與 `prism_arcade` 五款面板主題查看 Grok 時，實際 App 不會再出現圖示缺席、Chromium 測試卻看似正常的落差。原本 SVG 圖示（可縮放的向量圖）的尺寸與色彩規則只套用於 Antigravity 卡片。Grok 圖示容器不在範圍內，WebKit（App 繪製畫面的引擎）便以預設原生尺寸零繪製，於是圖示隱形。現在五款主題都將同一套規則延伸到 Grok 圖示容器。⟦像印刷廠替舊版標誌備妥尺寸版型，新標誌漏了版型而印不出來；補上同一規格後，它也能正常出現在成品上。⟧",
+              "en": "In the five panel themes `classic`, `catppuccin`, `origami`, `stained_glass`, and `prism_arcade`, Grok's icon no longer vanishes in the real app while Chromium tests appear normal. The sizing and color rules for SVG icons previously applied only to the Antigravity card. Grok's icon container was outside those rules, so WebKit rendered it at its default intrinsic size of zero and the icon became invisible. The same rules now also cover Grok's icon container in all five themes. ⟦It is like a print shop that had a size template for an older logo but none for the new one, leaving it off the finished page until the same template was added.⟧"
+            },
+            "original": "**Grok's icon sizing is fixed on WebKit and it is added to the Hide Sections toggle.** Five panel themes (`classic`, `catppuccin`, `origami`, `stained_glass`, `prism_arcade`) only scoped their SVG icon sizing/color rules to Antigravity's card, so the unscoped Grok icon rendered at WebKit's default intrinsic size of zero — invisible in the real app despite looking fine under Chromium-based testing. Extended those rules to cover Grok's own icon container. Also wires Grok into the \"Hide Sections\" menu (macOS and Windows) so it can be manually hidden like the other three providers, not just auto-hidden when no data is available."
+          },
+          {
+            "title": {
+              "zh-TW": "Grok 加入隱藏區塊選單，可在桌面版手動收起",
+              "en": "Grok joins Hide Sections for manual hiding on desktop"
+            },
+            "body": {
+              "zh-TW": "當面板上已有資料，卻想暫時收起 Grok 卡片時，macOS 與 Windows 的「隱藏區塊」選單現在也可手動選它。以前 Grok 只會在沒有資料時自動隱藏；選單已能控制其他三家服務商，卻沒有 Grok。它現已列入選項，因此能像其他三家一樣自行決定顯示或隱藏。⟦像展場原本只有三個展櫃的遮簾可拉，第四個展櫃只會在空著時自動關燈；現在也有自己的遮簾，展示與收起都由你安排。⟧",
+              "en": "When a Grok card has data but you want to put it away temporarily, the \"Hide Sections\" menu on macOS and Windows now lets you choose it manually. Grok previously auto-hidden only when no data was available. The menu already controlled the other three providers, but not Grok. It is now an option too, so you can choose whether it is shown or hidden like the other three. ⟦It is like an exhibition with curtains for only three display cases: the fourth switched off by itself only when empty, and now it has its own curtain for you to open or close.⟧"
+            },
+            "original": "**Grok's icon sizing is fixed on WebKit and it is added to the Hide Sections toggle.** Five panel themes (`classic`, `catppuccin`, `origami`, `stained_glass`, `prism_arcade`) only scoped their SVG icon sizing/color rules to Antigravity's card, so the unscoped Grok icon rendered at WebKit's default intrinsic size of zero — invisible in the real app despite looking fine under Chromium-based testing. Extended those rules to cover Grok's own icon container. Also wires Grok into the \"Hide Sections\" menu (macOS and Windows) so it can be manually hidden like the other three providers, not just auto-hidden when no data is available."
+          },
+          {
+            "title": {
+              "zh-TW": "Grok 換上專屬黑白單色強調色，不再與 Antigravity 混淆",
+              "en": "Grok gets its own monochrome theme accent, ending purple color clash"
+            },
+            "body": {
+              "zh-TW": "Grok 現在改用符合其黑白品牌、依主題調整的專屬單色強調色。Grok 官方品牌一向採用黑白單色風格，但先前版本在全部 13 款主題中皆寫死了紫色十六進位色碼；這與 Antigravity 的藍色過於接近，容易讓使用者誤以為兩者是同一品牌的系列變體。本次更新比照 Antigravity 現有的主題強調色結構，改用各主題專屬的 `--grok` 變數標記，讓每款主題下的 Grok 卡片都能呈現與該主題視覺語言高度融合的單色強調效果。⟦這宛如為新品牌換上原廠訂製的黑白徽章，不再借用隔壁專櫃的紫色標籤，界線分明且和諧一致。⟧",
+              "en": "Grok now uses its own per-theme monochrome accent, matched to its black-and-white brand and each theme. Grok's official branding is strictly black and white, but its cards initially shipped with hardcoded purple hex values across all 13 themes, looking close enough to Antigravity's blue that the two appeared related. This release replaces the hardcoded values with a per-theme `--grok` token, mirroring Antigravity's theme structure and matching the visual language of each design. ⟦It is like outfitting a new department with its own tailored black-and-white insignia instead of borrowing a purple label from the neighboring rack.⟧"
+            },
+            "original": "**Grok now uses its own monochrome accent instead of Antigravity's purple.** Grok's brand is black and white, but its cards shipped with a hardcoded purple hex in all 13 themes — close enough to Antigravity's blue that the two providers read as variants of one another. Replaced with a per-theme `--grok` token (mirroring Antigravity's existing per-theme accent structure), matched to each theme's own visual language."
+          },
+          {
+            "title": {
+              "zh-TW": "範本產生器加入 Grok，說明文件截圖完整展示四卡",
+              "en": "Demo panels add Grok row, updating all README screenshots"
+            },
+            "body": {
+              "zh-TW": "查閱說明文件與預覽主題效果時，讀者能看見四家服務商齊聚的完整畫面。面板範本產生器在先前 Grok 卡片釋出時未同步加入 Grok 範本列，導致專案說明文件（README，專案首頁的介紹文件）裡展示的所有主題截圖都只出現三家服務商而非完整的四家。這次更新補齊了 Grok 範本資料列，並重新產生了全部主題的面板展示截圖，確保每張截圖都能忠實呈現包含 Grok 在內的四卡版面。⟦這恰似型錄攝影師重拍全系列商品宣傳照，補上新發表的第四款產品，讓買家翻開目錄就能看清所有陣容。⟧",
+              "en": "When browsing project documentation and previews, readers will now see all four providers displayed together. The panel demo generator was not updated with a Grok row when the card originally shipped, meaning theme screenshots in the README mistakenly showed three providers instead of four. This update adds the missing demo row and regenerates every theme screenshot, ensuring all visuals accurately represent the four-card layout. ⟦It is like a product catalog photographer reshooting the entire collection to include the newly launched fourth model, showing customers the complete lineup at a glance.⟧"
+            },
+            "original": "**Grok is now included in the demo panels so README screenshots no longer omit it.** The panel demo generator never got a Grok row when the card shipped, so every theme screenshot in the README showed three providers instead of four. Added the demo row and regenerated all panel screenshots."
+          },
+          {
+            "title": {
+              "zh-TW": "年度 Wrapped 卡片樣式升級，光暈與徽章更精緻且改善留白",
+              "en": "Yearly Wrapped card receives visual polish with glows and badges"
+            },
+            "body": {
+              "zh-TW": "⟦這有如為紀念證書重新打光：在神獸主角身後打上柔和光環，搭配多層次高光徽章，並讓畫作邊緣自然延伸破格，整體氣勢更為生動。⟧ 匯出的 HTML 報表在「年度 Wrapped」視覺區塊獲得了純 CSS 樣式升級。怪獸插圖背後新增了放射狀漸層（radial-gradient，由中心向外發散的漸層光暈）背景光；WRAPPED 徽章採用多層漸層搭配內陰影高光效果；同時放寬版面限制，讓怪獸插圖能自然溢出其網格欄位邊界，避免留白處顯得生硬空曠。本次調整全為純樣式優化，未改動任何功能邏輯。",
+              "en": "⟦It is like refining a commemorative plaque: casting a soft glow behind the mascot, adding layered highlights to the emblem, and letting the illustration gently break outside its frame for a richer look.⟧ The exported HTML report received a pure CSS styling refresh in its \"年度 Wrapped\" section. A radial-gradient glow now illuminates the background behind the beast illustration, while the WRAPPED badge features a layered gradient with an inset highlight. The artwork is also allowed to overflow past its grid column, preventing awkward empty margins. These changes are entirely visual and introduce no functional modifications."
+            },
+            "original": "**The yearly Wrapped card has a new glow, badge, and overflow fix.** Adds a radial-gradient glow behind the beast art in the HTML report's \"年度 Wrapped\" section, gives the WRAPPED badge a layered gradient with an inset highlight, and lets the art spill past its grid column so it doesn't read as dead space. Pure CSS, no functional change."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.37",
+      "raw": {
+        "version": "0.29.37",
+        "period": "2026-08-25",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-25",
+        "entries": [
+          "**Windows crashed on startup in v0.29.34 through v0.29.36.** The 0.29.34 refactor moved `wintray.py` to `wintray/app.py` and `tui.py` to `tui/app.py`, but `scripts/build_windows.ps1` still hidden-imported the old top-level module names. Both packages' `__init__.py` are empty, so PyInstaller packaged only empty shells and dropped the whole `wintray` dependency tree (`panels.*`, `updates.*`, and more) along with it — every downloader hit `ModuleNotFoundError: No module named 'wintray.app'`, and the TUI fallback failed the same way since `tui.app` was missing too. macOS was unaffected; `setup_app.py` collects the whole package by name via py2app, and the names still matched after the rename.",
+          "**The Windows build script now verifies the packaged exe actually contains `wintray.app` and `tui.app`.** It previously only checked that an exe file existed, which is why the three broken releases above shipped without anyone noticing — the file was there, just missing the modules users needed. `build_windows.ps1` now reads the PyInstaller archive contents with `archive_viewer` and throws if either entry-point module is missing, so a future regression fails the release job instead of shipping a broken artifact."
+        ]
+      },
+      "curated": {
+        "version": "0.29.37",
+        "period": "2026-08-25",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 啟動崩潰已修復，打包不再遺漏模組",
+              "en": "Windows startup crash is fixed, and packaging no longer drops modules"
+            },
+            "body": {
+              "zh-TW": "Windows 在 v0.29.34 至 v0.29.36 啟動時當機。⟦這好比搬家沒改通訊錄，按舊地址找去只見空屋。⟧ 0.29.34 重構把 `wintray.py` 與 `tui.py` 移入 `wintray/app.py` 和 `tui/app.py`，`scripts/build_windows.ps1` 仍隱藏匯入舊模組名。兩套件 `__init__.py` 皆為空，PyInstaller 因而只打包空殼，遺漏 `wintray` 依賴樹（`panels.*` 與 `updates.*` 等）；下載者遇 `ModuleNotFoundError: No module named 'wintray.app'`，TUI 備援也因缺 `tui.app` 失敗。macOS 未受影響，`setup_app.py` 經 py2app 依名稱收集套件，改名後仍相符。",
+              "en": "Windows crashed on startup in v0.29.34 through v0.29.36. ⟦It is like moving house without updating the address book: anyone looking at the old address only finds an empty building.⟧ The 0.29.34 refactor moved `wintray.py` and `tui.py` to `wintray/app.py` and `tui/app.py`, but `scripts/build_windows.ps1` still hidden-imported the old top-level module names. Because `__init__.py` in both packages is empty, PyInstaller only packaged empty shells and dropped the `wintray` dependency tree (`panels.*`, `updates.*`, and more). Every downloader hit `ModuleNotFoundError: No module named 'wintray.app'`, and the TUI fallback failed because `tui.app` was also missing. macOS was unaffected because `setup_app.py` collects the whole package by name via py2app, which still matched after the rename."
+            },
+            "original": "**Windows crashed on startup in v0.29.34 through v0.29.36.** The 0.29.34 refactor moved `wintray.py` to `wintray/app.py` and `tui.py` to `tui/app.py`, but `scripts/build_windows.ps1` still hidden-imported the old top-level module names. Both packages' `__init__.py` are empty, so PyInstaller packaged only empty shells and dropped the whole `wintray` dependency tree (`panels.*`, `updates.*`, and more) along with it — every downloader hit `ModuleNotFoundError: No module named 'wintray.app'`, and the TUI fallback failed the same way since `tui.app` was missing too. macOS was unaffected; `setup_app.py` collects the whole package by name via py2app, and the names still matched after the rename."
+          },
+          {
+            "title": {
+              "zh-TW": "建置腳本檢查打包內容，防止釋出損壞的 Windows 執行檔",
+              "en": "Build script inspects archive contents to prevent shipping broken Windows executables"
+            },
+            "body": {
+              "zh-TW": "⟦這像品管檢查出貨包裹：以前只看箱子是否存在就放行，現在會用透視掃描確認核心零件真的裝在箱內。⟧ 過去 Windows 建置腳本 `build_windows.ps1` 只檢查 `.exe` 檔案是否存在，才讓前述三個損壞版本在無人察覺下釋出——檔案確實存在，卻缺少使用者需要的模組。現在 `build_windows.ps1` 會以 `archive_viewer` 讀取 PyInstaller 保存庫內容；若遺漏 `wintray.app` 或 `tui.app` 任一進入點模組便直接拋出錯誤。這確保未來若發生退化，會在發布任務中直接失敗，不再釋出損壞的產物。",
+              "en": "⟦It is like package inspection in a factory: instead of merely checking that a box exists on the shelf, an inspector now scans inside to verify key parts are present.⟧ The Windows build script `build_windows.ps1` previously only checked that an `.exe` file existed, which is why the three broken releases shipped without anyone noticing — the file was there, but missing the modules users needed. `build_windows.ps1` now reads the PyInstaller archive contents with `archive_viewer` and throws if either `wintray.app` or `tui.app` entry-point module is missing. This ensures any future regression fails the release job instead of shipping a broken artifact."
+            },
+            "original": "**The Windows build script now verifies the packaged exe actually contains `wintray.app` and `tui.app`.** It previously only checked that an exe file existed, which is why the three broken releases above shipped without anyone noticing — the file was there, just missing the modules users needed. `build_windows.ps1` now reads the PyInstaller archive contents with `archive_viewer` and throws if either entry-point module is missing, so a future regression fails the release job instead of shipping a broken artifact."
+          }
+        ]
+      }
+    }
+  ]
+}

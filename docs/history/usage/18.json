@@ -1,0 +1,363 @@
+{
+  "id": "usage",
+  "name": "Usage",
+  "page": 18,
+  "pages": 21,
+  "versions": [
+    {
+      "version": "0.11.13",
+      "raw": {
+        "version": "0.11.13",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Removed Codex model footer from popover**: the \"· model: gpt-5.5\" suffix added in v0.11.6 (`menubar.py:868-870`) misled users into thinking the model was being used *right now*, when in fact it reflects the model of the most recent Codex session with rate_limits data — possibly hours old. Without a timestamp context, this information is noise that can't be acted on. TUI model displays (`ui/tables.py:818,857`) are kept since they live inside different contexts (active session block / idle panel). The `model_label` i18n key and `CodexRateLimits.model` field are preserved; only the popover footer concatenation is removed."
+        ]
+      },
+      "curated": {
+        "version": "0.11.13",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "拿掉底部容易誤導的模型標示，還給畫面清爽",
+              "en": "Removed misleading model labels from the footer to keep things clean"
+            },
+            "body": {
+              "zh-TW": "你打開面板時，最下面不再顯示 Codex 模型的名稱了。這是因為之前顯示的其實是「上次有留紀錄時」用的模型，可能是好幾個小時前的事了，卻很容易讓人誤以為「現在這一秒」正在用它。因為這個資訊看了也只會讓人混淆，我們決定把它拿掉，讓畫面更乾淨。就像你去銀行抽號碼牌，如果螢幕上一直掛著「上一位客人的辦理項目」，你只會覺得一頭霧水；現在直接把它擦掉，清清爽爽。",
+              "en": "When you open the popover panel, you'll no longer see the Codex model name at the very bottom. This is because the label was actually showing the model used during \"your last recorded session\"—which could have been hours ago—leading people to mistakenly believe it was actively being used right that second. Since this out-of-context information was more confusing than helpful, we simply removed it to clean up the interface. It's like waiting at the bank: if the digital display kept showing the transaction type of the customer from three hours ago, you'd just be confused; now the board is wiped clean to avoid misunderstandings."
+            },
+            "original": "**Removed Codex model footer from popover**: the \"· model: gpt-5.5\" suffix added in v0.11.6 (`menubar.py:868-870`) misled users into thinking the model was being used *right now*, when in fact it reflects the model of the most recent Codex session with rate_limits data — possibly hours old. Without a timestamp context, this information is noise that can't be acted on. TUI model displays (`ui/tables.py:818,857`) are kept since they live inside different contexts (active session block / idle panel). The `model_label` i18n key and `CodexRateLimits.model` field are preserved; only the popover footer concatenation is removed."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.12",
+      "raw": {
+        "version": "0.11.12",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Hook self-heal: broken installs fix themselves, silently**: every startup now runs `setup_hook.self_heal()`, which silently repairs three clearly-safe scenarios: (1) first-run (`is_setup()==False` and no `statusLine` key in settings) → invokes `setup()`; (2) hook script version is out of date (`needs_update()==True`) → `update_hook()`; (3) settings points to a missing hook file with state `us-direct`/`us-forwarder` → re-runs `_copy_hook_script()` + `_copy_forwarder_script()`. When state is `external`/`legacy-tt`, all three skip (no silent override of third-party tools). Each action appends to `settings[\"usage\"][\"selfHealLog\"]` (FIFO, 20 entries). Failures are swallowed; stderr is printed only when `USAGE_DEBUG=1`.",
+          "**Coexistence prompt consolidated**: when an external statusLine tool is detected, usage shows a single NSAlert with two buttons (\"Enable Coexistence Mode\" / \"Keep Current Setup\"). Either button sets `settings[\"usage\"][\"forwarderModePromptDismissed\"]=True` and the prompt never appears again. Replaces the previous three-button repair dialog in `main.py:health_check()`; the \"remind me later (24h cooldown)\" path is removed. Users who previously chose \"Do Not Ask Again\" on the old dialog will be re-prompted once (one click resolves it).",
+          "**`--doctor` hidden CLI flag**: `python3 main.py --doctor` prints a plain-text diagnostic report (English-only for easier GitHub issue searches) covering hook state, version, script file status, status file mtime, external hook detection (recognizes `ccusage` / `lord-kali` keywords), forwarder prompt ack state, last 5 self-heal log entries, and Codex sessions scan count. Hidden from `--help` via `argparse.SUPPRESS` so it doesn't distract typical users. New `doctor.py` renderer module.",
+          "**Weekly burn warning no longer over-reacts to short bursts**: previously the weekly warning extrapolated from the most recent 10-minute sample window, so a single large prompt could trigger a scary \"8 hours until empty\" warning that vanished once the user took a break. The weekly warning now uses a 30-minute sample window with a 30-minute minimum span, requiring sustained high usage for at least half an hour before triggering. Session warnings keep the 10-minute window (session resets are frequent, can't be too strict). `burn_rate.ROLLING_WINDOW_SECONDS` was raised from 15 to 60 minutes so the longer window has enough history.",
+          "**Burn warning text now says \"at current pace\"**: all 5 languages' burn warning strings now explicitly include \"按目前速度 / At current pace / 現在のペース / 현재 속도\", making it clear that this is a momentary extrapolation rather than a stable prediction."
+        ]
+      },
+      "curated": {
+        "version": "0.11.12",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "系統學會自己修復連線，與其他工具和平共存不擾人",
+              "en": "The system repairs its own connections and peacefully coexists with other tools"
+            },
+            "body": {
+              "zh-TW": "以前如果 Claude 的連線程式（hook，負責把用量傳出來的小程式）不小心被刪掉或過期了，你得自己打指令重裝。現在每次開啟 usage，它都會默默幫你檢查；如果是單純的檔案不見或版本太舊，它會一秒內自己修好，你完全不會發現。如果你同時有安裝別人的連線工具，它也不會偷偷蓋掉別人的設定，只會跳一次簡單的視窗問你要不要「共存」，點過一次以後就永遠不會再煩你。就像家裡的水管工，以前管子稍微鬆了還要你打電話叫他來，現在他會定期巡邏默默鎖緊；如果看到有別的師傅在施工，他也會禮貌地問一聲要不要配合，而且只問一次。",
+              "en": "Previously, if Claude's connection hook (the small script that relays your usage data) was accidentally deleted or became outdated, you had to manually run setup commands to fix it. Now, every time usage starts, it quietly checks its own health; if it spots a missing file or an old version, it instantly repairs itself without you ever noticing. If you happen to be running third-party connection tools alongside it, it won't aggressively overwrite their settings. Instead, it asks exactly once if you want to enable \"coexistence\" mode, and then never bothers you about it again. It's like a plumber who used to require a phone call every time a pipe came loose, but now does silent maintenance rounds; and if he sees another contractor working, he politely asks how to coordinate—and only asks once."
+            },
+            "original": "**Hook self-heal: broken installs fix themselves, silently**: every startup now runs `setup_hook.self_heal()`, which silently repairs three clearly-safe scenarios: (1) first-run (`is_setup()==False` and no `statusLine` key in settings) → invokes `setup()`; (2) hook script version is out of date (`needs_update()==True`) → `update_hook()`; (3) settings points to a missing hook file with state `us-direct`/`us-forwarder` → re-runs `_copy_hook_script()` + `_copy_forwarder_script()`. When state is `external`/`legacy-tt`, all three skip (no silent override of third-party tools). Each action appends to `settings[\"usage\"][\"selfHealLog\"]` (FIFO, 20 entries). Failures are swallowed; stderr is printed only when `USAGE_DEBUG=1`.\n**Coexistence prompt consolidated**: when an external statusLine tool is detected, usage shows a single NSAlert with two buttons (\"Enable Coexistence Mode\" / \"Keep Current Setup\"). Either button sets `settings[\"usage\"][\"forwarderModePromptDismissed\"]=True` and the prompt never appears again. Replaces the previous three-button repair dialog in `main.py:health_check()`; the \"remind me later (24h cooldown)\" path is removed. Users who previously chose \"Do Not Ask Again\" on the old dialog will be re-prompted once (one click resolves it)."
+          },
+          {
+            "title": {
+              "zh-TW": "隱藏診斷指令上線，額度用盡警告不再一驚一乍",
+              "en": "Hidden doctor command available, and burn warnings stop crying wolf"
+            },
+            "body": {
+              "zh-TW": "現在如果遇到疑難雜症，你可以用一個隱藏的 `--doctor` 指令來印出英文診斷報告，方便上網抓藥。更棒的是，介面上的「每週額度燃燒警告」變穩重了。以前只要你連續十分鐘狂問問題，系統就會嚇得推算出「剩下 8 小時就會把整週額度用光」的誇張數字；現在它會觀察整整半小時，確定你真的是持續高用量才會發出警告，而且五種語言的警告文字都會明確加上「按目前速度」的免責聲明。就像車子的油表預測，以前你只是踩了一腳油門超車，它就警告你油只夠開三公里；現在它會看你這半小時的平均車速再來估計，還會老實告訴你「這是用你現在猛踩油門的速度算的」。",
+              "en": "If you ever run into tricky issues, you can now use a hidden `--doctor` command to print a full English diagnostic report, making it much easier to search for solutions online. Even better, the weekly burn-rate warning on your dashboard has stopped being so dramatic. Previously, if you blasted through prompts for just 10 minutes, the system would panic and project that you'd drain your entire week's quota in 8 hours. It now observes you for a full 30 minutes to confirm you're actually sustaining a high burn rate before sounding the alarm, and the warning text across all five languages now explicitly adds an \"at current pace\" disclaimer. It's like your car's range estimator: instead of flashing an empty tank warning just because you floored the gas pedal to pass a truck, it now watches your average speed over the last half hour, honestly noting \"this is based on how heavy your foot is right now.\""
+            },
+            "original": "**`--doctor` hidden CLI flag**: `python3 main.py --doctor` prints a plain-text diagnostic report (English-only for easier GitHub issue searches) covering hook state, version, script file status, status file mtime, external hook detection (recognizes `ccusage` / `lord-kali` keywords), forwarder prompt ack state, last 5 self-heal log entries, and Codex sessions scan count. Hidden from `--help` via `argparse.SUPPRESS` so it doesn't distract typical users. New `doctor.py` renderer module.\n**Weekly burn warning no longer over-reacts to short bursts**: previously the weekly warning extrapolated from the most recent 10-minute sample window, so a single large prompt could trigger a scary \"8 hours until empty\" warning that vanished once the user took a break. The weekly warning now uses a 30-minute sample window with a 30-minute minimum span, requiring sustained high usage for at least half an hour before triggering. Session warnings keep the 10-minute window (session resets are frequent, can't be too strict). `burn_rate.ROLLING_WINDOW_SECONDS` was raised from 15 to 60 minutes so the longer window has enough history.\n**Burn warning text now says \"at current pace\"**: all 5 languages' burn warning strings now explicitly include \"按目前速度 / At current pace / 現在のペース / 현재 속도\", making it clear that this is a momentary extrapolation rather than a stable prediction."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.10",
+      "raw": {
+        "version": "0.11.10",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**\"Launch at login\" toggle now takes effect immediately, no reboot needed**: `login_item.enable()` / `disable()` now invoke `launchctl bootstrap gui/<uid> <plist>` / `launchctl bootout gui/<uid>/<label>` in addition to writing/removing `~/Library/LaunchAgents/com.lollapalooza.usage.plist`, so launchd learns about the change right away. Previously only the plist file was touched, so the toggle did nothing until the next reboot, and disabling left a KeepAlive orphan process behind. `launchctl` \"already bootstrapped\" (exit 17) and \"not bootstrapped\" (exit 113) are treated as success; other failures log a warning without affecting the plist operation (signatures stay `() -> None`)."
+        ]
+      },
+      "curated": {
+        "version": "0.11.10",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "「開機自動啟動」開關立刻生效，不用等到下次重開機",
+              "en": "The \"Launch at login\" toggle now takes effect instantly without a reboot"
+            },
+            "body": {
+              "zh-TW": "以前你在選單裡點了「開機自動啟動」的開關，系統只會默默記在筆記本裡，你得等到下一次重開機，電腦才會真的照做；要是你把它關掉，背景還會留下一支不會停的舊程式。現在只要你一點開關，系統就會馬上拍拍電腦的肩膀跟它說「現在就開始」或「馬上停下來」，不用再等重開機了。就像你跟大樓管理員說明天開始不要送報紙了，以前他只會寫在明天的交接本上，今天還是照送；現在他會立刻用對講機跟派報生說停送。",
+              "en": "When you toggled \"Launch at login\" from the menu, the system previously just jotted it down in a config file and waited for your next reboot to actually do anything about it; and turning it off left a zombie background process running. Now, the moment you flip the switch, the system instantly taps macOS on the shoulder to say \"start doing this now\" or \"stop right now\", with zero reboots required. It's like telling the building manager to cancel your newspaper delivery: they used to just write it in tomorrow's log while still delivering today's paper, but now they immediately radio the delivery person to stop."
+            },
+            "original": "**\"Launch at login\" toggle now takes effect immediately, no reboot needed**: `login_item.enable()` / `disable()` now invoke `launchctl bootstrap gui/<uid> <plist>` / `launchctl bootout gui/<uid>/<label>` in addition to writing/removing `~/Library/LaunchAgents/com.lollapalooza.usage.plist`, so launchd learns about the change right away. Previously only the plist file was touched, so the toggle did nothing until the next reboot, and disabling left a KeepAlive orphan process behind. `launchctl` \"already bootstrapped\" (exit 17) and \"not bootstrapped\" (exit 113) are treated as success; other failures log a warning without affecting the plist operation (signatures stay `() -> None`)."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.9",
+      "raw": {
+        "version": "0.11.9",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**TUI session table no longer crashes on `cost_usd=None`**: widened `ui/tables.py:_fmt_cost` to `float | None` so entries written without a cost (a known path on the Codex side) now render as `--`, matching the popover-side behavior in `panels/web_panel.py`. Previously the `>=` comparison raised `TypeError` and broke the whole table.",
+          "**Update check now handles pre-release versions**: `update_checker._parse_version` now strips pre-release / build suffixes via regex, so `0.11.0-beta.1` / `0.11.0+build.5` no longer return `None` and no longer make `compare_versions` raise. Beta testers receive update prompts correctly. No new package dependencies were added.",
+          "**Pricing falls back to a stale cache when offline**: the fallback order in `pricing.py` is now fresh cache → network fetch → stale cache → hardcoded fallback. Previously a >7-day-old cache combined with no network dropped straight to the hardcoded prices, skewing cost estimates; the real (if stale) historical cache is now preferred."
+        ]
+      },
+      "curated": {
+        "version": "0.11.9",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "離線估價更準確，測試版更新不再漏接，終端介面不崩潰",
+              "en": "Accurate offline estimates, fixed beta updates, and crash-free terminal UI"
+            },
+            "body": {
+              "zh-TW": "現在帶筆電出門沒網路時，系統估算花費會直接拿你上週剛抓過的價目表來算，不會再傻傻退回最古老的出廠價，讓成本估算大失真。如果你是愛用測試版的勇者，系統現在也看得懂「beta」這類後綴版號，有新版會正確跳出更新提示，不再報錯裝死。另外，用終端機查看對話紀錄時，就算有些紀錄沒有標示花費金額，畫面現在只會顯示「--」，不會再導致整個表格直接崩潰壞掉。就像出國沒網路時，你會拿出幾天前存的舊匯率表來換算，而不是硬用十年前的書本價格；而且就算清單裡某幾項商品沒貼標籤，結帳機台也不會整台當機了。",
+              "en": "When you're working offline without internet, the system now smartly estimates your costs using the real price list you fetched last week, instead of wildly falling back to ancient factory-default prices and skewing your budget. If you're an early adopter running beta versions, the update checker now understands version numbers ending in \"beta\", delivering update prompts correctly instead of throwing an error and playing dead. Also, when viewing your session history in the terminal, if a specific entry happens to lack cost data, it now gracefully displays \"--\" rather than crashing the entire table. It's like traveling abroad without data: you use the exchange rate you saved a few days ago instead of blindly relying on a ten-year-old guidebook; and if a couple of items on your grocery receipt are missing price tags, the whole cash register doesn't explode."
+            },
+            "original": "**Pricing falls back to a stale cache when offline**: the fallback order in `pricing.py` is now fresh cache → network fetch → stale cache → hardcoded fallback. Previously a >7-day-old cache combined with no network dropped straight to the hardcoded prices, skewing cost estimates; the real (if stale) historical cache is now preferred.\n**Update check now handles pre-release versions**: `update_checker._parse_version` now strips pre-release / build suffixes via regex, so `0.11.0-beta.1` / `0.11.0+build.5` no longer return `None` and no longer make `compare_versions` raise. Beta testers receive update prompts correctly. No new package dependencies were added.\n**TUI session table no longer crashes on `cost_usd=None`**: widened `ui/tables.py:_fmt_cost` to `float | None` so entries written without a cost (a known path on the Codex side) now render as `--`, matching the popover-side behavior in `panels/web_panel.py`. Previously the `>=` comparison raised `TypeError` and broke the whole table."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.8",
+      "raw": {
+        "version": "0.11.8",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**git worktree entries collapse into the main project**: running Claude Code or Codex inside a worktree (a duplicate working tree of the same repo) no longer splits `usage` and `usage-fix-bug` into two separate rows in the HTML report and TUI ranking. They are now grouped under the main worktree's directory name. A new `project_resolver.py` module (stdlib only, 3-second timeout, falls back to the previous basename behavior when git is unavailable) is shared by `history_loader.py` and `codex_loader.py`. Seeing historical totals merge on first upgrade is the intended behavior."
+        ]
+      },
+      "curated": {
+        "version": "0.11.8",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "同一個專案的平行副本，用量不再被拆得七零八落",
+              "en": "Parallel working copies of the same project no longer fracture your usage stats"
+            },
+            "body": {
+              "zh-TW": "當你用工作樹（worktree，讓同一個專案多開幾份平行副本的 Git 功能）來修 bug 或開發新功能時，系統終於懂得把帳算在一起了。以前它會把你主資料夾跟副本資料夾的用量拆成兩個獨立專案，導致你的用量排行榜看起來很亂；現在它會自動把這些副本的用量，全部算在主專案頭上。升級後如果你看到某些專案的數字突然變大、名次合體，這是正常的。就像你拿了幾張附卡給家人刷，以前帳單會分開好幾份寄來讓你眼花，現在全部彙整到主卡帳單裡，一眼就能看出總共花了多少。",
+              "en": "When you use worktrees (a Git feature that lets you check out multiple parallel copies of the same project) to fix bugs or build features, the system finally knows how to consolidate the bill. Previously, it would split the usage from your main folder and your copies into separate projects, cluttering your leaderboards; it now intelligently groups all that usage under the main project's name. If you notice some project totals suddenly merging and growing upon upgrading, this is completely expected. It's like handing out supplementary credit cards to your family: instead of receiving a confusing pile of separate statements, everything is now cleanly rolled up into one master bill, making it immediately clear how much was spent in total."
+            },
+            "original": "**git worktree entries collapse into the main project**: running Claude Code or Codex inside a worktree (a duplicate working tree of the same repo) no longer splits `usage` and `usage-fix-bug` into two separate rows in the HTML report and TUI ranking. They are now grouped under the main worktree's directory name. A new `project_resolver.py` module (stdlib only, 3-second timeout, falls back to the previous basename behavior when git is unavailable) is shared by `history_loader.py` and `codex_loader.py`. Seeing historical totals merge on first upgrade is the intended behavior."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.7",
+      "raw": {
+        "version": "0.11.7",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Pricing cache moved under `~/.usage/`**: the LiteLLM pricing cache now lives at `~/.usage/pricing_cache.json` instead of `~/.claude/pricing_cache.json`, following the principle that usage-owned state belongs in its own directory. The legacy path stays as a read-only fallback for seamless migration. Thanks @ericweichun.",
+          "**Explicit `usage report --help` and unknown-option handling**: previously the CLI silently ignored unknown report options and `--help` still triggered agent detection. Now `--help` returns the help text immediately and unknown options error out cleanly. Thanks @ericweichun."
+        ]
+      },
+      "curated": {
+        "version": "0.11.7",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "設定檔搬家不留痕跡，終端機指令不再裝聾作啞",
+              "en": "Configs move homes seamlessly, and terminal commands stop playing deaf"
+            },
+            "body": {
+              "zh-TW": "你平常不用管的計費快取（cache，暫存資料的地方）現在搬到了專屬的資料夾裡，而且系統會自己讀舊檔案當備用，你完全不用重設。另外，在終端機打 `usage report` 指令時，如果打錯字，以前系統會假裝沒看到直接跑預設畫面，現在它會明確報錯教你怎麼打；查說明文件（`--help`）的速度也變快了。就像你把家裡的工具箱換了個抽屜放，要用的時候自動拿到手；而平常那個問錯問題就沉默的助理，現在終於會主動說「不好意思，你指的是這個嗎？」了。",
+              "en": "The billing cache (where temporary data is stored) has smoothly moved to its own dedicated folder. The system will still read your old file as a backup, so you don't have to lift a finger to migrate. Also, when you make a typo running the `usage report` command in the terminal, instead of silently ignoring you and running the default report, the system now stops and tells you what went wrong. Looking up the help manual (`--help`) is also noticeably faster. It's like moving your toolbox to a new drawer and having your tools automatically show up in your hand when needed; and that assistant who used to stare blankly when asked the wrong question finally speaks up to say, \"Sorry, did you mean this instead?\""
+            },
+            "original": "**Pricing cache moved under `~/.usage/`**: the LiteLLM pricing cache now lives at `~/.usage/pricing_cache.json` instead of `~/.claude/pricing_cache.json`, following the principle that usage-owned state belongs in its own directory. The legacy path stays as a read-only fallback for seamless migration. Thanks @ericweichun.\n**Explicit `usage report --help` and unknown-option handling**: previously the CLI silently ignored unknown report options and `--help` still triggered agent detection. Now `--help` returns the help text immediately and unknown options error out cleanly. Thanks @ericweichun."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.6",
+      "raw": {
+        "version": "0.11.6",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Codex model shown in the popover footer**: the footer now displays the currently detected Codex model; when no model data is available it falls back to `unknown` instead of leaving the state blank.",
+          "**Analysis report period follows the Project Usage range**: the Report button now switches output periods with the current project range, mapping 1d to today, 7d to week, and 30d to month. No new UI was added; it uses the existing range control.",
+          "**Japanese / Korean Codex model labels completed**: added the missing ja / ko `model_label` translations so footer model information no longer renders blank in Japanese and Korean UIs.",
+          "**Codex today / week / month reports now use tail scanning**: users with many sessions no longer wait for a full history scan when opening reports. Today reports drop from roughly 7 seconds to the 0.03-second range, with week / month benefiting from the same path."
+        ]
+      },
+      "curated": {
+        "version": "0.11.6",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "底部清楚標示 Codex 模型，日韓介面也不會一片空白",
+              "en": "The popover footer clearly displays the Codex model, and Japanese/Korean UIs are no longer blank"
+            },
+            "body": {
+              "zh-TW": "你現在可以直接在介面底部看到目前正在使用的 Codex 模型。以前如果剛好沒有模型資料，畫面會空一塊讓你以為壞掉了，現在它會老實印出「unknown」。同時，日文與韓文介面的模型標籤也補齊了，切換語系一樣看得到。就像去餐廳點無菜單料理，以前主廚不說話你會以為沒菜了，現在菜單底部會確實寫上今日食材或是「主廚特製」，而且各國語言的菜單都印得清清楚楚。",
+              "en": "You can now see exactly which Codex model is currently active right at the bottom of the interface. Previously, if no model data was available, the space was left completely blank, making you wonder if the app broke; it now honestly prints \"unknown\". Additionally, the missing Japanese and Korean model labels have been filled in, so you get the same clear info regardless of language. Like a mysterious chef's tasting menu—instead of leaving the dish name blank and making you guess if the kitchen closed, the menu now explicitly says \"Chef's Secret\" or prints the actual ingredients, fully translated for every guest."
+            },
+            "original": "**Codex model shown in the popover footer**: the footer now displays the currently detected Codex model; when no model data is available it falls back to `unknown` instead of leaving the state blank.\n**Japanese / Korean Codex model labels completed**: added the missing ja / ko `model_label` translations so footer model information no longer renders blank in Japanese and Korean UIs."
+          },
+          {
+            "title": {
+              "zh-TW": "分析報告時間範圍跟著專案走，累積再多對話也秒開",
+              "en": "Analysis reports sync with your project range and open instantly regardless of history size"
+            },
+            "body": {
+              "zh-TW": "你現在按出分析報告時，它的時間區間會自動對齊你正在看的專案範圍（Project Usage），切換 1d 就看今天、7d 就看本週，不用另外找按鈕設定。對於重度使用者來說，現在按出今日報告的時間從 7 秒大幅縮短到只要 0.03 秒。因為系統學會了「從尾巴往前掃描」，不再傻傻從盤古開天闢地第一筆對話開始讀。就像去圖書館查昨天的報紙，以前館員會從十年前的舊報紙一路翻到今天，現在他直接從最新的一疊拿給你，而且你說要找體育版，他拿出來的就直接是體育版。",
+              "en": "When you generate an analysis report, its time period now automatically matches the project range (Project Usage) you're currently viewing—selecting 1d shows today, 7d shows this week, without needing a separate toggle. For heavy users, generating today's report has plummeted from a sluggish 7 seconds down to lightning-fast 0.03 seconds. The system now smartly scans backwards from the newest entries instead of mindlessly reading your entire history from the dawn of time. Like asking a librarian for yesterday's newspaper—instead of flipping through a decade of archives from page one, they now grab right from the top of the freshest pile, already opened to the section you requested."
+            },
+            "original": "**Analysis report period follows the Project Usage range**: the Report button now switches output periods with the current project range, mapping 1d to today, 7d to week, and 30d to month. No new UI was added; it uses the existing range control.\n**Codex today / week / month reports now use tail scanning**: users with many sessions no longer wait for a full history scan when opening reports. Today reports drop from roughly 7 seconds to the 0.03-second range, with week / month benefiting from the same path."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.5",
+      "raw": {
+        "version": "0.11.5",
+        "period": "2026-05-26",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Terminal toggle button now changes background when enabled**: previously only the `✓` check mark indicated that the statusLine hook was active; now the button background tints with each panel's accent color too, so the on/off state is obvious at a glance.",
+          "**Friendlier button labels for non-developers**: \"Analyze\" → \"Report\", \"CLI\" → \"Terminal\" (with per-language translations: 終端 / ターミナル / 터미널 / 终端). All five languages updated together.",
+          "**All buttons now have hover feedback**: previously only \"Refresh Now\" reacted to mouse hover; \"Quit\", \"Switch Panel\", \"Today\", \"Report\", \"Terminal\" looked disabled. Hover now produces visual feedback at a graded intensity (primary > secondary > switch).",
+          "**Classic panel large visual refinement**: pushed towards a \"macOS system tool\" feel — card corners 18→8, tightened spacing, progress bars gained inset track shadow and outer glow, projects list got a relative-share comparison bar (top-3 ranks emphasized), footer status became chip pills, brand-color accent stripe added on the left, brand icons gained background tint and glow.",
+          "**Six themed panels adopt the same UX trio** (matrix / win95 / newspaper / aquarium / cloud_observation / prism_arcade / black_hole): comparison bars, Terminal active-state coloring, button hover. Each panel's own theme art is preserved in full (Matrix green / Win95 pixel / newspaper print / aquarium ripple / cloud / prism rainbow / black-hole orange).",
+          "**Landing page panel gallery expanded from 6 to 9 themes**: added aquarium / prism_arcade / black_hole; classic now uses its own screenshot instead of borrowing `popover.png`.",
+          "**Refreshed all 9 panel screenshots (zh-TW & en)** in the README and on https://aqua5230.github.io/usage/.",
+          "**Analysis reports now follow the menu bar popover language**: clicking Report (formerly Analyze) now passes the menu bar's current language into HTML report generation instead of redetecting from environment variables only, avoiding English fallback when LaunchAgent does not set `LANG`.",
+          "**Visible popovers are repositioned when switching panels**: changing the active theme/panel while the popover is open now closes the old popover, rebuilds the content and size, then shows it again to avoid transient indentation or sizing glitches.",
+          "**Codex project usage and analysis reports now share one counting path**: when the same Codex session appears in multiple JSONL files, usage keeps the newer cumulative token entry; analysis reports now reuse `codex_loader.load_entries()`, and Project Usage includes Codex sessions so the app and report do not disagree for the same local data. Project Usage's Today range now matches the footer's local calendar day, and the footer no longer reloads Codex when the caller already supplied Codex entries.",
+          "**Project Usage header truncation fixed across all 9 panels**: classic & matrix were patched by @ericweichun (#9); this release completes the remaining six (win95 / newspaper / aquarium / cloud_observation / prism_arcade / black_hole). All now use a 2-row grid (icon + title on top, three buttons evenly distributed below) so English \"Project Usage\" and longer Japanese/Korean titles no longer clip.",
+          "**macOS now opens analysis reports with `/usr/bin/open`**: previously `webbrowser.open()` constructed a `file://` URI, which some browsers refused for paths containing spaces or CJK characters. Switching to `/usr/bin/open` with the resolved path is more reliable. Thanks to @ericweichun (#9).",
+          "**Matrix panel footer clipping**: the ASCII border + raindrop background made the content taller than the default 812 panel height, clipping the \"Refresh Now / Quit\" buttons. Raised to 880.",
+          "**win95 / newspaper \"Resets in X\" text was glued to the card edge**: bumped win95 panel height 768 → 800, newspaper → 850, and added padding-bottom to the Claude/Codex card's `.row:last-child`.",
+          "**Four grid panels (aquarium / cloud_observation / prism_arcade / black_hole) — Projects row layout rebuilt**: the original row-as-mini-card design (border + radius + background) fundamentally fought with the new column-spanning comparison bar (the bar always glued to the row card's bottom border; padding / margin / grid-template-rows tweaks all failed). Switched to flat rows with border-top dividers (same as classic), preserving each panel's theme color on the rank chip and background. Also removed the comparison bar from these four panels (grid + row-card + spanning bar is fundamentally conflicting; ROI too low). The other four panels (classic / matrix / win95 / newspaper) keep their comparison bars."
+        ]
+      },
+      "curated": {
+        "version": "0.11.5",
+        "period": "2026-05-26",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "按鈕改名又會回應了，報告語言與開啟也修順",
+              "en": "Buttons get friendlier names and real feedback, and reports open in the right language"
+            },
+            "body": {
+              "zh-TW": "面板上的按鈕變得更好懂、也更會回應你了。首先是名字改直白：「分析」改成「報告」、「CLI」（命令列介面的縮寫，工程師才懂的詞）改成「終端」，五種語言同步更新，不再只有工程師看得懂。再來，以前只有「立即更新」這顆按鈕滑鼠移上去會變色，其他像是「結束」「更換面板」「今日」「報告」「終端」全部沒反應、看起來像壞掉的；現在每顆按鈕移上去都有視覺回饋。而「終端」這顆開關（用來開關狀態列 hook 的——狀態列 hook 是一種讓程式在終端機提示列上常駐顯示一小段資訊的設定）以前只有一個小勾勾表示開著，現在按鈕底色也會跟著變，一眼分得出開還是關。另外兩個跟「報告」有關的問題也修好了：按「報告」產生的 HTML 報告，現在會跟著選單列目前的語言，不會再因為系統環境沒設好就退回英文；而開啟報告時，如果路徑裡有空白或中文字（以前會讓某些瀏覽器打不開），現在改用系統的 open 指令更穩定。就像一個店面把原本只有店員才看得懂的編號標籤，換成客人也懂的名字，每個按鈕按下去也都會亮一下告訴你「有反應喔」，而且不管你的資料夾取什麼名字都能順利結帳。",
+              "en": "The buttons on the panel are friendlier and more responsive now. First, the names got plainer: \"Analyze\" became \"Report\", and \"CLI\" (an abbreviation for command-line interface, jargon only engineers understand) became \"Terminal\", updated across all five languages so it's no longer just engineers who can read them. Second, previously only the \"Refresh Now\" button changed color when you hovered; the others — \"Quit\", \"Switch Panel\", \"Today\", \"Report\", \"Terminal\" — gave no reaction and looked broken; now every button gives visual feedback on hover. And the \"Terminal\" toggle (which turns the status-line hook on and off — a status-line hook is a small setup that pins a program's info in your terminal's prompt line) used to show only a tiny check mark when on, but now its background tints too, so you can tell at a glance whether it's on or off. Two report-related bugs are also fixed: the HTML report generated by clicking \"Report\" now follows the menu bar's current language instead of falling back to English when the system environment isn't set up; and when opening the report, paths with spaces or CJK characters (which used to break some browsers) now work reliably via the system's open command. It's like a shop swapping clerk-only numeric labels for names customers actually understand, with every button lighting up to say \"I heard you\" when pressed, and checkout working no matter what you named your folders."
+            },
+            "original": "**Terminal toggle button now changes background when enabled**: previously only the `✓` check mark indicated that the statusLine hook was active; now the button background tints with each panel's accent color too, so the on/off state is obvious at a glance.\n**Friendlier button labels for non-developers**: \"Analyze\" → \"Report\", \"CLI\" → \"Terminal\" (with per-language translations: 終端 / ターミナル / 터미널 / 终端). All five languages updated together.\n**All buttons now have hover feedback**: previously only \"Refresh Now\" reacted to mouse hover; \"Quit\", \"Switch Panel\", \"Today\", \"Report\", \"Terminal\" looked disabled. Hover now produces visual feedback at a graded intensity (primary > secondary > switch).\n**Analysis reports now follow the menu bar popover language**: clicking Report (formerly Analyze) now passes the menu bar's current language into HTML report generation instead of redetecting from environment variables only, avoiding English fallback when LaunchAgent does not set `LANG`.\n**macOS now opens analysis reports with `/usr/bin/open`**: previously `webbrowser.open()` constructed a `file://` URI, which some browsers refused for paths containing spaces or CJK characters. Switching to `/usr/bin/open` with the resolved path is more reliable. Thanks to @ericweichun (#9)."
+          },
+          {
+            "title": {
+              "zh-TW": "面板視覺全面翻新，標題不再斷、數字不再對不上",
+              "en": "Panels get a full visual refresh — titles stop clipping and numbers stop disagreeing"
+            },
+            "body": {
+              "zh-TW": "你的面板畫面整個整理過，看起來更像一套 macOS 系統工具，也修掉一堆排版與數字的小毛病。預設的 classic 面板大幅翻新：卡片圓角變小、間距收緊、進度條多了凹陷與光暈、專案排行榜多了相對佔比的比例條（前 3 名強調）、底部狀態改成圓角標籤、左邊加上品牌色細條。其他七款主題面板（駭客任務、視窗 95、報紙、水族箱、雲圖、稜鏡街機、黑洞）都跟進終端開啟變色與按鈕 hover（滑鼠移上去的變色反應）效果；不過比例條只有駭客任務、視窗 95、報紙這三款跟 classic 一樣保留，水族箱、雲圖、稜鏡街機、黑洞這四款因為版面結構衝突而拆掉。各面板仍保留原本的主題視覺（綠字、像素、油墨等）。同時修掉一堆惱人的排版問題：九款面板的「專案用量」標題以前常被三顆按鈕擠到斷行（尤其英文和日韓較長的字串），現在改成兩列版型不再被裁掉；駭客任務面板的底部按鈕、視窗 95 與報紙面板的「重置倒數」文字以前會被邊框切掉，現在都調高了；切換面板時彈窗也不再出現短暫的排版錯亂。另外，同一份 Codex 對話紀錄以前在面板和報告裡可能算出不一樣的數字，現在兩邊走同一套算法，app 和報告不再對不上。官網與說明文件的展示截圖也一併補齊到九款面板。就像一間老店面重新裝潢：招牌字不再被遮、櫃子不再塞到溢出來，而且各分店統一用同一套陳列方式，客人不管走進哪一家都看得順眼。",
+              "en": "Your panel has been cleaned up top to bottom — it reads more like a proper macOS system tool, and a pile of layout and number glitches got fixed. The default classic panel got a major refresh: smaller card corners, tighter spacing, progress bars with inset shadows and glow, a relative-share comparison bar on the project rankings (emphasizing the top 3), footer status turned into rounded chips, and a brand-color stripe down the left side. Seven other themed panels (Matrix, Windows 95, newspaper, aquarium, cloud, prism arcade, black hole) all picked up the Terminal active-state coloring and button hover effects; the comparison bars, though, are kept only on Matrix, Windows 95, and newspaper (same as classic) — aquarium, cloud, prism arcade, and black hole had theirs removed over a layout conflict. Each panel still keeps its original theme art (green text, pixels, ink, and so on). A batch of annoying layout bugs are fixed too: the \"Project Usage\" title across all nine panels used to get squeezed into a broken line by the three buttons (especially the longer English, Japanese, and Korean strings), now rebuilt into a two-row layout that no longer clips; the Matrix panel's bottom buttons and the Windows 95 / newspaper panels' \"resets in\" text used to get cut off by the frame, now raised to fit; switching panels no longer causes a brief layout glitch in the popover. And the same Codex session used to be counted differently in the panel versus the report — now both sides share one counting path, so the app and the report no longer disagree. The website and documentation gallery screenshots were also refreshed to cover all nine panels. It's like an old shop getting renovated: the sign isn't blocked anymore, the shelves don't overflow, and every branch uses the same display so customers see a tidy store no matter which one they walk into."
+            },
+            "original": "**Classic panel large visual refinement**: pushed towards a \"macOS system tool\" feel — card corners 18→8, tightened spacing, progress bars gained inset track shadow and outer glow, projects list got a relative-share comparison bar (top-3 ranks emphasized), footer status became chip pills, brand-color accent stripe added on the left, brand icons gained background tint and glow.\n**Six themed panels adopt the same UX trio** (matrix / win95 / newspaper / aquarium / cloud_observation / prism_arcade / black_hole): comparison bars, Terminal active-state coloring, button hover. Each panel's own theme art is preserved in full (Matrix green / Win95 pixel / newspaper print / aquarium ripple / cloud / prism rainbow / black-hole orange).\n**Landing page panel gallery expanded from 6 to 9 themes**: added aquarium / prism_arcade / black_hole; classic now uses its own screenshot instead of borrowing `popover.png`.\n**Refreshed all 9 panel screenshots (zh-TW & en)** in the README and on https://aqua5230.github.io/usage/.\n**Visible popovers are repositioned when switching panels**: changing the active theme/panel while the popover is open now closes the old popover, rebuilds the content and size, then shows it again to avoid transient indentation or sizing glitches.\n**Codex project usage and analysis reports now share one counting path**: when the same Codex session appears in multiple JSONL files, usage keeps the newer cumulative token entry; analysis reports now reuse `codex_loader.load_entries()`, and Project Usage includes Codex sessions so the app and report do not disagree for the same local data. Project Usage's Today range now matches the footer's local calendar day, and the footer no longer reloads Codex when the caller already supplied Codex entries.\n**Project Usage header truncation fixed across all 9 panels**: classic & matrix were patched by @ericweichun (#9); this release completes the remaining six (win95 / newspaper / aquarium / cloud_observation / prism_arcade / black_hole). All now use a 2-row grid (icon + title on top, three buttons evenly distributed below) so English \"Project Usage\" and longer Japanese/Korean titles no longer clip.\n**Matrix panel footer clipping**: the ASCII border + raindrop background made the content taller than the default 812 panel height, clipping the \"Refresh Now / Quit\" buttons. Raised to 880.\n**win95 / newspaper \"Resets in X\" text was glued to the card edge**: bumped win95 panel height 768 → 800, newspaper → 850, and added padding-bottom to the Claude/Codex card's `.row:last-child`.\n**Four grid panels (aquarium / cloud_observation / prism_arcade / black_hole) — Projects row layout rebuilt**: the original row-as-mini-card design (border + radius + background) fundamentally fought with the new column-spanning comparison bar (the bar always glued to the row card's bottom border; padding / margin / grid-template-rows tweaks all failed). Switched to flat rows with border-top dividers (same as classic), preserving each panel's theme color on the rank chip and background. Also removed the comparison bar from these four panels (grid + row-card + spanning bar is fundamentally conflicting; ROI too low). The other four panels (classic / matrix / win95 / newspaper) keep their comparison bars."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.4",
+      "raw": {
+        "version": "0.11.4",
+        "period": "2026-05-25",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**statusLine shows an \"update available\" hint**: after every successful update check, menubar writes the result to `~/.claude/usage-preferences.json` under `last_update_check`. statusLine reads this and renders `🆕 vX.Y.Z available` (cyan) on the model line when a newer version is cached, the cache is fresh (<30 days), and the version isn't on the user's skip list. New `update_available_suffix` translation across all 5 languages (zh-TW「可更新」/ zh-CN「可更新」/ en「available」/ ja「更新あり」/ ko「업데이트」).",
+          "**statusLine context-window label format**: `對話窗(1.0M):[bar]` → `對話窗:[bar] 15% / 1.0M`. The capacity moves from a middle parenthetical to a right-aligned suffix, reading more naturally as \"15% of 1M\".",
+          "**statusLine fast-mode display flipped**: previously both states showed a label (`⚡Fast` vs `/nofast`); now only the *on* state shows `⚡Fast`, off renders nothing — like an AC unit's indicator light: the light *being on* is the signal.",
+          "**statusLine percentages now share the bar color**: previously rendered in neutral gray; now matched to the bar's warning color (yellow / green / red). The number alone tells you the warning level at a glance.",
+          "**statusLine `(X left)` no longer dimmed**: previously rendered with ANSI dim, hard to read on dark terminal backgrounds. Removed dim; parentheses alone now carry the \"supplementary info\" semantic."
+        ]
+      },
+      "curated": {
+        "version": "0.11.4",
+        "period": "2026-05-25",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "狀態列學會提點更新，排版與顏色更直覺",
+              "en": "The status line gains update hints and more intuitive colors"
+            },
+            "body": {
+              "zh-TW": "終端機裡的狀態列（statusLine，在輸入框上方顯示額度的區塊）變得更懂你在看什麼了。如果你用的是有裝選單列 App 的電腦，只要背景檢查到有新版本，狀態列的最後面就會輕輕亮起一個青色的「可更新」小字，不用刻意打開選單也能收到通知。同時，狀態列的排版也經過一番梳理：脈絡視窗（context window）的容量上限，從原本擠在標題的括號裡，搬到了進度條尾端跟百分比排在一起，讀起來更順口；「快速模式」的標籤改成只有開啟時才亮起，不再用一個奇怪的「/nofast」來佔畫面；而且，百分比數字的顏色現在會直接跟著進度條一起變色（黃、綠、紅），加上原本太暗的剩餘時間也調亮了，就算在黑底的終端機裡也清清楚楚。就像車子的儀表板，只有開遠光燈時圖示才會亮，油量數字的顏色會跟著油表指針一起變紅，還會在你該保養的時候默默亮起保養燈，再也不用瞇著眼睛在暗處找數字了。",
+              "en": "The terminal status line (the block above your input showing quotas) has gotten much better at communicating. If you're running the menu bar app in the background and it discovers a new update, the status line will softly append a cyan \"available\" badge at the very end of the row, keeping you informed without making you click anything. We also streamlined the entire layout: the context window capacity has moved out of its awkward title parenthesis to sit right next to the percentage at the tail end of the bar, making it read naturally. The \"fast mode\" indicator now behaves like an actual indicator — it only lights up when the mode is on, ditching the confusing \"/nofast\" clutter when it's off. Furthermore, the percentage numbers now perfectly match the bar's warning color (yellow, green, or red), and the remaining time texts are no longer frustratingly dimmed out on dark backgrounds. It's like a modernized car dashboard: the high-beam icon only glows when they're actually on, the fuel number turns red along with the needle, and a small maintenance light quietly turns on when it's time, so you never have to squint in the dark to decipher your gauges again."
+            },
+            "original": "**statusLine shows an \"update available\" hint**: after every successful update check, menubar writes the result to `~/.claude/usage-preferences.json` under `last_update_check`. statusLine reads this and renders `🆕 vX.Y.Z available` (cyan) on the model line when a newer version is cached, the cache is fresh (<30 days), and the version isn't on the user's skip list. New `update_available_suffix` translation across all 5 languages (zh-TW「可更新」/ zh-CN「可更新」/ en「available」/ ja「更新あり」/ ko「업데이트」).\n**statusLine context-window label format**: `對話窗(1.0M):[bar]` → `對話窗:[bar] 15% / 1.0M`. The capacity moves from a middle parenthetical to a right-aligned suffix, reading more naturally as \"15% of 1M\".\n**statusLine fast-mode display flipped**: previously both states showed a label (`⚡Fast` vs `/nofast`); now only the *on* state shows `⚡Fast`, off renders nothing — like an AC unit's indicator light: the light *being on* is the signal.\n**statusLine percentages now share the bar color**: previously rendered in neutral gray; now matched to the bar's warning color (yellow / green / red). The number alone tells you the warning level at a glance.\n**statusLine `(X left)` no longer dimmed**: previously rendered with ANSI dim, hard to read on dark terminal backgrounds. Removed dim; parentheses alone now carry the \"supplementary info\" semantic."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.3",
+      "raw": {
+        "version": "0.11.3",
+        "period": "2026-05-25",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Read-only CLI commands silently mutated user settings**: `usage daily` / `report` / `sessions` / `dashboard` and other read commands unconditionally called `setup()` or `update_hook()`, potentially writing to `~/.claude/settings.json` or `~/.codex/config.toml` on every invocation. Fix: only `setup` / `unsetup` mutate user settings; other commands now show a one-line \"Hook not installed. Run: usage setup\" hint when the hook isn't installed.",
+          "**Opus 4.6 / 4.7 cost was underestimated 3× on offline cold start**: `pricing.py`'s fallback table listed Opus as `5e-6 / 25e-6` (input / output per token), but the published Anthropic rate is `15e-6 / 75e-6`. Affected scenario: no pricing cache *and* LiteLLM live fetch fails. Users with network access or a cached price table are unaffected.",
+          "**`adapters/codex.py` sqlite connection leak**: `_load_thread_models()` wrapped the work in `try / except`, but `conn.close()` ran *after* `execute().fetchall()` — any exception in between left the connection dangling. Now uses `contextlib.closing()` to guarantee release.",
+          "**Mid-write crash could leave `~/.codex/config.toml` truncated**: `setup_hook.py`'s `_setup_codex` / `_unsetup_codex` used plain `write_text()`, so a crash or kill during setup could corrupt Codex config. Now uses `mkstemp + os.replace` atomic write, sharing a single module-private helper with Claude settings.",
+          "**`analyzer/cost.py` removed**: it was a weakened duplicate of `pricing.py` — bidirectional substring model matching (prone to misclassification), no cache TTL, and an SSL-cert-verification-disabled fallback when fetching the price table (a security concern for cost data). `analyzer/{aggregator,blocks,reporter}` now import `pricing.calculate_cost` directly; the latter accepts a `typing.Protocol` so both `history_loader.UsageEntry` and `adapters.types.UsageEntry` work. Net 76 lines of duplicate cost-calc code removed."
+        ]
+      },
+      "curated": {
+        "version": "0.11.3",
+        "period": "2026-05-25",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "唯讀指令不再亂動設定，離線時成本估算更精準",
+              "en": "Read-only commands stop mutating settings, and offline costs are accurate"
+            },
+            "body": {
+              "zh-TW": "這次修補了幾個背後運作的安全隱患。以前當你在終端機下達像 `usage report` 這種理應「只看資料不改東西」的唯讀指令時，系統卻會自作主張地在背後偷偷覆寫你的 Claude 或 Codex 設定檔，甚至如果執行到一半被強制關閉，還可能把你的設定檔截斷弄壞。現在它學乖了，唯讀指令絕對不會碰你的設定檔，而需要修改檔案的安裝流程也改成「原子寫入（atomic write）」——確保整份檔案寫完才替換，中途當機也不會留下半殘的廢檔。此外，針對在沒有網路又沒有價格快取的「離線冷啟動」情況，我們修正了內建的備用價格表，原本它把最新模型 Opus 4.6 的價格低估了 3 倍，現在斷網時也能幫你算出正確的花費。就像去圖書館借書，以前只是用電腦查個書目，系統卻會偷偷跑去改你的借閱密碼，而且遇到停電還可能把你的卡片消磁；現在它安守本分只查資料，並且不管圖書館有沒有連上網，查到的逾期罰金都保證正確無誤。",
+              "en": "We've patched several quiet hazards in how the system operates under the hood. Previously, when you ran terminal commands like `usage report` that were supposed to simply read data, the system would aggressively overwrite your Claude or Codex config files behind your back, and if the app was killed mid-write, it could completely ruin your configuration file. The app now behaves itself: read-only commands absolutely will not touch your settings, and the actual installation flows now use \"atomic writes\" — guaranteeing the entire file is safely written before swapping it in, leaving no broken files even if it crashes mid-way. Additionally, for \"offline cold starts\" (when you have no internet and no cached price table), we fixed the built-in fallback prices where the cost of the newest Opus 4.6 model was drastically underestimated by 3×. Now your cost estimates are accurate even completely offline. It's like using a library catalog computer: it used to secretly reset your PIN just because you searched for a book, and a power outage could erase your card; now it sticks to reading only, and tells you exactly the right late fees even when the library's internet is down."
+            },
+            "original": "**Read-only CLI commands silently mutated user settings**: `usage daily` / `report` / `sessions` / `dashboard` and other read commands unconditionally called `setup()` or `update_hook()`, potentially writing to `~/.claude/settings.json` or `~/.codex/config.toml` on every invocation. Fix: only `setup` / `unsetup` mutate user settings; other commands now show a one-line \"Hook not installed. Run: usage setup\" hint when the hook isn't installed.\n**Opus 4.6 / 4.7 cost was underestimated 3× on offline cold start**: `pricing.py`'s fallback table listed Opus as `5e-6 / 25e-6` (input / output per token), but the published Anthropic rate is `15e-6 / 75e-6`. Affected scenario: no pricing cache *and* LiteLLM live fetch fails. Users with network access or a cached price table are unaffected.\n**`adapters/codex.py` sqlite connection leak**: `_load_thread_models()` wrapped the work in `try / except`, but `conn.close()` ran *after* `execute().fetchall()` — any exception in between left the connection dangling. Now uses `contextlib.closing()` to guarantee release.\n**Mid-write crash could leave `~/.codex/config.toml` truncated**: `setup_hook.py`'s `_setup_codex` / `_unsetup_codex` used plain `write_text()`, so a crash or kill during setup could corrupt Codex config. Now uses `mkstemp + os.replace` atomic write, sharing a single module-private helper with Claude settings.\n**`analyzer/cost.py` removed**: it was a weakened duplicate of `pricing.py` — bidirectional substring model matching (prone to misclassification), no cache TTL, and an SSL-cert-verification-disabled fallback when fetching the price table (a security concern for cost data). `analyzer/{aggregator,blocks,reporter}` now import `pricing.calculate_cost` directly; the latter accepts a `typing.Protocol` so both `history_loader.UsageEntry` and `adapters.types.UsageEntry` work. Net 76 lines of duplicate cost-calc code removed."
+          }
+        ]
+      }
+    }
+  ]
+}

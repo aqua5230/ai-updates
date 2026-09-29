@@ -1,0 +1,750 @@
+{
+  "id": "usage",
+  "name": "Usage",
+  "page": 4,
+  "pages": 21,
+  "versions": [
+    {
+      "version": "0.29.36",
+      "raw": {
+        "version": "0.29.36",
+        "period": "2026-08-24",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-24",
+        "entries": [
+          "**Antigravity quota now raises notifications, the way Claude Code and Codex already did.** The `agy_session` and `agy_weekly` channels were missing from the notification allow-list, so the two Antigravity rows could run to the floor without ever saying so. Antigravity quota is the one source that comes from a network endpoint behind a local cache rather than a file on disk, so `QuotaRowState.available` is hard-coded to `True`; a stale snapshot now passes `available=False` instead, so an expired cache can no longer announce that the quota has run out.",
+          "**The Antigravity rows now warn before the quota is gone, not after.** They had never been wired to the burn-rate forecast, so their `warning` flag was permanently `False` — Claude and Codex warned ahead of a reset and Antigravity stayed silent until it hit the floor. Both rows now register their own tracker. Samples are timestamped with the snapshot's own `fetched_at` rather than the wall clock, because the Antigravity snapshot only changes every five minutes and polling would otherwise read the same payload again and invent a slope out of it. Both rows use a 3600-second window: at one sample per five minutes the default ten-minute window never collects `MIN_FORECAST_SAMPLES`, which is the same as not forecasting at all. A stale snapshot suppresses the forecast entirely, matching what `agy_window_keeper` already does.",
+          "**`usage doctor` now catches a Codex history migration that would silently zero the token counts.** Codex has begun writing tables such as `rollout_migration_state`, and if that migration lands and the `.jsonl` files stop being written, `loaders/codex_loader.py` returns zero without an error anywhere. The check warns when the session `.jsonl` files hold no entry from the last seven days while `thread_history_1.sqlite` does hold `thread_turns` from that window.",
+          "**`usage doctor` now reconciles its own Claude cost against the official one.** It compares `cost.total_cost_usd` from `usage-status.json` with the figure usage calculates itself and warns when they differ by more than 20% and more than $1. On the machine this was written on they differed by 46.4%, because the price table listed `claude-opus-5` at half its real rate — exactly the kind of drift the offline fallback table is known to hide.",
+          "**The project usage card no longer clips its rows on the WIN95 and Newspaper panels.** A panel measures its own natural height by releasing the whole `height: 100%` chain to `auto`. Both panels write their project card as `flex: 1`, which means a flex basis of zero, and the card's own `overflow: hidden` — the retro window chrome depends on it — suppresses the automatic content-based minimum size that would otherwise hold the card open. The card therefore collapsed to its title bar during the measurement, and the reported height was short by exactly the project rows: 877 pixels for WIN95 and 876 for Newspaper against 923 for the structurally identical Classic. The measurement now pins such stretching children to `flex: 0 0 auto` while it measures and restores them afterwards, so no panel's visual design changes.",
+          "**Eight more modules moved out of the repository root.** `quota/` took `burn_rate`, `usage_rate`, `window_keeper`, and `agy_window_keeper`; `usage_common/` took `time_utils`, `usage_logging`, `usage_lang`, and `usage_dir_sweeper`. The shared-utility package is named `usage_common` rather than `common` because the `uvx usage-cli` entry point installs top-level packages into a shared `site-packages`, where `common` is about the most collision-prone name available. No compatibility shims were left behind — every import in the repository was updated in one pass, `pyproject.toml` dropped the eight `py-modules` entries and added the two packages, and `setup_app.py` followed. Behavior is unchanged."
+        ]
+      },
+      "curated": {
+        "version": "0.29.36",
+        "period": "2026-08-24",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Antigravity 額度會提醒，也能提早預警",
+              "en": "Antigravity quota now notifies and warns ahead"
+            },
+            "body": {
+              "zh-TW": "⟦把 Antigravity 額度想成油表：油用完才亮燈已經太晚，舊讀值更不能冒充油箱已空。⟧ 現在 `agy_session` 和 `agy_weekly` 兩列會發通知，不再因為漏列在通知允許清單而一路耗盡卻沒消息。它們也接上各自的用量追蹤器，會在額度歸零前顯示警告，而不是等到底才沉默。Antigravity 的資料來自經過快取（把查過的結果暫存起來直接用）的網路端點；快取過期時，快照會標成不可用，因而不會誤報額度已用完。預測採用快照自己的 `fetched_at` 時間，而非輪詢當下的時鐘，避免同一份每五分鐘才變動的資料被重複讀取後憑空算出趨勢。兩列使用 3600 秒視窗；原本十分鐘的預設視窗湊不齊 `MIN_FORECAST_SAMPLES`，等同根本無法預測。過期快照也會完全停用預測，與 `agy_window_keeper` 一致。",
+              "en": "⟦Think of Antigravity quota as a fuel gauge: a light that comes on after the tank is empty is too late, and an old reading must not pretend the tank is empty.⟧ The `agy_session` and `agy_weekly` rows now send notifications instead of being omitted from the notification allow-list and running down silently. Each row also has its own usage tracker, so it can warn before quota reaches zero rather than stay quiet until then. Antigravity data comes from a network endpoint behind a local cache, which stores a previously fetched result for reuse. When that cache is stale, its snapshot is marked unavailable, so it cannot announce that quota has run out. Forecasting uses the snapshot's `fetched_at` time instead of the polling clock, preventing repeated reads of a payload that changes only every five minutes from inventing a trend. Both rows use a 3600-second window because the default ten-minute window cannot gather `MIN_FORECAST_SAMPLES`. A stale snapshot also suppresses forecasting, matching `agy_window_keeper`. "
+            },
+            "original": "**Antigravity quota now raises notifications, the way Claude Code and Codex already did.** The `agy_session` and `agy_weekly` channels were missing from the notification allow-list, so the two Antigravity rows could run to the floor without ever saying so. Antigravity quota is the one source that comes from a network endpoint behind a local cache rather than a file on disk, so `QuotaRowState.available` is hard-coded to `True`; a stale snapshot now passes `available=False` instead, so an expired cache can no longer announce that the quota has run out.\n**The Antigravity rows now warn before the quota is gone, not after.** They had never been wired to the burn-rate forecast, so their `warning` flag was permanently `False` — Claude and Codex warned ahead of a reset and Antigravity stayed silent until it hit the floor. Both rows now register their own tracker. Samples are timestamped with the snapshot's own `fetched_at` rather than the wall clock, because the Antigravity snapshot only changes every five minutes and polling would otherwise read the same payload again and invent a slope out of it. Both rows use a 3600-second window: at one sample per five minutes the default ten-minute window never collects `MIN_FORECAST_SAMPLES`, which is the same as not forecasting at all. A stale snapshot suppresses the forecast entirely, matching what `agy_window_keeper` already does."
+          },
+          {
+            "title": {
+              "zh-TW": "usage doctor 能抓出 Codex 歷史搬遷後的歸零",
+              "en": "usage doctor catches Codex history migrations that zero counts"
+            },
+            "body": {
+              "zh-TW": "⟦這像記帳員同時翻閱收據盒與總帳；收據盒空了、總帳卻有交易，便知道資料沒有真的消失。⟧ `usage doctor`（用來檢查使用資料異常的指令）現在會檢查 Codex 的歷史搬遷。Codex 開始寫入 `rollout_migration_state` 這類資料表後，若搬遷完成、工作階段的 `.jsonl` 檔不再寫入，`loaders/codex_loader.py` 會毫無錯誤地回傳零 token（AI 計費與計量的文字單位）數。現在只要 `.jsonl` 在最近七天沒有任何項目，但 `thread_history_1.sqlite` 裡的 `thread_turns` 卻有同一時段資料，檢查便會警告你。這能指出原本悄悄把計數歸零的落差。",
+              "en": "⟦It is like an accountant opening both the receipt box and the ledger: if the box is empty but the ledger has transactions, the records have not truly vanished.⟧ `usage doctor`, a command that checks for problems in usage data, now looks for a Codex history migration. After Codex began writing tables such as `rollout_migration_state`, a completed migration could stop the session `.jsonl` files from being written while `loaders/codex_loader.py` silently returned zero token counts. It now warns when `.jsonl` files contain no entry from the last seven days while `thread_history_1.sqlite` has `thread_turns` from that same window. That exposes a mismatch that used to zero counts without an error."
+            },
+            "original": "**`usage doctor` now catches a Codex history migration that would silently zero the token counts.** Codex has begun writing tables such as `rollout_migration_state`, and if that migration lands and the `.jsonl` files stop being written, `loaders/codex_loader.py` returns zero without an error anywhere. The check warns when the session `.jsonl` files hold no entry from the last seven days while `thread_history_1.sqlite` does hold `thread_turns` from that window."
+          },
+          {
+            "title": {
+              "zh-TW": "usage doctor 會核對 Claude 費用是否偏離官方數字",
+              "en": "usage doctor compares Claude costs with the official figure"
+            },
+            "body": {
+              "zh-TW": "帳單對不上時，問題可能不在你，而在離線價目表已經過時。⟦這次的 `usage doctor` 像把兩把尺靠在同一塊木板上，讀數差距超過門檻就亮起警示燈。⟧ 它會把 `usage-status.json` 的 `cost.total_cost_usd` 與 usage 自行算出的金額相比。差距同時超過 20% 與 $1 時便會警告。撰寫這項功能的那台機器上，兩者相差 46.4%，原因是價目表把 `claude-opus-5` 標成真實費率的一半。這正是離線備援價目表可能掩蓋的價格漂移。",
+              "en": "When a bill does not match, the problem may be an outdated offline price table rather than you. ⟦Here `usage doctor` is like placing two rulers against the same board and lighting a warning when their readings exceed a threshold.⟧ It compares `cost.total_cost_usd` in `usage-status.json` with the amount usage calculates itself, then warns when the gap is both over 20% and over $1. On the machine where this feature was written, the figures differed by 46.4% because the price table listed `claude-opus-5` at half its real rate. That is the kind of price drift an offline fallback table can hide."
+            },
+            "original": "**`usage doctor` now reconciles its own Claude cost against the official one.** It compares `cost.total_cost_usd` from `usage-status.json` with the figure usage calculates itself and warns when they differ by more than 20% and more than $1. On the machine this was written on they differed by 46.4%, because the price table listed `claude-opus-5` at half its real rate — exactly the kind of drift the offline fallback table is known to hide."
+          },
+          {
+            "title": {
+              "zh-TW": "WIN95 與 Newspaper 的專案用量卡不再截掉資料列",
+              "en": "WIN95 and Newspaper project cards no longer clip rows"
+            },
+            "body": {
+              "zh-TW": "WIN95 與 Newspaper 面板上的專案用量卡，現在不會只露出標題列，把底下資料列截掉。面板量自然高度時會暫時把整條 `height: 100%` 改成 `auto`。但兩個面板都把專案卡寫成 `flex: 1`，其彈性基準是零；卡片自己的 `overflow: hidden` 是復古視窗外框所需，卻壓掉可撐開內容的自動最小尺寸。量測時，卡片因此縮成標題列，WIN95 報出 877 像素、Newspaper 報出 876 像素，而結構相同的 Classic 是 923 像素。⟦像量布料時先把被拉緊的橡皮筋鬆開，才不會把整件衣服量短。⟧ 現在量測會暫時把這類可拉伸子項固定為 `flex: 0 0 auto`，量完再還原，因此面板的視覺設計不會改變。",
+              "en": "Project usage cards on the WIN95 and Newspaper panels no longer show only their title bar while clipping the rows below. To measure natural height, a panel temporarily releases the `height: 100%` chain to `auto`. Yet both panels write the project card as `flex: 1`, whose flex basis is zero, while the card's `overflow: hidden`, needed by retro window chrome, suppresses the automatic content-based minimum size that would keep it open. During measurement the card therefore collapsed to its title bar: WIN95 reported 877 pixels and Newspaper 876, versus 923 for structurally identical Classic. ⟦It is like loosening a stretched elastic before measuring cloth, so the whole garment is not measured too short.⟧ Measurement now temporarily pins stretching children to `flex: 0 0 auto` and restores them afterward, leaving each panel's visual design unchanged."
+            },
+            "original": "**The project usage card no longer clips its rows on the WIN95 and Newspaper panels.** A panel measures its own natural height by releasing the whole `height: 100%` chain to `auto`. Both panels write their project card as `flex: 1`, which means a flex basis of zero, and the card's own `overflow: hidden` — the retro window chrome depends on it — suppresses the automatic content-based minimum size that would otherwise hold the card open. The card therefore collapsed to its title bar during the measurement, and the reported height was short by exactly the project rows: 877 pixels for WIN95 and 876 for Newspaper against 923 for the structurally identical Classic. The measurement now pins such stretching children to `flex: 0 0 auto` while it measures and restores them afterwards, so no panel's visual design changes."
+          },
+          {
+            "title": {
+              "zh-TW": "八個模組搬進新套件，專案根目錄少了雜物",
+              "en": "Eight modules move into packages, clearing repository root"
+            },
+            "body": {
+              "zh-TW": "八個模組搬離根目錄，行為不變。`burn_rate`、`usage_rate`、`window_keeper`、`agy_window_keeper` 搬進 `quota/`；`time_utils`、`usage_logging`、`usage_lang`、`usage_dir_sweeper` 搬進 `usage_common/`。⟦這像把工作桌上八樣零件分別收進兩個標籤清楚的抽屜，零件不變，不再散在桌面。⟧ 共用工具套件叫 `usage_common`，不用 `common`，`uvx usage-cli` 的進入點會把頂層套件裝進共用的 `site-packages`，`common` 易撞名。未留相容墊片：所有 import 一次更新，`pyproject.toml` 移除八個 `py-modules` 項目並加入兩個套件，`setup_app.py` 也更新。",
+              "en": "The repository root has eight fewer loose modules, while behavior stays unchanged. `burn_rate`, `usage_rate`, `window_keeper`, and `agy_window_keeper` moved into `quota/`; `time_utils`, `usage_logging`, `usage_lang`, and `usage_dir_sweeper` moved into `usage_common/`. ⟦It is like putting eight loose parts from a workbench into two clearly labeled drawers: the parts are unchanged, but no longer scattered across the surface.⟧ The shared utility package is called `usage_common`, not `common`, because the `uvx usage-cli` entry point installs top-level packages into shared `site-packages`, where `common` can easily collide with another package. No compatibility shims remain: every repository import was updated in one pass, `pyproject.toml` dropped eight `py-modules` entries and added the two packages, and `setup_app.py` followed."
+            },
+            "original": "**Eight more modules moved out of the repository root.** `quota/` took `burn_rate`, `usage_rate`, `window_keeper`, and `agy_window_keeper`; `usage_common/` took `time_utils`, `usage_logging`, `usage_lang`, and `usage_dir_sweeper`. The shared-utility package is named `usage_common` rather than `common` because the `uvx usage-cli` entry point installs top-level packages into a shared `site-packages`, where `common` is about the most collision-prone name available. No compatibility shims were left behind — every import in the repository was updated in one pass, `pyproject.toml` dropped the eight `py-modules` entries and added the two packages, and `setup_app.py` followed. Behavior is unchanged."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.35",
+      "raw": {
+        "version": "0.29.35",
+        "period": "2026-08-23",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-24",
+        "entries": [
+          "**Migration is the fourteenth visual theme.** Its dusk sky carries a latitude-and-longitude grid while three V-shaped flocks cross at different speeds, their wings moving as route labels such as `ROUTE. 7` identify the journeys. It follows the Lepidoptera panel's illustrated field-guide approach.",
+          "**The README theme galleries are rebuilt from synthetic data and now line up.** All five READMEs listed ten screenshots under a heading that said thirteen — `stained_glass` and `origami` had never been photographed, `catppuccin` only in Chinese. The old images were also hand-captured from a real machine, so they carried actual project names and dollar amounts onto a public page, and predated the Antigravity card entirely. Every shot is now regenerated by `scripts/make_panel_shots.py` from the same synthetic payload the website uses. The galleries place three images per row, so a panel that is shorter than its neighbours pushes the whole grid out of line; the shots are therefore all captured at the tallest panel's height, and `world_cup` — a wide HUD that is genuinely 243 pixels shorter than the rest — sits this gallery out. Twelve images, four even rows. All thirteen are still on the website, where each one is shown alone at its own size. GitHub strips scripts and iframes from Markdown, so the README stays static images.",
+          "**The website now shows all thirteen panels, live, instead of ten screenshots.** The gallery held ten static images; `origami` and `stained_glass` had never been photographed at all, and `catppuccin` only in Chinese — so the page showed ten themes under a heading that said thirteen. It now renders the real panel HTML in a frame with a hand-written demo payload, and the theme list comes from `panels.all_panels()`, so a fourteenth panel appears on the site by running `scripts/make_panel_demo.py` rather than by remembering to take two more screenshots. Picking a language on the site switches the panel too, in all five languages, because the site's existing `applyLang()` forwards to it. The panel is display-only — its Switch Panel and Quit buttons have no native side to answer them on a web page. The old screenshots stay in `docs/`; the READMEs still link to them.",
+          "**Stained Glass now turns like a kaleidoscope.** The existing `sunlightSweep` remains, while layered fragments counter-rotate through `kaleidoscopeTurn` and the light sweep follows through `kaleidoscopeSweep`; its id and name stay the same, so this is a visual upgrade to the existing panel rather than a new theme.",
+          "**Seven more modules moved out of the repository root.** `panel_window` and `panel_window_state` joined `panels/`, `critter_frames` joined `menubar/`, and a new `installer/` package took `setup_hook`, `session_hooks`, `statusline_settings`, and `login_item` — the four modules that install usage into the user's system. The root is down to 28 Python files. The package is named `installer` rather than `setup` because the repository root is on `sys.path` and a top-level `setup` package would shadow the bare `import setup` that setuptools and py2app perform during a build — a failure that only surfaces when packaging, never in the test suite. The four modules that resolve the hook scripts by walking up from `__file__` now walk up one extra level, since those scripts stay at the root to run under the system Python."
+        ]
+      },
+      "curated": {
+        "version": "0.29.35",
+        "period": "2026-08-23",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Migration 主題把遷徙路線畫進暮色天空",
+              "en": "Migration paints migration routes across a dusk sky"
+            },
+            "body": {
+              "zh-TW": "打開第十四個視覺主題 Migration，面板裡的暮色天空已經有經緯線，三群 V 字鳥群以不同速度橫越天空，翅膀還會動。⟦它像一本攤開的野外觀察手冊：先用格線定出地點，再讓鳥群的飛行把路線畫給你看。⟧每段旅程會以 `ROUTE. 7` 這類路線標籤標出。它延續 Lepidoptera 面板的插畫式野外圖鑑做法，這次換成遷徙畫面來說故事。",
+              "en": "Open Migration, fourteenth visual theme, and a dusk sky appears with a latitude-and-longitude grid. Three V-shaped flocks cross it at different speeds, with moving wings. ⟦It works like an open field guide: grid establishes place, then flying birds draw each journey for you.⟧Route labels such as `ROUTE. 7` identify those journeys. This follows illustrated field-guide approach of Lepidoptera panel, using migration as scene this time."
+            },
+            "original": "**Migration is the fourteenth visual theme.** Its dusk sky carries a latitude-and-longitude grid while three V-shaped flocks cross at different speeds, their wings moving as route labels such as `ROUTE. 7` identify the journeys. It follows the Lepidoptera panel's illustrated field-guide approach."
+          },
+          {
+            "title": {
+              "zh-TW": "README 主題圖集重拍，補齊缺圖也遮住真實資料",
+              "en": "README galleries are rebuilt to complete missing themes and hide real data"
+            },
+            "body": {
+              "zh-TW": "五份 README（專案說明頁）原本像五張用不同資料填寫的練習卷：照片少了主題又高低不齊，舊圖還是從真實機器手動截圖，讓真實專案名稱和金額帶到公開頁面。⟦五份練習卷皆用同份範例資料重印，版面齊，資料不外洩。⟧標題說有十三張，卻只有十張截圖；`stained_glass` 與 `origami` 沒拍過，`catppuccin` 只有中文版，Antigravity 卡也比舊圖晚出現。現在 `scripts/make_panel_shots.py` 以網站同一份合成展示資料重建截圖。圖集每列三張，較矮面板會把整列推歪，所以才統一按最高面板高度拍攝；比其他面板矮 243 像素的寬型畫面資訊層 `world_cup` 不放進圖集，留下十二張、四列對齊。網站仍各自以原本尺寸呈現十三張。GitHub 會移除 Markdown 裡的腳本與 iframe，所以 README 保留靜態圖片。",
+              "en": "Five READMEs were like practice sheets filled with different sample data: photos missed themes, failed to line up, and old images were hand-captured from a real machine, carrying real project names and dollar amounts onto public pages. ⟦It is like reprinting five practice sheets with one set of sample data: layouts line up without printing real project names and dollar amounts in public version.⟧Headings claimed thirteen images but showed ten: `stained_glass` and `origami` had never been photographed, `catppuccin` only in Chinese, and old images predated Antigravity card. `scripts/make_panel_shots.py` now rebuilds shots from same synthetic payload used by website. Since galleries put three pictures in each row, a shorter panel pushes whole grid out of line, so all shots use tallest panel height; wide HUD `world_cup`, genuinely 243 pixels shorter, stays out. That leaves twelve images in four even rows. Website still displays all thirteen alone at own size. GitHub strips scripts and iframes from Markdown, so README remains static images."
+            },
+            "original": "**The README theme galleries are rebuilt from synthetic data and now line up.** All five READMEs listed ten screenshots under a heading that said thirteen — `stained_glass` and `origami` had never been photographed, `catppuccin` only in Chinese. The old images were also hand-captured from a real machine, so they carried actual project names and dollar amounts onto a public page, and predated the Antigravity card entirely. Every shot is now regenerated by `scripts/make_panel_shots.py` from the same synthetic payload the website uses. The galleries place three images per row, so a panel that is shorter than its neighbours pushes the whole grid out of line; the shots are therefore all captured at the tallest panel's height, and `world_cup` — a wide HUD that is genuinely 243 pixels shorter than the rest — sits this gallery out. Twelve images, four even rows. All thirteen are still on the website, where each one is shown alone at its own size. GitHub strips scripts and iframes from Markdown, so the README stays static images."
+          },
+          {
+            "title": {
+              "zh-TW": "網站圖集改播十三個活面板，語言也會跟著切換",
+              "en": "Website gallery runs all thirteen live panels and switches their language"
+            },
+            "body": {
+              "zh-TW": "網站上的主題牆從十張靜態截圖，改成能直接看的十三個真實面板。⟦這像車站的即時看板：能看見列車實際狀態，但在看板上按按鈕不會讓列車轉軌。⟧原先 `origami`、`stained_glass` 沒有圖，`catppuccin` 只顯示中文，於是「十三個主題」實際只看到十個。現在網站把面板網頁原碼放進框架，餵入手寫的展示資料；主題清單從 `panels.all_panels()` 取得。新增第十四個時，執行 `scripts/make_panel_demo.py` 即會出現在網站，不必再記得補拍兩張圖。網站選語言時，既有 `applyLang()` 也會把切換交給面板，因此五種語言都會一起變。面板只供展示，網頁沒有原生端能回應 Switch Panel 與 Quit 按鈕。舊截圖留在 `docs/`，README 仍連到它們。",
+              "en": "Theme wall on website moves from ten static screenshots to thirteen real panels you can view directly. ⟦It is like station's live departure board: you can see actual train status, but pressing its buttons will not make train switch tracks.⟧`origami` and `stained_glass` had no image, while `catppuccin` showed only Chinese, so thirteen themes meant ten visible themes. Website now puts real panel HTML into frame with hand-written demo payload, and gets theme list from `panels.all_panels()`. When fourteenth panel arrives, running `scripts/make_panel_demo.py` places it on site without remembering two more photos. Existing `applyLang()` also passes site language choice to panel, so all five languages change together. Panel is display-only: no native side on web page can answer Switch Panel or Quit buttons. Old screenshots remain in `docs/`, and READMEs still link to them."
+            },
+            "original": "**The website now shows all thirteen panels, live, instead of ten screenshots.** The gallery held ten static images; `origami` and `stained_glass` had never been photographed at all, and `catppuccin` only in Chinese — so the page showed ten themes under a heading that said thirteen. It now renders the real panel HTML in a frame with a hand-written demo payload, and the theme list comes from `panels.all_panels()`, so a fourteenth panel appears on the site by running `scripts/make_panel_demo.py` rather than by remembering to take two more screenshots. Picking a language on the site switches the panel too, in all five languages, because the site's existing `applyLang()` forwards to it. The panel is display-only — its Switch Panel and Quit buttons have no native side to answer them on a web page. The old screenshots stay in `docs/`; the READMEs still link to them."
+          },
+          {
+            "title": {
+              "zh-TW": "Stained Glass 加入萬花筒般的反向旋轉",
+              "en": "Stained Glass gains counter-rotation like a kaleidoscope"
+            },
+            "body": {
+              "zh-TW": "Stained Glass 面板原本的光線掃過效果還在，畫面卻開始多了一層轉動。⟦轉動萬花筒時，玻璃碎片會朝相反方向繞行，光也會跟著折射的節奏移動；這次的更新正是在面板裡補上那個變化。⟧分層碎片由 `kaleidoscopeTurn` 反向旋轉，光線掃過則由 `kaleidoscopeSweep` 接著走。原有的 `sunlightSweep` 保留，面板的識別碼和名稱也不變，所以這是既有 Stained Glass 的視覺升級，不是另一個新主題。",
+              "en": "Stained Glass keeps its existing light sweep, but scene now gains another layer of motion. ⟦When kaleidoscope turns, glass fragments circle in opposite directions and light follows rhythm of refraction; update adds that change to panel.⟧Layered fragments counter-rotate through `kaleidoscopeTurn`, while light sweep follows through `kaleidoscopeSweep`. Existing `sunlightSweep` remains, as do panel's id and name, so this upgrades existing Stained Glass visually rather than creating another theme."
+            },
+            "original": "**Stained Glass now turns like a kaleidoscope.** The existing `sunlightSweep` remains, while layered fragments counter-rotate through `kaleidoscopeTurn` and the light sweep follows through `kaleidoscopeSweep`; its id and name stay the same, so this is a visual upgrade to the existing panel rather than a new theme."
+          },
+          {
+            "title": {
+              "zh-TW": "七個模組搬進分區，打包時避開 `setup` 撞名",
+              "en": "Seven modules move into packages to avoid a `setup` naming collision at build time"
+            },
+            "body": {
+              "zh-TW": "根目錄少七模組，剩 28 個 Python 檔。⟦拍片前分工：窗戶交場景組、選單列交道具組，安裝交後勤組。⟧`panel_window`、`panel_window_state`→`panels/`，`critter_frames`→`menubar/`；`setup_hook`、`session_hooks`、`statusline_settings`、`login_item` 四模組將 usage 安裝到使用者系統，移入新 `installer/`。`installer/` 不叫 `setup`：根目錄列入 `sys.path`（找模組清單），同名頂層套件會遮住 setuptools、py2app 打包的 `import setup`。僅打包出錯，測試不會發現。四模組循 `__file__` 往上找掛鉤腳本；腳本留根目錄由系統 Python 執行，故多找一層。",
+              "en": "Project root moves out seven more modules and now holds only 28 Python files. ⟦It is like assigning film crew before a shoot: window work goes to set team, menu-bar work to props team, and installation work to logistics team.⟧`panel_window` and `panel_window_state` join `panels/`; `critter_frames` joins `menubar/`; four modules `setup_hook`, `session_hooks`, `statusline_settings`, and `login_item` install usage into user's system and join new `installer/` package. It cannot be called `setup`: repository root sits on Python's `sys.path` (list of places Python searches for modules), and a top-level package of that name would shadow `import setup` used by setuptools and py2app during packaging. Failure surfaces only when packaging, not in test suite. Four modules used to walk upward from `__file__` for hook scripts; scripts remain at root to run under system Python, so they now walk up one extra level."
+            },
+            "original": "**Seven more modules moved out of the repository root.** `panel_window` and `panel_window_state` joined `panels/`, `critter_frames` joined `menubar/`, and a new `installer/` package took `setup_hook`, `session_hooks`, `statusline_settings`, and `login_item` — the four modules that install usage into the user's system. The root is down to 28 Python files. The package is named `installer` rather than `setup` because the repository root is on `sys.path` and a top-level `setup` package would shadow the bare `import setup` that setuptools and py2app perform during a build — a failure that only surfaces when packaging, never in the test suite. The four modules that resolve the hook scripts by walking up from `__file__` now walk up one extra level, since those scripts stay at the root to run under the system Python."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.34",
+      "raw": {
+        "version": "0.29.34",
+        "period": "2026-08-23",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-23",
+        "entries": [
+          "**The menu bar percentages are now bold.** They were drawn at the menu bar's own point size in regular weight, which left them lighter than everything around them — hard to read at a glance over a light wallpaper. Same size, bold weight; the strip grows by about 5 points.",
+          "**The provider marks in the menu bar are now monochrome and follow the menu bar's own appearance.** The color art had to work against whatever wallpaper was behind it, and the Codex mark in particular collapsed into an indistinct blob at menu bar size because its detail came from color rather than shape. The marks are now template images — the system tints them black on a light menu bar and white on a dark one, so they stay legible everywhere, and they match the critters, which have always been drawn this way. They are also 14 to 16 points now.",
+          "**The 77 modules that sat loose in the repository root are now grouped into packages.** `menubar/`, `loaders/`, `wintray/`, `discussion/`, `tui/`, and `updates/` absorbed 42 of them; the root is down to 35. Nothing moved that runs outside the virtualenv — the status line hooks are still plain files at the top level, because `usage setup` copies them into the user's home directory to run under the system Python. Behavior is unchanged; only import paths moved.",
+          "**A test now guards the modules that `main.py` loads by name.** Those loads are plain strings, so no search finds them and a moved module leaves the string pointing at nothing while the whole suite still passes and the app fails to launch. The test reads `main.py` and checks every attribute it calls on such a module against that module's actual contents."
+        ]
+      },
+      "curated": {
+        "version": "0.29.34",
+        "period": "2026-08-23",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "選單列數字與供應商標記更容易辨認",
+              "en": "Menu bar numbers and provider marks are easier to read"
+            },
+            "body": {
+              "zh-TW": "⟦把選單列（menu bar，畫面頂端顯示資訊的一條列）想成放在不同牆色前的指示牌：文字和標記得靠粗細與輪廓看清楚，不能只靠原本顏色。⟧百分比維持原有點數，但改為粗體，整條列約增加 5 點；在淺色桌布前也較容易一眼讀到。供應商標記（provider marks，標示服務來源的小圖樣）則改成單色範本影像，會跟著選單列外觀變化：淺色時顯黑，深色時顯白。它們不再倚賴顏色細節，Codex 標記不會在選單列大小縮成模糊一團；也與一向採同樣畫法的 critters 相符。標記大小現在為 14 至 16 點。",
+              "en": "⟦Think of the menu bar as a sign against changing wall colors: both letters and marks need weight and shape, not color alone, to stay readable.⟧Percentages keep their point size but are now bold, making the strip about 5 points taller and easier to read over light wallpaper. Provider marks, the small images that identify a service, are now monochrome template images. They turn black on a light menu bar and white on a dark one. Shape now does the work that color detail once did, so the Codex mark does not collapse into a blur at menu-bar size; the marks also match the critters, which have always been drawn this way. They are now 14 to 16 points tall."
+            },
+            "original": "**The menu bar percentages are now bold.** They were drawn at the menu bar's own point size in regular weight, which left them lighter than everything around them — hard to read at a glance over a light wallpaper. Same size, bold weight; the strip grows by about 5 points.\n**The provider marks in the menu bar are now monochrome and follow the menu bar's own appearance.** The color art had to work against whatever wallpaper was behind it, and the Codex mark in particular collapsed into an indistinct blob at menu bar size because its detail came from color rather than shape. The marks are now template images — the system tints them black on a light menu bar and white on a dark one, so they stay legible everywhere, and they match the critters, which have always been drawn this way. They are also 14 to 16 points now."
+          },
+          {
+            "title": {
+              "zh-TW": "程式搬進分區後，也逐項核對啟動清單",
+              "en": "Moved modules now come with a launch-list check"
+            },
+            "body": {
+              "zh-TW": "⟦整理倉庫，搬盒子進分區後仍得核對出貨清單與新架位，否則開門後才發現找不到貨。⟧散在 repository root 的 77 個模組，歸進 packages（套件，程式的可匯入資料夾）。`menubar/`、`loaders/`、`wintray/`、`discussion/`、`tui/`、`updates/` 六個資料夾收進 42 個，root 剩 35 個。這只改 import paths（匯入路徑，程式尋找其他程式碼的位置）。行為不變。虛擬環境外的檔案沒搬；狀態列 hooks（掛鉤，特定事件發生時被觸發的小程式）仍留頂層，因為 `usage setup` 會複製到家目錄，由系統 Python 執行。`main.py` 以字串載入模組，搜尋找不到；搬走後，字串可能指向空處，測試仍通過，App 卻無法啟動。新增測試讀取 `main.py`，比對呼叫的模組屬性與內容。",
+              "en": "⟦Tidying a warehouse takes more than moving boxes from the doorway into sections: the shipping list must also be checked against each new shelf, or opening day reveals missing stock.⟧The 77 modules that had been loose in the repository root are now grouped into packages, folders that hold related importable code. `menubar/`, `loaders/`, `wintray/`, `discussion/`, `tui/`, and `updates/` absorbed 42 of them, leaving 35 at the root. Only import paths, where code looks for other code, changed; behavior did not. Files that run outside the virtualenv stayed put: status-line hooks, files called at particular moments, remain at the top level because `usage setup` copies them to the user's home directory for the system Python. `main.py` names modules with plain strings, which search cannot find. A moved module could leave one pointing nowhere, while the test suite still passes and the app fails to launch. A new test reads `main.py` and checks every module attribute it calls against that module's contents."
+            },
+            "original": "**The 77 modules that sat loose in the repository root are now grouped into packages.** `menubar/`, `loaders/`, `wintray/`, `discussion/`, `tui/`, and `updates/` absorbed 42 of them; the root is down to 35. Nothing moved that runs outside the virtualenv — the status line hooks are still plain files at the top level, because `usage setup` copies them into the user's home directory to run under the system Python. Behavior is unchanged; only import paths moved.\n**A test now guards the modules that `main.py` loads by name.** Those loads are plain strings, so no search finds them and a moved module leaves the string pointing at nothing while the whole suite still passes and the app fails to launch. The test reads `main.py` and checks every attribute it calls on such a module against that module's actual contents."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.33",
+      "raw": {
+        "version": "0.29.33",
+        "period": "2026-08-22",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-22",
+        "entries": [
+          "**The Claude Code status line is now verified on Linux.** The hook is stdlib-only and `usage setup` never gated the Claude path on macOS or Windows, so it already worked there — nothing tested it, so it went undocumented. CI now installs the hook against a throwaway `HOME` on Ubuntu and feeds it a real statusLine payload.",
+          "**`uvx usage-cli` runs the terminal interface without installing anything.** The CLI is now published to PyPI as `usage-cli`, so Linux and Windows users can try `usage status --json`, the dashboard, and the reports without downloading the macOS app; uv prepares Python 3.13 on its own. `uv tool install usage-cli` keeps the command around as `usage`. The distribution name is `usage-cli` because `usage` was already taken on PyPI in 2016; both `usage` and `usage-cli` are installed as commands. This path ships the CLI only — the menu bar and system tray apps are unchanged and still come from the release downloads.",
+          "**Antigravity (agy) usage is now attributed to the project you were actually working in.** Every agy entry previously recorded a fixed `\"Antigravity\"` project name, so the project usage ranking couldn't show which folder the tokens were spent in. Entries now resolve the working directory from the session's recorded shell commands, falling back to `\"Antigravity\"` only when none is found."
+        ]
+      },
+      "curated": {
+        "version": "0.29.33",
+        "period": "2026-08-22",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Linux 支援狀態列驗證，標準函式庫掛鉤正式納入測試",
+              "en": "Claude Code status line is verified on Linux with real test payloads"
+            },
+            "body": {
+              "zh-TW": "想在 Linux 環境藉由 usage 掌握 Claude Code 的用量與狀態，過去常因文件未提及而不敢確定是否支援。事實上，負責串接的 hook（事件發生時觸發的自動處理程式）僅依賴 Python 標準函式庫，且 `usage setup` 在 macOS 與 Windows 上從未設下系統限制，在 Linux 本就能正常運作；過去只是缺少自動化測試驗證，才一直未寫入官方文件。現在 CI 會在 Ubuntu 系統中建立拋棄式 `HOME` 目錄安裝掛鉤，並傳入真實的 statusLine（終端機底部的即時狀態列）酬載進行驗證。⟦這好比一件出廠就具備防水機能的風衣，過去因說明書未印認證標章讓人不敢在雨天穿出門；直到品管中心在標準測試台噴灑真實水柱，確認它確實防水。⟧",
+              "en": "Linux users looking to track Claude Code usage and metrics through usage previously had to guess whether the integration was supported because it was missing from documentation. In reality, the integration hook relies entirely on the Python standard library, and `usage setup` never placed an operating system check on the Claude path for macOS or Windows, meaning it already functioned on Linux without issue. It simply lacked test coverage and went undocumented. CI now installs the hook against a throwaway `HOME` directory on Ubuntu and feeds it a genuine statusLine payload to verify behavior. ⟦It is like a jacket manufactured with waterproof fabric that lacked a certified badge in the user manual, leaving customers hesitant to wear it in the rain until the quality-control lab blasted it with actual water jets on a test rig and verified that it was waterproof.⟧"
+            },
+            "original": "**The Claude Code status line is now verified on Linux.** The hook is stdlib-only and `usage setup` never gated the Claude path on macOS or Windows, so it already worked there — nothing tested it, so it went undocumented. CI now installs the hook against a throwaway `HOME` on Ubuntu and feeds it a real statusLine payload."
+          },
+          {
+            "title": {
+              "zh-TW": "命令列套件登陸 PyPI，免裝桌面版即可在終端機直接試用",
+              "en": "CLI package lands on PyPI for instant terminal access without desktop apps"
+            },
+            "body": {
+              "zh-TW": "套件已以 `usage-cli` 之名發布至 PyPI，輸入 `uvx usage-cli` 不用先安裝任何東西，uv 會自行準備 Python 3.13 執行環境，讓 Linux 與 Windows 使用者不必下載 macOS 應用程式，就能體驗 `usage status --json`、儀表板與報表。執行 `uv tool install usage-cli` 則可常駐指令；因 `usage` 名稱在 2016 年已被註冊，套件名稱為 `usage-cli`，但安裝後 `usage` 與 `usage-cli` 指令皆可使用。此途徑僅提供命令列工具，選單列與系統匣應用程式仍維持在 Release 下載。⟦這如同工具出租店提供免押金快借服務，想用扳手不必搬整組工具箱回家，報代號就能直接開工；若順手再登記留用。⟧",
+              "en": "`uvx usage-cli` runs without installing anything; uv prepares Python 3.13 on its own so Linux and Windows users can try `usage status --json`, the dashboard, and reports without downloading the macOS app. The CLI is published to PyPI as `usage-cli`. Running `uv tool install usage-cli` keeps the command around; because the name `usage` was claimed on PyPI in 2016, the distribution is `usage-cli`, but both `usage` and `usage-cli` are installed as commands. This path ships the CLI only — menu bar and system tray apps remain unchanged and come from release downloads. ⟦It is like a tool rental counter offering instant on-site borrowing without a deposit, where you can pick up a wrench by its inventory code without purchasing an entire heavy toolbox, and later choose to register and keep that specific wrench in your workshop.⟧"
+            },
+            "original": "**`uvx usage-cli` runs the terminal interface without installing anything.** The CLI is now published to PyPI as `usage-cli`, so Linux and Windows users can try `usage status --json`, the dashboard, and the reports without downloading the macOS app; uv prepares Python 3.13 on its own. `uv tool install usage-cli` keeps the command around as `usage`. The distribution name is `usage-cli` because `usage` was already taken on PyPI in 2016; both `usage` and `usage-cli` are installed as commands. This path ships the CLI only — the menu bar and system tray apps are unchanged and still come from the release downloads."
+          },
+          {
+            "title": {
+              "zh-TW": "依工作目錄精準歸帳，Antigravity 用量不再全數掛在單一專案",
+              "en": "Antigravity usage is attributed to actual project directories instead of a static label"
+            },
+            "body": {
+              "zh-TW": "⟦像公務採購報帳時，若所有發票都一律蓋上總公司大印，月底的部門支出排行便完全看不出各專案到底花了多少經費；唯有依據出差工單上的工作地點逐筆歸帳，才能精準呈現各專案的真實花費。⟧ Antigravity（agy）的用量現在會準確歸屬至你實際作業的專案中。過去每筆 agy 記錄都固定寫入 `\"Antigravity\"` 專案名稱，導致專案用量排行無法看出 token（AI 計費的文字單位）到底花在哪個資料夾。現在記錄會從各工作階段所執行的 shell 指令中自動解析工作目錄，只有在找不到任何指令紀錄時，才會以備援方式退回使用 `\"Antigravity\"` 名稱。",
+              "en": "⟦It is like expense reimbursement at a company where stamping every invoice with a generic corporate seal leaves department expense rankings unable to show how much each project spent, until invoices are attributed to the exact work site from travel logs to reflect accurate project costs.⟧ Antigravity (agy) token consumption is now accurately attributed to the project you were actually working in. Previously, every agy entry recorded a static `\"Antigravity\"` project name, which prevented the project usage ranking from showing which folder the tokens were spent in. Entries now resolve the working directory from the recorded shell commands in each session, falling back to `\"Antigravity\"` only when no command is found."
+            },
+            "original": "**Antigravity (agy) usage is now attributed to the project you were actually working in.** Every agy entry previously recorded a fixed `\"Antigravity\"` project name, so the project usage ranking couldn't show which folder the tokens were spent in. Entries now resolve the working directory from the session's recorded shell commands, falling back to `\"Antigravity\"` only when none is found."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.32",
+      "raw": {
+        "version": "0.29.32",
+        "period": "2026-08-20",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-20",
+        "entries": [
+          "**The \"mask project names\" option now applies to the entire shared file.** An exported HTML report previously still carried the unmasked dataset alongside the masked one, so masking hid the names on screen without removing them from the file. The unmasked copy is now dropped from the export. If you shared a masked report from an earlier version, treat those files as unmasked.",
+          "**The donut legend and project-naming insights are covered by the mask as well.** Both previously kept showing real project names; insights now read `Project N`, matching the numbering already used by the project table.",
+          "**Local files are created with owner-only permissions.** Attachments, exported reports and logs under `~/.usage/`, `~/.usage-reports/` and `~/Library/Logs/usage/` were created with permissions that allowed other local accounts on the same machine to read them. New files are now `0600` and their directories `0700`. Attachment import no longer copies the source file's permissions along with the file.",
+          "**The quarantine directory is created with an explicit mode.** Files moved into it already kept owner-only permissions; the directory itself did not.",
+          "**An oversized line in a JSONL history file no longer exhausts memory.** Lines are read against a 64 MiB ceiling, set from a measured 23 MB real-world maximum, and skipped cleanly when they exceed it. Deeply nested JSON that raises `RecursionError` is treated as an invalid line."
+        ]
+      },
+      "curated": {
+        "version": "0.29.32",
+        "period": "2026-08-20",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "遮蔽專案名稱全面生效，圖表與匯出檔案不洩密",
+              "en": "Masking project names covers the full exported file, charts, and insights"
+            },
+            "body": {
+              "zh-TW": "「遮蔽專案名稱」現在會套用至整份匯出 usage 報表，分享時不再只是把名稱藏在畫面上。過去匯出的 HTML 報表雖然在畫面上隱藏了專案名稱，檔案內部卻仍夾帶未遮蔽的資料集，等於只在螢幕遮住卻沒從檔案拿掉；現在未遮蔽的副本已自匯出檔完全移除。過去圓餅圖圖例與專案名稱深入分析都仍顯示真實專案名稱；現在兩者也一併納入遮蔽，分析文字改為 `Project N`，對齊專案表格既有的編號。⟦這像拿黑筆塗黑公文上的機密名稱，以前只塗了複寫紙表面、底層仍夾著原稿；現在則在寄出前把原始底稿徹底抽除。⟧若你曾分享過舊版產生的遮蔽報表，請將那些檔案視為未遮蔽處理。",
+              "en": "The \"mask project names\" option now applies to the entire exported usage report, rather than merely hiding names on screen when you share it. Previously, an exported HTML report still carried the unmasked dataset alongside the masked one, hiding project names on screen without actually removing them from the file; that unmasked copy is now completely dropped from exports. Previously, both the donut legend and project-naming insights still showed real project names; both are now covered by the mask, with insights displaying `Project N` to match the numbering in the project table. ⟦It is like redacting confidential names on a document: earlier releases only blacked out the top carbon copy while leaving the original underneath, but the source sheet is now completely removed before delivery.⟧ If you shared a masked report generated by an earlier version, treat those files as unmasked."
+            },
+            "original": "**The \"mask project names\" option now applies to the entire shared file.** An exported HTML report previously still carried the unmasked dataset alongside the masked one, so masking hid the names on screen without removing them from the file. The unmasked copy is now dropped from the export. If you shared a masked report from an earlier version, treat those files as unmasked.\n**The donut legend and project-naming insights are covered by the mask as well.** Both previously kept showing real project names; insights now read `Project N`, matching the numbering already used by the project table."
+          },
+          {
+            "title": {
+              "zh-TW": "本機檔案限擁有者，隔離目錄明確設定存取模式",
+              "en": "Local files are owner-only; the quarantine directory gets an explicit access mode"
+            },
+            "body": {
+              "zh-TW": "⟦在共用辦公室存放私人物品，不只要把置物箱上鎖，放箱子的儲藏室大門也得加鎖，同棟樓的其他帳號才翻看不到內容。⟧ usage 現在為本機建立的檔案與目錄全面套用僅限擁有者的存取權限。以往存放在 `~/.usage/`、`~/.usage-reports/` 與 `~/Library/Logs/usage/` 底下的附件、匯出報表與紀錄檔，權限曾允許同部電腦的其他本機帳號讀取；現在新建立的檔案權限一律設為 `0600`，所屬目錄則設為 `0700`。匯入附件時也不再複製來源檔案原有的權限。此外，過去移入隔離目錄的檔案雖保有擁有者權限，但目錄本身並未限制；現在該隔離目錄在建立時也會設定明確的存取模式。",
+              "en": "⟦When storing personal items in a shared building, locking individual storage bins is not enough; the storage room door itself must be secured so other tenants in the building cannot browse the contents.⟧ usage now creates local files and directories with owner-only access permissions. Attachments, exported reports, and logs under `~/.usage/`, `~/.usage-reports/`, and `~/Library/Logs/usage/` were previously created with permissions that let other local accounts on the same machine read them; new files are now `0600` and their directories `0700`. Importing attachments also stops copying the source file's existing permissions. Additionally, while files moved into the quarantine directory already kept owner-only permissions, the quarantine directory itself now receives an explicit access mode upon creation."
+            },
+            "original": "**Local files are created with owner-only permissions.** Attachments, exported reports and logs under `~/.usage/`, `~/.usage-reports/` and `~/Library/Logs/usage/` were created with permissions that allowed other local accounts on the same machine to read them. New files are now `0600` and their directories `0700`. Attachment import no longer copies the source file's permissions along with the file.\n**The quarantine directory is created with an explicit mode.** Files moved into it already kept owner-only permissions; the directory itself did not."
+          },
+          {
+            "title": {
+              "zh-TW": "超長行設上限，深層巢狀改列無效行",
+              "en": "Oversized JSONL lines are capped; deep nesting is treated as invalid"
+            },
+            "body": {
+              "zh-TW": "JSONL（每行各放一筆 JSON 資料的檔案格式）歷史檔案中的異常大行，不再會耗盡記憶體、拖垮整個讀取流程。usage 現在以 64 MiB 為上限來讀取每行資料，這個數值是根據實測真實環境中 23 MB 的最大記錄所設定；一旦單行資料超過此上限，程式會直接略過它並繼續運作。遇到層層巢狀過深而引發遞迴錯誤（`RecursionError`）的 JSON 內容，也會直接當成無效行處理。⟦這像包裹分揀線入口設了兩道檢查：尺寸過大的貨物，以及包裝層數深到難以檢查的貨物，都直接撥到旁道，讓其他包裹繼續前進。⟧這能防止超過 64 MiB 或因巢狀過深引發 RecursionError 的歷史資料中斷讀取流程。",
+              "en": "An oversized line in a JSONL (a file format with one JSON record per line) history file will no longer exhaust memory or derail reading. Lines are now read against a 64 MiB ceiling, which was set from a measured real-world maximum of 23 MB; whenever a line exceeds this threshold, it is skipped so processing can continue. Deeply nested JSON structures that raise a recursion error (`RecursionError`) are likewise treated as invalid lines. ⟦It is like a parcel sorting line with two screening checks: items that are too large or wrapped in layers too deep to inspect are sent directly down a side lane, while the rest keeps moving.⟧ This ensures history files containing oversized lines or deeply nested JSON that raises RecursionError cannot derail your usage history."
+            },
+            "original": "**An oversized line in a JSONL history file no longer exhausts memory.** Lines are read against a 64 MiB ceiling, set from a measured 23 MB real-world maximum, and skipped cleanly when they exceed it. Deeply nested JSON that raises `RecursionError` is treated as an invalid line."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.31",
+      "raw": {
+        "version": "0.29.31",
+        "period": "2026-08-18",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-18",
+        "entries": [
+          "**`usage status` no longer prints floating-point noise in percentages.** Session and weekly percentages were interpolated straight into the string, so a value like 42.30000000000001 could appear instead of 42.3. Both are now formatted to one decimal place.",
+          "**The Windows tray tooltip shows the same numbers as the panel, and no longer omits Antigravity.** It displayed *remaining* percent (100 minus used) while every panel shows *used* percent; the tooltip now matches, and adds its own Antigravity line when that card isn't hidden. The Claude line was also reformatted to match Codex and Antigravity's single-line \"Session · Weekly\" layout.",
+          "**Windows update notifications no longer show raw Markdown.** The GitHub Release body's `##`, `**`, and `` ` `` markers rendered literally in the update dialog; macOS fixed this in 0.29.28 but the fix never reached Windows. Both platforms now share the same formatter.",
+          "**The public website's mobile navigation and shareable anchors are fixed.** Below 640px the navigation disappeared entirely — a labeled Sections menu now expands in its place. Switching language no longer overwrites a shared anchor like `#install` with `#<lang>`, so links copied before a language switch keep working. Footer text now meets AA contrast, images lazy-load, and tap targets are at least 24px (44px in the main mobile nav).",
+          "**The website's theme count was corrected from 12 to 13** — Catppuccin, shipped in 0.29.23, wasn't being counted — across all five languages.",
+          "**The social preview image reflects Windows support and reuses the site's own visuals.** It used to say \"macOS Menu Bar App\"; the new 1200×630 image pairs the brand and title with an actual panel screenshot (Claude, Codex, Antigravity) in the site's own colors, and dropped from 573KB to 96KB.",
+          "**README status-line screenshots are now recorded animations**, one per language instead of borrowed from English, made legible at README width.",
+          "**Status-line setup is now its own README section** instead of a subsection buried under Windows Support, so macOS users don't skip it, with terminology filled in for both platforms and Traditional Chinese."
+        ]
+      },
+      "curated": {
+        "version": "0.29.31",
+        "period": "2026-08-18",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "usage status 消除百分比雜訊，統一保留一位小數",
+              "en": "usage status removes floating-point noise from percentage outputs"
+            },
+            "body": {
+              "zh-TW": "在終端機執行 `usage status` 查詢額度時，工作階段（session，單次使用的時間區段）與每週百分比數值不再出現多餘的小數雜訊。過去程式將數值直接拼進字串，導致畫面上可能出現如 42.30000000000001 這類冗長的小數。⟦這就像電子磅秤把原本因感應過敏而跳出的一長串零碎小數抹平，在螢幕上整齊收攏到小數點後一位。⟧現在這兩項百分比都統一格式化為一位小數（例如 42.3），讓輸出的資訊乾淨俐落。",
+              "en": "Running `usage status` to inspect your quotas will no longer spit out messy floating-point noise in session and weekly percentages. The tool previously interpolated raw numerical values directly into output strings, producing cluttered readouts like 42.30000000000001 instead of a clean 42.3. ⟦It is like a digital scale rounding off jittery multi-digit fractions to show a single steady decimal on its display.⟧ Both session and weekly metrics are now strictly formatted to one decimal place, keeping terminal output predictable and tidy."
+            },
+            "original": "**`usage status` no longer prints floating-point noise in percentages.** Session and weekly percentages were interpolated straight into the string, so a value like 42.30000000000001 could appear instead of 42.3. Both are now formatted to one decimal place."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 系統匣提示對齊面板數值，納入 Antigravity",
+              "en": "Windows tray tooltip aligns with panel values and includes Antigravity"
+            },
+            "body": {
+              "zh-TW": "把游標移到 Windows 系統匣（tray，工作列右側的常駐圖示區）圖示上方時，浮動提示文字顯示的數值現在與面板完全一致，而且不再漏掉 Antigravity。過去提示文字顯示的是「剩餘」百分比（以 100 減去已用量），而各個面板顯示的都是「已使用」百分比，兩邊數字對不起來。⟦這如同把公告欄的各項用量改用同一個已使用標準，補上漏列的 Antigravity，並把 Claude 條目整理成和其餘項目相同的一行格式。⟧現在提示文字統一改為已使用百分比，並在 Antigravity 卡片未隱藏時補上專屬一行；Claude 的顯示行也同步重構為與 Codex 和 Antigravity 一致的單行「工作階段 · 每週」排版。",
+              "en": "Hovering over the Windows system tray icon now reveals tooltip figures that perfectly match what you see inside the main panel, while no longer skipping Antigravity. The tooltip previously showed the *remaining* percentage (calculated as 100 minus used) while every panel displays the *used* percentage, creating unnecessary confusion. ⟦It is like giving every line on a noticeboard one used-amount standard, restoring the missing Antigravity line, and setting the Claude entry in the same one-line format as the rest.⟧ The tooltip now reports used percentages across the board, adds an Antigravity row whenever that card is visible, and reformats the Claude entry to match Codex and Antigravity's single-line \"Session · Weekly\" layout."
+            },
+            "original": "**The Windows tray tooltip shows the same numbers as the panel, and no longer omits Antigravity.** It displayed *remaining* percent (100 minus used) while every panel shows *used* percent; the tooltip now matches, and adds its own Antigravity line when that card isn't hidden. The Claude line was also reformatted to match Codex and Antigravity's single-line \"Session · Weekly\" layout."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 更新通知去除原始 Markdown 標記",
+              "en": "Windows update notifications strip raw Markdown markers"
+            },
+            "body": {
+              "zh-TW": "當 Windows 跳出新版本更新通知時，說明視窗不再直接印出未解析的 Markdown（以特殊符號標示粗體或標題的排版語法）原始標記。先前來自 GitHub Release 內文的 `##` 標題、`**` 粗體與 `` ` `` 程式碼符號，在更新對話框中都會被原樣渲染出來。這項問題在 macOS 平台已於 0.29.28 版解決，但修復一直未同步至 Windows 平台；現在兩個系統已共用同一套格式化處理器。⟦這好比印刷廠在樣品書送達各分店前先將排版標記擦拭乾淨，讓讀者看見精緻排版而非編輯痕跡。⟧",
+              "en": "Update dialogs on Windows will no longer greet you with unformatted Markdown markup when a new version drops. Release descriptions pulled from GitHub previously rendered literal `##`, `**`, and `` ` `` tokens directly inside the notification window. While macOS resolved this display glitch in version 0.29.28, the corresponding fix had not made its way to Windows until now. Both platforms now route release text through the shared formatter. ⟦It is like a printing press stripping proofreading marks before handing books to readers across every branch store.⟧"
+            },
+            "original": "**Windows update notifications no longer show raw Markdown.** The GitHub Release body's `##`, `**`, and `` ` `` markers rendered literally in the update dialog; macOS fixed this in 0.29.28 but the fix never reached Windows. Both platforms now share the same formatter."
+          },
+          {
+            "title": {
+              "zh-TW": "官網修復行動版導覽與分享錨點",
+              "en": "Website fixes mobile navigation and shareable anchors"
+            },
+            "body": {
+              "zh-TW": "用手機瀏覽 usage 官方網站時，窄螢幕不會再失去導覽方向。在螢幕寬度低於 640px 時，原本整條消失的導覽列現在改由標示 Sections 的展開選單替代。⟦好比登山步道的窄入口設有可展開路線牌，改走其他語言路線時，原本標記的位置仍保留下來。⟧切換語言也不再把 `#install` 等分享錨點改寫為 `#<lang>`，因此在切換前複製的連結仍能開啟原先位置。",
+              "en": "On the public website, a narrow mobile screen will no longer leave you without a way to navigate. Below 640px, the navigation bar that previously disappeared entirely is replaced by a labeled, expandable Sections menu. ⟦It is like a narrow trailhead gaining an expandable route board that keeps your marked location when you switch to another language route.⟧ Switching languages also no longer rewrites shared anchors such as `#install` to `#<lang>`, so links copied before a language switch still open at their original location."
+            },
+            "original": "**The public website's mobile navigation and shareable anchors are fixed.** Below 640px the navigation disappeared entirely — a labeled Sections menu now expands in its place. Switching language no longer overwrites a shared anchor like `#install` with `#<lang>`, so links copied before a language switch keep working. Footer text now meets AA contrast, images lazy-load, and tap targets are at least 24px (44px in the main mobile nav)."
+          },
+          {
+            "title": {
+              "zh-TW": "官網補強頁尾可讀性、圖片載入與點擊操作",
+              "en": "Website improves footer readability, image loading, and tap targets"
+            },
+            "body": {
+              "zh-TW": "網站在手機上顯示時，容易被忽略的可讀性與操作細節也一併補齊。頁尾文字現在符合 AA 級對比要求，前景與背景的差異足以辨識；圖片改為需要顯示時才讀取。⟦這像候車資訊換成人人看得清楚的字，月台畫面接近時才亮起，按鈕與連結的可點擊區域也留出足夠空間。⟧各個點擊目標至少為 24px，行動版主導覽則為 44px，手指操作更不容易按偏。",
+              "en": "On mobile, the public website now also covers readability and interaction details that are easy to overlook. Footer text meets AA contrast requirements, making foreground and background easier to distinguish, while images lazy-load only when needed. ⟦It is like making station information readable to everyone, lighting up platform displays only as you approach, and leaving enough room for the clickable areas of buttons and links.⟧ Every tap target measures at least 24px, with the primary mobile navigation reaching 44px to make finger input less error-prone."
+            },
+            "original": "**The public website's mobile navigation and shareable anchors are fixed.** Below 640px the navigation disappeared entirely — a labeled Sections menu now expands in its place. Switching language no longer overwrites a shared anchor like `#install` with `#<lang>`, so links copied before a language switch keep working. Footer text now meets AA contrast, images lazy-load, and tap targets are at least 24px (44px in the main mobile nav)."
+          },
+          {
+            "title": {
+              "zh-TW": "官網主題總數校正為 13 款，補齊 Catppuccin 計數",
+              "en": "Website theme count updated from 12 to 13 to include Catppuccin"
+            },
+            "body": {
+              "zh-TW": "瀏覽官方網站的主題清單時，頁面上標示的主題總數已在全部五種語言版本中統一由 12 款修正為 13 款。先前在 0.29.23 版推出的 Catppuccin 主題配色一直未被計入網站的統計數字中，這次更新在所有語系頁面中如實補上了這項遺漏。⟦這像展示櫃明明陳列了 13 款特色商品，外頭目錄清單卻少算了一款，如今目錄將漏掉的款式如實補上，讓各語系型錄的標示與架上款式完全一致。⟧現在造訪官網不同語言版本，所見的主題統計都能正確反映當前完整的 13 種配色。",
+              "en": "The theme counter across all five language versions of the public website has been updated from 12 to 13. The Catppuccin color scheme introduced in version 0.29.23 had been left out of the site's tally, causing the displayed figure to lag behind reality. ⟦This is like a showroom featuring 13 distinct models while the printed catalog mistakenly tallies 12 until an update fixes the count.⟧ Every localized version of the website now accurately showcases the full lineup of 13 themes."
+            },
+            "original": "**The website's theme count was corrected from 12 to 13** — Catppuccin, shipped in 0.29.23, wasn't being counted — across all five languages."
+          },
+          {
+            "title": {
+              "zh-TW": "社群預覽圖反映 Windows 支援，體積縮小更輕量",
+              "en": "Social preview image reflects Windows support and shrinks in size"
+            },
+            "body": {
+              "zh-TW": "在社群平台分享官方網站連結時，縮圖卡片（social preview image，社群預覽圖片）已全面翻新。過去圖片標題寫著「macOS Menu Bar App」，現在全新的 1200×630 圖片將品牌與標題結合網站原生配色的實際面板截圖（涵蓋 Claude、Codex 與 Antigravity），清楚展現對 Windows 的支援。此外，圖片檔案大小也從原本的 573KB 大幅縮減至 96KB，讓分享預覽圖檔案更輕量。⟦像車站指示牌原本只標示 macOS，現加入 Windows、放上實際服務面板，並換成更輕薄的材質。⟧",
+              "en": "Sharing website links on social platforms now generates an updated preview card that reflects Windows availability alongside macOS. The old image labeled the project strictly as a \"macOS Menu Bar App\", whereas the new 1200×630 visual pairs the brand and title with an authentic panel screenshot (featuring Claude, Codex, and Antigravity) rendered in the site's distinct color palette. File size dropped dramatically from 573KB down to 96KB, with the smaller preview file size. ⟦It is like a station sign that previously listed only macOS, now adding Windows and an authentic service-panel image on lighter material.⟧"
+            },
+            "original": "**The social preview image reflects Windows support and reuses the site's own visuals.** It used to say \"macOS Menu Bar App\"; the new 1200×630 image pairs the brand and title with an actual panel screenshot (Claude, Codex, Antigravity) in the site's own colors, and dropped from 573KB to 96KB."
+          },
+          {
+            "title": {
+              "zh-TW": "README 狀態列截圖升級為多語言動態展示",
+              "en": "README status-line screenshots upgraded to localized animations"
+            },
+            "body": {
+              "zh-TW": "查閱 README 說明文件時，狀態列（status line，顯示在終端機底部的即時資訊列）展示畫面已升級為動態錄製的動畫。過去非英文語系都是借用英文版的靜態截圖，現在每一種語言版本都配備了專屬的錄製動圖。⟦如同健身教室不再讓所有學員看同一張英文姿勢照片，而是依各語言播放專屬的動態示範。⟧所有動圖都針對 README 的版面寬度進行了最佳化調整，確保文字在各語言環境下都能清晰易讀。",
+              "en": "Viewing the status-line previews in the README now presents fully recorded animations tailored to each language. Non-English translations previously borrowed static screenshots from the English README. ⟦It is like a fitness class no longer showing every learner the same English posture photo, but playing a dedicated moving demonstration for each language.⟧ Every supported language now features its own animated recording, scaled to stay sharp and legible within the standard README reading width."
+            },
+            "original": "**README status-line screenshots are now recorded animations**, one per language instead of borrowed from English, made legible at README width."
+          },
+          {
+            "title": {
+              "zh-TW": "狀態列設定升格為 README 獨立章節，補齊平台術語",
+              "en": "Status-line setup becomes a dedicated README section with platform terms"
+            },
+            "body": {
+              "zh-TW": "想在終端機配置狀態列的讀者，現在能在 README 中直接找到專屬的設定章節。過去這段教學作為子章節被埋在 Windows Support（Windows 支援）底下，導致 macOS 使用者容易直接錯過；現在它被獨立成頂層章節，並完整補齊了兩大平台與繁體中文的專業術語對照。⟦彷彿將熱門服務台從特定附錄搬到大廳正中央，並補齊多系統與繁體中文標籤，讓所有訪客一進門就能找到指引。⟧無論你在哪種作業系統上使用 usage，都能順暢依照母語術語完成狀態列設定。",
+              "en": "Finding setup instructions for terminal status-lines in the README is now immediate and straightforward. The guide was formerly tucked away as a sub-topic under Windows Support, causing macOS users to overlook it entirely. It now commands its own dedicated section, complete with terminology aligned for both platforms and Traditional Chinese. ⟦As if moving a popular information desk from a remote corner annex to the main lobby so visitors on every path spot it right away.⟧ Users across operating systems can now easily locate relevant setup steps and terminology."
+            },
+            "original": "**Status-line setup is now its own README section** instead of a subsection buried under Windows Support, so macOS users don't skip it, with terminology filled in for both platforms and Traditional Chinese."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.30",
+      "raw": {
+        "version": "0.29.30",
+        "period": "2026-08-15",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-18",
+        "entries": [
+          "**Cards trace a warning light around their border at 90%.** When a Session or weekly row crosses 90%, a red arc travels around that card's edge once every 2.6 seconds, on the Claude, Codex, and Antigravity cards alike. The Default panel carries it today; other panels are unchanged.",
+          "**Progress tracks now mark the 80% threshold.** A tick sits where the bar turns red, so how much headroom is left reads at a glance instead of only from the percentage text.",
+          "**The rate label now falls back after you stop working.** Burn rate divided by the span between the first and last usage entry, which left idle time out of the denominator — a ten-minute burst followed by a forty-minute break stayed pinned at \"Heavy\" until those entries aged out of the one-hour window. It now divides by the time elapsed since the first entry, so the rate decays while you are away. Thresholds and the cache-read exclusion are unchanged.",
+          "**Numeric readouts line up.** Project token counts, costs, and percentages use tabular figures, so the columns stop shifting as the digits change.",
+          "**Keyboard focus is visible on the Default panel**, and its buttons now animate between hover states instead of snapping. Both respect the system's reduced-motion setting."
+        ]
+      },
+      "curated": {
+        "version": "0.29.30",
+        "period": "2026-08-15",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "超過九成亮起外框紅光，Default 面板警戒更直觀",
+              "en": "Card borders trace warning lights at 90% in Default panel"
+            },
+            "body": {
+              "zh-TW": "Default 面板的卡片外框會亮起紅色動態警示，標出超過 90% 的工作階段（session，單次對話或任務的連續使用期間）或每週用量。⟦如同精密儀器在警戒線邊界亮起環形跑馬燈，紅光沿著邊緣繞行，提醒操作者留意殘量。⟧一條紅色弧線每 2.6 秒會繞著卡片邊緣跑動一圈，在 Claude、Codex 與 Antigravity 卡片上皆有一致的視覺效果。目前這項警戒光效果由 Default 面板提供，其餘面板則維持不變。",
+              "en": "The Default panel now traces a red active warning light around the border of any session or weekly row above 90%. ⟦It is like a precision instrument activating a perimeter warning beacon at critical capacity, running a red glow along the edge to alert the operator.⟧ A red arc travels around the card's edge once every 2.6 seconds, appearing consistently across Claude, Codex, and Antigravity cards. The Default panel carries this warning light today, while other panels remain unchanged."
+            },
+            "original": "**Cards trace a warning light around their border at 90%.** When a Session or weekly row crosses 90%, a red arc travels around that card's edge once every 2.6 seconds, on the Claude, Codex, and Antigravity cards alike. The Default panel carries it today; other panels are unchanged."
+          },
+          {
+            "title": {
+              "zh-TW": "進度條標出八成門檻刻度，剩餘額度一眼看清",
+              "en": "Progress tracks mark the 80% threshold for at-a-glance headroom"
+            },
+            "body": {
+              "zh-TW": "上限前還剩多少額度，現在能從進度條一眼看出。進度軌道在 80% 門檻處新增了刻度標記，位置正好落在進度條轉為紅色的交界點。這讓你能一眼看出達到上限前還剩下多少可用餘裕（headroom，額度耗盡前的剩餘緩衝空間），不必再依賴純文字數字進行推算。⟦這好比在透明量筒的八成高度標上一道分界刻度，液面一逼近紅線，不必細讀數字刻度也能立刻掌握剩餘容量。⟧",
+              "en": "Remaining headroom is now visible at a glance instead of requiring you to read percentage text. Progress tracks now display a tick mark at the 80% threshold, positioned precisely where the bar turns red. This allows you to assess how much headroom (the buffer remaining before hitting limits) is left at a glance instead of reading raw percentage text. ⟦It is like marking a boundary line at the eighty percent level on a measuring cylinder, letting you gauge remaining capacity the moment fluid nears the line without inspecting numbers.⟧"
+            },
+            "original": "**Progress tracks now mark the 80% threshold.** A tick sits where the bar turns red, so how much headroom is left reads at a glance instead of only from the percentage text."
+          },
+          {
+            "title": {
+              "zh-TW": "休息時消耗速率自動回落，計入閒置時間更貼近真實",
+              "en": "Burn rate decays after stopping work as idle time enters the denominator"
+            },
+            "body": {
+              "zh-TW": "密集使用 10 分鐘後休息 40 分鐘，消耗速率標籤會開始回落，不再一直釘在「Heavy」。過去計算速率時，只除以第一筆到最後一筆紀錄之間的間隔，分母漏掉了閒置時間；這導致密集使用 10 分鐘後休息 40 分鐘，標籤仍會被釘在「Heavy」狀態，直到滿 1 小時視窗過期。現在分母改以第一筆紀錄起算經過的總時間計算，離開時速率就會逐漸衰減。各級門檻與快取讀取（cache-read，讀取暫存資料）排除規則皆維持不變。⟦這如同計算長途旅行的平均時速，把停靠休息站的空檔也算入時間分母，車子熄火後儀表板均速便會自然往下降。⟧",
+              "en": "A ten-minute burst followed by a forty-minute break no longer leaves the rate label pinned at \"Heavy\". Previously, burn rate was calculated by dividing only by the span between the first and last usage entry, excluding idle time from the denominator; a ten-minute burst followed by a forty-minute break stayed pinned at \"Heavy\" until those entries aged out of the one-hour window. The rate now divides by the total time elapsed since the first entry, allowing it to decay while you are away. Threshold levels and the cache-read exclusion remain unchanged. ⟦It is like calculating trip speed by including time spent parked at a rest stop in the denominator, so average speed steadily drops while the engine is off.⟧"
+            },
+            "original": "**The rate label now falls back after you stop working.** Burn rate divided by the span between the first and last usage entry, which left idle time out of the denominator — a ten-minute burst followed by a forty-minute break stayed pinned at \"Heavy\" until those entries aged out of the one-hour window. It now divides by the time elapsed since the first entry, so the rate decays while you are away. Thresholds and the cache-read exclusion are unchanged."
+          },
+          {
+            "title": {
+              "zh-TW": "專案讀數改用等寬數字，排版欄位不再左右晃動",
+              "en": "Tabular figures align project readouts and stop column shifts"
+            },
+            "body": {
+              "zh-TW": "數字跳動時，專案用量清單的欄位不再左右晃動或錯位了。⟦這有如機械翻牌式時刻表，每個數字格子寬度完全相同，任一欄位跳動都不會推擠到鄰近文字。⟧專案 token（AI 處理與計費的文字單位）計數、花費金額與百分比全面改用等寬數字，每個數字字元佔據相同寬度。當數值隨用量即時跳動時，縱向欄位不再左右晃動或錯位，版面閱讀體驗更加穩定。",
+              "en": "As digits change, columns in project usage lists no longer shift side to side. ⟦It is like a mechanical flip-board schedule where every digit occupies an identical slot width, preventing changes in one column from shoving neighboring text.⟧ Project token (the unit for AI processing and billing) counts, costs, and percentages now use tabular figures with uniform widths. As digits change with live activity, columns stop shifting or jittering horizontally, creating a steady visual layout."
+            },
+            "original": "**Numeric readouts line up.** Project token counts, costs, and percentages use tabular figures, so the columns stop shifting as the digits change."
+          },
+          {
+            "title": {
+              "zh-TW": "Default 面板看清鍵盤焦點，按鈕平滑過渡並遵循動態偏好",
+              "en": "Default panel shows keyboard focus and animates hover states smoothly"
+            },
+            "body": {
+              "zh-TW": "Default 面板會清楚亮出鍵盤焦點（focus，鍵盤目前選中並可接收按鍵指令的介面位置）。面板上的按鈕在滑鼠懸停（hover）狀態之間，也改以平滑動畫過渡，不再生硬地瞬間切換。這兩項視覺改進都會自動遵循系統的「減少動態效果」設定，若使用者偏好靜態介面，系統會關閉動態過渡。⟦宛如舞台上的聚光燈與調光燈具，鍵盤移動時焦點清晰可辨，游標滑過時按鈕柔和漸變，遇到調暗需求時也能維持靜止。⟧",
+              "en": "The Default panel now clearly shows keyboard focus (the interface element currently selected to receive keystrokes). Buttons on the panel also animate smoothly between hover states rather than snapping abruptly. Both visual improvements respect the system's reduced-motion setting, falling back to static states if the user prefers reduced motion. ⟦It is like stage spotlights paired with dimmer switches: the focus is immediately clear as you step through, buttons glow smoothly as the cursor passes, and transitions remain static whenever calm lighting is requested.⟧"
+            },
+            "original": "**Keyboard focus is visible on the Default panel**, and its buttons now animate between hover states instead of snapping. Both respect the system's reduced-motion setting."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.29",
+      "raw": {
+        "version": "0.29.29",
+        "period": "2026-08-15",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-18",
+        "entries": [
+          "**usage has a new icon: an ink-brush cat.** The menu bar glyph and the app icon both use it.",
+          "**The Matrix and Cloud Observation panels let their backgrounds through.** Matrix cards are more translucent, so the falling glyphs read as a moving backdrop instead of a barely visible texture. Cloud Observation's sky is deeper and its cards are lighter, so the drifting clouds pass behind the quota rows rather than washing the whole panel white.",
+          "**Origami panel reset times are readable again.** The reset line sat on the dark blue folded corner in the same blue as the paper, leaving almost no contrast. It now uses a darker weight with a faint halo, so it reads on any part of the fold — and the second row on the Claude card is no longer clipped by the card's bottom edge.",
+          "**Update notifications no longer show raw Markdown.** Release notes rendered in the update dialog kept their `**` and `` ` `` markers."
+        ]
+      },
+      "curated": {
+        "version": "0.29.29",
+        "period": "2026-08-15",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "墨刷貓成為 usage 的新圖示",
+              "en": "An ink-brush cat becomes usage's new icon"
+            },
+            "body": {
+              "zh-TW": "想在選單列一眼認出 usage 時，墨刷貓也會出現在應用程式圖示上，讓你能沿著同一個標記找到它。這是 usage 的新圖示，選單列的符號和應用程式圖示都改用它。⟦像店家把門口招牌與名片換成同一枚手繪印記：兩個入口雖在不同地方，認得的都是同一家店。⟧不只應用程式圖示，選單列的符號也採用這隻貓；無論從哪一處看到 usage，使用的都是同一個新標記，兩處設計保持一致。",
+              "en": "Spot usage at a glance in the menu bar, then find the same ink-brush cat again on its app icon. It is usage's new icon, used both for the menu-bar glyph and the app icon. ⟦It is like a shop giving its front sign and business card the same hand-drawn mark: the entrances differ, but both point to the same shop.⟧ The cat is not limited to the app icon; the menu-bar glyph uses it too, so both places carry the same new mark."
+            },
+            "original": "**usage has a new icon: an ink-brush cat.** The menu bar glyph and the app icon both use it."
+          },
+          {
+            "title": {
+              "zh-TW": "Matrix 與 Cloud Observation 讓背景穿過卡片",
+              "en": "Matrix and Cloud Observation let their backdrops show through"
+            },
+            "body": {
+              "zh-TW": "卡片幾乎遮住背景時，Matrix 落下的字元只像難以看清的紋理，Cloud Observation 的雲也容易把面板洗成白色。⟦這像在玻璃舞台前掛上半透明布幕：後面的動態仍看得見，前方的內容則留在自己的位置。⟧Matrix 的卡片變得更透明，讓落下的字元讀起來像在移動的背景，不再只是難以看見的紋理。Cloud Observation 的天空更深、卡片更淺，飄動的雲會從額度列後方通過，而不會把整個面板洗成白色。",
+              "en": "When cards almost hide the backdrop, Matrix's falling glyphs are only a hard-to-see texture and Cloud Observation's clouds can wash the panel white. ⟦It is like hanging a translucent curtain in front of a glass stage: movement behind it remains visible while the material in front stays in place.⟧ Matrix cards are more translucent, making the falling glyphs read as a moving backdrop rather than a barely visible texture. Cloud Observation has a deeper sky and lighter cards, so drifting clouds pass behind the quota rows instead of washing the whole panel white."
+            },
+            "original": "**The Matrix and Cloud Observation panels let their backgrounds through.** Matrix cards are more translucent, so the falling glyphs read as a moving backdrop instead of a barely visible texture. Cloud Observation's sky is deeper and its cards are lighter, so the drifting clouds pass behind the quota rows rather than washing the whole panel white."
+          },
+          {
+            "title": {
+              "zh-TW": "Origami 的重設時間重新看得清",
+              "en": "Origami reset times are readable again"
+            },
+            "body": {
+              "zh-TW": "想看 Origami 何時重設，卻得在深藍折角上找同色文字時，原本幾乎都辨認不出來。以前深藍折角上的同色文字幾乎融進紙面，幾乎沒有對比，難以辨認。⟦像在深色摺紙上寫字，筆畫太接近紙色便看不出來；換成較深的筆觸，再加一圈淡淡光暈，字就能跨過每道摺線被讀到。⟧現在重設那一行改用較深的字重和淡淡光暈，無論落在折頁哪一處都看得清楚。",
+              "en": "Trying to see when Origami resets meant hunting for same-blue text on a dark-blue folded corner, where it was almost impossible to make out. The same-blue text on a dark-blue folded corner used to nearly disappear into the paper. ⟦It was like writing on dark origami with ink too close to the paper's color; a darker stroke and a faint halo let the words cross every fold and remain readable.⟧ The reset line now has a darker weight and faint halo, so it can be read on any part of the fold."
+            },
+            "original": "**Origami panel reset times are readable again.** The reset line sat on the dark blue folded corner in the same blue as the paper, leaving almost no contrast. It now uses a darker weight with a faint halo, so it reads on any part of the fold — and the second row on the Claude card is no longer clipped by the card's bottom edge."
+          },
+          {
+            "title": {
+              "zh-TW": "Claude 卡片第二行不再被底部裁掉",
+              "en": "The second row on the Claude card stays clear of the bottom edge."
+            },
+            "body": {
+              "zh-TW": "Claude 卡片裡的內容排到第二行時，最後一截曾在閱讀時被卡片底部遮住而看不見。原本顯示到第二行的內容，會在卡片下緣被截斷，讀到一半就少了一截。⟦像把紙條塞進有透明窗的名牌套：窗框不該蓋住最後一行，內容應完整落在可見範圍內。⟧現在卡片底部不會再壓住第二行，讓顯示在第二行的文字都能從頭到尾完整看清楚，不再有任何部分在底部被裁掉。",
+              "en": "When content on a Claude card reached the second row, its last part used to vanish behind the card's bottom edge. Previously, content reaching that row could be cut off at the lower boundary, leaving part of the line out of sight. ⟦It is like sliding a label into a badge holder with a clear window: the frame should not cover the last line, and the whole message belongs inside the visible area.⟧ The bottom of the card no longer covers the second row, so its text can be read from beginning to end."
+            },
+            "original": "**Origami panel reset times are readable again.** The reset line sat on the dark blue folded corner in the same blue as the paper, leaving almost no contrast. It now uses a darker weight with a faint halo, so it reads on any part of the fold — and the second row on the Claude card is no longer clipped by the card's bottom edge."
+          },
+          {
+            "title": {
+              "zh-TW": "更新通知不再露出 Markdown 格式記號",
+              "en": "Update notifications stop exposing raw Markdown markers"
+            },
+            "body": {
+              "zh-TW": "打開更新通知想看版本說明，卻先遇到 `**` 和 `` ` `` 這些格式記號。Markdown（用符號標示粗體或程式碼的文字格式）原本應先被轉成可讀文字，但更新對話框裡的 release notes 曾把它們直接顯示出來。⟦這像餐廳把廚房的備料標籤連同菜一起端上桌；現在端出的版本說明只留下讀者要看的內容。⟧你在更新對話框讀 release notes 時，不必再把那些格式符號當成正文的一部分。",
+              "en": "You open an update notification to read the release notes, only to meet raw `**` and `` ` `` markers first. Markdown is a text format that uses symbols for such things as bold text and code, but the update dialog had been displaying those symbols literally. ⟦It was like serving a dish with the kitchen's prep labels still attached; the release notes now present the content meant for the reader.⟧ You no longer need to treat those formatting symbols as part of the release notes in the update dialog."
+            },
+            "original": "**Update notifications no longer show raw Markdown.** Release notes rendered in the update dialog kept their `**` and `` ` `` markers."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.28",
+      "raw": {
+        "version": "0.29.28",
+        "period": "2026-08-14",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-14",
+        "entries": [
+          "**`usage status` prints your quota for other tools to read.** Until now the only way to get quota out of usage was to import its internals from Python. `usage status` gives a one-line summary, `usage status --json` gives a versioned JSON payload, and both read the same local files as the menu bar — no network call. The [development docs](docs/DEVELOPMENT.md) include ready-made Starship and tmux snippets.",
+          "**Releases now ship build provenance and an SBOM.** Every macOS and Windows artifact carries a signed SLSA build-provenance attestation, verifiable with `gh attestation verify <file> --repo aqua5230/usage`, and the macOS release includes a CycloneDX software bill of materials listing every bundled dependency.",
+          "**The offline price table now says how old it is.** When the upstream price list can't be reached, usage falls back to a built-in table; that table now records the date it was last checked against upstream and logs a warning when it is used, so a silently outdated price can be spotted instead of quietly skewing your cost totals.",
+          "**Installing usage as a Python package no longer leaves modules behind.** The packaging allowlist covered 39 of the 74 top-level modules, so an installed copy crashed with `ModuleNotFoundError`. The list is complete now and a test keeps it that way."
+        ]
+      },
+      "curated": {
+        "version": "0.29.28",
+        "period": "2026-08-14",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "用指令快速查額度，終端機與狀態列隨調隨用",
+              "en": "Check quota directly via CLI for external terminal tools"
+            },
+            "body": {
+              "zh-TW": "想在 Starship 提示字元或 tmux 狀態列隨時盯著 AI 剩餘額度，過去就像非得請水電工拆開儀表箱才能讀取數據，必須寫 Python 程式硬挖 usage 的內部模組。現在正面直接裝上了液晶小螢幕：新指令 `usage status` 會直接印出一行摘要，加上 `--json` 參數還能輸出帶版號的 JSON 資料。兩者跟選單列讀取同一份本機檔案，完全不發送額外網路請求，看一眼就知道剩餘額度而不用聯網查詢；官方開發文件還附上了現成的設定範例，方便你直接貼進設定檔。",
+              "en": "If you want your Starship prompt or tmux status bar to show remaining AI quota, you no longer need to write custom Python scripts importing usage's internal modules. The new `usage status` command prints a concise one-line summary, and `--json` outputs a versioned JSON payload. Both read the same local files as the menu bar item, requiring zero network calls. Ready-made snippets in the development documentation make setup immediate. It is like a utility meter on a house: instead of calling a technician to disassemble the mechanical counter inside, a digital readout on the front now lets any display read current consumption without contacting the utility company."
+            },
+            "original": "**`usage status` prints your quota for other tools to read.** Until now the only way to get quota out of usage was to import its internals from Python. `usage status` gives a one-line summary, `usage status --json` gives a versioned JSON payload, and both read the same local files as the menu bar — no network call. The [development docs](docs/DEVELOPMENT.md) include ready-made Starship and tmux snippets."
+          },
+          {
+            "title": {
+              "zh-TW": "附帶組建來源證明與物料清單，安裝檔來源透明可驗證",
+              "en": "Releases include build provenance and SBOM for verified security"
+            },
+            "body": {
+              "zh-TW": "下載安裝檔時，現在你可以確切核實檔案是否真的由官方原始碼編譯而成。每個 macOS 與 Windows 發行檔案現在都附帶經過數位簽署的 SLSA 組建來源證明，只要執行 `gh attestation verify <file> --repo aqua5230/usage` 指令就能核對檔案產銷履歷；macOS 版本還額外附上 CycloneDX 格式的軟體物料清單（SBOM，詳細列出所有內建相依套件的名冊）。這種透明度好比購買進口食品，包裝上貼有可掃描產銷履歷的防偽溯源標籤以證明未遭調包，背面更印有完整成分配料表，讓每項零件與函式庫的來源都一清二楚。",
+              "en": "When downloading release artifacts, you can now mathematically verify that your binaries were built directly from official source code. Every macOS and Windows release artifact now ships with a signed SLSA build-provenance attestation, verifiable in your terminal using the `gh attestation verify <file> --repo aqua5230/usage` command. In addition, the macOS release includes a CycloneDX software bill of materials (SBOM) detailing every bundled dependency. It is like buying packaged organic food: the box carries a certified supply-chain tracking seal proving the product was never swapped in transit, alongside a complete ingredient list that reveals every sub-component inside."
+            },
+            "original": "**Releases now ship build provenance and an SBOM.** Every macOS and Windows artifact carries a signed SLSA build-provenance attestation, verifiable with `gh attestation verify <file> --repo aqua5230/usage`, and the macOS release includes a CycloneDX software bill of materials listing every bundled dependency."
+          },
+          {
+            "title": {
+              "zh-TW": "離線價目表標註查核日期，啟用備援時主動發出警示",
+              "en": "Offline price table tracks its check date and warns on fallback"
+            },
+            "body": {
+              "zh-TW": "網路斷線或無法連上最新價目表時，計算模型花費不再容易被過期費率誤導。當 usage 無法抓取線上最新價格時，會自動切換為內建的離線價目表作為備援；這份內建表格現在記錄了上次與官方核對的日期，並在啟用時主動於日誌留下警告訊息，讓你能一眼看出目前使用的是舊資料，而不是悄悄算錯累積費用。這好比銀行櫃檯的電子匯率看板斷線時，行員改拿出抽屜裡的紙本費率表，以前紙上沒寫列印日期容易算錯，現在紙面蓋有「最後核對日期」的大章並在單據記下備用註記，避免帳目在不知不覺中出現落差。",
+              "en": "When your network is down or upstream price lists cannot be reached, model cost calculations will no longer silently drift on outdated rates. When usage cannot fetch live pricing, it falls back to a built-in pricing table. That built-in table now records the exact date it was last synced against upstream and writes a warning to the log whenever it is engaged, making stale pricing immediately visible before it skews your cost totals. It is like an exchange counter whose electronic rate board goes dark: the teller pulls a printed rate sheet from the drawer, but the sheet now displays an inspection date stamp and a written notation is logged on the slip, ensuring no one calculates totals under the mistaken impression that prices are current."
+            },
+            "original": "**The offline price table now says how old it is.** When the upstream price list can't be reached, usage falls back to a built-in table; that table now records the date it was last checked against upstream and logs a warning when it is used, so a silently outdated price can be spotted instead of quietly skewing your cost totals."
+          },
+          {
+            "title": {
+              "zh-TW": "Python 套件補齊所有模組，安裝不再因缺檔而報錯崩潰",
+              "en": "Python package includes all modules to stop ModuleNotFoundError crashes"
+            },
+            "body": {
+              "zh-TW": "透過 Python 套件管理工具安裝 usage，過去就像買到了裝箱清單只勾了一半零件的組裝家具材料包。先前打包設定的模組白名單只收錄了 74 個頂層模組中的 39 個，害使用者安裝後執行時，常因找不到其餘模組而跳出 `ModuleNotFoundError` 錯誤當機；現在打包清單已完整補齊全部 74 個模組，並新增了自動化測試來防止未來漏掉檔案。這如同材料包出廠清單已補齊所有配件，且出廠前一律經過自動掃描確認，買回家不再組裝到一半才發現缺了螺絲與木板。",
+              "en": "Developers who install usage as a Python package will no longer hit instant crashes caused by missing files. Previously, the packaging allowlist included only 39 of the 74 top-level modules, causing installed copies to crash immediately with a `ModuleNotFoundError`. The packaging list now includes all 74 modules, and an automated regression test ensures no files are forgotten in future releases. It is like buying a boxed furniture kit whose packing checklist only listed half the necessary parts, leaving customers stranded mid-assembly without key screws or panels; the factory checklist now includes every single component, with a scanner verifying each box before shipment."
+            },
+            "original": "**Installing usage as a Python package no longer leaves modules behind.** The packaging allowlist covered 39 of the 74 top-level modules, so an installed copy crashed with `ModuleNotFoundError`. The list is complete now and a test keeps it that way."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.27",
+      "raw": {
+        "version": "0.29.27",
+        "period": "2026-08-13",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-14",
+        "entries": [
+          "**Windows now keeps usage current when Claude Code or Codex files change.** A native file watcher refreshes the tray percentage, panel, quota notifications, and Window Keeper shortly after the underlying files change instead of leaving them up to five minutes behind; overlapping refresh requests are merged and run once more when the current refresh finishes, so clicking Refresh Now or opening the panel no longer loses the request during a background refresh.",
+          "**Windows now runs the same daily quota-waste check, service-outage banner, and automatic update check as macOS.** The daily diagnosis snapshot is scheduled after the tray starts, the panel receives Claude and Codex service status, and background update checks respect the existing daily cache, dismissal cooldown, and skipped-version choice; manual checks still run immediately.",
+          "**Windows quota alerts can stay in Action Center and open the panel.** Notifications now use an interactive Windows toast with an action button; if Windows' toast support is unavailable, usage falls back to the previous tray balloon without interrupting refreshes.",
+          "**Windows supports the Antigravity status line.** Turning on the existing status-line switch now installs and maintains Antigravity's quota display on Windows too, including the packaged executable.",
+          "**Windows shows remaining quota on the panel's taskbar button.** Its progress bar uses the same severity colors as the tray icon and disappears when the panel is closed, so the tray app does not gain an unwanted extra taskbar entry.",
+          "**Windows builds now have usage's paw icon and stay sharp on high-DPI displays.** The executable carries the app icon instead of PyInstaller's default, and Per-Monitor-v2 DPI awareness prevents Windows from bitmap-stretching the panel on high-resolution or mixed-scale monitors.",
+          "**Windows moved everyday controls into the panel menu and leaves the tray menu for recovery.** Right-clicking the tray icon now exposes Reset Panel Position and Quit, while panel switching, refresh, launch at login, notification settings, update checks, and the other controls are available from the panel's own menu; both surfaces are generated from the same menu definition so they no longer drift apart.",
+          "**Windows places and resizes the panel correctly on scaled and multi-monitor setups.** Positioning now consistently uses the logical coordinates expected by WebView2 and sends all geometry changes through its UI thread, avoiding a panel on the wrong display, beyond a screen edge, or changed from the wrong thread.",
+          "**Antigravity status-line setup on Windows no longer silently installs a command that cannot run.** It selects an unquoted, Windows-safe Python path for `cmd.exe`, rejects unsupported paths with a clear action to take, and handles special path characters safely; macOS's Claude and Antigravity command paths are unchanged.",
+          "**Usage forecasts no longer overreact to one sudden token jump.** On macOS and Windows, the forecast now weights each recent interval by its duration, so a short polling interval containing one large Claude update no longer predicts that quota will run out implausibly soon.",
+          "**Claude and Codex outage banners now recover and suppress alerts correctly on macOS and Windows.** Codex API status is read from the complete component list instead of a truncated summary, and alert suppression again fetches incident state only when an affected component needs it; this restores a regression for Claude and makes Codex's previously ineffective suppression work for the first time."
+        ]
+      },
+      "curated": {
+        "version": "0.29.27",
+        "period": "2026-08-13",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 檔案變更即時更新，重疊重整不漏接",
+              "en": "Windows updates usage in real time on file changes without dropping refresh requests"
+            },
+            "body": {
+              "zh-TW": "你在 Windows 上剛讓 Claude Code 或 Codex 跑完大量工作，想立刻確認最新額度，以前系統匣（工作列右下角的小圖示區）的數字可能慢半拍、落後長達五分鐘。現在新增的原生檔案監聽器會在底層檔案一變動時，立刻更新系統匣百分比、面板、額度通知與 Window Keeper。如果你在背景重新整理時手動點擊重整或打開面板，重疊的請求會自動合併，並在當前進度跑完後立即再補刷一次，不再遺失任何操作。這如同大樓的包裹收發台，快遞一送件就立刻廣播通知住戶，不再等固定巡邏；若清點包裹時又有人按鈴催件，管理員會先記下來並在點完後馬上再查一次。",
+              "en": "When you finish a heavy run with Claude Code or Codex on Windows and want to check your quota, the tray readings used to lag behind by up to five minutes. A native file watcher now updates the tray percentage, panel, quota notifications, and Window Keeper right after underlying files change. If you click Refresh Now or open the panel while a background refresh is already underway, overlapping requests are merged and executed once more as soon as the active refresh completes, ensuring no request is lost. It is like an apartment mail desk that broadcasts an arrival notice the moment a courier delivers a parcel rather than waiting for scheduled rounds, and notes down any resident checking in during an active inventory to re-check right after."
+            },
+            "original": "**Windows now keeps usage current when Claude Code or Codex files change.** A native file watcher refreshes the tray percentage, panel, quota notifications, and Window Keeper shortly after the underlying files change instead of leaving them up to five minutes behind; overlapping refresh requests are merged and run once more when the current refresh finishes, so clicking Refresh Now or opening the panel no longer loses the request during a background refresh."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 支援 Antigravity 狀態列，安裝路徑更穩固",
+              "en": "Windows supports Antigravity status line with safe executable paths"
+            },
+            "body": {
+              "zh-TW": "習慣在 Windows 終端機使用 Antigravity 開發的人，現在只要打開狀態列（status line，顯示在終端機最底下的資訊欄）開關，終端機底端就能同步顯示即時額度，即使使用打包後的獨立執行檔也能正常維護。過去安裝時可能會悄悄寫入無法執行的指令，現在會主動為 `cmd.exe` 挑選不帶引號的安全 Python 路徑、妥善處理特殊路徑字元，遇到不支援的路徑更會給出明確的處理提示；macOS 上原有的設定則維持不變。這好比水電師傅替工廠機台配線，自備符合新規格的專用接頭，遇到特殊牆面做好絕緣包覆，遇到不相容的插座更會當場附上接線指引，確保通電後指示燈穩定運作。",
+              "en": "Developers running Antigravity on Windows can now turn on the existing status line (the readout displayed at the bottom of a terminal) switch to install and maintain live quota stats, even when using the packaged standalone binary. The setup process previously risked silently writing unrunnable commands, but now selects an unquoted, safe Python path for `cmd.exe`, handles special characters securely, and provides clear action steps if an unsupported path is encountered, leaving macOS paths unaffected. It is like an electrician wiring industrial machinery with custom connectors suited for the specific panel, insulating cables around awkward corners, and leaving clear diagrams if a socket is incompatible, ensuring the status light turns on reliably."
+            },
+            "original": "**Windows supports the Antigravity status line.** Turning on the existing status-line switch now installs and maintains Antigravity's quota display on Windows too, including the packaged executable.\n**Antigravity status-line setup on Windows no longer silently installs a command that cannot run.** It selects an unquoted, Windows-safe Python path for `cmd.exe`, rejects unsupported paths with a clear action to take, and handles special path characters safely; macOS's Claude and Antigravity command paths are unchanged."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 補齊每日診斷與更新檢查，通知與工作列掌握度更高",
+              "en": "Windows gains daily diagnostic checks, Action Center toast alerts, and taskbar progress"
+            },
+            "body": {
+              "zh-TW": "你在 Windows 上使用 usage 管理多個 AI 工具時，日常的健康檢查與提醒變得像 macOS 一樣全面且貼心。系統匣啟動後會排程每日額度浪費診斷、面板可接收 Claude 與 Codex 服務狀態，背景自動更新也遵循每日快取（cache，把查過的結果暫存起來直接用）與冷卻設定，但手動檢查仍會立即執行。額度警示改用帶有操作按鈕的互動式快訊，可保留在重要訊息中心直接點擊打開面板，不支援時則在不中斷重新整理的情況下自動切換為備援氣泡；面板開啟時，工作列按鈕還會顯示同色系的額度進度條，面板關閉即消失。這好比診所秘書每天定時彙整健康報告並留意門診公告，提醒信附有掛號按鈕且收在待辦匣，門口燈號更會隨進度變色並在離開時自動熄滅。",
+              "en": "Managing AI tools on Windows now offers the same comprehensive health checks and alerts as macOS. The app schedules a daily quota-waste diagnosis after startup, feeds Claude and Codex service statuses into the panel, and respects daily cache (saving fetched results temporarily for direct reuse) cooldowns during background update checks, while manual checks still run immediately. Quota alerts now use interactive Windows toasts with action buttons that stay in the Action Center to open the panel, falling back gracefully to tray balloons without interrupting refreshes if unsupported. When the panel is open, its taskbar button displays a color-coded progress bar that vanishes on close without cluttering your bar. It is like a clinic receptionist compiling daily health summaries, sending actionable reminders directly to your inbox, and displaying a color-coded queue light that turns off when you leave."
+            },
+            "original": "**Windows now runs the same daily quota-waste check, service-outage banner, and automatic update check as macOS.** The daily diagnosis snapshot is scheduled after the tray starts, the panel receives Claude and Codex service status, and background update checks respect the existing daily cache, dismissal cooldown, and skipped-version choice; manual checks still run immediately.\n**Windows quota alerts can stay in Action Center and open the panel.** Notifications now use an interactive Windows toast with an action button; if Windows' toast support is unavailable, usage falls back to the previous tray balloon without interrupting refreshes.\n**Windows shows remaining quota on the panel's taskbar button.** Its progress bar uses the same severity colors as the tray icon and disappears when the panel is closed, so the tray app does not gain an unwanted extra taskbar entry."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 介面清晰防模糊，多螢幕排版與選單更清晰",
+              "en": "Windows interface stays sharp on high-DPI setups with polished menus and positioning"
+            },
+            "body": {
+              "zh-TW": "桌上接了高解析度螢幕或多台不同縮放比例顯示器的 Windows 使用者，現在打開面板不再遇到字體模糊或視窗飄出螢幕外的困擾。獨立執行檔換上了專屬貓爪圖示，並具備 Per-Monitor-v2 高解析度感知能力，避免面板被點陣圖粗暴拉伸；視窗定位統一採用 WebView2 邏輯座標並經由主執行緒調整，徹底解決面板出現在錯誤螢幕或跨出邊界的問題。同時選單結構也重新整理，右鍵點擊系統匣僅保留重設位置與結束等救援選項，面板切換、重新整理、開機自動啟動與通知設定等控制項全移至面板專屬選單，且兩處共用定義不再脫節。這如同畫廊重新布展，每幅畫作依展廳標準精準縮放，由專人依精確標尺掛在正確展牆，並將大門總開關與展台操作盤分開管理。",
+              "en": "Windows users with high-DPI displays or mixed multi-monitor setups will no longer encounter blurry text or off-screen panels. The executable now sports the custom paw icon and enables Per-Monitor-v2 DPI awareness to prevent ugly bitmap stretching; panel placement consistently applies logical coordinates via WebView2 on the UI thread, eliminating misplacement across monitors or edges. Furthermore, menu layouts have been cleaned up: right-clicking the tray icon keeps only emergency recovery options like Reset Panel Position and Quit, while panel switching, refresh, launch at login, notification settings, and update checks are available from the panel's own menu, with both surfaces sharing the same definition. It is like an art gallery scaling paintings cleanly to every gallery wall, hanging frames precisely with accurate rulers, and separating main circuit breakers from individual podium switches."
+            },
+            "original": "**Windows builds now have usage's paw icon and stay sharp on high-DPI displays.** The executable carries the app icon instead of PyInstaller's default, and Per-Monitor-v2 DPI awareness prevents Windows from bitmap-stretching the panel on high-resolution or mixed-scale monitors.\n**Windows moved everyday controls into the panel menu and leaves the tray menu for recovery.** Right-clicking the tray icon now exposes Reset Panel Position and Quit, while panel switching, refresh, launch at login, notification settings, update checks, and the other controls are available from the panel's own menu; both surfaces are generated from the same menu definition so they no longer drift apart.\n**Windows places and resizes the panel correctly on scaled and multi-monitor setups.** Positioning now consistently uses the logical coordinates expected by WebView2 and sends all geometry changes through its UI thread, avoiding a panel on the wrong display, beyond a screen edge, or changed from the wrong thread."
+          },
+          {
+            "title": {
+              "zh-TW": "用量預測依時間加權，短暫尖峰不再觸發見底警報",
+              "en": "Quota forecasts weight intervals by duration to ignore brief token spikes"
+            },
+            "body": {
+              "zh-TW": "當你一口氣讓 Claude 讀入一份厚重檔案，看著預測面板可能曾被「額度即將在短時間內用光」的警報嚇了一跳。現在 macOS 與 Windows 上的預測演算法已改良，會依據近期每個輪詢區間的實際持續時間進行加權計算；就算某個短短數秒的區間內剛好碰上大量 token（AI 處理與計費的文字單位）更新，系統也不會再把瞬間爆發誤當成長期常態，進而做出額度即將耗盡的不合理預測。這如同家用水錶評估水費，如果洗手剛好開了五秒大水，計算機現在會把這五秒與平時一整天的靜止時間一起平均加權，知道這只是短暫用水，不會再發出誇張的缺水預報。",
+              "en": "When feeding Claude a massive document, you might have been startled by a forecast warning that your quota would dry up in minutes. On both macOS and Windows, the forecasting algorithm now weights each recent polling interval by its actual duration. A short interval carrying a heavy token (units of AI text processing and billing) jump from a single Claude update is no longer extrapolated as continuous consumption, preventing implausibly pessimistic depletion estimates. It is like estimating a home water bill: opening the faucet full blast for five seconds is weighted alongside hours of inactivity, recognizing a brief surge rather than predicting the reservoir will run dry by nightfall."
+            },
+            "original": "**Usage forecasts no longer overreact to one sudden token jump.** On macOS and Windows, the forecast now weights each recent interval by its duration, so a short polling interval containing one large Claude update no longer predicts that quota will run out implausibly soon."
+          },
+          {
+            "title": {
+              "zh-TW": "服務中斷橫幅準確復原，停機警示抑制回歸正常",
+              "en": "Outage banners restore correctly and suppress noisy alerts during downtime"
+            },
+            "body": {
+              "zh-TW": "遇到 AI 服務端短暫故障時，你既想及時看到故障橫幅，又不希望在已知停機期間被不斷跳出的錯誤警報轟炸。macOS 與 Windows 上的狀態監控現在已修正：讀取 Codex API 狀態時改採完整的元件清單，不再讀取容易遺漏細節的截斷摘要；而警示抑制機制只會在受影響的元件確實需要時，才去抓取事故狀態，修復了 Claude 之前的退化問題，並讓 Codex 的通知抑制功能首次正式生效。這好比機場航班調度看板，地勤人員改查閱完整的全航線班表，確認只有受天候影響的特定航班延誤時才精準靜音重複警報，既不漏報班機狀態，也不會在已知檢修期間連續發出廣播吵醒候機旅客。",
+              "en": "When an AI upstream hiccups, you want to see the status banner immediately without getting bombarded by repetitive error popups during a known outage. Status monitoring across macOS and Windows has been overhauled: Codex API health is now parsed from the complete component list rather than a truncated summary, and alert suppression only fetches incident details when an affected component truly requires it. This fixes a recent regression for Claude and brings effective alert suppression to Codex for the first time. It is like an airport flight status board where ground staff cross-reference the full master flight schedule, muting repetitive alarm bells specifically for flights already marked as delayed by bad weather without spamming the public address system during scheduled maintenance."
+            },
+            "original": "**Claude and Codex outage banners now recover and suppress alerts correctly on macOS and Windows.** Codex API status is read from the complete component list instead of a truncated summary, and alert suppression again fetches incident state only when an affected component needs it; this restores a regression for Claude and makes Codex's previously ineffective suppression work for the first time."
+          }
+        ]
+      }
+    }
+  ]
+}

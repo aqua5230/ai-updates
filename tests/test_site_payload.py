@@ -99,25 +99,107 @@ def test_site_payload_splits_history_without_losing_data(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     records = _configure_build(tmp_path, monkeypatch)
+    for number in range(10, 0, -1):
+        version = f"0.{number}.0"
+        raw = _raw(version, [f"Alpha {number}"])
+        records["alpha"].append({"version": version, "raw": raw, "curated": None})
+        (tmp_path / "data" / "raw" / "alpha" / f"{version}.json").write_text(
+            json.dumps(raw), encoding="utf-8"
+        )
+    old_history = tmp_path / "docs" / "history"
+    old_history.mkdir()
+    (old_history / "alpha.json").write_text("stale", encoding="utf-8")
     build_script.build()
 
     payload = json.loads((tmp_path / "docs" / "data.json").read_text(encoding="utf-8"))
+    assert payload["history_page_size"] == build_script.HISTORY_PAGE_SIZE
     assert len(payload["tools"]) == len(records)
+    assert not (old_history / "alpha.json").exists()
     for tool in payload["tools"]:
         assert all(set(version) == {"version", "period"} for version in tool["versions"])
         assert "raw" not in tool["versions"][0]
         assert "curated" not in tool["versions"][0]
 
-        history_path = tmp_path / "docs" / "history" / f"{tool['id']}.json"
-        assert history_path.is_file()
-        history = json.loads(history_path.read_text(encoding="utf-8"))
-        expected = {
-            "id": tool["id"],
-            "name": tool["name"],
-            "versions": records[tool["id"]],
-        }
-        assert history == expected
-        assert tool["latest"] == expected["versions"][0]
+        page_size = build_script.HISTORY_PAGE_SIZE
+        pages = (len(records[tool["id"]]) + page_size - 1) // page_size
+        parts = [
+            json.loads((old_history / tool["id"] / f"{number}.json").read_text(encoding="utf-8"))
+            for number in range(1, pages + 1)
+        ]
+        assert len(list((old_history / tool["id"]).glob("*.json"))) == pages
+        assert all(part["id"] == tool["id"] and part["name"] == tool["name"] for part in parts)
+        assert [part["page"] for part in parts] == list(range(1, pages + 1))
+        assert all(part["pages"] == pages for part in parts)
+        assert [len(part["versions"]) for part in parts] == [
+            min(page_size, len(records[tool["id"]]) - index * page_size)
+            for index in range(pages)
+        ]
+        assert [version for part in parts for version in part["versions"]] == records[tool["id"]]
+        assert tool["latest"] == records[tool["id"]][0]
+
+
+def test_search_index_contains_curated_cards_and_unique_code_keywords(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    records = _configure_build(tmp_path, monkeypatch)
+    first = records["alpha"][0]
+    first["curated"]["items"][0]["body"]["zh-TW"] = "使用 `/effort` 和 `same`"
+    first["curated"]["items"][0]["body"]["en"] = "Use `/effort` and `same`"
+    first["raw"]["entries"][0] = "Alpha `original` first"
+    first["curated"]["items"][0]["original"] = "Alpha `original` first"
+    first["curated"]["items"][0]["body"]["en"] += " `" + "x" * 41 + "`"
+    (tmp_path / "data" / "raw" / "alpha" / "2.0.0.json").write_text(
+        json.dumps(first["raw"]), encoding="utf-8"
+    )
+    (tmp_path / "data" / "curated" / "alpha" / "2.0.0.json").write_text(
+        json.dumps(first["curated"]), encoding="utf-8"
+    )
+    build_script.build()
+
+    path = tmp_path / "docs" / "search-index.json"
+    raw_index = path.read_text(encoding="utf-8")
+    index = json.loads(raw_index)
+    expected_count = sum(
+        len(version["curated"]["items"])
+        for versions in records.values() for version in versions if version["curated"]
+    )
+    assert len(index["cards"]) == expected_count
+    assert raw_index == json.dumps(index, ensure_ascii=False, separators=(",", ":"))
+    assert [card[:3] for card in index["cards"]] == [
+        ["alpha", "2.0.0", 1], ["alpha", "2.0.0", 2], ["beta", "3.0.0", 1]
+    ]
+    assert index["cards"][0][3:5] == ["zh-TW title 1", "en title 1"]
+    assert index["cards"][0][5] == "/effort same original"
+    assert index["cards"][1][5] == ""
+
+
+def test_enterprise_card_threshold_and_site_numbers(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    assert build_script._is_enterprise_card({"original": "Enterprise\nplain\nSSO\nplain\nGateway"})
+    assert not build_script._is_enterprise_card(
+        {"original": "Enterprise\nplain\nplain\nplain\nGateway"}
+    )
+    assert not build_script._is_enterprise_card({"original": "Hide for non-enterprise accounts"})
+    assert not build_script._is_enterprise_card({"original": ""})
+    assert not build_script._is_enterprise_card({"original": "  \n\t"})
+    assert build_script._is_enterprise_card({"original": "\n[Claude Tag] settings\n"})
+
+    records = _configure_build(tmp_path, monkeypatch)
+    first = records["alpha"][0]
+    first["raw"]["entries"][1] = "Enterprise settings"
+    first["curated"]["items"][1]["original"] = "Enterprise settings"
+    (tmp_path / "data" / "raw" / "alpha" / "2.0.0.json").write_text(
+        json.dumps(first["raw"]), encoding="utf-8"
+    )
+    (tmp_path / "data" / "curated" / "alpha" / "2.0.0.json").write_text(
+        json.dumps(first["curated"]), encoding="utf-8"
+    )
+    build_script.build()
+    payload = json.loads((tmp_path / "docs" / "data.json").read_text(encoding="utf-8"))
+    assert payload["tools"][0]["versions"][0]["enterprise"] == [2]
+    assert "enterprise" not in payload["tools"][0]["versions"][1]
+    assert "enterprise" not in payload["tools"][1]["versions"][0]
 
 
 def test_static_page_renders_originals_once_and_keeps_all_languages(

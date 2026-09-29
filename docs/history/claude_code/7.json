@@ -1,0 +1,855 @@
+{
+  "id": "claude_code",
+  "name": "Claude Code",
+  "page": 7,
+  "pages": 8,
+  "versions": [
+    {
+      "version": "2.1.205",
+      "raw": {
+        "version": "2.1.205",
+        "period": "2026-07-08",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Added an auto mode rule that blocks tampering with session transcript files",
+          "Fixed `--json-schema` silently producing unstructured output when the schema was invalid, and schemas using the `format` keyword being rejected",
+          "Fixed a message sent while Claude was working being silently lost when the turn ended at the `--max-turns` limit",
+          "Fixed Windows worktree removal deleting files outside the worktree when an NTFS junction or directory symlink existed inside it",
+          "Fixed background agents staying shown as \"failed\" or \"completed\" in the agent list after being resumed with `SendMessage`",
+          "Fixed background jobs flipping from \"needs input\" back to \"working\" in the agent list when the agent's turn contained no readable text",
+          "Fixed `claude attach` erroring when a background agent was mid-upgrade restart instead of waiting for it to come back",
+          "Fixed session-to-PR linking missing a PR created in a Bash call whose output exceeded the 30K inline limit",
+          "Fixed `claude mcp add-from-claude-desktop` getting stuck when a server name contains unsupported characters; invalid names are now reported and remaining servers still import",
+          "Fixed a plugin LSP server that fails to initialize preventing a valid LSP server from another plugin handling the same file extension",
+          "Fixed a Windows crash when the directory Claude was launched from is deleted, locked, or unmounted while a command is running",
+          "Fixed a crash when a file watcher was closed while a directory scan was still in flight",
+          "Fixed project verify skills being rewritten on every session instead of only when a documented command changed",
+          "Fixed the agent view rendering one line too high and clipping its header when the job list slightly overflowed the screen",
+          "Fixed background tasks in the web and mobile Remote Control panels showing stale \"Running\" status by forwarding full task state on every membership change",
+          "Improved auto mode to ask before running `rm -rf` on a variable it can't resolve from context",
+          "Auto-update binary downloads now stream to disk instead of buffering in memory, cutting the updater's peak memory usage by roughly 400 MB",
+          "Background task notifications now explicitly state that no human input has occurred, preventing fabricated in-transcript approvals from being acted on",
+          "Improved agent view: sessions that edit, merge, comment on, or push to an existing PR now link it in `claude agents`",
+          "Improved agent view: rows now show a colored state word and a classifier-written headline instead of raw tool call text, and the peek opens with full status including the exact ask for blocked sessions",
+          "`/doctor` is now a full setup checkup that can diagnose and fix issues; `/checkup` is its alias",
+          "Reserved the \"Claude Browser\" MCP server name (alongside \"Claude Preview\") ahead of the Claude Desktop pane rename; user-configured MCP servers can no longer register under either name",
+          "Fixed Cowork VM-mode local-agent sessions failing to start with \"Not logged in · Please run /login\" on CLI 2.1.203+"
+        ]
+      },
+      "curated": {
+        "version": "2.1.205",
+        "period": "2026-07-08",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "代理任務清單變聰明，看懂進度不再靠通靈",
+              "en": "Agent view gets smarter, showing clear statuses and PR links"
+            },
+            "body": {
+              "zh-TW": "現在你打開代理（agent，幫你跑任務的 AI 分身）清單，版面不但不會被切掉，每行還會用有顏色的字配上重點標題來告訴你它在幹嘛，不再只是印一堆看不懂的指令程式碼。被卡住的任務點開也能清楚看到是在等什麼回應。不管代理是在編輯、合併還是留言，現在都會把對應的 PR（pull request，請求將程式碼合併的流程）直接連起來方便你點；甚至你把它從「失敗」喚醒，或者它沒說話時，狀態都不會再跳錯。在手機或網頁上遙控看進度，也不會再一直卡在過期的「執行中」。就像去餐廳看候位看板，以前只亮著一堆亂碼和死當的畫面，現在會清楚寫著「第 3 桌客人點菜中」或「在等廚房回覆」，一目了然。",
+              "en": "When you open the agent list (the list of AI assistants running tasks for you), the view will no longer clip off the screen, and each row now replaces raw technical tool code with color-coded status words and a clean headline explaining what it's doing. If a session is blocked, peeking at it shows exactly what it is waiting for. Any agent working on a PR (pull request, a proposal to merge code) — whether editing, merging, or commenting — will now link that PR right in the list. State bugs are squashed too: agents won't stay stuck on \"failed\" after you resume them, nor will they falsely flip statuses when staying quiet. Remote viewing on mobile or web also stays fresh instead of freezing on \"Running\". It's like checking a restaurant's waitlist board: it used to display raw data or freeze, but now it clearly reads \"Table 3 ordering\" or \"Waiting on kitchen,\" keeping you perfectly informed."
+            },
+            "original": "Fixed background agents staying shown as \"failed\" or \"completed\" in the agent list after being resumed with `SendMessage`\nFixed background jobs flipping from \"needs input\" back to \"working\" in the agent list when the agent's turn contained no readable text\nFixed the agent view rendering one line too high and clipping its header when the job list slightly overflowed the screen\nImproved agent view: sessions that edit, merge, comment on, or push to an existing PR now link it in `claude agents`\nImproved agent view: rows now show a colored state word and a classifier-written headline instead of raw tool call text, and the peek opens with full status including the exact ask for blocked sessions\nFixed background tasks in the web and mobile Remote Control panels showing stale \"Running\" status by forwarding full task state on every membership change"
+          },
+          {
+            "title": {
+              "zh-TW": "自動模式上緊發條，不再亂刪檔與被假指令騙",
+              "en": "Auto mode tightens up, stopping reckless deletions and fake approvals"
+            },
+            "body": {
+              "zh-TW": "把權限交給系統自己跑的自動模式（auto mode），現在加強了防護網。以前如果它遇到一個讀不懂的變數，可能會直接執行危險的刪除指令（`rm -rf`）把東西清光，現在它會先停下來問你。同時，它也學會防止自己被對話紀錄裡的假核准訊息騙去執行指令，背景任務的通知會明白標示「這沒有經過人類同意」，並且會封鎖任何試圖竄改對話紀錄檔的行為。就像請打掃阿姨來家裡，以前她遇到不認識的箱子可能就直接丟掉，或是聽信留聲機裡的假錄音就去開金庫；現在她遇到不確定的東西會先打電話問你，而且絕對不聽非本人的指令。",
+              "en": "Auto mode (the mode where the system runs tasks autonomously) has added stronger safety nets. Previously, if it encountered a variable it couldn't resolve, it might dangerously execute a broad delete command (`rm -rf`) and wipe things out; now it will stop and ask you first. It also learned to defend against fake approvals slipped into the transcript: background task notifications will explicitly state when no human has actually given input, and the system actively blocks any attempts to tamper with session transcript files. It's like hiring a cleaner who used to toss out boxes she didn't recognize or open the safe because of a fake audio recording; now she stops to call you when unsure, and completely ignores orders not directly from you."
+            },
+            "original": "Added an auto mode rule that blocks tampering with session transcript files\nImproved auto mode to ask before running `rm -rf` on a variable it can't resolve from context\nBackground task notifications now explicitly state that no human input has occurred, preventing fabricated in-transcript approvals from being acted on"
+          },
+          {
+            "title": {
+              "zh-TW": "更新不再吃光記憶體，修復各種閃退當機",
+              "en": "Updates eat less memory, and various crashes are fixed"
+            },
+            "body": {
+              "zh-TW": "在背景幫你更新軟體時，以前會把檔案全塞進記憶體導致瞬間飆高，現在改用直接寫進硬碟的方式（串流），一口氣省下大約 400MB 的記憶體空間。同時，系統也修好了幾種會當機或卡死的狀況：例如在你跑指令時把資料夾刪掉、監控檔案的程式還在跑卻被關掉，或是代理正好在重啟時你硬要去連線它，現在都不會讓整個程式直接崩潰。另外，在 Windows 上移除工作樹（worktree，讓同一個專案多開平行工作副本的 Git 功能）時，如果裡面有捷徑連結（symlink），再也不會誤刪外面的檔案了。就像手機在背景下載更新不再讓你玩遊戲卡死，而你不管是在換房間還是搬東西，系統都能穩穩處理，不會一有意外就整台死機。",
+              "en": "When auto-updating in the background, the download now streams directly to the disk instead of buffering entirely in memory, slashing peak memory usage by about 400 MB. Along with this, several crash and hang scenarios are fixed: deleting, locking, or unmounting the current directory while a command is running; closing a file watcher while a directory scan is in flight; or trying to attach to a background agent right when it's restarting mid-upgrade — none of these will cause the program to catastrophically crash anymore. Additionally, when removing a worktree (a Git feature that creates parallel working copies) on Windows, the presence of a symlink (shortcut) inside it will no longer cause it to accidentally delete files entirely outside the worktree. It's like your phone downloading an update without stuttering your game, and no matter how you shuffle furniture around, the house won't collapse from a sudden unexpected move."
+            },
+            "original": "Auto-update binary downloads now stream to disk instead of buffering in memory, cutting the updater's peak memory usage by roughly 400 MB\nFixed `claude attach` erroring when a background agent was mid-upgrade restart instead of waiting for it to come back\nFixed a Windows crash when the directory Claude was launched from is deleted, locked, or unmounted while a command is running\nFixed a crash when a file watcher was closed while a directory scan was still in flight\nFixed Windows worktree removal deleting files outside the worktree when an NTFS junction or directory symlink existed inside it"
+          },
+          {
+            "title": {
+              "zh-TW": "指令 doctor 變身萬能診斷王，輕鬆除錯",
+              "en": "The doctor command becomes an all-in-one setup clinic"
+            },
+            "body": {
+              "zh-TW": "內建的 `/doctor` 指令現在能替你診斷並修好設定。它不但能幫你找出設定上的疑難雜症，還能直接動手幫你修好；同時你也可以打比較好記的 `/checkup` 來呼叫它。這就像去診所，醫生會幫你詳細檢查還順便開藥把病治好。",
+              "en": "The built-in `/doctor` command can now diagnose and fix your setup. It can not only diagnose configuration issues but actively fix them for you; you can also use the handy alias `/checkup` to summon it. It's like visiting a clinic where the doctor gives you a thorough exam and hands you the medicine to cure it on the spot."
+            },
+            "original": "`/doctor` is now a full setup checkup that can diagnose and fix issues; `/checkup` is its alias"
+          },
+          {
+            "title": {
+              "zh-TW": "細微除錯：文字不遺漏、外掛與連線更穩定",
+              "en": "Subtle fixes: no lost text, smoother plugins, and reliable connections"
+            },
+            "body": {
+              "zh-TW": "這次順手掃除了幾個煩人的小怪。像是：對話剛好到達次數上限（`--max-turns`）時你打的字不再會默默被吃掉；當 Bash 指令印出超過 3 萬字時，這份 PR（pull request，請求合併程式碼）也不會因此在清單中失蹤；如果你在 Cowork 虛擬機（VM-mode）跑本地代理，也不會無緣無故叫你重新登入。針對外掛（plugin，擴充功能的附加元件）的語言伺服器，如果其中一個當機了，現在不會連累另一個正常的伺服器罷工。而當你匯入 MCP（讓 AI 呼叫外部工具的標準協定）的伺服器名單時，如果遇到不支援的特殊字元不會再整個卡死，它會跳過壞名字並把剩下的順利匯入；還有，這版先佔用了「Claude Browser」這個保留名字以防衝突。這就像一條水管，把過去會漏水、塞住或是被一顆小石頭卡死整條水管的接口全部修好了。",
+              "en": "A handful of annoying gremlins have been exterminated. For instance, messages you type right as the turn hits the `--max-turns` limit will no longer silently vanish into the void; and a PR (pull request, a proposal to merge code) created inside a Bash call that spits out over 30,000 characters won't be excluded from linking; Cowork VM-mode users won't be falsely locked out with login errors either. For plugin (add-ons that extend capabilities) language servers, one failing to initialize will no longer completely block a perfectly valid server from handling the same file type. Furthermore, importing MCP (a standard protocol letting AI use external tools) servers won't freeze entirely if one name contains unsupported characters; it now flags the bad ones and continues importing the rest. Also, \"Claude Browser\" is now a reserved MCP server name. It's like plumbing maintenance: fixing all the little joints that used to leak, clog, or cause the entire pipe system to back up over a single pebble."
+            },
+            "original": "Fixed a message sent while Claude was working being silently lost when the turn ended at the `--max-turns` limit\nFixed session-to-PR linking missing a PR created in a Bash call whose output exceeded the 30K inline limit\nFixed `claude mcp add-from-claude-desktop` getting stuck when a server name contains unsupported characters; invalid names are now reported and remaining servers still import\nFixed `--json-schema` silently producing unstructured output when the schema was invalid, and schemas using the `format` keyword being rejected\nFixed a plugin LSP server that fails to initialize preventing a valid LSP server from another plugin handling the same file extension\nReserved the \"Claude Browser\" MCP server name (alongside \"Claude Preview\") ahead of the Claude Desktop pane rename; user-configured MCP servers can no longer register under either name\nFixed Cowork VM-mode local-agent sessions failing to start with \"Not logged in · Please run /login\" on CLI 2.1.203+\nFixed project verify skills being rewritten on every session instead of only when a documented command changed"
+          }
+        ]
+      }
+    },
+    {
+      "version": "2.1.204",
+      "raw": {
+        "version": "2.1.204",
+        "period": "2026-07-08",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Fixed hook events not streaming during SessionStart hooks in headless sessions, which could cause remote workers to be idle-reaped mid-hook"
+        ]
+      },
+      "curated": {
+        "version": "2.1.204",
+        "period": "2026-07-08",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "遠端任務不再因為「看起來太閒」而被誤殺",
+              "en": "Remote tasks no longer get killed for \"looking idle\" during startup"
+            },
+            "body": {
+              "zh-TW": "當你在無頭模式（headless session，沒有畫面的純背景執行模式）跑 Claude 時，如果剛啟動就在跑鉤子（hook，讓你在特定時間點自動觸發的腳本），以前它可能因為沒把進度回報出來，讓遠端系統以為它閒置太久（idle-reaped）而直接把它砍掉。現在進度會正常串流回報，確保系統知道它還在努力工作。就像一個在倉庫理貨的員工，以前因為沒出聲被主管當成在偷懶而直接開除，現在他會邊做事邊回報，就不會再被誤殺了。",
+              "en": "When running Claude in a headless session (a purely background mode with no visible interface), if it was busy running startup hooks (scripts that automatically trigger at specific times) right after launching, the system used to sometimes fail to report its progress. This silence caused remote servers to assume it was idling (idle-reaped) and ruthlessly terminate it. Progress now streams correctly, proving it is still hard at work. It's like a warehouse worker who used to get fired for \"slacking\" because they were working quietly in the back; now they call out their progress as they go, avoiding wrongful termination."
+            },
+            "original": "Fixed hook events not streaming during SessionStart hooks in headless sessions, which could cause remote workers to be idle-reaped mid-hook"
+          }
+        ]
+      }
+    },
+    {
+      "version": "2.1.203",
+      "raw": {
+        "version": "2.1.203",
+        "period": "2026-07-07",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Added a warning when your login is about to expire, so you can re-authenticate before background sessions are interrupted",
+          "Added a grey ⏸ badge to the footer when in manual permission mode, making the active mode always visible",
+          "Added the session's additional working directories to MCP `roots/list`, with `notifications/roots/list_changed` sent when the set changes",
+          "Fixed opening or switching background agent sessions on macOS stalling for 15–20 seconds due to a false low-memory detection (regression in 2.1.196)",
+          "Fixed background sessions becoming permanently unresponsive to attach, replies, and stop when the daemon's session token went stale — the session now recovers automatically",
+          "Fixed returning to `claude agents` silently stopping running subagents and re-running the prompt from scratch — their work now carries over",
+          "Fixed a memory and per-turn CPU regression in interactive sessions: the context-usage indicator no longer re-analyzes the entire transcript after every turn",
+          "Fixed background agents inheriting a stale `PATH` from the daemon instead of the dispatching shell, causing missing tools on Windows",
+          "Fixed background and agent-view sessions dropping a shell-exported `ANTHROPIC_BASE_URL`, which sent API keys to the default endpoint and failed with 401",
+          "Fixed Bash failing with \"argument list too long\" in repos with many git worktrees",
+          "Fixed worktree-isolated subagents sometimes running shell commands in the parent checkout instead of their own worktree",
+          "Fixed worktree creation rejecting nested repositories in multi-repo workspaces, leaving background sessions unable to isolate and edit",
+          "Fixed background agents crash-looping when their working directory was deleted, replaced by a file, or became an invalid path — they now fail once with a clear error",
+          "Fixed a background daemon auto-upgrade failure silently killing all running background sessions",
+          "Fixed `TaskStop` and `TaskOutput` failing to find background agents spawned by another agent — errors now list running agents by id and description",
+          "Fixed the `claude agents` composer discarding your typed message when a slash command isn't available there",
+          "Fixed the agent list crashing when opening a stopped session whose conversation was already open in another session",
+          "Fixed background sessions showing \"Needs input\" in the agent list after the question was already answered",
+          "Fixed background agent startup failures showing only \"exit_with_message\" instead of the actual error",
+          "Fixed background sessions ignoring `effortLevel` changes in settings.json when forked through the daemon",
+          "Fixed attached background sessions ignoring `CLAUDE_CODE_DISABLE_MOUSE` and `CLAUDE_CODE_DISABLE_MOUSE_CLICKS` opt-outs",
+          "Fixed `/exit` incorrectly warning about running background agents after all named agents had completed",
+          "Fixed background sessions started from a non-git directory unable to edit files when a `WorktreeCreate` hook was configured",
+          "Fixed the `@` directory picker in `claude agents` not showing registered git worktrees",
+          "Fixed background task output on Windows being permanently replaced by an empty file after `/clear`",
+          "Fixed content jumping when scrolling up through long transcript history",
+          "Fixed the terminal flickering and jumping while typing in bash mode when a shell-history suggestion was shown",
+          "Fixed literal `^[[I` / `^[[O` escape codes being printed when reattaching to a background session",
+          "Fixed LSP-only plugins being incorrectly flagged for disuse when their language servers deliver diagnostics or answer navigation requests",
+          "Improved responsiveness while long responses stream: live-preview updates no longer re-render the whole screen",
+          "Improved subagent behavior: agents are now less likely to re-delegate their entire task to another subagent",
+          "Reduced binary size by ~7 MB and startup memory by ~7 MB by loading a large bundled dependency lazily instead of inlining it",
+          "Changed left arrow to no longer close the background tasks, diff, and workflow detail views — press Esc instead",
+          "Changed the empty `claude agents` view to always show the organized sections (Needs input / Working / Completed) with descriptions",
+          "Removed the startup \"claude command missing or broken\" warnings — they now appear in `/doctor` and `/status` instead",
+          "Removed a redundant navigation hint from the `claude agents` footer",
+          "[VSCode] Added a Settings toggle for \"Enable Remote Control for all sessions\""
+        ]
+      },
+      "curated": {
+        "version": "2.1.203",
+        "period": "2026-07-07",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "速度大解放：Mac 切換不再卡頓，打字捲動更滑順",
+              "en": "Speed Unleashed: No more Mac stalls, smoother typing and scrolling"
+            },
+            "body": {
+              "zh-TW": "這次把效能調到最好。以前在 macOS 上切換背景任務時，會因為誤判「記憶體不足」而卡個 15 到 20 秒；在一般對話中，系統為了算剩餘字數（context-usage），每講完一句話就會把歷史紀錄全部重算一次，吃掉一堆資源；長答案吐出來時畫面還會整個重繪——現在這些蠢事都不會發生了，連帶把開機需要的記憶體也省下了大約 7MB。這就像以前你的電腦每次開新網頁都要全身健檢一次，現在它只看你點了什麼，所以反應快如閃電。",
+              "en": "Performance is now tuned to the max. Previously on macOS, switching background tasks would stall for 15 to 20 seconds due to a false \"low memory\" detection; in interactive chat, the system would needlessly recalculate the entire transcript history after every single turn just to update the remaining context usage, devouring resources; and streaming long answers would cause the whole screen to redraw. None of these happen anymore, shaving off about 7MB of startup memory too. It's like a computer that used to run a full virus scan every time you opened a new tab, but now just loads what you clicked, reacting lightning fast."
+            },
+            "original": "Fixed opening or switching background agent sessions on macOS stalling for 15–20 seconds due to a false low-memory detection (regression in 2.1.196)\nFixed a memory and per-turn CPU regression in interactive sessions: the context-usage indicator no longer re-analyzes the entire transcript after every turn\nReduced binary size by ~7 MB and startup memory by ~7 MB by loading a large bundled dependency lazily instead of inlining it\nImproved responsiveness while long responses stream: live-preview updates no longer re-render the whole screen"
+          },
+          {
+            "title": {
+              "zh-TW": "視覺介面更乾淨，畫面不亂跳、模式不看錯",
+              "en": "Cleaner UI: No jumping screens, mode is always clear"
+            },
+            "body": {
+              "zh-TW": "操作介面變得更直覺也更穩定了。當你在手動模式（系統每次做事都要你按同意的模式）時，左下角會一直有個灰色的 ⏸ 標記提醒你，不怕忘記自己開了什麼模式。在看很長的對話往上捲時，內容不再會莫名其妙自己亂跳；打字時如果跳出指令建議，終端機也不會跟著狂閃。而且現在代理（agent）清單一打開就會乖乖分好「需輸入 / 執行中 / 已完成」的區域。此外，開機時一堆嚇人的「指令壞掉」警告也不會再洗版，通通收進 `/doctor` 裡了。這就像看一本排版精美的書，以前翻頁會卡住、字會跳動，現在每一頁都服服貼貼，連標籤也貼得清清楚楚。",
+              "en": "The interface is now more intuitive and stable. When you are in manual mode (where the system waits for your approval before acting), a persistent grey ⏸ badge sits in the footer so you always know what mode is active. Scrolling up through long transcripts won't cause the text to jump around inexplicably, and the terminal won't violently flicker when showing shell command suggestions. Also, opening an empty agent list now cleanly displays structured sections like \"Needs input / Working / Completed\" right from the start. Start-up screens are cleaner too, as scary \"command missing or broken\" warnings no longer spam you; they are tucked neatly into `/doctor`. It's like reading a beautifully formatted book: pages used to stick and letters used to dance around, but now every page turns smoothly, and the sticky notes are perfectly legible."
+            },
+            "original": "Added a grey ⏸ badge to the footer when in manual permission mode, making the active mode always visible\nFixed content jumping when scrolling up through long transcript history\nFixed the terminal flickering and jumping while typing in bash mode when a shell-history suggestion was shown\nChanged the empty `claude agents` view to always show the organized sections (Needs input / Working / Completed) with descriptions\nChanged left arrow to no longer close the background tasks, diff, and workflow detail views — press Esc instead\nRemoved the startup \"claude command missing or broken\" warnings — they now appear in `/doctor` and `/status` instead\nRemoved a redundant navigation hint from the `claude agents` footer\nFixed literal `^[[I` / `^[[O` escape codes being printed when reattaching to a background session"
+          },
+          {
+            "title": {
+              "zh-TW": "背景任務更可靠，斷線能救回、升級不中斷",
+              "en": "Reliable Background Tasks: Auto-recovery and safe upgrades"
+            },
+            "body": {
+              "zh-TW": "這次大幅提升了背景代理（agent）的生存能力。如果你的登入狀態快過期了，系統現在會提早警告你，讓你有時間續命，不會讓跑了一半的任務直接死掉。就算背後的連線金鑰真的過期導致連不上，現在它也能自動恢復，不會永遠裝死。以前如果你把代理清單關掉再重開，正在跑的子任務會默默停掉並重頭來過；或者背景程式自己偷偷升級時，會把所有執行中的任務全部砍光——這些災難現在都修復了。同時，如果任務的工作資料夾突然被刪除，它會報個清楚的錯誤給你，而不是卡在無限崩潰的迴圈裡。就像一個在外奔波的業務，以前手機沒電或公司搬家就會直接失聯，現在他不但會提早說手機快沒電，遇到狀況也會自動重連回報。",
+              "en": "The survival rate of background agents has seen a massive boost. If your login is about to expire, the system now warns you early so you can re-authenticate before any half-finished tasks are violently interrupted. If the background daemon's session token does go stale, agents will gracefully auto-recover instead of playing dead forever. Previously, returning to the agent list could silently kill running subagents and force them to restart from scratch, and silent background daemon upgrades used to mercilessly axe all your running sessions; these catastrophes are now fixed. Also, if a task's working directory gets unexpectedly deleted, it now gives you a clear error once rather than getting stuck in an infinite crash loop. Like a traveling salesperson who used to vanish entirely if their phone died or the office moved; now they warn you before their battery runs out and always know how to reconnect when things go wrong."
+            },
+            "original": "Added a warning when your login is about to expire, so you can re-authenticate before background sessions are interrupted\nFixed background sessions becoming permanently unresponsive to attach, replies, and stop when the daemon's session token went stale — the session now recovers automatically\nFixed returning to `claude agents` silently stopping running subagents and re-running the prompt from scratch — their work now carries over\nFixed background agents crash-looping when their working directory was deleted, replaced by a file, or became an invalid path — they now fail once with a clear error\nFixed a background daemon auto-upgrade failure silently killing all running background sessions\nFixed background agent startup failures showing only \"exit_with_message\" instead of the actual error\nFixed background sessions showing \"Needs input\" in the agent list after the question was already answered\nFixed `/exit` incorrectly warning about running background agents after all named agents had completed\nFixed the agent list crashing when opening a stopped session whose conversation was already open in another session"
+          },
+          {
+            "title": {
+              "zh-TW": "工作環境與 Git 不再打架，指令順暢執行",
+              "en": "Environment and Git play nice, commands run smoothly"
+            },
+            "body": {
+              "zh-TW": "對於常在複雜專案裡工作的人，指令與環境不會再搞失蹤了。以前在 Windows 上，背景任務可能會拿到舊的路徑清單（PATH），導致找不到該用的工具；或者會不小心弄丟你設定好的網址環境變數，害你連錯伺服器。針對 Git 使用者，如果你的專案裡有很多工作樹（worktree，讓你多開幾個平行工作副本的功能），以前跑 Bash 會被抱怨「參數太長」而失敗；被隔離在工作樹裡的代理，甚至會不小心跑到主資料夾去亂動指令；現在它們都會乖乖待在自己的沙盒裡做事。這就像工人去工地，以前會拿錯舊工具箱，或是跑到隔壁別人的地盤敲敲打打，現在他們每個人都能精準拿到對的工具，並且只在自己負責的區域施工。",
+              "en": "If you work in complex projects, your commands and environment variables won't magically vanish anymore. Previously on Windows, background tasks might inherit an old `PATH` list, making them blind to required tools; they also had a habit of dropping custom URL environment variables, causing them to query the wrong servers and fail. For Git users, repositories with many worktrees (a feature granting parallel working copies) used to crash Bash with an \"argument list too long\" error, and agents isolated inside a worktree would occasionally wander into the parent directory to run commands; now they stay obediently in their own sandbox. It's like sending construction workers to a site: they used to grab an outdated toolbox or start hammering on the neighbor's property, but now they bring the exact right tools and strictly build only in their assigned plot."
+            },
+            "original": "Fixed background agents inheriting a stale `PATH` from the daemon instead of the dispatching shell, causing missing tools on Windows\nFixed background and agent-view sessions dropping a shell-exported `ANTHROPIC_BASE_URL`, which sent API keys to the default endpoint and failed with 401\nFixed Bash failing with \"argument list too long\" in repos with many git worktrees\nFixed worktree-isolated subagents sometimes running shell commands in the parent checkout instead of their own worktree\nFixed worktree creation rejecting nested repositories in multi-repo workspaces, leaving background sessions unable to isolate and edit\nFixed background task output on Windows being permanently replaced by an empty file after `/clear`\nFixed background sessions started from a non-git directory unable to edit files when a `WorktreeCreate` hook was configured"
+          },
+          {
+            "title": {
+              "zh-TW": "子代理與外掛更聰明，細節體驗再升級",
+              "en": "Smarter subagents and plugins, finer details upgraded"
+            },
+            "body": {
+              "zh-TW": "代理團隊的合作與工具整合變得更順暢了。現在代理們不會動不動就把整包任務直接推給另一個子代理（subagent），而是會更負責地自己動手。如果你用指令去尋找別人派出去的子代理，以前會找不到，現在系統會清楚列出所有執行中代理的 ID 給你看。在代理清單裡打字時，如果不小心打出不支援的斜線指令，字也不會莫名其妙被清空了。對於使用外掛（plugin）或 MCP（讓 AI 呼叫外部工具的標準協定）的人，現在會把額外的工作路徑也加進清單，且外掛如果正常給出除錯建議，就不會被系統誤判為「沒在用」而標記。這就像一支原本溝通不良的團隊，以前會互相推託工作或是找不到聯絡人，現在大家不但各司其職，還能準確找到對口。",
+              "en": "Collaboration among agent teams and tool integration flows much better now. Agents are now far less likely to lazily dump their entire task onto a subagent, taking more direct responsibility instead. If you used commands to search for a subagent spawned by someone else, you used to hit a brick wall; the system now lists the IDs of all running agents for you. When typing in the agent list, accidently entering an unsupported slash command will no longer frustratingly erase your entire typed message. For power users of plugins or MCP (a protocol letting AI call external tools), additional working directories are now correctly broadcasted, and plugins that provide diagnostics won't be falsely marked for disuse. It's like a dysfunctional office that used to pass the buck and lose contact with each other; now everyone does their own share of the work and knows exactly who to call."
+            },
+            "original": "Added the session's additional working directories to MCP `roots/list`, with `notifications/roots/list_changed` sent when the set changes\nFixed `TaskStop` and `TaskOutput` failing to find background agents spawned by another agent — errors now list running agents by id and description\nFixed the `claude agents` composer discarding your typed message when a slash command isn't available there\nFixed background sessions ignoring `effortLevel` changes in settings.json when forked through the daemon\nFixed attached background sessions ignoring `CLAUDE_CODE_DISABLE_MOUSE` and `CLAUDE_CODE_DISABLE_MOUSE_CLICKS` opt-outs\nFixed the `@` directory picker in `claude agents` not showing registered git worktrees\nFixed LSP-only plugins being incorrectly flagged for disuse when their language servers deliver diagnostics or answer navigation requests\nImproved subagent behavior: agents are now less likely to re-delegate their entire task to another subagent\n[VSCode] Added a Settings toggle for \"Enable Remote Control for all sessions\""
+          }
+        ]
+      }
+    },
+    {
+      "version": "2.1.202",
+      "raw": {
+        "version": "2.1.202",
+        "period": "2026-07-06",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Added a \"Dynamic workflow size\" setting in `/config` for controlling how large Claude generally makes dynamic workflows (small/medium/large agent counts) — an advisory guideline, not an enforced cap",
+          "Added `workflow.run_id` and `workflow.name` OpenTelemetry attributes to telemetry emitted by workflow-spawned agents, so a workflow run's activity can be reconstructed from OTel data",
+          "Fixed a crash in the inline Ctrl+R history search when accepting or cancelling while the search was still scanning the history file",
+          "Fixed `/rename` on background sessions being reverted when the job restarts, which broke addressing the session by its new name",
+          "Fixed transient mTLS handshake failures when settings were re-applied during an in-place client certificate rotation",
+          "Fixed commands sent from Remote Control (mobile/web) into an interactive session failing with \"Unknown command\"",
+          "Fixed images and files sent from the Remote Control mobile or web app without a caption being silently dropped",
+          "Fixed the sign-in URL printed by `claude auth login` and `claude mcp login --no-browser` not being reliably clickable when it wraps over SSH — it is now emitted as a single hyperlink",
+          "Fixed opening a chat from `claude agents` sometimes failing with \"currently running as a background agent\" followed by a worker crash/respawn loop",
+          "Fixed workflow scripts with unicode quote escapes in strings being corrupted before parsing; workflow parse errors now show the offending line instead of always blaming TypeScript",
+          "Fixed voice dictation retrying in an unbounded loop when the microphone or audio recorder fails — repeated capture failures now pause voice input",
+          "Fixed `/remote-control` sessions showing the wrong permission mode in the mobile and web apps",
+          "Fixed resuming a session by name, or opening the resume picker, taking minutes and using a large amount of memory in repositories with many git worktrees",
+          "Fixed installer and updater downloads failing immediately with \"aborted\" when a proxy or network drops the connection mid-download — transient connection drops now retry",
+          "Fixed re-invoking an already-loaded skill appending a duplicate copy of its instructions to context",
+          "Improved `/workflows` agent list layout: wider titles, a dedicated time column, shorter model names, and no per-row tool-call counts",
+          "Improved MCP error messages: clearer error when a server config has `url` but no `type`, suggesting `\"type\": \"http\"` instead of the misleading \"command: expected string\"",
+          "Changed `/review <pr>` back to a fast single-pass review; use `/code-review <level> <pr#>` for the multi-agent review at a chosen effort level"
+        ]
+      },
+      "curated": {
+        "version": "2.1.202",
+        "period": "2026-07-01 ~ 07-08",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "派小助手做事時，現在可以設定小助手數量的建議值、省下大筆額度",
+              "en": "Set advisory guidelines for helper agent counts, saving your quota"
+            },
+            "body": {
+              "zh-TW": "為了省去你手動重打一長串舊指令的力氣，系統現在修復了 Ctrl+R 歷史搜尋（Ctrl+R history search，在終端機裡按 Ctrl+R 鍵來快速搜尋你以前打過哪些指令的功能）功能。以前用這功能找舊指令時，系統偶爾會因為字串比對錯誤直接崩潰閃退，逼你整台重新啟動；現在修好了，隨你怎麼搜都能穩定運作。這就像圖書館的舊書檢索電腦以前打字打太快會當機，現在修好系統後，隨便你怎麼翻查卡片檢索都不會當機。",
+              "en": "To save you the effort of manually retyping long command strings from scratch, the system has patched the Ctrl+R history search (Ctrl+R history search, a feature that lets you press Ctrl+R to quickly search through commands you typed earlier) tool. Previously, searching for old commands this way could trigger a string-matching bug that crashed the terminal, forcing you to restart the session; now it is resolved so searches run stably. It's like a library catalog search terminal that used to freeze if you typed too fast; now the database search is patched and never locks up."
+            },
+            "original": "Fixed crashes during inline history searches (Ctrl+R)."
+          },
+          {
+            "title": {
+              "zh-TW": "AI 碰到問題會乖乖等你回答，不會自作主張繼續做下去",
+              "en": "AI now patiently waits for your answers instead of auto-continuing on its own"
+            },
+            "body": {
+              "zh-TW": "為了避免 AI 在你離開座位時自作主張做錯事，對話框現在預設會等待人工。以前 AI 遇到需要你同意的 AskUserQuestion（AI 遇到疑惑停下來彈出對話框問你該怎麼辦的機制）時，如果你放著一段時間沒理它，它會自動繼續往下執行，可能不小心做錯；現在它會老老實實等到你回來點頭，如果你需要人不在時也能自動執行，可以在 /config 裡自己開啟閒置逾時（idle timeout，放著不理時會自動按預設流程繼續執行的計時器）。這就像以前的工程助理問你「這段程式要刪嗎？」，你沒回答他就自己動手刪了；現在他會站著等到你給指示，除非你交代「十分鐘沒回就照舊」。",
+              "en": "To prevent the AI from taking risky actions behind your back when you step away from your desk, dialogs now wait for a human by default. Previously, when the AI asked a question via AskUserQuestion ( the dialog prompt where the AI pauses to ask for your feedback before acting), if you left the terminal unattended, it would auto-continue by itself and potentially break things. Now it waits indefinitely until a human responds, unless you manually configure an idle timeout (idle timeout, a timer that lets the AI take action after you've been away for a set time) in `/config`. It's like a junior builder who used to knock down a wall if you didn't answer his question; now he stands with his hammer waiting for your nod, unless you tell him 'if I'm away for ten minutes, proceed.'"
+            },
+            "original": "Dialogs no longer auto-continue by default and will wait for a human; users can opt into an idle timeout via /config."
+          },
+          {
+            "title": {
+              "zh-TW": "派小助手做事時，現在可以控制小助手的數量上限、省下大筆額度",
+              "en": "Control how many helper agents are spawned for complex tasks, saving your quota"
+            },
+            "body": {
+              "zh-TW": "為了控制你的 API 帳單花費，系統在 `/config` 裡新增了設定項目，讓你控制 workflowSizeGuideline（用來限制 AI 遇到大型工作時自動分派出去的小助手數量的指導方針）。你可以自由選擇小、中、大三種規模，這只是小／中／大代理數的建議值，不保證限制或成本上限，但能引導 AI 不要輕易分工給幾十個子代理人同時運作，導致你的用量額度在一瞬間被燒光。這就像你把裝潢外包給工頭，以前工頭會默默叫來三十個工人一天做完然後找你收大筆工錢；現在你可以給他建議值，不保證限制，但能引導預算在控制範圍內。",
+              "en": "A new configuration allows you to guide the workflowSizeGuideline ( a guideline setting that controls how many sub-helper agents the AI is allowed to summon when breaking down a massive task) in `/config`. By selecting small, medium, or large sizes, this serves as an advisory guideline for small/medium/large agent counts, not a strict limit or cost cap, but helps guide the AI against spawning dozens of subagents to tackle a complex task, which used to burn through your quota in seconds. It's like hiring a contractor who used to show up with thirty assistants and bill you for all of them; now you can give them an advisory guideline, which is not a strict limit, to keep your budget under control."
+            },
+            "original": "Added a setting in /config to control the scale of dynamic workflows (small/medium/large agent counts) as an advisory guideline."
+          },
+          {
+            "title": {
+              "zh-TW": "子助手如果被呼叫次數限制擋住，現在會老實報錯，不會裝沒事回傳空資料",
+              "en": "Helper agents blocked by rate limits now report errors instead of silently returning empty data"
+            },
+            "body": {
+              "zh-TW": "為了讓主要 AI 不被錯誤的空資料誤導，系統現在修復了子代理人被擋時的回報機制。以前 subagents（主要 AI 為了分工而派出去幫忙跑分支任務的子代理人）遇到 API 頻率限制（rate limit，雲端伺服器限制你一分鐘內只能發送幾次請求的規則）時，會默默裝作沒事、回傳一個空結果，導致主要 AI 誤以為資料真的不存在而胡亂分析；現在它被限制時會清清楚楚報錯，讓主要 AI 明確收到失敗的結果。這就像你派人去郵局領信，以前他因為郵局關門沒領到信，回來卻對你說「今天沒有信」；現在他會老實坦白「郵局關門了我進不去」，你才不會被誤導。",
+              "en": "Subagents ( smaller assistant AIs spawned by the main agent to work on subtasks) now fail cleanly when rate-limited. Previously, if they hit a rate limit (rate limit, the speed limit rules that prevent calling an API too many times in a minute) they would return empty results instead of an error, causing the main AI to assume the target file or data was empty; now they throw a clear error so the main agent clearly receives the failure. It's like sending an errand boy to get letters, and because the post office was closed, he returns and tells you 'you have no mail'; now he tells you 'the post office was closed so I couldn't get in,' saving you from being misinformed."
+            },
+            "original": "Fixed subagents cut off by rate limits returning empty results instead of failing cleanly."
+          },
+          {
+            "title": {
+              "zh-TW": "修復丟到背景跑的代理人因為重啟而失效、或突然卡在背景罷工的 bug",
+              "en": "Background agents no longer lose authentication tokens or get stuck during service restarts"
+            },
+            "body": {
+              "zh-TW": "為了讓你在背後跑的長任務能順利執行完成，系統修復了背景程式重啟時的驗證錯誤。以前把任務交給背景的 daemons（在背景默默幫你做事的常駐程式）時，如果遇到連線重置，系統在重啟背景程式的過程中，會不小心把安全連線驗證的金鑰（socket auth token，用來與主程式進行安全加密連線的憑證金鑰）洗掉，導致背景任務直接失效或變成卡死在記憶體裡的幽靈程式；現在重啟時金鑰會被妥善保留，孤立的幽靈程式也會被乾淨清空。這就像你去遊樂園玩到一半，工作人員重啟排隊通道時把你的快速通關票收走了、讓你只能傻站著；現在重啟後車票依舊有效，你可以順利玩完。",
+              "en": "System now preserves authentication credentials during daemon restarts. Previously, when tasks ran under background daemons (daemons, background server programs that run tasks quietly in the background), any connection reset caused the restart sequence to lose the secure connection key (socket auth token, the security credential used to communicate securely with the main application), leaving the agent frozen or orphaned in memory; now the token is preserved, and orphans are swept away. It's like an amusement park ride that broke down, and during the queue restart the ride operator took away your fast-pass ticket, leaving you stranded; now the ticket remains valid through restarts so you can finish the ride."
+            },
+            "original": "Fixed socket auth tokens being stripped during daemon restarts and resolving orphan background agents."
+          }
+        ]
+      }
+    },
+    {
+      "version": "2.1.201",
+      "raw": {
+        "version": "2.1.201",
+        "period": "2026-07-03",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Claude Sonnet 5 sessions no longer use the mid-conversation system role for harness reminders"
+        ]
+      },
+      "curated": {
+        "version": "2.1.201",
+        "period": "2026-07-03",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Sonnet 5 對話不再被系統囉嗦打斷",
+              "en": "Sonnet 5 conversations are no longer interrupted by mid-chat system reminders"
+            },
+            "body": {
+              "zh-TW": "當你使用最新的 Claude Sonnet 5 模型時，這個中途提醒機制已經移除（harness reminders，用來確保 AI 遵守指令的提示詞）。",
+              "en": "When using the latest Claude Sonnet 5 model, the mid-conversation harness reminders (prompts used to keep the AI on track) have been removed."
+            },
+            "original": "Claude Sonnet 5 sessions no longer use the mid-conversation system role for harness reminders"
+          }
+        ]
+      }
+    },
+    {
+      "version": "2.1.200",
+      "raw": {
+        "version": "2.1.200",
+        "period": "2026-07-03",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Changed `AskUserQuestion` dialogs to no longer auto-continue by default; opt into an idle timeout via `/config`",
+          "Changed the \"default\" permission mode to \"Manual\" across the CLI, `--help`, VS Code, and JetBrains; `--permission-mode manual` and `\"defaultMode\": \"manual\"` are accepted alongside `default`",
+          "Fixed a crash at startup when `disabledMcpServers` or `enabledMcpServers` in `.claude.json` is set to a non-array value",
+          "Fixed background sessions silently stopping mid-turn after sleep/wake or when reopening a stalled session",
+          "Fixed background sessions re-running a turn cancelled with Esc after a stall respawn",
+          "Fixed background agents never starting again after a crash left a stale `daemon.lock` whose PID the OS reused",
+          "Fixed background-agent daemon handover so a reinstalled older build can no longer take over the daemon; build recency is now judged by the version's embedded build timestamp",
+          "Fixed background-agent roster issues: transient corruption permanently disabling orphan cleanup, older binaries not preserving fields written by newer versions, and socket auth tokens being stripped during daemon restarts",
+          "Fixed subagents cut off by a rate limit before producing any text output returning an empty result instead of failing cleanly",
+          "Fixed control bytes from background-agent output reaching the terminal in the agent view",
+          "Fixed `claude agents --plugin-dir <dir>` not showing the plugin's agents and skills in the agent view when the flag is placed after `agents`",
+          "Fixed project-scoped plugins not loading correctly from git worktrees of the same repository",
+          "Fixed `/mcp` server list not tracking focus for screen readers and magnifiers",
+          "Fixed voice dictation showing a misleading \"Voice connection failed\" message when a recording captures no audio",
+          "Fixed rendering flicker under tmux 3.4+ by enabling synchronized terminal output",
+          "Improved screen-reader output: decorative glyphs are now hidden, transcript symbols read as short labels, and nested tables read as `Header: value.` lines",
+          "Improved the install script to explain when installation is killed by the system running out of memory"
+        ]
+      },
+      "curated": {
+        "version": "2.1.200",
+        "period": "2026-07-03",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "預設改為手動模式，不會再趁你不注意偷偷繼續",
+              "en": "Default permission is now Manual, and questions won't quietly auto-skip"
+            },
+            "body": {
+              "zh-TW": "現在 Claude 做事前預設會先問你，放著不回覆也不會自己繼續。不管是指令行、VS Code 還是 JetBrains，權限模式都改成了「手動（Manual）」。當它彈出對話框問你問題（AskUserQuestion）時，以前如果放著不管，它可能會自己當作你同意而繼續跑；現在預設會一直等你回答，除非你自己去設定檔裡開啟「閒置超時自動繼續」的功能。就像教練本來會自己決定要不要換球員，現在預設改成換人前必須請示總教練，而且沒拿到簽名絕對不會自己放行。",
+              "en": "Claude now asks you before taking action by default, and won't auto-continue if you don't reply. Across the CLI, VS Code, and JetBrains, the permission mode is now explicitly \"Manual\". When it pops up a dialog asking you a question (AskUserQuestion), it will no longer silently assume you agreed if you step away; by default, it will wait patiently for your answer, unless you specifically opt into the \"idle timeout auto-continue\" feature in your settings. It's like a sports coach who used to swap players autonomously but is now required by default to get the head coach's signature before making any substitutions, strictly waiting until that signature is secured."
+            },
+            "original": "Changed `AskUserQuestion` dialogs to no longer auto-continue by default; opt into an idle timeout via `/config`\nChanged the \"default\" permission mode to \"Manual\" across the CLI, `--help`, VS Code, and JetBrains; `--permission-mode manual` and `\"defaultMode\": \"manual\"` are accepted alongside `default`"
+          },
+          {
+            "title": {
+              "zh-TW": "背景任務更清醒：電腦休眠醒來或當機後不再裝死",
+              "en": "Background tasks wake up properly after sleep and survive crashes"
+            },
+            "body": {
+              "zh-TW": "這次把背景代理（agent）從休眠中喚醒的毛病治好了。以前你的電腦如果睡著又醒來，正在跑的任務可能會默默停住不幹活；如果它卡住被系統重新啟動，還會把之前你按 Esc 取消掉的步驟又拿出來跑一次，現在這些亂象都沒了。另外，如果程式崩潰留下了一個寫著進程代號的鎖定檔（daemon.lock），而作業系統剛好又把這個代號分給別的程式，以前代理就會因為誤認而永遠不肯啟動，現在修好這個檢查邏輯了；被限流（rate limit）打斷的子任務現在也會明確報錯，不會假裝自己跑完卻丟出空結果。這就像警衛打瞌睡醒來，以前會忘記自己巡邏到哪，或是看到地上掉著上一班的臂章就以為別人還在上班而拒絕接班，現在他醒來後會確實確認身分並正確接手工作。",
+              "en": "We've cured background agents of their bad waking habits. Previously, if your computer went to sleep and woke back up, a running task might silently stall and refuse to work; and if a stalled task respawned, it might foolishly re-run a step you had explicitly cancelled with Esc. These confusing behaviors are gone. Additionally, if the program crashed and left behind a stale lockfile (`daemon.lock`) whose process ID got recycled by the OS, the agent used to get confused and refuse to ever start again; this detection logic is now fixed. Subagents cut off by a rate limit will also now fail properly instead of pretending they finished successfully and returning an empty void. It's like a security guard waking up from a nap: they used to forget their patrol route or see an old name badge on the floor and refuse to start their shift; now they properly verify their status and resume duty flawlessly."
+            },
+            "original": "Fixed background sessions silently stopping mid-turn after sleep/wake or when reopening a stalled session\nFixed background sessions re-running a turn cancelled with Esc after a stall respawn\nFixed background agents never starting again after a crash left a stale `daemon.lock` whose PID the OS reused\nFixed background-agent daemon handover so a reinstalled older build can no longer take over the daemon; build recency is now judged by the version's embedded build timestamp\nFixed background-agent roster issues: transient corruption permanently disabling orphan cleanup, older binaries not preserving fields written by newer versions, and socket auth tokens being stripped during daemon restarts\nFixed subagents cut off by a rate limit before producing any text output returning an empty result instead of failing cleanly"
+          },
+          {
+            "title": {
+              "zh-TW": "無障礙體驗升級，終端機畫面不再狂閃",
+              "en": "Accessibility upgrades and a flicker-free terminal experience"
+            },
+            "body": {
+              "zh-TW": "對於依賴螢幕報讀軟體（screen-reader）和放大鏡的使用者，現在的體驗變得更友善了。系統會自動隱藏那些只是用來裝飾的符號，對話紀錄裡的特殊記號會被念成簡短的標籤，而表格也會貼心地用「標題：內容」的格式一句句念出來，MCP（讓 AI 呼叫外部工具的協定）的清單也能正確被游標追蹤到了。對於使用 tmux（終端機的畫面分割工具）的人，現在開啟了同步輸出功能，畫面不會再像閃光燈一樣閃爍；代理清單裡也不會再跑出亂七八糟的控制碼。這就像以前導覽員會把裝飾花紋也念出來，讓聽眾一頭霧水，現在他只會把重點整理成好懂的句子，而且投影幕也不會再瘋狂閃爍傷眼睛。",
+              "en": "The experience for users relying on screen readers and magnifiers is now vastly improved. The system automatically hides purely decorative symbols, reads complex transcript symbols as short, descriptive labels, and parses nested tables line-by-line as `Header: value`, making it much easier to digest. The MCP (a protocol letting AI use external tools) server list also now correctly tracks focus for accessibility tools. For those using tmux (a terminal multiplexer), we enabled synchronized output so the screen no longer flickers like a strobe light; and raw control codes will no longer bleed into the agent view. It's like an audio tour guide who used to confusingly describe every decorative carving on the wall; now they gracefully summarize the important exhibits, and the museum's flickering lights have finally been replaced."
+            },
+            "original": "Improved screen-reader output: decorative glyphs are now hidden, transcript symbols read as short labels, and nested tables read as `Header: value.` lines\nFixed `/mcp` server list not tracking focus for screen readers and magnifiers\nFixed rendering flicker under tmux 3.4+ by enabling synchronized terminal output\nFixed control bytes from background-agent output reaching the terminal in the agent view"
+          },
+          {
+            "title": {
+              "zh-TW": "細微防呆：語音沒聲音不誤報、安裝卡死會說原因",
+              "en": "Foolproofing: Silent audio doesn't error, and stalled installs explain why"
+            },
+            "body": {
+              "zh-TW": "用語音輸入沒聲音或安裝因記憶體不足失敗時，現在你會看到正確的錯誤原因。如果你錄了半天其實沒錄到聲音，以前它會報錯說「語音連線失敗」，現在它知道只是沒錄到聲音而已；安裝被作業系統強制砍掉時，安裝腳本也會清楚告訴你原因。載入外掛（plugin）時，即使將 `--plugin-dir` 參數放在 `agents` 指令後方也能正常載入，也不會因為你用了工作樹（worktree，平行工作的 Git 功能）就找不到專案專屬的外掛。還有，如果你在設定檔裡把 MCP 伺服器名單寫錯格式，開機也不會直接崩潰了。這就像去買東西，以前卡片沒錢刷不過店員只會說「連線失敗」，現在他會直接告訴你「餘額不足」，不會讓你瞎猜。",
+              "en": "You will now see accurate error reasons when voice dictation captures silence or an installation fails due to out-of-memory. If your recording ends up capturing pure silence, the system used to misleadingly throw a \"Voice connection failed\" error; now it understands you just didn't record any sound, and the installer script will explicitly explain what happened if the OS kills it for memory instead of failing mysteriously. For plugins, the `--plugin-dir` flag now properly loads agents even if placed after the `agents` command, and project-scoped plugins won't get lost just because you are using a Git worktree (parallel working copies). Additionally, misformatting the MCP server list in your settings file will no longer crash the entire program at startup. It's like going to the store: the cashier used to just say \"connection failed\" when your card was empty, but now they directly tell you \"insufficient funds\" so you aren't left guessing."
+            },
+            "original": "Improved the install script to explain when installation is killed by the system running out of memory\nFixed voice dictation showing a misleading \"Voice connection failed\" message when a recording captures no audio\nFixed a crash at startup when `disabledMcpServers` or `enabledMcpServers` in `.claude.json` is set to a non-array value\nFixed `claude agents --plugin-dir <dir>` not showing the plugin's agents and skills in the agent view when the flag is placed after `agents`\nFixed project-scoped plugins not loading correctly from git worktrees of the same repository"
+          }
+        ]
+      }
+    },
+    {
+      "version": "2.1.199",
+      "raw": {
+        "version": "2.1.199",
+        "period": "2026-07-02",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Stacked slash-skill invocations like `/skill-a /skill-b do XYZ` now load all leading skills (up to 5), not just the first",
+          "Fixed SSL certificate errors (TLS-inspecting proxies, missing `NODE_EXTRA_CA_CERTS`, expired certs) burning retries before showing actionable guidance — they now fail immediately with the fix hint",
+          "Fixed streaming responses being discarded when the API emits a mid-stream overloaded/server error after partial output — the partial is now kept with an incomplete-response notice",
+          "Fixed subagents cut off by a rate limit or server error silently failing instead of returning their partial work to the parent",
+          "Fixed subagents reporting API errors (e.g. usage limit reached) as successful results — the error is now reported to the parent agent",
+          "Fixed the background-agent daemon on Linux killing itself and every running agent every ~50 seconds after an unclean shutdown left a corrupted worker record",
+          "Fixed background agents failing to cold-start over SSH on macOS with \"Could not switch to audit session\" (regression in 2.1.196)",
+          "Fixed `claude stop` being silently undone when it raced a background-agent respawn — the respawn now honors the stop",
+          "Fixed background job progress indicators stalling for minutes while the job ran long commands",
+          "Fixed background sessions on memory-starved machines showing a generic error — they now indicate low memory and suggest freeing resources",
+          "Fixed remote sessions briefly flapping between Working and Idle in the agent view when a background agent completes",
+          "Fixed idle subagents vanishing from the agent panel while other subagents were still working; surplus idle agents now collapse into an expandable summary row",
+          "Fixed typing `/model` or `/fast` while viewing a subagent silently opening the lead's model picker — a notice now explains the command applies to the lead",
+          "Fixed `SessionStart`, `Setup`, and `SubagentStart` hooks silently hiding stderr when exiting with code 2 — the error is now shown in the transcript",
+          "Fixed `claude --dangerously-skip-permissions daemon <subcommand>` being treated as a chat prompt instead of running the subcommand",
+          "Fixed `SendMessage` silently misrouting when a re-spawned agent reuses a previous agent's name — the tool now detects the mismatch and asks the caller to retarget",
+          "Fixed opening or resuming a session with no new messages needlessly growing the transcript file",
+          "Fixed backgrounding a session with `←` or `/background` dropping its `/color` from the agent view row",
+          "Fixed resetting a corrupted config file from the startup recovery dialog destroying it unrecoverably — it now backs up the file first",
+          "Fixed Claude in Chrome repeatedly opening the reconnect page when sessions run from different builds or config directories",
+          "Fixed plan mode not prompting for state-changing browser tool calls; read-only `browser_batch` calls are now correctly auto-allowed",
+          "Transient server rate-limit errors (429s unrelated to your usage limit) are now retried automatically with backoff for subscribers instead of failing the turn",
+          "`CLAUDE_CODE_RETRY_WATCHDOG` now raises the default retry count for non-capacity transient errors to 300 and lifts the cap of 15 on `CLAUDE_CODE_MAX_RETRIES`",
+          "`claude agents` session rows now show pull-request links as bare `#N` without the redundant \"PR\" label"
+        ]
+      },
+      "curated": {
+        "version": "2.1.199",
+        "period": "2026-07-02",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "網路不穩或被限流不再直接死機，自動重試且保留進度",
+              "en": "Network hiccups and rate limits no longer kill tasks; retries and partial progress kept"
+            },
+            "body": {
+              "zh-TW": "當 API 伺服器超載或你的網路稍微不穩時，現在系統變得更有彈性了。以前如果 Claude 話講到一半伺服器出錯，已經講出來的字會全部不見，現在它會幫你保留下來並標記「尚未講完」；如果是被暫時性的限流（rate limit，防止瞬間請求過多的機制）擋下，系統現在會自動幫你稍後重試，不會直接判你失敗，且重試次數上限也大幅放寬。如果子任務（subagent）被中斷，它不再會騙你「任務成功」，而是會老實回報錯誤，或者把做了一半的半成品交接給主管。遇到 SSL 憑證這種根本無法連線的錯誤，它也會直接教你怎麼修，不會傻傻重試到天荒地老。這就像打越洋電話，以前只要雜音一來就直接斷線，而且聊一半的內容都不算數，現在它不但會保留剛才聽懂的話，還會自動幫你重新撥號。",
+              "en": "The system is now much more resilient against overloaded API servers or minor network blips. Previously, if the server errored out mid-sentence, everything Claude had already streamed would vanish; now it saves that partial output with an \"incomplete\" notice. If you get temporarily blocked by a rate limit (a mechanism preventing too many rapid requests), the system will automatically retry with a delay instead of instantly failing your turn, and the retry cap has been significantly raised. If a subagent is cut off, it no longer lies about \"success\" but honestly reports the error or hands its partial work back to the parent agent. For hard connection errors like SSL certificate issues, it won't pointlessly burn through retries but will fail immediately and tell you exactly how to fix it. It's like a long-distance phone call: a burst of static used to drop the call and erase everything you just said; now it remembers what it heard and automatically redials for you."
+            },
+            "original": "Fixed SSL certificate errors (TLS-inspecting proxies, missing `NODE_EXTRA_CA_CERTS`, expired certs) burning retries before showing actionable guidance — they now fail immediately with the fix hint\nFixed streaming responses being discarded when the API emits a mid-stream overloaded/server error after partial output — the partial is now kept with an incomplete-response notice\nFixed subagents cut off by a rate limit or server error silently failing instead of returning their partial work to the parent\nFixed subagents reporting API errors (e.g. usage limit reached) as successful results — the error is now reported to the parent agent\nTransient server rate-limit errors (429s unrelated to your usage limit) are now retried automatically with backoff for subscribers instead of failing the turn\n`CLAUDE_CODE_RETRY_WATCHDOG` now raises the default retry count for non-capacity transient errors to 300 and lifts the cap of 15 on `CLAUDE_CODE_MAX_RETRIES`"
+          },
+          {
+            "title": {
+              "zh-TW": "背景代理與連線大掃除，不再無限重啟或無故罷工",
+              "en": "Background agents and connections debugged: No more infinite loops or offline errors"
+            },
+            "body": {
+              "zh-TW": "背景運作的任務現在變得更強韌了。以前在 Linux 上如果沒正常關機，留下來的壞紀錄會導致系統每 50 秒就自殺一次，並砍掉所有正在跑的任務；在 Mac 上用 SSH 遠端連線時也常發生無法開機的狀況；或是當你下令叫任務停下來時，系統卻又手賤自動把它重開——這些詭異的現象都修好了。如果你電腦記憶體不夠，任務不會再丟出一句看不懂的錯誤代碼，而是會明確叫你「釋放記憶體」。在不同資料夾開 Claude 時，Chrome 的外掛也不會再瘋狂跳出重新連線的網頁了。這就像一間公司的打卡系統，以前只要前一天不小心沒打卡下班，隔天整間公司就會每分鐘自動跳電一次，現在它終於修好，大家可以安穩上班了。",
+              "en": "Background tasks are now vastly more robust. Previously on Linux, if the system shut down uncleanly, corrupted leftover records would cause the background program to commit suicide every 50 seconds, taking all running tasks down with it. On Macs, background agents frequently failed to start over an SSH connection, and if you explicitly told a task to stop, the system would sometimes stubbornly auto-restart it right back up. These bizarre behaviors are now fixed. If your computer is starved for memory, tasks won't spit out a cryptic error anymore; they'll explicitly tell you to free up resources. Also, running Claude in different folders will no longer cause the Chrome extension to spam you with reconnect pages. It's like a company's timeclock system that used to trigger a building-wide blackout every minute if someone forgot to punch out yesterday; it's finally fixed, and everyone can work in peace."
+            },
+            "original": "Fixed the background-agent daemon on Linux killing itself and every running agent every ~50 seconds after an unclean shutdown left a corrupted worker record\nFixed background agents failing to cold-start over SSH on macOS with \"Could not switch to audit session\" (regression in 2.1.196)\nFixed `claude stop` being silently undone when it raced a background-agent respawn — the respawn now honors the stop\nFixed background job progress indicators stalling for minutes while the job ran long commands\nFixed background sessions on memory-starved machines showing a generic error — they now indicate low memory and suggest freeing resources\nFixed Claude in Chrome repeatedly opening the reconnect page when sessions run from different builds or config directories"
+          },
+          {
+            "title": {
+              "zh-TW": "介面與防呆優化：技能可連發，不會把對話紀錄塞爆",
+              "en": "UI and operation foolproof: Stacked skills, no bloated transcripts"
+            },
+            "body": {
+              "zh-TW": "你可一次載入最多五個斜線技能，且空開對話不再把紀錄檔越撐越大。現在你可以一次呼叫多個斜線技能（像 `/skill-a /skill-b 幫我做某事`），它會乖乖把前五個技能都載入，不會只讀第一個。看代理清單時，如果子代理沒事做，它們會乖乖收成一行，不會直接消失讓你想找也找不到；當你在看子代理的畫面時，如果不小心打了切換模型的指令，它會提醒你這只對主代理有效，不會偷偷幫別人換模型。遇到設定檔壞掉要重設時，它也學會先幫你備份，不會直接把你過去的設定刪光光了。這就像你去點餐，以前一口氣點兩杯不同的飲料店員只會做第一杯，現在他能一口氣記住你的要求，而且結帳時不會因為你沒買新東西就多印一張空白發票給你。",
+              "en": "You can now load up to five slash skills at once, and opening empty sessions no longer bloats your transcript file. You can now stack multiple slash skills in one breath (like `/skill-a /skill-b do XYZ`) and it will properly load up to the first five, instead of stubbornly ignoring everything after the first. In the agent list, idle subagents now neatly collapse into a summary row instead of vanishing completely out of sight. If you accidentally type a model-switching command while looking at a subagent, it now warns you that this only applies to the main lead agent, rather than silently making unwanted changes. If your configuration file gets corrupted and needs resetting, the system now safely backs it up first instead of mercilessly wiping your old settings. It's like ordering at a cafe: the barista used to only make the first drink if you ordered two at once, but now remembers your whole order, and the register won't print a long blank receipt if you didn't end up buying anything."
+            },
+            "original": "Stacked slash-skill invocations like `/skill-a /skill-b do XYZ` now load all leading skills (up to 5), not just the first\nFixed remote sessions briefly flapping between Working and Idle in the agent view when a background agent completes\nFixed idle subagents vanishing from the agent panel while other subagents were still working; surplus idle agents now collapse into an expandable summary row\nFixed typing `/model` or `/fast` while viewing a subagent silently opening the lead's model picker — a notice now explains the command applies to the lead\nFixed `SessionStart`, `Setup`, and `SubagentStart` hooks silently hiding stderr when exiting with code 2 — the error is now shown in the transcript\nFixed `claude --dangerously-skip-permissions daemon <subcommand>` being treated as a chat prompt instead of running the subcommand\nFixed `SendMessage` silently misrouting when a re-spawned agent reuses a previous agent's name — the tool now detects the mismatch and asks the caller to retarget\nFixed opening or resuming a session with no new messages needlessly growing the transcript file\nFixed backgrounding a session with `←` or `/background` dropping its `/color` from the agent view row\nFixed resetting a corrupted config file from the startup recovery dialog destroying it unrecoverably — it now backs up the file first\nFixed plan mode not prompting for state-changing browser tool calls; read-only `browser_batch` calls are now correctly auto-allowed\n`claude agents` session rows now show pull-request links as bare `#N` without the redundant \"PR\" label"
+          }
+        ]
+      }
+    },
+    {
+      "version": "2.1.198",
+      "raw": {
+        "version": "2.1.198",
+        "period": "2026-07-01",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Subagents now run in the background by default, so Claude keeps working while they run and is notified when they finish (previously a gradual rollout)",
+          "Claude in Chrome is now generally available",
+          "Added background agent notifications in `claude agents` — sessions that need input or finish now fire the `Notification` hook (`agent_needs_input` / `agent_completed`)",
+          "Added `/dataviz` skill for chart and dashboard design guidance with a runnable color-palette validator",
+          "Gateway: added Claude Platform on AWS (anthropicAws) as an upstream provider; model-not-found responses now advance the failover chain",
+          "Background agents launched from `claude agents` now commit, push, and open a draft PR when they finish code work in a worktree, instead of stopping to ask",
+          "The built-in Explore agent now inherits the main session's model (capped at opus) instead of running on haiku",
+          "Subagents and context compaction now inherit the session's extended thinking configuration, improving output quality on delegated tasks",
+          "Fixed brief network drops mid-response aborting the turn — transient errors like ECONNRESET now retry with backoff instead of failing",
+          "Fixed excessive background classifier requests when sandboxed processes repeatedly accessed the same network host",
+          "Fixed background tasks in web, desktop, and VS Code task panels getting stuck on \"Running\" after they finish or after resuming a session",
+          "Fixed agent teams: a teammate that dies on an API error now reports \"failed\" to the lead, and messaging a stuck teammate wakes it to retry immediately",
+          "Fixed the `/diff` panel not refreshing when you switch branches or commit outside the session",
+          "Fixed markdown tables overflowing and wrapping their right border when rendered in fullscreen mode",
+          "Fixed Claude Platform on AWS and Mantle sessions dead-ending with \"Please run /login\" when the STS token expires — `awsAuthRefresh` now runs automatically",
+          "Fixed \"no route to host\" for local-network hosts in macOS background agent sessions by declaring Local Network entitlements",
+          "Fixed `/desktop` failing with \"Cannot determine working directory\" after entering and exiting a worktree",
+          "Fixed background agents repeatedly showing \"Reconnecting…\" every ~52 seconds on macOS while the agents view was open",
+          "Fixed pressing `←` inside `claude attach <id>` exiting to the shell instead of opening the agent view",
+          "Fixed `claude --bg` silently creating an unattachable session when combined with `--print`/`-p`; the conflicting flags are now rejected up front",
+          "Fixed the workflow progress view dropping the earliest agents from the list while the phase counter stayed correct in SDK and desktop-app sessions",
+          "Fixed `.claude/rules/` conditional rules not loading when the target file is reached via a symlinked path",
+          "Fixed Cmd+click not opening URLs in fullscreen mode in Warp on macOS",
+          "Fixed double-click word selection in fullscreen mode to select the entire URL including the scheme",
+          "Fixed plan mode not auto-allowing read-only tool calls when a session starts in plan mode",
+          "Fixed `/branch` deriving its default fork name from the compaction summary instead of the first real prompt",
+          "Improved focus mode: subagents launched in a turn now appear in its activity summary, and completed background notifications fold into a single count",
+          "Improved syntax highlighting accuracy in code blocks, diffs, and file previews by upgrading to highlight.js 11",
+          "Keyboard shortcut hints now show opt/cmd instead of alt/super when connected from a Mac over SSH",
+          "Improved API retry UX: the error reason is now shown after the second attempt, and a status page link replaces the spinner tip when the API is overloaded",
+          "`/login` now opens the sign-in dialog from the `claude agents` view instead of saying it isn't available",
+          "Subagents now treat messages from the agent that launched them as normal task direction; an agent's message is still never treated as the user's approval",
+          "Removed the `/agents` wizard; ask Claude to create or manage subagents, or edit `.claude/agents/` directly"
+        ]
+      },
+      "curated": {
+        "version": "2.1.198",
+        "period": "2026-07-01",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "子代理預設在背景默默做，自動提交程式碼",
+              "en": "Subagents run in background by default and auto-commit code"
+            },
+            "body": {
+              "zh-TW": "以前你派子代理（subagent，幫你跑腿的 AI 小助手）去工作時，你必須等它做完才能繼續跟主代理講話，現在它們預設全都在背景獨立運作了！主代理可以繼續幫你做別的事，等小助手做完再來回報。而且，如果小助手是在隔離的工作環境（worktree）裡改程式碼，它現在做完會自動幫你 commit、push 甚至開好草稿 PR（pull request，請求合併程式碼的流程），不用再停下來等你點頭。這就像你原本只能盯著助理把資料打完才能派下一個工作，現在你可以一口氣派十個助理各自回座位趕工，他們做完還會自動把報告放在你的桌上，不浪費你一點時間。",
+              "en": "When you dispatch a subagent (an AI assistant running errands for you), you no longer have to twiddle your thumbs waiting for it to finish before talking to the main agent again; they now run independently in the background by default! The main agent can keep helping you while the assistants work and report back when done. Moreover, if an assistant modifies code inside an isolated Git worktree, it will now automatically commit, push, and open a draft PR (pull request, the process for merging code) when it finishes, instead of pausing to ask for your permission. It's like upgrading from standing over your assistant's shoulder while they type, to dispatching ten assistants to their desks simultaneously; they do the work in parallel and automatically leave the finished reports on your desk without wasting a second of your time."
+            },
+            "original": "Subagents now run in the background by default, so Claude keeps working while they run and is notified when they finish (previously a gradual rollout)\nAdded background agent notifications in `claude agents` — sessions that need input or finish now fire the `Notification` hook (`agent_needs_input` / `agent_completed`)\nBackground agents launched from `claude agents` now commit, push, and open a draft PR when they finish code work in a worktree, instead of stopping to ask\nThe built-in Explore agent now inherits the main session's model (capped at opus) instead of running on haiku\nSubagents and context compaction now inherit the session's extended thinking configuration, improving output quality on delegated tasks\nSubagents now treat messages from the agent that launched them as normal task direction; an agent's message is still never treated as the user's approval\nImproved focus mode: subagents launched in a turn now appear in its activity summary, and completed background notifications fold into a single count"
+          },
+          {
+            "title": {
+              "zh-TW": "各平台支援大躍進：Chrome 版上線，AWS 也能當備胎",
+              "en": "Platform support leaps forward: Chrome version lives, AWS joins as failover"
+            },
+            "body": {
+              "zh-TW": "現在你可以在更多地方順暢使用 Claude 了！大家期待已久的「Claude in Chrome」功能正式上線，讓你可以直接在瀏覽器裡無縫操作。如果你有接各種不同的伺服器，現在系統加入了 AWS 上的 Claude Platform（企業雲端通道），如果在第一順位的伺服器找不到你要的模型，它現在聰明到會自動往下一個備用伺服器尋找（failover chain），不會直接兩手一攤說找不到。此外，用 AWS 或 Mantle 登入時，如果金鑰過期，它也會自動幫你重新刷新（awsAuthRefresh），不會再跑到一半突然卡死叫你重新登入。這就像你拿著提款卡，以前這台機器沒錢它就叫你回家，現在它會自動幫你連到隔壁銀行的金庫，而且卡片到期還會自動幫你展延。",
+              "en": "You can now use Claude smoothly across even more platforms! The highly anticipated \"Claude in Chrome\" feature is officially generally available, letting you operate seamlessly right in your browser. If you use multiple server setups, the system now includes Claude Platform on AWS (an enterprise cloud channel) as a provider. Even better, if the primary server doesn't have the AI model you requested, it's now smart enough to automatically try the next backup server in line (failover chain) rather than just giving up. Furthermore, when logging in via AWS or Mantle, if your authentication key expires mid-task, it will automatically refresh it (`awsAuthRefresh`) instead of halting the program and demanding you log in again. It's like using an ATM: previously, if a machine was empty, it sent you home; now it automatically wires the cash from a neighboring bank's vault, and gracefully renews your card if it happens to expire while you're standing there."
+            },
+            "original": "Claude in Chrome is now generally available\nGateway: added Claude Platform on AWS (anthropicAws) as an upstream provider; model-not-found responses now advance the failover chain\nFixed Claude Platform on AWS and Mantle sessions dead-ending with \"Please run /login\" when the STS token expires — `awsAuthRefresh` now runs automatically"
+          },
+          {
+            "title": {
+              "zh-TW": "介面與視覺修復：重點更好看，死當不重現",
+              "en": "UI and visual fixes: Better highlights, no more dead UI"
+            },
+            "body": {
+              "zh-TW": "這次把很多視覺上的小毛病都修好了。包含 Markdown 的表格在全螢幕下終於不會超出邊界、程式碼的顏色高亮也升級得更精準。如果你用鍵盤連點網址，現在會連 `https://` 整個一起選起來，Mac 用戶用 Cmd+點擊 也能正確在全螢幕下打開網頁了。在任務面板上，背景任務做完後不會再一直卡在「執行中」騙你；如果你切換了 Git 分支，修改差異（`/diff`）的面板也會乖乖跟著更新，不會死當在那邊。就連你在 API 重試時，以前只會看到無盡的轉圈圈，現在如果伺服器大塞車，它會直接給你一個狀態網頁的連結。這就像戴上度數正確的眼鏡，以前看表格會變形、顏色會糊掉，現在一切都清晰明瞭，連路標指引都寫得清清楚楚。",
+              "en": "A slew of visual glitches and UI dead-ends have been resolved. Markdown tables will finally wrap cleanly instead of overflowing the screen in fullscreen mode, and syntax highlighting for code has been noticeably sharpened. If you double-click a URL, it will now select the entire address including the `https://` part, and Mac users can successfully Cmd-click links to open them even when in fullscreen mode. On the dashboard side, background tasks will no longer endlessly deceive you with a stuck \"Running\" status after they actually finish; and if you switch Git branches outside the app, your `/diff` panel will obediently refresh instead of locking up with stale data. Even the API retry experience has improved: instead of a never-ending spinning wheel during a server traffic jam, it will explicitly hand you a link to the server status page. It's like putting on a proper pair of glasses: tables and colors that used to distort or blur are now crisp and readable, and broken street signs have been replaced with clear, helpful directions."
+            },
+            "original": "Fixed background tasks in web, desktop, and VS Code task panels getting stuck on \"Running\" after they finish or after resuming a session\nFixed the `/diff` panel not refreshing when you switch branches or commit outside the session\nFixed markdown tables overflowing and wrapping their right border when rendered in fullscreen mode\nFixed Cmd+click not opening URLs in fullscreen mode in Warp on macOS\nFixed double-click word selection in fullscreen mode to select the entire URL including the scheme\nImproved syntax highlighting accuracy in code blocks, diffs, and file previews by upgrading to highlight.js 11\nImproved API retry UX: the error reason is now shown after the second attempt, and a status page link replaces the spinner tip when the API is overloaded\nKeyboard shortcut hints now show opt/cmd instead of alt/super when connected from a Mac over SSH"
+          },
+          {
+            "title": {
+              "zh-TW": "網路不穩不再斷線，代理人團隊不怕失聯",
+              "en": "Network drops no longer abort turns, and agent teams stay connected"
+            },
+            "body": {
+              "zh-TW": "這次改善了網路與代理人連線的穩定度。以前如果在 AI 回答到一半時網路稍微閃斷，整個任務就會因為 ECONNRESET 等暫時性錯誤而直接失敗；現在它懂得稍等一下再自動重試（backoff），不會直接放棄。對於在沙盒（sandbox，隔離的安全執行環境）裡重複存取同一個網站的程式，它也不會再瘋狂發送背景分類請求浪費資源。在 Mac 上跑背景代理人時，原本常會遇到連不上區域網路主機，或是只要打開面板就會每隔 52 秒跳出「重新連線」的毛病，現在都透過修復權限與機制解決了。如果你讓多個代理人組隊工作，以前遇到 API 錯誤死掉的隊友只會默默失蹤，現在它會向隊長回報「失敗」，而且你只要傳個訊息給卡住的隊友，就能立刻喚醒它重新嘗試。就像以前打電話遇到訊號不好就直接斷線，或是同事出包只會裝死；現在它不只會自動重撥，遇到問題的團隊成員也會主動舉手求救，等你拍拍肩膀就繼續上工。",
+              "en": "We've improved network and agent connection stability. Previously, a brief network drop mid-response (like an ECONNRESET transient error) would instantly abort the entire turn; now it knows to back off and auto-retry instead of giving up. For sandboxed processes (isolated secure execution environments) repeatedly accessing the same host, it no longer spams excessive background classifier requests. On Macs running background agents, the frustrating \"no route to host\" for local networks and the \"Reconnecting…\" message flashing every 52 seconds when the panel was open have been fixed. If you run agent teams, a teammate that dies from an API error will now explicitly report \"failed\" to the lead instead of disappearing, and messaging a stuck teammate will instantly wake it up to retry. It's like a phone call that used to hang up at the slightest static, or a coworker who vanished when stuck; now the call auto-redials, and the coworker raises their hand for help, ready to resume as soon as you tap their shoulder."
+            },
+            "original": "Fixed brief network drops mid-response aborting the turn — transient errors like ECONNRESET now retry with backoff instead of failing\nFixed excessive background classifier requests when sandboxed processes repeatedly accessed the same network host\nFixed \"no route to host\" for local-network hosts in macOS background agent sessions by declaring Local Network entitlements\nFixed background agents repeatedly showing \"Reconnecting…\" every ~52 seconds on macOS while the agents view was open\nFixed agent teams: a teammate that dies on an API error now reports \"failed\" to the lead, and messaging a stuck teammate wakes it to retry immediately"
+          },
+          {
+            "title": {
+              "zh-TW": "修復一系列指令與介面小故障",
+              "en": "Fixed a series of command and UI glitches"
+            },
+            "body": {
+              "zh-TW": "這次修好了一堆讓你在切換指令和視窗時卡住的小毛病。比如以前你在計畫模式（plan mode，讓 AI 先寫計畫再執行的模式）下啟動，它不會自動放行唯讀檔案的工具呼叫權限；或者當你用 `/branch` 建立對話分支時，它會用壓縮過的摘要來當作預設名稱而不是你最初的提示，現在這些都修正了。如果你在終端機裡用 `claude attach` 連線進代理人畫面，按左鍵退回不會再錯誤地把你踢回終端機；使用 `/desktop` 或是透過捷徑（symlink）路徑讀取 `.claude/rules/`，也不會再發生找不到工作目錄或載入失敗的靈異事件。同時，你現在可以直接從代理人管理介面點 `/login` 登入，而且在 SDK 與桌面版查看工作流進度時，最先出發的任務也不會再莫名其妙從清單上消失，最後，也阻止了 `claude --bg` 跟 `--print` 一起使用時產生無法連線的幽靈任務。就像開車導航，以前稍微偏離路線或切換視窗就會當機找不到路，甚至按個返回鍵就把你踢下車，現在儀表板顯示準確，想去哪都能順暢抵達。",
+              "en": "We've patched a bunch of minor glitches that caused hangups when switching commands and views. For example, starting a session in plan mode (where the AI writes a plan before executing) will now properly auto-allow read-only tool calls; and when you create a conversation branch using `/branch`, it now correctly derives its default name from your first real prompt instead of the compacted summary. If you use `claude attach <id>` to join an agent view, pressing the left arrow no longer falsely kicks you all the way back to the shell. The mysterious errors where `/desktop` couldn't determine the working directory after worktree changes, or where `.claude/rules/` failed to load via symlinked paths, are fixed. Furthermore, you can now trigger `/login` directly from the agents view, the earliest agents no longer drop off the workflow progress list in SDK/desktop apps, and running `claude --bg` with `--print` is now correctly rejected upfront instead of silently creating an unattachable ghost session. It's like using a car's GPS: it used to freeze if you took a slight detour or kicked you out of the car if you pressed 'back', but now the dashboard is fully reliable and takes you exactly where you want to go."
+            },
+            "original": "Fixed plan mode not auto-allowing read-only tool calls when a session starts in plan mode\nFixed `/branch` deriving its default fork name from the compaction summary instead of the first real prompt\nFixed pressing `←` inside `claude attach <id>` exiting to the shell instead of opening the agent view\nFixed `/desktop` failing with \"Cannot determine working directory\" after entering and exiting a worktree\nFixed `.claude/rules/` conditional rules not loading when the target file is reached via a symlinked path\n`/login` now opens the sign-in dialog from the `claude agents` view instead of saying it isn't available\nFixed the workflow progress view dropping the earliest agents from the list while the phase counter stayed correct in SDK and desktop-app sessions\nFixed `claude --bg` silently creating an unattachable session when combined with `--print`/`-p`; the conflicting flags are now rejected up front"
+          },
+          {
+            "title": {
+              "zh-TW": "新增資料視覺化專用技能，移除舊版代理人設定精靈",
+              "en": "New data visualization skill and removal of the old agents wizard"
+            },
+            "body": {
+              "zh-TW": "想設計圖表或儀表板時，現在可用 `/dataviz` 取得指引與配色檢查。它甚至附帶了一個可以直接跑的色系驗證器，確保你選出來的顏色搭配不會糊成一團。此外，舊版的 `/agents` 設定精靈（wizard，一步步引導你設定的工具）已經功成身退被移除了；以後想建立或管理代理人，直接開口叫 Claude 幫你處理，或是自己去編輯 `.claude/agents/` 資料夾裡的檔案就好。就像公司以前配發的繁瑣紙本申請單被廢除了，現在你要什麼圖表或想聘請新助理，直接跟秘書交代一聲，她就會幫你辦到好，而且還附贈一位超強的圖表配色設計師。",
+              "en": "When designing charts or dashboards, you can now use `/dataviz` for guidance and color checking. It comes complete with a runnable color-palette validator to ensure your color choices don't blend into an unreadable mess. Meanwhile, the old `/agents` wizard (the step-by-step setup tool) has been retired. From now on, if you want to create or manage subagents, simply ask Claude to do it for you, or edit the files in the `.claude/agents/` directory directly. It's like your company finally abolishing those tedious multi-page paper request forms; now, whether you need a fresh chart or want to hire a new assistant, you just tell your secretary what you want and it's done—and you get an expert color designer thrown in for free."
+            },
+            "original": "Added `/dataviz` skill for chart and dashboard design guidance with a runnable color-palette validator\nRemoved the `/agents` wizard; ask Claude to create or manage subagents, or edit `.claude/agents/` directly"
+          }
+        ]
+      }
+    },
+    {
+      "version": "2.1.197",
+      "raw": {
+        "version": "2.1.197",
+        "period": "2026-06-30",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Introducing Claude Sonnet 5: now the default model in Claude Code, with a native 1M-token context window and promotional pricing of $2/$10 per Mtok through August 31. Update to version 2.1.197 for access. https://www.anthropic.com/news/claude-sonnet-5"
+        ]
+      },
+      "curated": {
+        "version": "2.1.197",
+        "period": "2026-06-25 ~ 06-30",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "預設模型升級成 Sonnet 5，記憶容量暴增到一百萬字，價格還打折",
+              "en": "Default model upgraded to Sonnet 5 — memory jumps to a million words, and it's cheaper too"
+            },
+            "body": {
+              "zh-TW": "你打開 Claude Code 現在預設用的就是 Sonnet 5，原生支援一百萬 token（AI 讀寫文字時切出來的最小單位，大約等於零點幾個字）的記憶視窗（context window，AI 一次能記住多少對話內容的容量），等於同一個對話能塞進更多的程式碼或文件還不會忘記前面講過什麼。即日起到 8 月 31 日，每百萬 token 只要 2 到 10 美元的促銷價。",
+              "en": "Claude Code now defaults to Sonnet 5, with a native 1-million-token context window (context window, how much of the conversation the AI can remember at once; a token is the small chunk of text the AI reads and writes in) — meaning one conversation can now hold more code or documents without the AI forgetting what came before. From now through August 31, pricing is a promotional $2-$10 per million tokens."
+            },
+            "original": "Introducing Claude Sonnet 5: now the default model in Claude Code, with a native 1M-token context window and promotional pricing of $2/$10 per Mtok through August 31."
+          },
+          {
+            "title": {
+              "zh-TW": "對話裡的檔案附件可以直接點開，不用自己去資料夾裡翻",
+              "en": "File attachments in chat are now clickable — no more digging through folders yourself"
+            },
+            "body": {
+              "zh-TW": "以前 AI 在對話裡提到或附上一個檔案，你想看實體檔案在哪還得自己切到 Finder（macOS 的檔案總管）裡找。現在按住 Cmd（Mac）或 Ctrl（Windows/Linux）點一下附件，就會直接在檔案總管裡跳出來、選好給你看。像收到包裹不用自己去倉庫翻箱子，按一下貨單就直接帶你走到那一格架子前面。",
+              "en": "When the AI mentions or attaches a file in chat, you used to have to switch to Finder or Explorer yourself and hunt for it. Now Cmd-click (Mac) or Ctrl-click (Windows/Linux) on the attachment jumps straight to that file, already selected, in your file manager. It's like a delivery slip that walks you straight to the right shelf instead of making you dig through the warehouse yourself."
+            },
+            "original": "Added clickable file attachments in chat — Cmd/Ctrl-click reveals the file in Finder/Explorer."
+          },
+          {
+            "title": {
+              "zh-TW": "查看 MCP 外掛清單不會再偷偷啟動陌生專案裡藏的伺服器",
+              "en": "Listing MCP plugins no longer secretly starts servers hidden in untrusted projects"
+            },
+            "body": {
+              "zh-TW": "MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器以前只要你下 `claude mcp list` 或 `get` 這種「查清單」的指令，就算是還沒被你信任的專案，只要它的設定檔（.claude/settings.json）裡自己寫好「已核准」，也會被默默啟動執行。現在不會了：不信任的工作目錄會老實顯示「⏸ 等待核准」，光是查清單不會觸發任何程式執行。這就像你以前只是「看」陌生人的名片夾，結果名片自己跳出來打電話；現在光看不會打電話，要你親自按下確認才行。",
+              "en": "MCP servers (Model Context Protocol, the standard that lets the AI talk to external tools) used to spin up just from running the read-only `claude mcp list`/`get` commands, even in a project you hadn't trusted yet, as long as its own settings file (.claude/settings.json) had self-approved itself. Not anymore — an untrusted workspace now honestly shows '⏸ Pending approval', and merely listing servers no longer triggers anything to run. It's like flipping through a stranger's business cards used to dial their number by itself; now looking doesn't dial — you have to press confirm yourself."
+            },
+            "original": "Security: `claude mcp list`/`get` no longer spawn `.mcp.json` servers that a repo self-approved via a committed `.claude/settings.json`; untrusted workspaces show `⏸ Pending approval`."
+          },
+          {
+            "title": {
+              "zh-TW": "喚醒背景工作不會再把整段對話紀錄誤刪、逼你重講一次",
+              "en": "Waking a background job no longer wipes its entire conversation and forces a redo"
+            },
+            "body": {
+              "zh-TW": "背景工作（background job，丟給 AI 在背後默默跑、你可以先去忙別的事的任務）以前偶爾會因為系統誤判對話紀錄檔案壞掉，喚醒時就把整段紀錄永久刪掉，還自動把你原本的指令重跑一次——等於白做工還搞丟記錄。現在系統改成「先把可疑檔案移到旁邊」，絕對不會直接刪除，你的對話紀錄保住了。像以前醫院弄丟病歷會直接燒掉重建檔案，現在改成先封存在另一個櫃子，至少東西還在。",
+              "en": "Background jobs (tasks you hand off to the AI to run quietly while you do something else) used to occasionally have their entire conversation permanently deleted on waking, whenever the system misread the transcript as corrupted — and then it would auto-rerun your original prompt from scratch, wasting work and losing history. Now the suspect file just gets set aside instead of deleted, so your transcript survives. It's like a hospital that used to burn a medical record it thought was damaged and start a new one from scratch; now it just files the old one in another drawer instead — at least it's still there."
+            },
+            "original": "Fixed waking a background job permanently deleting its conversation and re-running the original prompt when the transcript probe misread a real transcript; the file is now set aside, never deleted."
+          },
+          {
+            "title": {
+              "zh-TW": "開「跳過所有權限確認」模式時，現在會老實告訴你風險，不會默默改成別的模式",
+              "en": "The \"skip all permission checks\" flag now honestly warns you of the risk instead of quietly switching modes"
+            },
+            "body": {
+              "zh-TW": "`--dangerously-skip-permissions`（危險跳過權限確認，讓 AI 不問你同意就直接執行所有動作的開關）這個參數以前有個 bug：你明明開了它，系統卻偷偷把它降級成「自動模式」（auto mode，仍會在風險動作前問你），子代理（被主任務分派出去做事的小 AI 助手）也沒真的套用跳過權限的設定，而且不會跳出風險警告告訴你發生了什麼。現在修好了：你開這個開關，系統就老實顯示風險聲明、子代理也會確實套用同樣的跳過權限設定。這就像你按下「跳過安檢」的按鈕，警衛卻偷偷還是把你攔下來檢查、也不告訴你為什麼——現在按下去就真的跳過，而且會先提醒你「這樣做有風險喔」。",
+              "en": "`--dangerously-skip-permissions` (a flag that lets the AI act without asking your permission first) had a bug: turning it on used to silently downgrade it to 'auto mode' instead (which still asks before risky actions), without showing the risk disclaimer, and subagents (helper AIs spawned to do part of the work) didn't actually inherit the bypass either. Now it's fixed — flipping the switch shows the real risk warning, and subagents genuinely inherit the same bypass. It's like pressing a 'skip security check' button that secretly still stopped and searched you anyway, without telling you why — now pressing it really does skip the check, after first warning you it's risky."
+            },
+            "original": "Fixed `claude agents --dangerously-skip-permissions` silently falling back to auto mode instead of showing the bypass disclaimer and applying bypass mode to spawned agents."
+          },
+          {
+            "title": {
+              "zh-TW": "程式碼審查指令變更省，同樣品質但少燒四分之一額度",
+              "en": "Code review got leaner — same quality, a quarter less quota burned"
+            },
+            "body": {
+              "zh-TW": "`/code-review`（叫 AI 幫你審查程式碼找問題的指令）背後原本拆成五個各自獨立的「抓問題小幫手」分別跑一輪，現在合併成一個一起跑，審查品質不變，但消耗的 token（AI 讀寫文字計費的最小單位，你的用量額度就是用這個算的）少了大約四分之一。這就像原本派五個保全分頭巡邏五次，現在改成一個熟練的保全一次巡完全部範圍，一樣巡得到、但人事費省了四分之一。",
+              "en": "`/code-review` (the command that has the AI review your code for problems) used to run five separate 'issue-finder' passes behind the scenes. Now they're merged into one pass — same review quality, but token usage (token, the unit the AI's reading/writing is metered in, which is also what your usage quota counts) drops by roughly a quarter. It's like replacing five separate security guards each patrolling once with one experienced guard who covers the whole route in a single pass — same coverage, a quarter less payroll."
+            },
+            "original": "Improved `/code-review` workflow: merged five cleanup finders into one, cutting token usage by roughly 25%."
+          },
+          {
+            "title": {
+              "zh-TW": "在終端機模式打指令時，檔案路徑會即時跳出來讓你選，不用自己一個字一個字拼",
+              "en": "Typing commands in terminal mode now auto-suggests file paths as you go, no more spelling them out yourself"
+            },
+            "body": {
+              "zh-TW": "在 Claude Code 裡按 `!` 切換到 bash 模式（直接打終端機指令、不經過 AI 對話的模式）打字時，現在輸入檔案路徑會即時跳出自動完成（autocomplete，打到一半就幫你列出可能的選項讓你選）建議清單，不用自己記清楚資料夾名稱再一個字一個字打對。就像你在搜尋引擎打字，還沒打完它就先幫你列出你可能要找的東西。",
+              "en": "When you press `!` in Claude Code to drop into bash mode (typing raw terminal commands directly, bypassing the AI), typing a file path now triggers live autocomplete (autocomplete, a suggestion list that pops up partway through typing) — no need to remember and spell out exact folder names yourself. It's like a search engine that starts suggesting what you're looking for before you've finished typing."
+            },
+            "original": "Added live file path autocomplete to bash mode (`!`)."
+          },
+          {
+            "title": {
+              "zh-TW": "`/clear` 清空對話後，`/rewind` 現在可以把清空前的內容拉回來",
+              "en": "After `/clear` wipes the conversation, `/rewind` can now bring back what came before it"
+            },
+            "body": {
+              "zh-TW": "`/clear`（清空目前對話、讓 AI 忘記前面講過什麼的指令）以前一旦按下去，前面的對話就真的回不去了。現在 `/rewind`（倒帶，把對話拉回之前某個時間點的指令）支援連 `/clear` 之前的內容都能拉回來，等於多了一次反悔的機會。像你以前按下碎紙機就真的沒救了，現在碎紙機旁多了一台還原機，可以把紙條重新拼回去。",
+              "en": "Once you ran `/clear` (the command that wipes the current conversation so the AI forgets everything before it), there used to be no going back. Now `/rewind` (the command that rolls the conversation back to an earlier point) can reach back to before a `/clear`, giving you a second chance. It's like a paper shredder that used to be final — now there's a reconstruction machine next to it that can piece the strips back together."
+            },
+            "original": "Added `/rewind` support for resuming a conversation from before `/clear` was run."
+          },
+          {
+            "title": {
+              "zh-TW": "從任務面板停掉的背景代理人，這次是真的停了，不會自己又活過來",
+              "en": "Stopping a background agent from the tasks panel now actually stays stopped — no more resurrections"
+            },
+            "body": {
+              "zh-TW": "背景代理人（background agent，被分派出去獨立工作的子 AI）以前你在任務面板按下「停止」，結果它過一陣子又自己悄悄醒過來繼續跑，等於你的停止指令沒被真正遵守。現在修好了：按下停止就是永久停止，不會詐屍。就像你以前拔掉吸塵器插頭，它過幾分鐘又自己插回去運轉；現在拔掉就是真的關機。",
+              "en": "Background agents (helper AIs spawned to work independently) used to occasionally wake themselves back up and keep running a while after you'd hit 'stop' in the tasks panel — your stop command wasn't really being honored. Now it's fixed: stopping an agent is permanent, no resurrections. It's like a vacuum cleaner that used to plug itself back in and start running again a few minutes after you unplugged it; now unplugging it actually means it stays off."
+            },
+            "original": "Fixed background agents resurrecting after being stopped — stopping an agent from the tasks panel is now permanent."
+          },
+          {
+            "title": {
+              "zh-TW": "AI 一個字一個字吐出回答時，現在不會再把你的電腦風扇逼到狂轉",
+              "en": "While the AI streams its answer word by word, your computer's fan no longer has to work overtime"
+            },
+            "body": {
+              "zh-TW": "AI 用串流（streaming，AI 一邊想一邊把文字逐字吐出來、不用等全部想完才顯示的方式）方式輸出回答時，系統以前是每收到一點新文字就立刻重新畫一次畫面，很耗電腦資源。現在改成把文字更新合併、每 100 毫秒（千分之一秒）統一刷新一次，CPU（處理器，電腦的大腦，負責執行運算）使用量降低了大約三分之一強。這就像以前服務生每端一口菜就跑一趟廚房，現在改成湊滿一輪菜再一起端出來，跑的趟數少了，人也不會那麼喘。",
+              "en": "When the AI streams its answer (streaming, writing text out token by token instead of waiting until it's fully done), the system used to redraw the screen every single time a little new text arrived, which was hard on your machine. Now text updates are batched and redrawn once every 100 milliseconds (a thousandth of a second), cutting CPU usage (CPU, your computer's 'brain' that does the actual computing) by roughly a third. It's like a waiter who used to run to the kitchen for every single bite of food, now waiting to carry out a full round of dishes at once — fewer trips, less out of breath."
+            },
+            "original": "Reduced CPU usage during streaming responses by ~37% by coalescing text updates to 100ms."
+          }
+        ]
+      }
+    },
+    {
+      "version": "2.1.196",
+      "raw": {
+        "version": "2.1.196",
+        "period": "2026-06-29",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Added support for organization default models — admins set it in the org console; it shows as \"Org default\" (or \"Role default\") in `/model` when you haven't picked one yourself",
+          "Added readable default names for sessions at start, making them easier to identify and message",
+          "Added clickable file attachments in chat — Cmd/Ctrl-click reveals the file in Finder/Explorer",
+          "Security: `claude mcp list`/`get` no longer spawn `.mcp.json` servers that a repo self-approved via a committed `.claude/settings.json`; untrusted workspaces show `⏸ Pending approval`",
+          "Fixed waking a background job permanently deleting its conversation and re-running the original prompt when the transcript probe misread a real transcript; the file is now set aside, never deleted",
+          "Fixed the rate-limit warning flickering off and rate-limit telemetry being over-counted when multiple parallel requests were in flight at the moment a usage limit was hit",
+          "Fixed duplicate recap lines after a background session's turn: a schema-rejected StructuredOutput attempt no longer renders alongside its retry",
+          "Fixed PowerShell `git diff`/`git grep`, `egrep`/`fgrep`, and quoted search patterns containing `|` being reported as failures when they exit 1, matching Bash behavior",
+          "Fixed multiple `claude agents` side panel issues: keyboard focus getting stuck when opening an agent, background jobs losing their subagent types on every open, and sessions showing incorrect status while actively running",
+          "Fixed `claude agents --dangerously-skip-permissions` silently falling back to auto mode instead of showing the bypass disclaimer and applying bypass mode to spawned agents",
+          "Fixed mid-turn crash recovery for Remote sessions — sessions interrupted by a server restart now auto-resume on the next worker",
+          "Fixed sessions moved with `/cd` reappearing in the old directory's resume list after a non-graceful exit when the old path contained special characters",
+          "Fixed `claude plugin validate` skipping local plugins whose source is \".\" and stopping after the first error class",
+          "Fixed Esc Esc at an idle prompt not opening the rewind menu (regression); use Ctrl+C or Ctrl+X Ctrl+K to stop background agents",
+          "Fixed MCP OAuth requesting the authorization server's full `scopes_supported` catalog when no scope is specified, causing `invalid_scope` failures on GitLab self-hosted and other enterprise IdPs",
+          "Fixed `/context` showing 0 tokens for all tool groups on Bedrock",
+          "Fixed `/deep-research` misreporting verifier failures as \"all claims refuted\" instead of `unverified`",
+          "Fixed plugin dependency version pins not being honored when the marketplace was added as a local folder path backed by a git repo",
+          "Fixed `claude agents` session status: completed rows no longer flip between \"Done\" and \"Needs your input\", stalled agents are now labeled \"Needs attention\", and results that mention a PR show a clickable link",
+          "Fixed voice dictation swallowing spaces and spuriously starting a recording during very fast typing when voice mode is enabled",
+          "Improved background session reliability: long-running commands and workflows now survive the session's process being stopped, restarted, or updated — including on Windows, where background shells are handed off instead of being killed",
+          "Improved background agents: workers killed by a daemon restart are now automatically resumed from where they left off the next time the agents view opens",
+          "Improved `/code-review` workflow: merged five cleanup finders into one, cutting token usage by roughly 25%",
+          "Reduced per-frame rendering work in the terminal UI by skipping no-op subtree walks during streaming",
+          "The streaming idle watchdog is now on by default for all providers — it aborts and retries when a response stream produces no events for 5 minutes. Set `CLAUDE_ENABLE_STREAM_WATCHDOG=0` to disable.",
+          "Remote Control is now disabled when `ANTHROPIC_BASE_URL` points at a non-Anthropic host, matching the existing behavior under `CLAUDE_CODE_USE_BEDROCK`/`_VERTEX`/`_FOUNDRY`",
+          "Changed opening the agents view from a foreground session to require a single `←` press instead of two, matching the behavior in background sessions"
+        ]
+      },
+      "curated": {
+        "version": "2.1.196",
+        "period": "2026-06-29",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "組織專屬模型設定、任務預設有名稱，團隊協作更順暢",
+              "en": "Organization default models, named sessions, easier collaboration"
+            },
+            "body": {
+              "zh-TW": "如果你在企業團隊中使用 Claude，現在管理員可以統一設定大家預設要用哪個模型（例如 Opus 或 Sonnet）了，當你沒特別選的時候，選單裡會顯示「組織預設」。為了讓你在一堆背景任務中不迷路，現在你一開啟新任務，系統就會自動幫它取個好讀的名字，方便你隨時找它或傳訊息給它。此外，當 Claude 在對話裡提到某個檔案時，你現在可以直接按住 Cmd 鍵並點擊那個檔案名稱，你的電腦就會自動打開對應的資料夾把檔案指給你看。這就像去圖書館，以前櫃檯只給你一堆亂碼編號叫你自己找書，現在不只每本書都有清楚的書名，你還能點一下書單上的名字，管理員就直接把書送到你面前。",
+              "en": "If you use Claude in an enterprise team, admins can now configure a default AI model (like Opus or Sonnet) for the whole company; if you haven't picked one, your menu will simply show \"Org default\". To help you avoid getting lost in a sea of background tasks, the system now automatically assigns readable names to new sessions as soon as they start, making them much easier to identify and message. Also, when Claude mentions a file in the chat, you can now simply Cmd-click (or Ctrl-click) it to instantly reveal that file in your Finder or Explorer. It's like going to a library where the clerk used to just hand you a list of barcode numbers; now, every book has a clear title, and simply pointing at a title on the list magically summons the book right to your hands."
+            },
+            "original": "Added support for organization default models — admins set it in the org console; it shows as \"Org default\" (or \"Role default\") in `/model` when you haven't picked one yourself\nAdded readable default names for sessions at start, making them easier to identify and message\nAdded clickable file attachments in chat — Cmd/Ctrl-click reveals the file in Finder/Explorer"
+          },
+          {
+            "title": {
+              "zh-TW": "背景任務大升級：程式關閉或更新，任務依然活著",
+              "en": "Background tasks survive app closes and updates"
+            },
+            "body": {
+              "zh-TW": "背景任務現在有了「不死之身」。以前如果你把 Claude 關掉、重新啟動，或是程式剛好在背景自動更新，你那些跑到一半的長時間指令和任務就會全部慘死；現在它們能在這些劇烈變動中存活下來，甚至在 Windows 上也不例外。如果不小心發生系統重啟導致背景任務死掉，下次你打開清單時，它們會自動從上次斷掉的地方無縫接軌繼續做。這也順便解決了以前你喚醒一個卡住的任務時，系統可能會誤刪掉它整份對話紀錄並強迫重頭開始的毛病。這就像你在煮湯時家裡突然停電，以前整鍋湯會壞掉只能倒掉重煮，現在復電後瓦斯爐會自己點火，繼續把你那鍋湯熬完。",
+              "en": "Background tasks are practically immortal now. Previously, if you closed Claude, restarted it, or if the app updated itself in the background, your long-running commands and workflows would instantly die; they now survive these severe disruptions and carry on, even on Windows. If a system restart does manage to kill a background worker, the next time you open the agent list, it will automatically resume exactly from where it left off. This also fixes a nasty bug where waking a stalled task could accidentally delete its entire conversation history and force it to restart from scratch. It's like cooking a slow stew when the house loses power: previously you had to throw out the ruined pot and start over, but now when the power returns, the stove turns itself back on and flawlessly finishes simmering your meal."
+            },
+            "original": "Improved background session reliability: long-running commands and workflows now survive the session's process being stopped, restarted, or updated — including on Windows, where background shells are handed off instead of being killed\nImproved background agents: workers killed by a daemon restart are now automatically resumed from where they left off the next time the agents view opens\nFixed waking a background job permanently deleting its conversation and re-running the original prompt when the transcript probe misread a real transcript; the file is now set aside, never deleted\nFixed multiple `claude agents` side panel issues: keyboard focus getting stuck when opening an agent, background jobs losing their subagent types on every open, and sessions showing incorrect status while actively running\nFixed `claude agents` session status: completed rows no longer flip between \"Done\" and \"Needs your input\", stalled agents are now labeled \"Needs attention\", and results that mention a PR show a clickable link"
+          },
+          {
+            "title": {
+              "zh-TW": "效能與防呆優化：不再誤報錯誤、節省 25% 資源",
+              "en": "Performance and foolproof: no false errors, saves 25% tokens on code review"
+            },
+            "body": {
+              "zh-TW": "跑 `/code-review` 時現在約省 25% token，長時間無回應也會自動重試。如果你使用 `/code-review` 讓 AI 幫你做程式碼審查，系統現在把五個找問題的步驟整合成一個，幫你省下大約 25% 的 token 額度（使用量）。防呆方面，當你輸入速度太快時，語音系統不會再自作主張偷偷幫你啟動錄音並吃掉你的空白鍵；如果 AI 回應的訊號卡住超過 5 分鐘都沒反應，系統會自動把它切斷重試，不會讓你枯等。針對安全，如果有人透過設定檔偷偷塞了一個假的 MCP（外部工具）伺服器，現在系統會強制標示「等待批准」，不會直接給它過關。而在 Windows 的 PowerShell 用 `git diff` 這類指令時，也不會再因為一些正常的輸出被系統大驚小怪當作執行失敗了。這就像請人幫你看合約，以前他會分五次跟你收費，現在一次看完而且打七五折；而且遇到來路不明的夾帶文件，他也會立刻幫你攔下來檢查。",
+              "en": "Running `/code-review` now saves roughly 25% of tokens, and stalled responses will auto-retry. The `/code-review` command has been streamlined: five separate cleanup steps are now merged into one, cutting your token usage (API costs) by roughly 25%. On the foolproof side, typing very fast will no longer accidentally trigger the voice dictation system or swallow your spaces; and if an AI response completely stalls for 5 minutes with no output, a new watchdog will automatically abort and retry instead of leaving you staring at a frozen screen. Security got a bump too: malicious MCP (external tool) servers trying to sneak in via project settings files are now firmly blocked with a \"Pending approval\" badge. Also, using commands like `git diff` in Windows PowerShell will no longer falsely trigger catastrophic error alarms just because of standard text output. It's like hiring a lawyer to review a contract: they used to charge you for five separate meetings, but now they do it all at once for a 25% discount, and they instantly red-flag any sketchy clauses slipped in by the other party."
+            },
+            "original": "Improved `/code-review` workflow: merged five cleanup finders into one, cutting token usage by roughly 25%\nSecurity: `claude mcp list`/`get` no longer spawn `.mcp.json` servers that a repo self-approved via a committed `.claude/settings.json`; untrusted workspaces show `⏸ Pending approval`\nFixed the rate-limit warning flickering off and rate-limit telemetry being over-counted when multiple parallel requests were in flight at the moment a usage limit was hit\nFixed PowerShell `git diff`/`git grep`, `egrep`/`fgrep`, and quoted search patterns containing `|` being reported as failures when they exit 1, matching Bash behavior\nFixed voice dictation swallowing spaces and spuriously starting a recording during very fast typing when voice mode is enabled\nThe streaming idle watchdog is now on by default for all providers — it aborts and retries when a response stream produces no events for 5 minutes. Set `CLAUDE_ENABLE_STREAM_WATCHDOG=0` to disable."
+          },
+          {
+            "title": {
+              "zh-TW": "遠端任務自動復活，指令與權限錯誤修復",
+              "en": "Remote crash recovery and permission command fixes"
+            },
+            "body": {
+              "zh-TW": "現在對於遠端控制（Remote session）有了更強的防呆保護。如果遇到伺服器重新啟動中斷了連線，任務現在懂得在下一個工作節點上自動接續復活，不會直接暴斃。當你用 `/cd` 換資料夾並遇到程式非正常關閉時，如果舊路徑有特殊字元，也不會再發生舊路徑像幽靈一樣一直卡在復原清單裡的毛病。在權限控制方面，當你使用 `--dangerously-skip-permissions` 這個危險參數時，系統現在會乖乖顯示免責聲明並套用跳過模式，不會再一聲不響地退回一般自動模式騙你。此外，原本在沒事做的時候按兩下 Esc 打不開時光倒流（rewind）選單的退化問題修好了；而從一般視窗要打開代理人面板時，現在也只要按一次左鍵就好，跟背景任務的行為統一，不用再傻傻連按兩次。",
+              "en": "Remote sessions just got a major resilience upgrade. If a mid-turn server restart interrupts your Remote session connection, it will now gracefully auto-resume on the next available worker instead of dying abruptly. If you moved directories with `/cd` and the app crashed, your old path won't haunt the resume list forever just because it had special characters in its name. On the permissions side, using the hazardous `--dangerously-skip-permissions` flag now actually displays the bypass disclaimer and applies the bypass to spawned agents as promised, instead of silently falling back to regular auto mode. Additionally, the regression where pressing Esc twice at an idle prompt failed to open the rewind menu is fixed, and opening the agents view from a foreground session now requires just a single left arrow press instead of two, matching the background session experience."
+            },
+            "original": "Fixed mid-turn crash recovery for Remote sessions — sessions interrupted by a server restart now auto-resume on the next worker\nFixed sessions moved with `/cd` reappearing in the old directory's resume list after a non-graceful exit when the old path contained special characters\nFixed `claude agents --dangerously-skip-permissions` silently falling back to auto mode instead of showing the bypass disclaimer and applying bypass mode to spawned agents\nFixed Esc Esc at an idle prompt not opening the rewind menu (regression); use Ctrl+C or Ctrl+X Ctrl+K to stop background agents\nChanged opening the agents view from a foreground session to require a single `←` press instead of two, matching the behavior in background sessions"
+          },
+          {
+            "title": {
+              "zh-TW": "減少無用耗能與閃爍，外掛與登入驗證更順利",
+              "en": "Reduced UI stuttering and smooth sailing for plugins and logins"
+            },
+            "body": {
+              "zh-TW": "終端機畫面的運作變得更省力了。在生成長回答（streaming）時，系統現在懂得跳過沒變動的區塊，不再浪費資源重繪整個畫面；在背景任務執行結構化輸出失敗時，也不會再把失敗的那行跟重試的那行重複印出來閃瞎你的眼。同時，它也修復了幾個常讓你誤會的狀態顯示，像是在 Bedrock 平台上 `/context` 不會再全部顯示 0 個 token，深研（`/deep-research`）功能在驗證失敗時也會老實顯示「未驗證」，而不是誇張地跟你說「所有聲明都被反駁」。此外，如果你把 外部套件（plugin）放在自己電腦上或用 Git 管理，系統以前可能會跳過檢查或忽視你鎖定的版本號，甚至在 MCP 驗證時因為要求過多權限（scopes）而導致在 GitLab 登入失敗，現在這些驗證流程與權限要求都精準修復了。最後，如果你手動把底層服務器設定為非 Anthropic 的主機，系統也會自動把你不需要的遠端控制功能關掉，免得浪費連線。就像開車把儀表板上亂跳的油表修好，還把冷氣效率調高；去辦通行證時，警衛也不會因為你資料放錯夾子就拒絕你，一切通關都變得順暢無阻。",
+              "en": "The terminal interface has been optimized to save energy and reduce visual clutter. When streaming long responses, the UI now skips redrawing unchanged areas to cut down on rendering work. If a background agent's structured output fails validation, it will no longer confusingly print the rejected attempt right next to its retry. We've also fixed several misleading statuses: `/context` will no longer falsely show 0 tokens across the board on Bedrock, and the `/deep-research` tool will accurately report \"unverified\" instead of dramatically claiming \"all claims refuted\" when a verification fails. For plugins and integrations, validating local plugins from the \".\" path now works properly, dependency version pins are respected even in git-backed local folders, and MCP OAuth logins will no longer ask for an entire encyclopedia of scopes causing enterprise IdPs like GitLab to outright reject you. Finally, if you configure a custom non-Anthropic base URL, the app now automatically disables the unneeded Remote Control feature to match other Bedrock/Vertex environments. It's like fixing a twitchy fuel gauge and upgrading the AC efficiency in your car; and when you go to get your security badge, the guard no longer rejects you just because you asked for building access in the wrong format."
+            },
+            "original": "Reduced per-frame rendering work in the terminal UI by skipping no-op subtree walks during streaming\nFixed duplicate recap lines after a background session's turn: a schema-rejected StructuredOutput attempt no longer renders alongside its retry\nFixed `/context` showing 0 tokens for all tool groups on Bedrock\nFixed `/deep-research` misreporting verifier failures as \"all claims refuted\" instead of `unverified`\nFixed `claude plugin validate` skipping local plugins whose source is \".\" and stopping after the first error class\nFixed plugin dependency version pins not being honored when the marketplace was added as a local folder path backed by a git repo\nFixed MCP OAuth requesting the authorization server's full `scopes_supported` catalog when no scope is specified, causing `invalid_scope` failures on GitLab self-hosted and other enterprise IdPs\nRemote Control is now disabled when `ANTHROPIC_BASE_URL` points at a non-Anthropic host, matching the existing behavior under `CLAUDE_CODE_USE_BEDROCK`/`_VERTEX`/`_FOUNDRY`"
+          }
+        ]
+      }
+    }
+  ]
+}
