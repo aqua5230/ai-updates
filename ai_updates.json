@@ -1147,6 +1147,23 @@
       "name": "GitHub CLI",
       "versions": [
         {
+          "version": "2.102.0",
+          "period": "2026-09-30",
+          "items": [
+            {
+              "title": {
+                "zh-TW": "修復四處安全漏洞，防範非預期檔案寫入與驗證被繞過",
+                "en": "Fix Four Security Vulnerabilities to Prevent Unexpected File Writes and Verification Bypasses"
+              },
+              "body": {
+                "zh-TW": "下載、安裝技能或驗證產物時不再受惡意名稱所害，建議盡快升到 `v2.102.0`。`gh release download`、`gh run download`、`gh repo read-file --output` 與 `gh attestation download` 遇目的地含符號連結（指向其他位置的捷徑檔）時，以前可能寫入非預期的本機檔案。`gh attestation verify` 以前比對 `--source-ref` 不分大小寫，且 `--signer-workflow` 只比憑證身分開頭，僅大小寫不同的分支，或同儲存庫內路徑開頭相同的另一個工作流程，都可能通過驗證。互動式 `gh skill search` 傳路徑給 `gh skill install` 時缺少選項分隔符號，搜尋結果可能注入安裝選項並改寫檔案位置。⟦就像同一棟樓四扇門的鎖被一次補好。⟧",
+                "en": "Downloading artifacts, installing skills, or verifying attestations is no longer vulnerable to malicious names, and upgrading to `v2.102.0` as soon as possible is recommended. When the destination contains a symlink, `gh release download`, `gh run download`, `gh repo read-file --output`, and `gh attestation download` previously risked writing to unintended local files. `gh attestation verify` previously compared `--source-ref` case-insensitively and only matched the prefix of certificate identities for `--signer-workflow`, allowing branches differing only by case or another workflow with a matching path prefix in the same repository to pass verification. Interactive `gh skill search` lacked an option delimiter when passing paths to `gh skill install`, which allowed search results to inject installation options and alter file locations. ⟦Picture locks on four doors of the same building being fixed all at once.⟧"
+              },
+              "original": "## Security\n\nFour security vulnerabilities have been identified, and fixed, in this release. Users are advised to update gh to version `v2.102.0` as soon as possible.\n\n`gh release download`, `gh run download`, `gh repo read-file --output`, and `gh attestation download` could write remote content to an unintended local file when the destination contained symbolic links.\n\nSee https://github.com/cli/cli/security/advisories/GHSA-39wj-f2f4-978v for more information.\n\n`gh attestation verify` compared the `--source-ref` value case-insensitively, so an attestation built from a branch whose name differs only in case could satisfy a policy that named a different branch.\n\nSee https://github.com/cli/cli/security/advisories/GHSA-4mq3-hpgx-9cx8 for more information.\n\nInteractive `gh skill search` passed repository paths from search results to `gh skill install` without an option separator, so a search result could inject installer options and change where skill files were written.\n\nSee https://github.com/cli/cli/security/advisories/GHSA-qcwj-mr2r-2cx7 for more information.\n\n`gh attestation verify` matched the `--signer-workflow` value against only the start of the signing certificate's identity, so an attestation signed by a different workflow in the pinned repository could pass verification when its path began with the pinned value.\n\nSee https://github.com/cli/cli/security/advisories/GHSA-wjmr-j3rp-mh2g for more information."
+            }
+          ]
+        },
+        {
           "version": "2.101.0",
           "period": "2026-09-15",
           "items": [
@@ -1188,34 +1205,6 @@
                 "en": "Organizations that need to audit or centrally manage network traffic can now route GitHub API requests to a custom gateway via the per-host `api_host` setting. This change only forwards API calls; login authentication, Git remote repository operations, and browser-opened URLs still connect directly to the original host. This feature is currently experimental and is not a security boundary, so some requests may still reach the original host.\n\n```\n# Set up forwarding API traffic for github.com to a custom gateway\ngh config set api_host gh-gateway.example.com --host github.com\n\n# Query the currently configured API gateway address for a specific host\ngh config get api_host --host github.com\n```\n\n⟦This is like a company mailroom for official business, where business documents such as procurement requests and data inquiries are routed through a dedicated counter, while employee clock-ins, personal parcel deliveries, and in-person visits still go directly through the building's main entrance.⟧"
               },
               "original": "## Experimental: Route GitHub API traffic through a custom host\n\nOrganizations can now route a GitHub host's API traffic through a gateway using the new per-host `api_host` configuration:\n\n```shell\n# Route API traffic for github.com through a gateway\ngh config set api_host gh-gateway.example.com --host github.com\n\n# Read the configured API host\ngh config get api_host --host github.com\n```\n\nThe original host remains in use for authentication, Git remotes, and browser URLs.\n\n> [!NOTE]\n> `api_host` is experimental and is not a security boundary. Requests may still reach the original host."
-            }
-          ]
-        },
-        {
-          "version": "2.99.0",
-          "period": "2026-09-01",
-          "items": [
-            {
-              "title": {
-                "zh-TW": "在命令列直接把截圖和影片附進 issue 與 PR",
-                "en": "Attach screenshots and videos to issues and PRs from the command line"
-              },
-              "body": {
-                "zh-TW": "⟦你把沖洗好的照片一張張貼進日誌本，寫到哪一頁就貼在哪一頁；頁面上原本寫著「照片放這裡」的位置，照片會直接蓋上去，其他頁則往後補貼。⟧回報問題時想附一張截圖，以前得先開網頁上傳。現在 `gh` 多了 `--attach`，直接把本機的圖片和影片傳上去，接進 issue、pull request 或留言的內文。\n\n```shell\ngh issue create --attach './repro.png#The error state'\ngh pr comment 456 --attach ./result.mp4\n```\n\n內文若已經寫到那個本機路徑，`gh` 會把它換成上傳後的網址；沒寫到就補在最後。同一次指令要附多個檔案，就重複寫幾次這個旗標。這功能在 GitHub.com 與 GitHub Enterprise Cloud 上都能用。",
-                "en": "⟦You paste developed photos into a logbook page by page: where a page already says \"photo goes here\", the print covers that spot; elsewhere it goes on at the end.⟧ Reporting a bug with a screenshot used to mean opening the web page to upload it first. `gh` now has `--attach`, which uploads local images and videos and puts them into the body of an issue, a pull request, or a comment.\n\n```shell\ngh issue create --attach './repro.png#The error state'\ngh pr comment 456 --attach ./result.mp4\n```\n\nIf the body already references that local path, `gh` swaps in the uploaded URL; otherwise the attachment is appended. Repeat the flag to attach several files in one invocation. Attachments work on GitHub.com and GitHub Enterprise Cloud."
-              },
-              "original": "## Attach images and videos to issues and pull requests\n\nThe repeatable `--attach` flag uploads local images and videos and adds them to issue, pull request, or comment bodies. If a body already references the local path, `gh` replaces it with the uploaded URL; otherwise it appends the attachment:\n\n```shell\n# Attach files when creating or editing an issue\ngh issue create --attach './repro.png#The error state'\ngh issue edit 123 --attach ./walkthrough.mp4\n\n# Attach files when creating or editing a pull request\ngh pr create --attach ./before.png\ngh pr edit 456 --attach ./after.png\n\n# Attach files to comments\ngh issue comment 123 --attach ./repro.png\ngh pr comment 456 --attach ./result.mp4\n```\n\nRepeat the flag to attach multiple files in a single invocation. Attachments are available on GitHub.com and GitHub Enterprise Cloud.\n\nFor more information see https://gh.io/gh-attach and https://github.blog/changelog/2026-09-01-github-cli-media-in-issues-pull-requests-and-comments/"
-            },
-            {
-              "title": {
-                "zh-TW": "`gh issue develop` 能另開工作目錄，手上的東西不用收",
-                "en": "`gh issue develop` can check the branch out in a separate worktree"
-              },
-              "body": {
-                "zh-TW": "手邊的改動改到一半，issue 那頭又要你開一條新分支——以前得先收拾現場才能切過去。現在 `gh issue develop` 可以幫 issue 建好連動的分支，並且把它簽出到一個新的 Git worktree（工作樹，讓同一專案平行開多份副本的功能），你目前這份工作目錄原封不動。\n\n```shell\ngh issue develop 123 --checkout --worktree /path/to/wt-feature\n```\n\n⟦工地要趕另一項工程時，不必把現場拆掉重排，而是在旁邊另闢一塊作業區，兩邊同時進行。⟧",
-                "en": "You are halfway through a change when an issue needs a fresh branch, and until now you had to tidy up before switching over. `gh issue develop` can now create the linked branch for an issue and check it out in a new Git worktree, a second working copy of the same project that stands on its own, leaving your current working copy untouched.\n\n```shell\ngh issue develop 123 --checkout --worktree /path/to/wt-feature\n```\n\n⟦When a site has to start a second job, the crew does not tear down what is already laid out; they open a separate work area beside it and run both at once.⟧"
-              },
-              "original": "## Worktree support extended to `gh issue develop` \n\n`gh issue develop` can now create a linked branch and check it out in a new Git worktree, leaving your current working copy unchanged:\n\n```shell\n# Create a linked branch for an issue and check it out in a worktree\ngh issue develop 123 --checkout --worktree /path/to/wt-feature\n```"
             }
           ]
         }
