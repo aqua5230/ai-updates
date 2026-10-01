@@ -46,6 +46,7 @@ docs/
 scripts/
   fetch.py                           # Fetch official changelogs
   build.py                           # Build generated feeds
+  make_cards.py                      # Generate zh-TW per-version sharing cards
   sync_agy.py                        # Import local Antigravity CLI changelog output
 .github/workflows/
   daily.yml                          # Daily fetch and review-issue workflow

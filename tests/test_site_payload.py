@@ -485,3 +485,75 @@ def test_goatcounter_script_is_in_every_page_kind(
     assert script in (tmp_path / "docs" / "404.html").read_text(encoding="utf-8")
     index_path = Path(__file__).resolve().parents[1] / "docs" / "index.html"
     assert script in index_path.read_text(encoding="utf-8")
+
+
+def test_og_image_url_fallback_and_english(tmp_path, monkeypatch):
+    monkeypatch.setattr(build_script, "ROOT", tmp_path)
+    default = f"{build_script.SITE_URL}og-image.png"
+    assert build_script._og_image_url("codex", "1.0.0", False) == default
+    path = tmp_path / "docs/og/codex/1.0.0.jpg"
+    path.parent.mkdir(parents=True)
+    path.write_bytes(b"card")
+    assert build_script._og_image_url("codex", "1.0.0", False) == (
+        f"{build_script.SITE_URL}og/codex/1.0.0.jpg"
+    )
+    assert build_script._og_image_url("codex", "1.0.0", True) == default
+    assert build_script.BUILD_OUTPUTS[-1] == "docs/og"
+
+
+def test_built_pages_use_card_or_default_image(tmp_path, monkeypatch):
+    _configure_build(tmp_path, monkeypatch)
+    card = tmp_path / "docs/og/alpha/2.0.0.jpg"
+    card.parent.mkdir(parents=True)
+    card.write_bytes(b"card")
+    build_script.build()
+    pages = tmp_path / "docs/v"
+    zh = (pages / "alpha/2.0.0/index.html").read_text()
+    en = (pages / "alpha/2.0.0/en/index.html").read_text()
+    missing = (pages / "beta/3.0.0/index.html").read_text()
+    card_url = f"{build_script.SITE_URL}og/alpha/2.0.0.jpg"
+    default = f"{build_script.SITE_URL}og-image.png"
+    for page, expected in ((zh, card_url), (en, default), (missing, default)):
+        assert f'"image": "{expected}"' in page
+        assert f'<meta property="og:image" content="{expected}">' in page
+        assert f'<meta name="twitter:image" content="{expected}">' in page
+    title = re.search(r"<title>(.*?)</title>", zh)[1]
+    assert f'<meta property="og:image:alt" content="{title}">' in zh
+    assert f'<meta name="twitter:image:alt" content="{title}">' in zh
+    original_alt = (
+        "AI Updates：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、"
+        "GitHub CLI 官方更新"
+    )
+    assert f'<meta property="og:image:alt" content="{original_alt}">' in missing
+    assert f'<meta name="twitter:image:alt" content="{original_alt}">' in missing
+    assert card.read_bytes() == b"card"
+
+
+def test_card_alt_escapes_page_title(tmp_path, monkeypatch):
+    records = _configure_build(tmp_path, monkeypatch)
+    records["alpha"][0]["curated"]["items"][0]["title"]["zh-TW"] = 'A < B & "C"'
+    card = tmp_path / "docs/og/alpha/2.0.0.jpg"
+    card.parent.mkdir(parents=True)
+    card.write_bytes(b"card")
+    page = build_script._render_static_page(
+        {"id": "alpha", "name": "Alpha"}, 0, records["alpha"],
+    )
+    title = re.search(r"<title>(.*?)</title>", page)[1]
+    assert "A &lt; B &amp; &quot;C&quot;" in title
+    assert f'<meta property="og:image:alt" content="{title}">' in page
+    assert f'<meta name="twitter:image:alt" content="{title}">' in page
+
+
+def test_optional_og_directory_failure_does_not_break_build(tmp_path, monkeypatch, capsys):
+    _configure_build(tmp_path, monkeypatch)
+    original = Path.mkdir
+
+    def denied(path, *args, **kwargs):
+        if path == tmp_path / "docs/og":
+            raise PermissionError("cards directory unavailable")
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "mkdir", denied)
+    build_script.build()
+    assert (tmp_path / "docs/v/alpha/2.0.0/index.html").is_file()
+    assert "optional docs/og directory unavailable" in capsys.readouterr().out

@@ -46,6 +46,7 @@ docs/
 scripts/
   fetch.py                           # 抓取官方 changelog
   build.py                           # 建立產出 feed
+  make_cards.py                      # 產生每版繁中分享卡
   sync_agy.py                        # 匯入本機 Antigravity CLI changelog 輸出
 .github/workflows/
   daily.yml                          # 每日抓取與審核 issue workflow

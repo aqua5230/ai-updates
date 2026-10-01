@@ -47,6 +47,7 @@ BUILD_OUTPUTS = (
     "docs/llms.txt",
     "docs/history",
     "docs/v",
+    "docs/og",
 )
 SITE_URL = "https://aqua5230.github.io/ai-updates/"
 GOATCOUNTER_SCRIPT = (
@@ -305,6 +306,12 @@ def _is_enterprise_card(item: dict[str, Any]) -> bool:
 
 def _page_url(tool_id: str, version: str) -> str:
     return f"{SITE_URL}v/{tool_id}/{version}/"
+
+
+def _og_image_url(tool_id: str, version: str, english: bool) -> str:
+    if not english and (ROOT / "docs" / "og" / tool_id / f"{version}.jpg").exists():
+        return f"{SITE_URL}og/{tool_id}/{version}.jpg"
+    return f"{SITE_URL}og-image.png"
 
 
 def _localized(value: Any, language: str) -> str:
@@ -844,6 +851,12 @@ def _render_static_page(
             if english else
             f'<a href="{escape(en_url, quote=True)}" hreflang="en" lang="en">English</a>'
         )
+    image_url = _og_image_url(tool_id, version_name, english)
+    image_alt = (
+        title if image_url != f"{SITE_URL}og-image.png" else
+        "AI Updates: Plain-language AI tool release notes for Claude Code, Codex, Antigravity, Usage, and GitHub CLI" if english else
+        "AI Updates：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新"
+    )
     site = {"@type": "Organization", "name": "AI Updates", "url": SITE_URL}
     structured_data = [
         {
@@ -854,7 +867,7 @@ def _render_static_page(
             "description": description,
             "inLanguage": "en" if english else (list(LANGUAGES) if items else ["en"]),
             "url": url,
-            "image": f"{SITE_URL}og-image.png",
+            "image": image_url,
             "author": site,
             "publisher": site,
             "about": {
@@ -929,15 +942,15 @@ def _render_static_page(
   <meta property="og:title" content="{escape(title, quote=True)}">
   <meta property="og:description" content="{escape(description, quote=True)}">
   <meta property="og:url" content="{escape(url, quote=True)}">
-  <meta property="og:image" content="{SITE_URL}og-image.png">
+  <meta property="og:image" content="{escape(image_url, quote=True)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="{'AI Updates: Plain-language AI tool release notes for Claude Code, Codex, Antigravity, Usage, and GitHub CLI' if english else 'AI Updates：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新'}">
+  <meta property="og:image:alt" content="{escape(image_alt, quote=True)}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{escape(title, quote=True)}">
   <meta name="twitter:description" content="{escape(description, quote=True)}">
-  <meta name="twitter:image" content="{SITE_URL}og-image.png">
-  <meta name="twitter:image:alt" content="{'AI Updates: Plain-language AI tool release notes for Claude Code, Codex, Antigravity, Usage, and GitHub CLI' if english else 'AI Updates：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、GitHub CLI 官方更新'}">
+  <meta name="twitter:image" content="{escape(image_url, quote=True)}">
+  <meta name="twitter:image:alt" content="{escape(image_alt, quote=True)}">
   <link rel="icon" href="{assets}favicon.svg" type="image/svg+xml">
   <link rel="preload" href="{assets}fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{assets}fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -1171,6 +1184,11 @@ def build() -> None:
         ROOT / "docs" / "data.json",
         {"generated_at": generated_at, "history_page_size": HISTORY_PAGE_SIZE, "tools": site_tools},
     )
+    # Keep the declared output directory present without making cards required for a build.
+    try:
+        (ROOT / "docs" / "og").mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        print(f"build: optional docs/og directory unavailable: {exc}")
     search_path = ROOT / "docs" / "search-index.json"
     search_path.write_text(
         json.dumps(
