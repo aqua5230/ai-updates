@@ -49,6 +49,10 @@ BUILD_OUTPUTS = (
     "docs/v",
 )
 SITE_URL = "https://aqua5230.github.io/ai-updates/"
+GOATCOUNTER_SCRIPT = (
+    '<script data-goatcounter="https://lollapalooza.goatcounter.com/count" '
+    'async src="//gc.zgo.at/count.js"></script>'
+)
 LANGUAGES = ("zh-TW", "en")
 HISTORY_PAGE_SIZE = 10
 ENTERPRISE_CARD_RE = re.compile(
@@ -940,6 +944,7 @@ def _render_static_page(
   <script type="application/ld+json">{json_ld}</script>
 {page_css}
   <script>try{{var t=localStorage.getItem("ai-updates-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}}catch(e){{}}</script>
+  {GOATCOUNTER_SCRIPT}
 </head>
 <body>
   <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="{'Page path' if english else '頁面路徑'}"><ol><li><a href="{SITE_URL}">AI Updates</a></li><li><a href="{SITE_URL}#{tool_id}">{escape(name)}</a></li><li aria-current="page">{escape(version_name)}</li></ol></nav><h1 class="version-heading">{escape(name)} {escape(version_name)}</h1><p class="release-period">{'Released: ' if english else '發布日期：'}{escape(period)}</p></header><main>{language_sections}</main><footer><nav aria-label="{'Version navigation' if english else '版本導覽'}"><a href="{SITE_URL}#{tool_id}/{version_name}">{'Back to interactive view' if english else '回到互動版'}</a>{previous_link}{next_link}{language_link}</nav></footer></div><button class="back-to-top" id="back-to-top" type="button" aria-label="{'Back to top' if english else '回到頂端'}" title="{'Back to top' if english else '回到頂端'}" hidden><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
@@ -966,6 +971,7 @@ def _write_not_found_page() -> None:
   <link rel="preload" href="{SITE_URL}fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
 {page_css}
   <script>try{{var t=localStorage.getItem("ai-updates-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}}catch(e){{}}</script>
+  {GOATCOUNTER_SCRIPT}
 </head>
 <body>
   <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="頁面路徑"><ol><li><a href="{SITE_URL}">AI Updates</a></li><li aria-current="page">404</li></ol></nav><h1 class="version-heading">404</h1><p class="release-period">找不到這個頁面 · Page not found</p></header><main><div class="log-item-card"><p class="log-prose-text">這個網址不存在，或是版本號打錯了。首頁列出五個工具的最新版本，每個工具都能往回翻完整的歷史紀錄。</p><p class="log-prose-text" lang="en">This page does not exist. The home page lists the latest release for all five tools, each with its full version history.</p><nav class="error-tools" aria-label="工具導覽"><p>工具導覽</p><ul><li><a href="{SITE_URL}#claude_code">Claude Code</a></li><li><a href="{SITE_URL}#codex">Codex</a></li><li><a href="{SITE_URL}#agy">Antigravity</a></li><li><a href="{SITE_URL}#usage">Usage</a></li><li><a href="{SITE_URL}#gh_cli">GitHub CLI</a></li></ul></nav><div class="error-actions"><a href="{SITE_URL}">回到首頁</a><a href="{SITE_URL}feed.xml">訂閱 RSS</a></div></div></main></div>

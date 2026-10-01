@@ -468,3 +468,20 @@ def test_feed_with_one_version(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
     channel = ET.parse(tmp_path / "docs" / "feed" / "alpha.xml").getroot().find("channel")
     assert channel is not None
     assert len(channel.findall("item")) == 1
+
+
+def test_goatcounter_script_is_in_every_page_kind(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    script = build_script.GOATCOUNTER_SCRIPT
+    versions = [{"version": "1.0.0", "raw": _raw("1.0.0", ["Original"]), "curated": None}]
+    version_page = build_script._render_static_page(
+        {"id": "claude_code", "name": "Claude Code"}, 0, versions, "zh-TW"
+    )
+    assert script in version_page
+    (tmp_path / "docs").mkdir()
+    monkeypatch.setattr(build_script, "ROOT", tmp_path)
+    build_script._write_not_found_page()
+    assert script in (tmp_path / "docs" / "404.html").read_text(encoding="utf-8")
+    index_path = Path(__file__).resolve().parents[1] / "docs" / "index.html"
+    assert script in index_path.read_text(encoding="utf-8")
