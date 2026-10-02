@@ -5,6 +5,336 @@
   "pages": 9,
   "versions": [
     {
+      "version": "2.1.232",
+      "raw": {
+        "version": "2.1.232",
+        "period": "2026-08-13",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-08-14",
+        "entries": [
+          "Subagent forking is now on by default: a `subagent_type: \"fork\"` subagent inherits the full conversation and prompt cache, and non-teammate agent spawns in interactive sessions now run in the background by default",
+          "Type `@` in the prompt to mention another Claude session by name; Claude then uses `SendMessage` to reach that session directly",
+          "`SendMessage` now delivers to a bare name that exactly matches one live session, instead of asking to confirm with a ref first",
+          "Interactive sessions on one machine now keep unique names: starting or renaming a session to a name another live session already uses gives it a `name-word-word` variant and tells you",
+          "Added `/config` rows for \"Dialog expiry\" and \"Messages from your other sessions\" (cross-session inbound accept/hold/refuse)",
+          "Added secret redaction for GitLab token families (`glrt-`, `gloas-`, `glptt-`, `glagent-`, `glimt-`, `glsoat-`, `glcbt-`, `glft-`, `glffct-`) and full redaction of routable `glpat-`/`gldt-` tokens; the `glab` CLI config store gets the same sandbox and credential-path protection as `gh`",
+          "Added GitLab support to plugin marketplaces: bare `gitlab.com` repo URLs (including nested subgroups) now clone like `github.com` URLs, and clone auth-failure hints name your actual git host",
+          "Settings: `additionalMarketplaces` and `allowedMarketplaces` are now accepted as friendlier aliases for `extraKnownMarketplaces` and `strictKnownMarketplaces`",
+          "Enterprise policy: a url-typed `blockedMarketplaces` entry for a bare repo URL keeps blocking that URL when the CLI classifies it as a git clone",
+          "Gateway: the `desktop:` overlay now accepts every released Desktop setting (was 11 hand-listed keys), validated at boot against Desktop's own schema; unknown or invalid keys fail boot",
+          "Gateway: empty `managed.policies[].match.groups`/`admin.admin_groups` entries and malformed `email_domain` values (empty, or containing `@`, whitespace, or commas) now fail at boot instead of silently matching no one or granting admin access",
+          "Fable 5 is offered as an advisor in `/advisor` again for organizations with Fable access, with usage-credits consent set up through `/model fable`",
+          "Fixed a PowerShell permission bypass where variable-writing parameters could silently overwrite `$PSDefaultParameterValues` and redirect later commands' file access",
+          "Fixed a Windows permission bypass where Git Bash followed Cygwin-style symlinks that path validation saw as regular files; writes through them now require permission approval",
+          "Fixed nested git repositories inheriting trust from a parent directory; each repository now requires its own trust confirmation",
+          "Fixed MCP connections hanging for the full 30-second connect timeout when a server fails to answer or sends a malformed reply to the protocol-version probe",
+          "Fixed Remote Control sessions hosted by a bridge inside a cloud session inheriting that session's transcript or credentials",
+          "Fixed Remote Control sessions started from Claude Desktop or an IDE appearing as a new claude.ai session each time the local session was resumed; they now reattach to the existing one",
+          "Fixed Remote Control sessions appearing unreachable to newly attached clients while idle",
+          "Fixed Remote Control bridge sessions not restoring conversation history when the session worker restarts",
+          "Remote Control: resuming a conversation whose session was deleted from claude.ai or the app now starts a replacement instead of failing with a message about your login (regressed in v2.1.227)",
+          "Fixed Cloud gateway `/login` exiting silently or leaving an unresponsive terminal after \"Press Enter to continue\" when managed settings failed to load; the reason is now shown",
+          "Fixed voice mode on native builds getting stuck on \"listening…\" when the voice service rejected the connection; the rejection is now shown immediately",
+          "Fixed mTLS client certificate rotation requiring a restart; Claude Code now reloads the rotated cert and key automatically on connection errors",
+          "Fixed malformed AWS or Vertex region values being used to build request URLs; they now fall back to the default region",
+          "Fixed stream idle timeout errors failing the request instead of recovering on Bedrock, Vertex, and gateway deployments",
+          "Fixed content-sized overlays containing truncated text rendering one column too wide, and start-truncated text collapsing to an ellipsis",
+          "Fixed a stray garbled character where a long shell-command or agent-description preview was cut off mid-emoji",
+          "Fixed a startup race that could silently unregister a plugin marketplace due to concurrent writes to `known_marketplaces.json`",
+          "Fixed `/update` and `/tui` refusing to restart while work that survives the relaunch was running",
+          "Fixed usage-limit guidance suggesting unavailable slash commands in SDK and remote sessions",
+          "Fixed the consent message for interactive `--advisor fable` launches, which told you to run `/model fable` in an interactive session that had just exited",
+          "Improved fullscreen streaming: long sessions stay responsive because the whole conversation is no longer re-normalized on every update",
+          "Improved the managed settings approval dialog: shows endpoint URLs, uses clearer wording for telemetry-only changes, skips routine OpenTelemetry options, and requires approval for server-managed sandbox binary overrides (`sandbox.bwrapPath`, `sandbox.socatPath`, `sandbox.ripgrep`)",
+          "`/feedback` and `/bug` now open immediately when invoked while Claude is responding, instead of waiting for the turn to finish",
+          "`/plugin install plugin@marketplace` now refreshes the marketplace first, so newly published plugins install without a manual marketplace update",
+          "`/code-review` at high, xhigh, and max effort now runs in a background agent like the other levels",
+          "Pasted and clipboard images are read without blocking the event loop",
+          "Remote Control now keeps reconnecting for about 30 minutes after a network blip and no longer drops after a few blips spread across an hour",
+          "Remote Control: resuming a conversation no longer silently takes Remote Control away from another Claude Code on the same machine that still has it; run `/remote-control` there to move it",
+          "Updated agent panel: completed subagents hide immediately with a `/tasks` footer hint, and the \"↓ N more\" overflow indicator moved left for visibility",
+          "Remote Control: the terminal now says whether a session was taken over by another device, ended from another app, or deleted, and stops suggesting a reconnect that would undo it",
+          "Bash input redirections (`< file`) are now permission-checked like their argument spellings on all platforms",
+          "Shortened the message shown when resuming a completed background agent",
+          "Cowork sessions no longer inline external @-imports from user-scope memory files",
+          "Hardened the auto-generated cross-session messaging socket directory on shared `/tmp`: a pre-planted symlink or another user's directory is now refused instead of used",
+          "Hardened the Linux filesystem sandbox against a protected-path bypass",
+          "Changed `sandbox.ripgrep` to be honored only from user, managed, and `--settings` settings; project settings can no longer override the sandbox's ripgrep binary",
+          "Removed the startup tip suggesting you create custom subagents, and the matching nudge in the `/powerup` tour"
+        ]
+      },
+      "curated": {
+        "version": "2.1.232",
+        "period": "2026-08-13",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "分身代理接手完整脈絡，也改在背景工作",
+              "en": "Forked subagents keep the context and work in the background"
+            },
+            "body": {
+              "zh-TW": "你正和 Claude 討論一個長問題，又想找另一個代理分頭處理，現在不用先把前情重講一遍。`subagent_type: \"fork\"` 的子代理（由目前對話分出的工作幫手）會帶著完整對話和 prompt cache，先前提示內容的暫存結果，出發。互動工作階段裡，非團隊代理的啟動預設也改為背景執行，不會把眼前對話卡在等待畫面。像把同一本已夾好書籤的筆記交給同事，他從你停下的段落開始讀，並到隔壁桌處理，不必佔著你的座位。",
+              "en": "When a long conversation needs another agent, a `subagent_type: \"fork\"` subagent now starts with the full conversation and prompt cache, rather than needing the background repeated. In interactive sessions, non-teammate agents also start in the background by default. It is like handing a colleague a notebook already marked at the right page, then letting them work at the next desk instead of taking over yours."
+            },
+            "original": "Subagent forking is now on by default: a `subagent_type: \"fork\"` subagent inherits the full conversation and prompt cache, and non-teammate agent spawns in interactive sessions now run in the background by default"
+          },
+          {
+            "title": {
+              "zh-TW": "跨工作階段傳話，直接叫名字就能找到人",
+              "en": "Cross-session messages can go straight to a session name"
+            },
+            "body": {
+              "zh-TW": "同一台電腦開著幾個 Claude 工作階段時，你可以在提示裡輸入 `@` 加上另一個工作階段名稱，Claude 會用 `SendMessage` 直接傳話。名稱剛好只對應一個正在運作的工作階段時，`SendMessage` 也不再先要你用 ref（工作階段參照）確認。若新建或改名時撞名，程式會改給 `name-word-word` 形式的名稱並告知你。`/config` 還新增 Dialog expiry 與 Messages from your other sessions，可設定跨工作階段訊息要接受、暫留或拒絕。像辦公室分機有各自號碼，接線台替你避免重號，也讓你決定別人來電要接、稍後看，或不接。",
+              "en": "With several Claude sessions on one machine, type `@` and a session name in the prompt to send it a `SendMessage`. A bare name that exactly matches one live session no longer needs a ref confirmation. Duplicate names receive a `name-word-word` variant. `/config` also adds Dialog expiry and Messages from your other sessions, where inbound cross-session messages can be accepted, held, or refused."
+            },
+            "original": "Type `@` in the prompt to mention another Claude session by name; Claude then uses `SendMessage` to reach that session directly\n`SendMessage` now delivers to a bare name that exactly matches one live session, instead of asking to confirm with a ref first\nInteractive sessions on one machine now keep unique names: starting or renaming a session to a name another live session already uses gives it a `name-word-word` variant and tells you\nAdded `/config` rows for \"Dialog expiry\" and \"Messages from your other sessions\" (cross-session inbound accept/hold/refuse)"
+          },
+          {
+            "title": {
+              "zh-TW": "GitLab 憑證遮住，外掛市集也認得 GitLab",
+              "en": "GitLab credentials are redacted and GitLab repositories work in marketplaces"
+            },
+            "body": {
+              "zh-TW": "把 GitLab 當成外掛來源時，現在連線和保護都補齊了。GitLab 的 `glrt-`、`gloas-`、`glptt-`、`glagent-`、`glimt-`、`glsoat-`、`glcbt-`、`glft-`、`glffct-` token（登入授權令牌）會遮蔽；可路由的 `glpat-` 與 `gldt-` 會完整遮蔽。`glab` CLI 的設定儲存位置也取得與 `gh` 相同的 sandbox（限制程式可碰範圍的隔離區）和憑證路徑保護。外掛市集則可直接複製 `gitlab.com` 倉庫網址，含巢狀子群組；複製驗證失敗時，提示會指出實際 Git 主機。像市集同時換了能讀 GitLab 地址的物流單，也替倉庫鑰匙加上遮套。",
+              "en": "GitLab is now safer and easier to use as a plugin source. The listed GitLab token families are redacted, and routable `glpat-` and `gldt-` tokens are fully redacted. The `glab` CLI config store gets the same sandbox and credential-path protection as `gh`. Plugin marketplaces can clone bare `gitlab.com` repository URLs, including nested subgroups, and authentication-failure hints name the real Git host."
+            },
+            "original": "Added secret redaction for GitLab token families (`glrt-`, `gloas-`, `glptt-`, `glagent-`, `glimt-`, `glsoat-`, `glcbt-`, `glft-`, `glffct-`) and full redaction of routable `glpat-`/`gldt-` tokens; the `glab` CLI config store gets the same sandbox and credential-path protection as `gh`\nAdded GitLab support to plugin marketplaces: bare `gitlab.com` repo URLs (including nested subgroups) now clone like `github.com` URLs, and clone auth-failure hints name your actual git host"
+          },
+          {
+            "title": {
+              "zh-TW": "外掛市集名稱好記，更新後就能安裝新外掛",
+              "en": "Plugin marketplace settings get friendlier names and installs refresh first"
+            },
+            "body": {
+              "zh-TW": "管理外掛市集時，設定名稱不必死背舊名字。`additionalMarketplaces` 可以當 `extraKnownMarketplaces` 的別名，`allowedMarketplaces` 可以當 `strictKnownMarketplaces` 的別名；原有設定仍是同一件事。企業政策裡，`blockedMarketplaces` 將純倉庫網址標為要封鎖時，即使 CLI 把它當成 Git 複製來源，封鎖仍會生效。執行 `/plugin install plugin@marketplace` 前，程式也會先更新市集，所以剛發布的外掛不用手動更新市集才裝得到。這像採購目錄換了容易懂的欄位名，黑名單不因貨品改走物流單就失效，櫃台也會先翻到最新版目錄再下單。",
+              "en": "Marketplace settings now accept `additionalMarketplaces` for `extraKnownMarketplaces` and `allowedMarketplaces` for `strictKnownMarketplaces`. A URL-typed `blockedMarketplaces` policy entry still blocks a bare repository URL when the CLI treats it as a Git clone. `/plugin install plugin@marketplace` refreshes the marketplace first, so newly published plugins do not require a manual marketplace update."
+            },
+            "original": "Settings: `additionalMarketplaces` and `allowedMarketplaces` are now accepted as friendlier aliases for `extraKnownMarketplaces` and `strictKnownMarketplaces`\nEnterprise policy: a url-typed `blockedMarketplaces` entry for a bare repo URL keeps blocking that URL when the CLI classifies it as a git clone\n`/plugin install plugin@marketplace` now refreshes the marketplace first, so newly published plugins install without a manual marketplace update"
+          },
+          {
+            "title": {
+              "zh-TW": "Gateway 設定先驗證，不再悄悄套錯規則",
+              "en": "Gateway validates Desktop settings and policies before it starts"
+            },
+            "body": {
+              "zh-TW": "公司透過 Gateway 管理 Claude Desktop 設定時，錯的設定不會再表面啟動成功、背後卻沒套用。`desktop:` overlay（覆蓋 Desktop 設定的設定層）現在接受所有已發布的 Desktop 設定，並在啟動時依 Desktop 自己的 schema 驗證。schema 就是設定格式的規則，未知或無效的鍵會讓啟動失敗。政策中空的 `managed.policies[].match.groups` 或 `admin.admin_groups`，以及空白、含 `@`、空白字元或逗號的 `email_domain`，也會在啟動時失敗，避免誰都沒比對到或意外取得管理權。像門禁名冊先逐欄檢查，缺欄或寫壞就不開門，不讓錯誤名單默默決定誰能進來。",
+              "en": "Gateway now accepts every released Desktop setting in the `desktop:` overlay and validates it against Desktop's schema at boot; unknown or invalid keys fail boot. Empty `managed.policies[].match.groups` or `admin.admin_groups`, and malformed `email_domain` values, also fail boot instead of silently matching nobody or granting admin access."
+            },
+            "original": "Gateway: the `desktop:` overlay now accepts every released Desktop setting (was 11 hand-listed keys), validated at boot against Desktop's own schema; unknown or invalid keys fail boot\nGateway: empty `managed.policies[].match.groups`/`admin.admin_groups` entries and malformed `email_domain` values (empty, or containing `@`, whitespace, or commas) now fail at boot instead of silently matching no one or granting admin access"
+          },
+          {
+            "title": {
+              "zh-TW": "Fable 5 顧問回來了，離開互動模式也不會拿錯指示",
+              "en": "Fable 5 returns to Advisor with a corrected consent message"
+            },
+            "body": {
+              "zh-TW": "組織有 Fable 存取權時，現在可在 `/advisor` 再次選到 Fable 5。要使用額度時，先透過 `/model fable` 設好 usage-credits consent（使用額度的同意）。若你在互動模式用 `--advisor fable` 啟動，舊訊息曾叫你回互動工作階段執行 `/model fable`，但那個工作階段剛好已結束，指示根本走不通。現在同意訊息已修正，不會把你指向已關閉的門。像顧問重新列進預約名單，櫃台也不再叫你回已打烊的窗口辦手續。",
+              "en": "Organizations with Fable access can again choose Fable 5 in `/advisor`, with usage-credits consent set through `/model fable`. The consent message for interactive `--advisor fable` launches no longer tells you to run `/model fable` in an interactive session that has just exited."
+            },
+            "original": "Fable 5 is offered as an advisor in `/advisor` again for organizations with Fable access, with usage-credits consent set up through `/model fable`\nFixed the consent message for interactive `--advisor fable` launches, which told you to run `/model fable` in an interactive session that had just exited"
+          },
+          {
+            "title": {
+              "zh-TW": "命令改寫檔案與輸入重導，都重新要過同意",
+              "en": "Commands that can redirect file access now require permission approval"
+            },
+            "body": {
+              "zh-TW": "權限確認不是只看命令表面長相。PowerShell 的會寫入變數參數原本可悄悄覆寫 `$PSDefaultParameterValues`，再把後續命令的檔案存取導向別處，這條繞過已封住。Windows 上 Git Bash 把 Cygwin-style symlink（Cygwin 格式的符號連結，指向另一位置的捷徑檔）當一般檔案看，卻會跟著它寫入；現在這類寫入需要權限同意。所有平台的 Bash 輸入重導 `< file` 也和一般參數拼法一樣納入權限檢查。像保全不只查門牌，也會看通往後門的暗道和代收指示；能把手伸到別處的路，都先要你點頭。",
+              "en": "Permission checks now cover routes that can redirect file access. PowerShell parameters that write variables can no longer silently overwrite `$PSDefaultParameterValues` and redirect later commands. Git Bash writes through Cygwin-style symlinks on Windows require approval, and Bash input redirections (`< file`) are permission-checked on every platform."
+            },
+            "original": "Fixed a PowerShell permission bypass where variable-writing parameters could silently overwrite `$PSDefaultParameterValues` and redirect later commands' file access\nFixed a Windows permission bypass where Git Bash followed Cygwin-style symlinks that path validation saw as regular files; writes through them now require permission approval\nBash input redirections (`< file`) are now permission-checked like their argument spellings on all platforms"
+          },
+          {
+            "title": {
+              "zh-TW": "巢狀 Git 專案各自確認信任",
+              "en": "Nested Git repositories now earn trust separately"
+            },
+            "body": {
+              "zh-TW": "一個 Git 專案裡如果再放另一個 Git 專案，內層專案不會再因為外層資料夾已被信任，就自動繼承並通過。現在每個巢狀 repository（程式碼版本管理專案）都需要各自獲得獨立的信任確認。這項修正保留了你已信任外層資料夾的意思，同時不會把那份信任自動擴張到裡面包含的另一份專案。像你同意朋友進大樓大門，不等於也同意他打開大樓內的每一戶房門；每扇內門仍需要各自獨立確認。",
+              "en": "A Git repository inside another Git repository no longer inherits trust from its parent directory. Each repository now needs its own trust confirmation. Trusting the outer project still means trusting that project; it does not automatically extend to a separate project inside it."
+            },
+            "original": "Fixed nested git repositories inheriting trust from a parent directory; each repository now requires its own trust confirmation"
+          },
+          {
+            "title": {
+              "zh-TW": "MCP 伺服器不回話時，連線不再久等",
+              "en": "MCP connections stop waiting so long for a broken server reply"
+            },
+            "body": {
+              "zh-TW": "外部工具連不上時，Claude 不會再傻等完整的連線逾時。MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器若沒有回覆，或回覆 protocol-version probe，確認雙方協定版本的詢問，時格式壞掉，舊行為會一路等到完整的 30-second connect timeout。現在這種失敗會及早結束。它像按門鈴後對方完全沒回應，或從門縫遞出看不懂的紙條；你不用站在門前一直等，能早點知道這扇門暫時進不去。",
+              "en": "When an MCP server does not answer, or gives a malformed reply to the protocol-version probe, a connection no longer waits through the full 30-second connect timeout. MCP is the protocol that connects AI to external tools. It is like ringing a doorbell and getting either silence or an unreadable note; you find out sooner that this door cannot be used now."
+            },
+            "original": "Fixed MCP connections hanging for the full 30-second connect timeout when a server fails to answer or sends a malformed reply to the protocol-version probe"
+          },
+          {
+            "title": {
+              "zh-TW": "遠端控制續接回原對話，歷史也能復原",
+              "en": "Remote Control reconnects to the right conversation and restores its history"
+            },
+            "body": {
+              "zh-TW": "你從 Claude Desktop 或 IDE 用 Remote Control（遠端控制，把本機工作階段接到另一端使用）後暫停再回來，現在會重新接到原本的 claude.ai 工作階段，不會每次都被當成新工作階段。新接上的用戶端在閒置時也不會顯示連不到，bridge（連接兩端的橋接程式）工作階段的 worker，實際處理工作的程序，重啟後，對話歷史會恢復。若 claude.ai 或應用程式已刪掉原工作階段，恢復對話則會開始替代工作階段，不會錯說是登入問題。像遠端回辦公桌時，能找回原本抽屜與筆記；抽屜真被清空才換一張新桌，而不是誤說你的門禁卡失效。",
+              "en": "Remote Control sessions started from Claude Desktop or an IDE now reattach to the existing claude.ai session when resumed, rather than appearing new each time. Newly attached clients remain reachable while idle, and bridge-session history is restored after its worker restarts. If the original session was deleted from claude.ai or the app, resuming starts a replacement instead of reporting a login problem."
+            },
+            "original": "Fixed Remote Control sessions started from Claude Desktop or an IDE appearing as a new claude.ai session each time the local session was resumed; they now reattach to the existing one\nFixed Remote Control sessions appearing unreachable to newly attached clients while idle\nFixed Remote Control bridge sessions not restoring conversation history when the session worker restarts\nRemote Control: resuming a conversation whose session was deleted from claude.ai or the app now starts a replacement instead of failing with a message about your login (regressed in v2.1.227)"
+          },
+          {
+            "title": {
+              "zh-TW": "遠端控制斷線會重連，也會說清楚控制權去哪了",
+              "en": "Remote Control reconnects after a blip and explains who has control"
+            },
+            "body": {
+              "zh-TW": "網路一晃、或同一台機器上另一個 Claude Code 接手時，Remote Control 不再默默把你留在猜測裡。網路短暫中斷後，它會持續嘗試重連約 30 minutes，也不會因為跨 1 hour 出現幾次短暫中斷就放棄。若另一個 Claude Code 仍握有控制權，恢復對話不會悄悄搶走它；要移轉請在那裡執行 `/remote-control`。終端機也會明說工作階段被別台裝置接手、從其他應用程式結束，或已刪除，並停止建議會把變更撤銷的重連。像接力棒還在別人手上時，裁判會告訴你原因與交棒位置，而不是讓兩個人同時伸手搶。",
+              "en": "After a network blip, Remote Control keeps reconnecting for about 30 minutes and no longer drops after a few blips spread across an hour. Resuming does not silently take control from another Claude Code on the same machine; run `/remote-control` there to move it. The terminal now says whether another device took over, another app ended, or deleted the session, and stops suggesting a reconnect that would undo that state."
+            },
+            "original": "Remote Control now keeps reconnecting for about 30 minutes after a network blip and no longer drops after a few blips spread across an hour\nRemote Control: resuming a conversation no longer silently takes Remote Control away from another Claude Code on the same machine that still has it; run `/remote-control` there to move it\nRemote Control: the terminal now says whether a session was taken over by another device, ended from another app, or deleted, and stops suggesting a reconnect that would undo it"
+          },
+          {
+            "title": {
+              "zh-TW": "雲端登入與語音被拒，現在會直接告訴你原因",
+              "en": "Cloud login and rejected voice connections now show the reason"
+            },
+            "body": {
+              "zh-TW": "按下 Cloud gateway 的 `/login`，看到「Press Enter to continue」後卻沒反應，舊版可能直接離開或留下無回應的終端機；原因是受管理設定載入失敗。現在它會顯示原因。原生版本的 voice mode（語音模式）若被語音服務拒絕，以前可能卡在「listening…」，現在也會立即顯示拒絕。兩件事都把原本沉默的失敗變成可讀訊息：像櫃台不能替你辦理時，會說明缺哪張資料，而不是把你晾在寫著「請稍候」的牌子前。",
+              "en": "When managed settings fail to load, Cloud gateway `/login` no longer exits silently or leaves an unresponsive terminal after “Press Enter to continue”; it shows the reason. On native builds, voice mode no longer stays on “listening…” when the voice service rejects its connection; that rejection appears immediately."
+            },
+            "original": "Fixed Cloud gateway `/login` exiting silently or leaving an unresponsive terminal after \"Press Enter to continue\" when managed settings failed to load; the reason is now shown\nFixed voice mode on native builds getting stuck on \"listening…\" when the voice service rejected the connection; the rejection is now shown immediately"
+          },
+          {
+            "title": {
+              "zh-TW": "雲端連線可換新憑證，也能從逾時接回工作",
+              "en": "Cloud connections reload rotated certificates and recover from idle timeouts"
+            },
+            "body": {
+              "zh-TW": "mTLS client certificate（mTLS 用戶端憑證，雙向驗證連線身分的證明）輪替後，舊版要重啟 Claude Code 才會讀到新憑證與金鑰；現在遇到連線錯誤會自動重新載入。Bedrock、Vertex 與 gateway 部署遇到 stream idle timeout（串流閒置逾時）時，舊版會讓請求失敗，現在會嘗試恢復。AWS 或 Vertex 的 region（服務區域）值格式壞掉時，也不再拿它拼出請求網址，會改回 default region。像長途電話遇到換發的新識別證或短暫靜音，接線員會重讀證件、改撥預設區域並嘗試接回通話。",
+              "en": "After an mTLS client certificate rotation, Claude Code now reloads the certificate and key on connection errors instead of requiring a restart. Bedrock, Vertex, and gateway deployments recover from stream idle timeout errors rather than failing the request. Malformed AWS or Vertex region values no longer build request URLs and fall back to the default region."
+            },
+            "original": "Fixed mTLS client certificate rotation requiring a restart; Claude Code now reloads the rotated cert and key automatically on connection errors\nFixed malformed AWS or Vertex region values being used to build request URLs; they now fall back to the default region\nFixed stream idle timeout errors failing the request instead of recovering on Bedrock, Vertex, and gateway deployments"
+          },
+          {
+            "title": {
+              "zh-TW": "被截斷的文字不再撐寬畫面或冒出亂碼",
+              "en": "Truncated text no longer widens overlays or leaves a garbled character"
+            },
+            "body": {
+              "zh-TW": "畫面上的 overlay（覆蓋在主畫面上的小面板）依內容決定寬度時，文字被截斷會不再多畫出一欄；從開頭截斷的文字也不會縮成只有省略號。很長的 shell command（殼層命令）或 agent description，代理描述，預覽在 emoji，表情符號，中間被切斷時，先前還可能留下一個亂碼字元，現在已修好。這些都是同一個「文字只顯示一部分」的邊角：像招牌裁短字句時，不會多做一格空白，也不會把圖案切成一塊看不懂的碎片。",
+              "en": "A content-sized overlay no longer renders one column too wide when its text is truncated, and text truncated at the start no longer collapses to an ellipsis. A long shell-command or agent-description preview cut mid-emoji also no longer leaves a stray garbled character. These are fixes for displaying only part of a string without distorting what remains."
+            },
+            "original": "Fixed content-sized overlays containing truncated text rendering one column too wide, and start-truncated text collapsing to an ellipsis\nFixed a stray garbled character where a long shell-command or agent-description preview was cut off mid-emoji"
+          },
+          {
+            "title": {
+              "zh-TW": "外掛市集同時寫入時，不會被意外取消登記",
+              "en": "A plugin marketplace no longer disappears during simultaneous startup writes"
+            },
+            "body": {
+              "zh-TW": "剛啟動 Claude Code 時，若多個工作同時寫入 `known_marketplaces.json`，原本有一個競爭時機，可能悄悄把已登記的外掛市集取消登記。現在這個 startup race（啟動時的競爭狀況）已修好，市集不會因為同時寫檔而消失。你不必看到外掛來源忽然不見，卻找不到錯誤訊息。這如同幾位店員同時更新同一本供應商名冊時，現在不會有人把另一人剛寫好的店名抹掉。",
+              "en": "A startup race caused by concurrent writes to `known_marketplaces.json` could silently unregister a plugin marketplace. That race is fixed, so a registered marketplace no longer disappears when startup work writes the file at the same time."
+            },
+            "original": "Fixed a startup race that could silently unregister a plugin marketplace due to concurrent writes to `known_marketplaces.json`"
+          },
+          {
+            "title": {
+              "zh-TW": "可繼續的工作在跑，更新介面也能重啟",
+              "en": "Update and TUI can restart while surviving work is running"
+            },
+            "body": {
+              "zh-TW": "你要執行 `/update` 或 `/tui`，同時又有重啟後仍會存活的工作正在跑，先前這兩個指令可能拒絕重啟。現在它們不會因為那類工作還在運作就擋住。這不是把工作中止，而是承認它能跨過重新啟動繼續存在，讓更新或文字介面能照常重新開始。像一棟大樓有獨立供電的設備仍在運轉時，管理員可以重開大廳的顯示面板，不必把整棟樓的工作都先關掉。",
+              "en": "`/update` and `/tui` no longer refuse to restart just because work that survives the relaunch is running. That work is not being stopped; the update or text interface can restart while it continues to survive the relaunch."
+            },
+            "original": "Fixed `/update` and `/tui` refusing to restart while work that survives the relaunch was running"
+          },
+          {
+            "title": {
+              "zh-TW": "額度用完時，只推薦目前真的能用的指令",
+              "en": "Usage-limit guidance now recommends only available slash commands"
+            },
+            "body": {
+              "zh-TW": "在 SDK 或遠端工作階段遇到 usage limit（使用額度上限）時，Claude 的說明以前可能建議你一個該環境根本沒有的 slash command，以 `/` 開頭的指令，。現在建議會避開不可用指令。這項修正不改變你的額度，也不憑空增加指令；它只讓卡住時的說明符合你手邊能操作的介面。像車站告示不再指你去一個已封閉的月台，而是只指向目前能走的出口。",
+              "en": "In SDK and remote sessions, usage-limit guidance no longer suggests slash commands that are unavailable in that environment. It does not change the limit or add commands; it makes the guidance point only to actions that the current session can actually use."
+            },
+            "original": "Fixed usage-limit guidance suggesting unavailable slash commands in SDK and remote sessions"
+          },
+          {
+            "title": {
+              "zh-TW": "遠端控制不再帶走雲端工作階段的內容與憑證",
+              "en": "Remote Control no longer inherits a cloud session’s transcript or credentials"
+            },
+            "body": {
+              "zh-TW": "雲端工作階段裡的 bridge（連接兩端的橋接程式）若主持 Remote Control，遠端控制，把本機工作階段接到另一端使用，，以前遠端控制工作階段可能繼承那個雲端工作階段的 transcript，對話逐字紀錄，或 credentials，登入身分證明，。現在這份繼承關係已移除。遠端控制還是能由橋接程式主持，但不會把主持它的雲端工作階段內容或登入證明一起帶進去。這像在共享會議室接通投影設備，不會順便把上一場會議的筆記和門禁卡交給下一位使用者。",
+              "en": "A Remote Control session hosted by a bridge inside a cloud session no longer inherits that cloud session’s transcript or credentials. The bridge can still host Remote Control, but the hosted session does not receive the cloud session’s conversation record or login proof."
+            },
+            "original": "Fixed Remote Control sessions hosted by a bridge inside a cloud session inheriting that session's transcript or credentials"
+          },
+          {
+            "title": {
+              "zh-TW": "長對話串流與貼圖，不再堵住畫面反應",
+              "en": "Long streaming and pasted images no longer block responsiveness"
+            },
+            "body": {
+              "zh-TW": "全螢幕看著長對話持續更新時，畫面現在能維持回應，因為每次更新不再把整段對話重新 normalise（整理成一致格式）。貼上或從剪貼簿讀取 image（圖片）時，也不再阻塞 event loop，負責依序處理畫面與輸入事件的主迴圈，。兩項改動都在避免一件正在進來的內容，堵住其他操作。像書記收到新紙張時，不再每次都把整疊文件重整一次；同事遞來一張照片，也不必讓接待櫃台停擺才能收下。",
+              "en": "Fullscreen streaming stays responsive in long sessions because each update no longer re-normalizes the whole conversation. Pasted and clipboard images are read without blocking the event loop, the main loop that processes interface and input events. Incoming content no longer has to stop the rest of the interface to be handled."
+            },
+            "original": "Improved fullscreen streaming: long sessions stay responsive because the whole conversation is no longer re-normalized on every update\nPasted and clipboard images are read without blocking the event loop"
+          },
+          {
+            "title": {
+              "zh-TW": "受管理設定的核准視窗，標出來源也分清風險",
+              "en": "Managed-settings approval shows endpoints and separates higher-risk overrides"
+            },
+            "body": {
+              "zh-TW": "看到受管理設定的核准對話框時，現在可先看到 endpoint URL（服務連線網址），也會用更清楚的文字說明只改 telemetry，遙測資料，時的意義。一般的 OpenTelemetry 選項不再每次都要求核准，但伺服器管理的 sandbox binary override（替換隔離區使用程式的設定）仍會要求同意，包含 `sandbox.bwrapPath`、`sandbox.socatPath`、`sandbox.ripgrep`。這不是把所有設定放行，而是把例行資料選項和會換掉隔離區工具的設定分開。像簽收單略過普通的聯絡欄更新，卻在有人要更換保險箱鑰匙時，清楚列出地址並請你簽名。",
+              "en": "The managed-settings approval dialog now shows endpoint URLs and explains telemetry-only changes more clearly. Routine OpenTelemetry options are skipped, while server-managed sandbox binary overrides still need approval: `sandbox.bwrapPath`, `sandbox.socatPath`, and `sandbox.ripgrep`. It distinguishes routine telemetry settings from changes that replace a sandbox tool."
+            },
+            "original": "Improved the managed settings approval dialog: shows endpoint URLs, uses clearer wording for telemetry-only changes, skips routine OpenTelemetry options, and requires approval for server-managed sandbox binary overrides (`sandbox.bwrapPath`, `sandbox.socatPath`, `sandbox.ripgrep`)"
+          },
+          {
+            "title": {
+              "zh-TW": "回報與程式審查，不必等眼前回覆結束",
+              "en": "Feedback, bug reports, and higher-effort code review no longer hold up the turn"
+            },
+            "body": {
+              "zh-TW": "Claude 還在回覆時，你現在可立刻開啟 `/feedback` 或 `/bug`，不用等這一輪結束。`/code-review` 選 high、xhigh、max effort（投入較多推理工作的層級）時，也和其他層級一樣改在背景代理執行。前者讓你在想到問題的當下就能開回報入口，後者讓較高工作量的審查不佔住互動對話。像演講還沒結束時，你能先拿到意見卡；需要較久的審稿則交給旁邊的助理處理，講台仍可繼續使用。",
+              "en": "`/feedback` and `/bug` now open immediately even while Claude is responding. `/code-review` at high, xhigh, and max effort now runs in a background agent like other effort levels. One action opens the reporting form without waiting; the other moves the longer review work off the interactive conversation."
+            },
+            "original": "`/feedback` and `/bug` now open immediately when invoked while Claude is responding, instead of waiting for the turn to finish\n`/code-review` at high, xhigh, and max effort now runs in a background agent like the other levels"
+          },
+          {
+            "title": {
+              "zh-TW": "代理完成後更好收納，不再催你建立自訂代理",
+              "en": "Finished agents are tidier and custom-agent nudges are gone"
+            },
+            "body": {
+              "zh-TW": "背景代理完成後，agent panel（顯示代理工作的面板）會立刻把它隱藏，底部留下 `/tasks` 提示；「↓ N more」溢出指示也移到左邊，較容易看見。恢復已完成背景代理的訊息改短。啟動時建議建立自訂子代理的提示，以及 `/powerup` 導覽裡相同的催促，也一併移除。這些不改代理怎麼做事，而是整理它完成後留下的資訊與干擾。像待辦牆把完成紙條收進抽屜、把剩餘數量貼到看得見處，也不再每次經過都催你另開一本待辦簿。",
+              "en": "Completed background subagents now hide immediately in the agent panel with a `/tasks` footer hint, and “↓ N more” moved left. The resume message for a completed background agent is shorter. The startup tip about creating custom subagents and the matching `/powerup` nudge are removed. These changes tidy status information rather than change how agents work."
+            },
+            "original": "Updated agent panel: completed subagents hide immediately with a `/tasks` footer hint, and the \"↓ N more\" overflow indicator moved left for visibility\nShortened the message shown when resuming a completed background agent\nRemoved the startup tip suggesting you create custom subagents, and the matching nudge in the `/powerup` tour"
+          },
+          {
+            "title": {
+              "zh-TW": "Cowork 不再把外部記憶匯入直接塞進對話",
+              "en": "Cowork stops inlining external imports from user memory"
+            },
+            "body": {
+              "zh-TW": "Cowork 工作階段讀取使用者範圍的 memory file（記憶檔）時，外部 `@`-import，用 `@` 引入另一份內容，不再直接 inline，展開後塞入目前內容，。這項改動限定在外部匯入與使用者範圍記憶檔的組合，不是說 Cowork 不再讀取記憶檔本身。它避免一份記憶檔引用的外部內容自動混進目前工作階段。像你借閱一本索引冊時，現在只看到索引指向哪裡，不會把它引用的每本外部書都倒進桌上。",
+              "en": "Cowork sessions no longer inline external `@`-imports from user-scope memory files. This is about external imports being expanded into the current session, not about Cowork ceasing to read the memory file itself. Referenced external content no longer automatically enters the session through that route."
+            },
+            "original": "Cowork sessions no longer inline external @-imports from user-scope memory files"
+          },
+          {
+            "title": {
+              "zh-TW": "沙盒只信指定來源，跨工作階段插槽也拒絕假路徑",
+              "en": "Sandbox paths trust only approved sources and reject planted directories"
+            },
+            "body": {
+              "zh-TW": "共用 `/tmp` 裡自動建立的跨工作階段訊息 socket directory（插槽資料夾，讓程式彼此傳訊的位置），若遇到預先放好的 symlink，符號連結，指向另一個位置的捷徑檔，或其他使用者的資料夾，現在會拒絕使用。Linux filesystem sandbox（限制程式可碰檔案範圍的隔離區）也補上受保護路徑的繞過防護。`sandbox.ripgrep` 則只接受 user、managed、`--settings` 設定來源，project settings 不再能覆寫沙盒所用的 ripgrep。三項都在收緊檔案與工具的來源邊界。",
+              "en": "The auto-generated cross-session messaging socket directory in shared `/tmp` now refuses a planted symlink or another user’s directory. The Linux filesystem sandbox is hardened against a protected-path bypass. `sandbox.ripgrep` is honored only from user, managed, and `--settings` settings; project settings cannot override the sandbox’s ripgrep binary."
+            },
+            "original": "Hardened the auto-generated cross-session messaging socket directory on shared `/tmp`: a pre-planted symlink or another user's directory is now refused instead of used\nHardened the Linux filesystem sandbox against a protected-path bypass\nChanged `sandbox.ripgrep` to be honored only from user, managed, and `--settings` settings; project settings can no longer override the sandbox's ripgrep binary"
+          }
+        ]
+      }
+    },
+    {
       "version": "2.1.231",
       "raw": {
         "version": "2.1.231",
@@ -1268,168 +1598,6 @@
               "en": "When Gateway receives a non-string `model` field, it now rejects it with a 400 rather than forwarding it onward. That stops malformed data at the entrance. Separately, approval prompts no longer repeat the notice about a permission-mode change while an auto-mode classifier call was queued. It is like a post-office counter returning a photo placed in the address field instead of sending it to sorting, while a notice posted once does not cover the wall again for every person in line."
             },
             "original": "Changed the Gateway `model` field validation: non-string values are rejected with a 400 instead of being forwarded\nRemoved the repeated \"Permission mode changed while the auto-mode classifier call was queued\" notice from approval prompts"
-          }
-        ]
-      }
-    },
-    {
-      "version": "2.1.219",
-      "raw": {
-        "version": "2.1.219",
-        "period": "2026-07-24",
-        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-        "fetched_at": "2026-07-25",
-        "entries": [
-          "Added Claude Opus 5 (`claude-opus-5`), now the default Opus model — 1M context, fast mode at $10/$50 per Mtok",
-          "Added `sandbox.network.strictAllowlist` setting to deny non-allowlisted hosts for sandboxed commands without prompting",
-          "Added `DirectoryAdded` hook that fires after `/add-dir` or the SDK `register_repo_root` control request registers a new working directory mid-session",
-          "Added `mcp_server_errors` to the headless stream-json init event, listing `--mcp-config` entries skipped by config validation; terminal runs print a startup warning",
-          "Added the `workflowSizeGuideline` settings key so the advisory Dynamic workflow size guideline can be set from any settings file; the `/config` row is hidden while one does",
-          "Added nested subagent forwarding in stream-json: subagents spawned at depth-2+ now appear when `--forward-subagent-text` is set, keyed by their spawning Agent `tool_use` id",
-          "Fixed `claude -p` text output dropping the answer already produced when a turn dies on a mid-stream API error",
-          "Added HTTP status and error text to `claude mcp list` and `/mcp` when a server fails to connect, and a warning for MCP config values with hidden leading or trailing whitespace",
-          "Fixed the Fable model row showing \"Requires usage credits\" for plans that include it, when a stale cache had baked the label in",
-          "Fixed the `/model` picker showing the merged Opus row as plain \"Opus\" instead of \"Opus (1M context)\"",
-          "Fixed copy-on-select inside GNU screen printing base64 into the terminal instead of copying the selection",
-          "Fixed Remote Control clients keeping a stale fast-mode status after a model switch, reconnect, or failed org check",
-          "Fixed `CLAUDE_CODE_GIT_BASH_PATH` on Windows exiting or being used as bash when the path isn't a bash/sh binary; it's now ignored with a warning",
-          "Fixed Vim mode: pressing ← on an empty prompt now returns to the agent view from NORMAL mode, not just INSERT",
-          "Fixed screen-reader mode rewriting the entire input line on every keystroke instead of echoing only the typed character",
-          "Improved the \"Remote Control is only available via api.anthropic.com\" error to name the specific setting that caused it",
-          "Improved `claude --teleport` to show which repo your current checkout points at when it doesn't match the session's repo",
-          "Changed dynamic workflows to default to a medium size guideline (aim for fewer than 15 agents); pick another size or unrestricted with Dynamic workflow size in `/config`",
-          "Changed managed MCP allowlist/denylist `${VAR}` entries to resolve from the startup environment and managed-settings env instead of settings-file env",
-          "Changed the `/model` picker to highlight only the newest model's name, so the highlight marks the new release rather than an arbitrary subset of the list",
-          "Added the current default workflow size to the running-workflow status line, with a pointer to `/config` for changing it",
-          "Removed Opus 4.7 from fast mode; `/fast` now applies to Opus 5 and Opus 4.8",
-          "Updated the claude-api skill to default to Claude Opus 5, with a migration path from Opus 4.8",
-          "Subagents can now spawn nested subagents up to depth 3 by default (was 1); set CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1 to disable nesting"
-        ]
-      },
-      "curated": {
-        "version": "2.1.219",
-        "period": "2026-07-24",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Opus 5 上線成為預設，快速模式跟著換人",
-              "en": "Opus 5 lands as the default, and fast mode moves with it"
-            },
-            "body": {
-              "zh-TW": "新的 Claude Opus 5 接手成為預設的 Opus 模型，代號是 `claude-opus-5`。它一次能讀進一百萬 context（模型一次記得住的文字量），快速模式的計價是每百萬文字單位進 10 美元、出 50 美元。連帶兩件事也跟著調整：`/fast` 這個快速模式不再適用 Opus 4.7，改成套用在 Opus 5 和 Opus 4.8 上；`claude-api` 這份技能檔的預設模型也換成 Opus 5，並附上從 Opus 4.8 搬過來的做法。像學校換了新版教科書，開學領到的自動就是新版；但你書單上如果寫死舊版書號，訂起來就會撲空。你什麼都不用改就會用到新模型，只有手邊寫死舊模型代號的腳本，得回頭檢查。",
-              "en": "Claude Opus 5 (`claude-opus-5`) takes over as the default Opus model, with a 1M context window and fast-mode pricing of $10 in and $50 out per million tokens. Two things move with it: `/fast` no longer covers Opus 4.7 and now applies to Opus 5 and Opus 4.8, and the `claude-api` skill defaults to Opus 5 with a documented path over from Opus 4.8. A school switching to a new edition of a textbook works the same way: what you are handed at the start of term is the new one, but a reading list with the old ISBN written into it will order nothing. You get the new model without changing anything; only scripts with an older model id hard-coded need a second look."
-            },
-            "original": "Added Claude Opus 5 (`claude-opus-5`), now the default Opus model — 1M context, fast mode at $10/$50 per Mtok\nRemoved Opus 4.7 from fast mode; `/fast` now applies to Opus 5 and Opus 4.8\nUpdated the claude-api skill to default to Claude Opus 5, with a migration path from Opus 4.8"
-          },
-          {
-            "title": {
-              "zh-TW": "`/model` 選單的三個看走眼，一次修好",
-              "en": "Three ways the `/model` picker misled you, now fixed"
-            },
-            "body": {
-              "zh-TW": "挑模型是很快的動作，你掃一眼就按下去，所以清單寫錯特別傷。這版修掉三處：合併後的 Opus 那一列只寫「Opus」，看不出它其實是「Opus (1M context)」；Fable 那一列對明明已包含它的方案顯示「需要用量點數」，原因是舊的暫存把那句標籤烙在裡面沒更新；還有高亮，以前會標到清單中不特定的一段，現在只標最新那個模型的名字，你一眼就知道新的是哪個。像餐廳菜單把價格印錯又把招牌菜標在別道菜旁邊——菜沒問題，是菜單在誤導人。",
-              "en": "Picking a model is a glance-and-click action, which is exactly why a wrong list hurts. Three fixes here: the merged Opus row read plain \"Opus\" instead of \"Opus (1M context)\"; the Fable row claimed \"Requires usage credits\" on plans that already include it, because a stale cache had baked that label in; and the highlight, which used to mark an arbitrary subset of the list, now marks only the newest model's name so you can see at a glance which release is new. A menu with the wrong prices and the chef's-special marker next to the wrong dish — the kitchen is fine, the menu is misleading you."
-            },
-            "original": "Fixed the Fable model row showing \"Requires usage credits\" for plans that include it, when a stale cache had baked the label in\nFixed the `/model` picker showing the merged Opus row as plain \"Opus\" instead of \"Opus (1M context)\"\nChanged the `/model` picker to highlight only the newest model's name, so the highlight marks the new release rather than an arbitrary subset of the list"
-          },
-          {
-            "title": {
-              "zh-TW": "子代理可以再叫子代理，最多疊三層",
-              "en": "Subagents can now spawn subagents, three layers deep"
-            },
-            "body": {
-              "zh-TW": "派一個助手去做事，它做到一半發現該再找兩個人分頭查——以前它做不到，只能自己吞下去。現在子代理預設可以往下再開子代理，最多疊到三層（原本只有一層）。不想要這種層層轉包，在環境變數設 `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` 就關掉。同時，第二層以下開出來的子代理不再是黑箱：只要加上 `--forward-subagent-text`，它們的輸出會出現在 stream-json 裡，並掛在當初叫出它的那個代理底下，看得出誰是誰派的。像工班分包，以前只准分一層，現在准到三層，但每一層是誰發包的都要登記在同一張表上。",
-              "en": "You send one assistant off to do a job; halfway through it realises the work should be split between two more people — and until now it could not do that, it had to swallow the whole thing itself. Subagents can now spawn their own subagents, three levels deep by default, up from one. If you would rather not have work subcontracted down a chain, set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` to switch nesting off. The deeper ones are no longer a black box either: with `--forward-subagent-text`, subagents spawned at depth two and below show up in stream-json, keyed to the agent `tool_use` id that spawned them, so you can see who dispatched whom. Building trades subcontract the same way — one level used to be the limit, three is now allowed, and every level is logged against whoever hired it."
-            },
-            "original": "Subagents can now spawn nested subagents up to depth 3 by default (was 1); set CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1 to disable nesting\nAdded nested subagent forwarding in stream-json: subagents spawned at depth-2+ now appear when `--forward-subagent-text` is set, keyed by their spawning Agent `tool_use` id"
-          },
-          {
-            "title": {
-              "zh-TW": "動態工作流程預設收斂到 15 個代理以內，可自己改",
-              "en": "Dynamic workflows now aim for under 15 agents by default"
-            },
-            "body": {
-              "zh-TW": "交給系統自動編排的工作流程，以前沒有規模上的建議，一個任務可能被拆成幾十個代理各跑各的，你既看不出全貌也算不出成本。現在預設是中等規模，也就是「盡量少於 15 個代理」，這只是建議不是硬限制。想換規模有兩條路。臨時改：在 `/config` 裡選 Dynamic workflow size，可以挑別的大小或不設限。想固定下來：在設定檔加一行 `workflowSizeGuideline`，這樣任何設定檔都能指定，例如\n\n```\n{\"workflowSizeGuideline\": \"medium\"}\n```\n\n設定檔一旦寫了這個鍵，`/config` 裡那一列就會自動隱藏，避免兩邊講不一樣的話。另外，工作流程跑起來時，狀態列會直接顯示目前用的是哪個規模，旁邊附上去 `/config` 改的指路。像旅行團有沒有規定團員人數上限——沒規定不代表比較自由，只是你到了現場才知道來了幾個人。",
-              "en": "Workflows the system plans for you had no size guidance, so one task could fan out into dozens of agents running in parallel, leaving you unable to see the shape of it or estimate the cost. The default is now a medium guideline — aim for fewer than 15 agents — and it is advisory, not a hard cap. There are two ways to change it. Ad hoc: pick Dynamic workflow size in `/config` for another size or unrestricted. Permanently: set `workflowSizeGuideline` in any settings file, for example\n\n```\n{\"workflowSizeGuideline\": \"medium\"}\n```\n\nWhile a settings file specifies that key, the `/config` row hides itself so the two cannot disagree. A running workflow also shows the current size in its status line, with a pointer to `/config` if you want to change it. Think of a tour with no stated cap on group size: the absence of a limit is not freedom, it just means you find out how many people showed up when you get there."
-            },
-            "original": "Added the `workflowSizeGuideline` settings key so the advisory Dynamic workflow size guideline can be set from any settings file; the `/config` row is hidden while one does\nChanged dynamic workflows to default to a medium size guideline (aim for fewer than 15 agents); pick another size or unrestricted with Dynamic workflow size in `/config`\nAdded the current default workflow size to the running-workflow status line, with a pointer to `/config` for changing it"
-          },
-          {
-            "title": {
-              "zh-TW": "沙箱連外網，可以設成直接擋掉不再問你",
-              "en": "Sandboxed commands can now block unlisted hosts silently"
-            },
-            "body": {
-              "zh-TW": "在沙箱（把指令關在受限環境裡跑的隔離區）裡執行的指令想連某個網站，而那個網站不在你的允許清單上時，以前會跳出來問你要不要放行。跑自動化的場合沒人在鍵盤前，這一問就是整條流程停住。新的 `sandbox.network.strictAllowlist` 讓你選擇直接拒絕、連問都不問。要開的話，在設定檔加上這段：\n\n```\n{\"sandbox\": {\"network\": {\"strictAllowlist\": true}}}\n```\n\n這裡的巢狀寫法是「一層包一層」：`sandbox` 裡有 `network`，`network` 裡才是 `strictAllowlist`。像大樓門禁改成沒登記就是進不來，警衛不再打電話上樓問你要不要放行——訪客會吃閉門羹，但半夜也不會有人被吵醒。",
-              "en": "When a command running inside the sandbox — the restricted area commands are confined to — tries to reach a host that is not on your allowlist, you used to get a prompt asking whether to permit it. In an automated run there is nobody at the keyboard, so that prompt is where the whole pipeline stops. The new `sandbox.network.strictAllowlist` setting lets you deny outright, without asking. To turn it on, add this to a settings file:\n\n```\n{\"sandbox\": {\"network\": {\"strictAllowlist\": true}}}\n```\n\nThe nesting reads as one box inside another: `sandbox` contains `network`, and `network` contains `strictAllowlist`. It is a building switching to strict door policy — unregistered visitors simply do not get in, and the guard stops phoning upstairs to ask. Some visitors are turned away, but nobody gets woken at three in the morning."
-            },
-            "original": "Added `sandbox.network.strictAllowlist` setting to deny non-allowlisted hosts for sandboxed commands without prompting"
-          },
-          {
-            "title": {
-              "zh-TW": "外部工具接不上時，終於說得出哪裡出錯",
-              "en": "When an MCP server fails, you finally hear why"
-            },
-            "body": {
-              "zh-TW": "MCP（Model Context Protocol，讓 AI 接上外部工具的協定）伺服器連不上，以前只知道失敗，不知道為什麼。這版三處補上線索。`claude mcp list` 和 `/mcp` 現在會附上 HTTP 狀態碼和錯誤內容，是憑證過期還是位址打錯，一看就分得出來；設定值前後藏著看不見的空白時，也會出聲警告——那種錯最折磨人，因為畫面上看起來完全正常。沒有畫面的 stream-json 啟動事件則多了 `mcp_server_errors`，把 `--mcp-config` 裡因為驗證不通過而被略過的項目列出來，終端機執行時也會在開頭印警告。像寄信被退回，以前只收到一張「無法投遞」，現在退件單上寫了地址哪一行有問題。",
-              "en": "When an MCP server would not connect, you knew it had failed and nothing more. Three additions here. `claude mcp list` and `/mcp` now report the HTTP status and error text, so an expired credential looks different from a mistyped address; and config values with hidden leading or trailing whitespace now raise a warning — the most maddening class of error, because the screen looks entirely correct. The headless stream-json init event gained `mcp_server_errors`, listing the `--mcp-config` entries that config validation skipped, and terminal runs print a startup warning too. A returned letter used to come back stamped only \"undeliverable\"; now the slip tells you which line of the address is wrong."
-            },
-            "original": "Added `mcp_server_errors` to the headless stream-json init event, listing `--mcp-config` entries skipped by config validation; terminal runs print a startup warning\nAdded HTTP status and error text to `claude mcp list` and `/mcp` when a server fails to connect, and a warning for MCP config values with hidden leading or trailing whitespace"
-          },
-          {
-            "title": {
-              "zh-TW": "公司派下來的外部工具清單，不再被本機設定改寫",
-              "en": "Managed MCP lists stop reading variables from the settings file"
-            },
-            "body": {
-              "zh-TW": "公司統一派發的 MCP 允許與拒絕清單，裡面常寫 `${VAR}` 這種變數，等實際執行時再換成真正的值。問題是以前它從設定檔裡的環境變數區塊取值——而設定檔就在使用者手上，等於管理者訂的規則，可以被本機的一行設定改掉。現在改成從啟動時的環境和受管理設定自己的環境取值，設定檔那份不再參與。像醫院的用藥規定，以前各護理站自己抄一份貼在白板上，誰都擦得掉；現在改成每次掃碼直接讀系統裡的正本。",
-              "en": "Centrally managed MCP allowlists and denylists often contain `${VAR}` entries that get substituted at run time. The catch was where the substitution read from: the env block of a settings file — a file that sits in the user's own hands, which meant a rule set by an administrator could be rewritten by one local line. Those entries now resolve from the startup environment and the managed-settings env instead, and the settings-file env no longer participates. Think of dosage rules in a hospital: they used to be copied onto a whiteboard at each nurses' station, where anyone could rub a figure out. Now they are scanned straight from the system's master copy each time."
-            },
-            "original": "Changed managed MCP allowlist/denylist `${VAR}` entries to resolve from the startup environment and managed-settings env instead of settings-file env"
-          },
-          {
-            "title": {
-              "zh-TW": "聊到一半加資料夾，掛鉤跟著醒過來",
-              "en": "Add a folder mid-conversation and a hook wakes up"
-            },
-            "body": {
-              "zh-TW": "同一個工作階段聊到一半，才想起另一個資料夾也得一起看，於是你把它加了進來。新的 DirectoryAdded 掛鉤（特定事件發生時自動觸發的小程式）就在這一刻醒過來，向周邊工具發出通知。只要輸入 `/add-dir` 指令，或是透過 SDK 發出 `register_repo_root` 控制請求來註冊新目錄，Claude Code 就會自動觸發這個掛鉤，讓周邊工具第一時間掌握目錄變更。像展覽館在展覽進行中臨時加設新展位，廣播室與服務台隨即收到連線通知，周邊服務就能馬上配合跟上。",
-              "en": "Halfway through a conversation you remember that another folder needs to be in scope, so you bring it in. The new `DirectoryAdded` hook wakes up at exactly that moment and notifies the tools around you. A new `DirectoryAdded` hook fires whenever a new working directory is registered mid-session — whether you type the `/add-dir` command or issue a `register_repo_root` control request via the SDK. Secondary tools learn right away that the folder list has changed. Think of an exhibition hall opening an extra booth mid-event: the moment the new space is registered, the information desk and public address system get an instant update so services can adjust without delay."
-            },
-            "original": "Added `DirectoryAdded` hook that fires after `/add-dir` or the SDK `register_repo_root` control request registers a new working directory mid-session"
-          },
-          {
-            "title": {
-              "zh-TW": "複製、方向鍵、朗讀，三個按下去才發現的毛病",
-              "en": "Three faults you only meet the moment you press a key"
-            },
-            "body": {
-              "zh-TW": "這三個毛病都要等你手指按下去才會發現，所以特別磨人。首先是在 GNU screen 環境下劃選文字時，終端機不再印出一串 base64（將任意資料轉成純英數字串的編碼）字串，而是正常完成複製；其次是在 Vim 模式下的空白輸入列按左箭頭鍵（←），除了 INSERT 模式外，NORMAL 模式現在也能順利退回代理畫面；最後是螢幕閱讀器模式打字時只會朗讀剛輸入的字元，不會每按一下就重讀整行文字。像使用按鈕回饋錯亂的控制面板：劃選複製跳出無關字串、按返回鍵像卡住按不動、打字時語音重讀整行，都是按下去那一刻的動作與回饋對不上。",
-              "en": "All three of these only show up at the instant your finger presses a key, which is what makes them grating. Text highlighted inside GNU screen now copies properly instead of dumping raw base64 strings into your terminal. Pressing the left arrow (←) on an empty prompt in Vim mode now returns to the agent view from NORMAL mode as well as INSERT mode. Finally, screen-reader mode echoes only the single typed character per keystroke rather than re-reading the entire input line. Like using a control panel with miswired button feedback: selecting text prints extra code, pressing back feels stuck, and typing echoes the entire line — every action produces the wrong immediate response."
-            },
-            "original": "Fixed copy-on-select inside GNU screen printing base64 into the terminal instead of copying the selection\nFixed Vim mode: pressing ← on an empty prompt now returns to the agent view from NORMAL mode, not just INSERT\nFixed screen-reader mode rewriting the entire input line on every keystroke instead of echoing only the typed character"
-          },
-          {
-            "title": {
-              "zh-TW": "遙控端不再顯示過期狀態，出錯也說得出是哪個設定",
-              "en": "No more stale remote status, and errors that name the setting"
-            },
-            "body": {
-              "zh-TW": "隔著一台裝置操作，最怕畫面上寫的跟實際狀況對不上。這版把遠端控制（Remote Control）的三處落差補起來。首先修復了遠端控制用戶端在切換模型、斷線重連或組織權限檢查失敗後，快速模式仍殘留舊狀態的問題；其次，當跳出「遠端控制僅支援 api.anthropic.com」的錯誤時，錯誤訊息會直接點名是哪一個設定項導致衝突；最後，執行 `claude --teleport` 遇到手邊 checkout 的專案庫與工作階段不一致時，現在會明確印出你目前 checkout 指向的是哪一個專案庫。像遠端駕駛艙的儀表板，開關狀態即時同步、故障時精準亮起對應燈號，定位不符時也會清楚顯示你實際停在哪個車庫。",
-              "en": "Operating something through another device, the thing you dread is the screen disagreeing with reality. Three such gaps in Remote Control are closed here. Remote Control clients no longer hold onto a stale fast-mode status after switching models, reconnecting, or failing an organization check. When the error \"Remote Control is only available via api.anthropic.com\" appears, the diagnostic text now explicitly names the specific setting that triggered it. Finally, running `claude --teleport` when your current checkout repository differs from the session's repository now prints which repository your current checkout actually points to. Like a remote cockpit dashboard: switch toggles update in real time, error lights pinpoint the exact faulty breaker, and location mismatches show the actual hanger where your vessel is parked."
-            },
-            "original": "Fixed Remote Control clients keeping a stale fast-mode status after a model switch, reconnect, or failed org check\nImproved the \"Remote Control is only available via api.anthropic.com\" error to name the specific setting that caused it\nImproved `claude --teleport` to show which repo your current checkout points at when it doesn't match the session's repo"
-          },
-          {
-            "title": {
-              "zh-TW": "無效 Git Bash 路徑改發警告，中途斷線保留已產出回答",
-              "en": "Invalid Git Bash paths now raise warnings, and mid-stream errors preserve output"
-            },
-            "body": {
-              "zh-TW": "設定檔填錯與中途網路中斷這兩類突發狀況，現在都不會再一秒蒸發你的作業結果。這版做了兩項重要修復：在 Windows 上如果將 `CLAUDE_CODE_GIT_BASH_PATH` 環境變數指向非 bash 或 sh 的執行檔，以前會直接崩潰或硬當成 bash 執行，現在改為印出警告並自動忽略該無效路徑；另外，使用 `claude -p`（無畫面直接印出文字的執行模式）時，若在生成答案中途遇到 API 網路錯誤而中斷，Claude Code 不會再把已經產出的前半段回答全部丟掉，而是完整保留並印出來。像車載導航系統：填錯無效路徑時跳出警告並繼續走主幹道，就算中途訊號中斷，也完好保留已下載的前半段路線。",
-              "en": "Mistyped path settings and mid-stream network drops will no longer wipe out your progress in an instant. Two essential fixes are included: on Windows, if `CLAUDE_CODE_GIT_BASH_PATH` points to a file that is not a bash or sh binary, it no longer crashes or gets misused as bash, but instead ignores the invalid path with a warning. Furthermore, when running `claude -p` (the headless mode that prints text output), if a turn dies due to a mid-stream API network error, Claude Code no longer discards the answer already generated, but preserves and prints it completely. Think of a car navigation system: it issues a warning about an invalid shortcut while keeping you on the main highway, and even if signal drops mid-trip, it preserves the route segment already downloaded."
-            },
-            "original": "Fixed `CLAUDE_CODE_GIT_BASH_PATH` on Windows exiting or being used as bash when the path isn't a bash/sh binary; it's now ignored with a warning\nFixed `claude -p` text output dropping the answer already produced when a turn dies on a mid-stream API error"
           }
         ]
       }
