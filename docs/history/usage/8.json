@@ -5,6 +5,47 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.28.20",
+      "raw": {
+        "version": "0.28.20",
+        "period": "2026-07-24",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-24",
+        "entries": [
+          "**Auto-start 5-hour Session stopped firing at all after its first ping.** 0.28.17 swapped the keeper's elapsed-time throttle for reset-boundary deduplication, which only holds up while the boundary keeps moving — and it doesn't. The ping runs `claude -p` headless, which never triggers Claude Code's statusLine hook, so `usage-status.json` goes on reporting the boundary that was already handled and the keeper wedges permanently. One machine went 23 hours with no auto-opened window while the cooldown-based Antigravity keeper kept working normally. The boundary check stays, since it is what catches a real rollover the moment it happens; a 5h5m cooldown is added alongside it as a second, independent way to re-arm once the payload has gone stale. Every existing gate is untouched, so a live window still never draws a spurious ping.",
+          "**Orphaned temp files piled up in `~/.usage/`.** Every atomic write unlinks its `mkstemp` file in a `finally` block, and that block never runs when the app is SIGKILLed or crashes mid-write. One install had collected 40 MB of them over twelve days, dominated by the large JSONL caches whose slow writes are the likeliest to be interrupted. Startup now sweeps `~/.usage` and its direct `*.d` children, deleting only regular files that match the `mkstemp` name shape and have gone untouched for 24 hours — long enough that a second usage process cannot lose a temp file it is still writing. Symlinks and directories are skipped no matter how well their name matches."
+        ]
+      },
+      "curated": {
+        "version": "0.28.20",
+        "period": "2026-07-24",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "5 小時工作階段會重新自動開啟",
+              "en": "Your 5-hour sessions can auto-start again"
+            },
+            "body": {
+              "zh-TW": "你靠自動功能守著 5 小時工作階段時，第一個提醒過後不會再整天沒動靜。先前它改用「跨過時段交界才提醒」的判斷，卻因為背景執行的 `claude -p` 不會觸發 statusLine（顯示在終端機最底下的狀態列）掛鉤，`usage-status.json` 一直留著已處理過的交界時間，於是自動功能永遠不再啟動。現在除了保留交界判斷來即時抓住真正換時段，也加上 5 小時 5 分鐘的冷卻計時；資料太舊時便重新準備下一次提醒。像鬧鐘既會在整點響，也有備用計時器；其中一個卡住，另一個仍會叫你起床。原本避免已開啟工作階段又亂提醒的關卡都還在。",
+              "en": "If you rely on automatic starts to watch a 5-hour session, it will no longer fall silent for the rest of the day after its first alert. The recent switch to detecting a session boundary got stuck because headless `claude -p` does not trigger the statusLine hook, leaving `usage-status.json` stuck on a boundary it had already handled. The boundary check remains, so a real rollover is still caught immediately, but a separate 5-hour-and-5-minute cooldown now rearms the alert once that record is stale. Think of an alarm clock with both a chime and a backup timer: if one gets stuck, the other still wakes you. All the existing checks that prevent an alert during a live session remain in place."
+            },
+            "original": "**Auto-start 5-hour Session stopped firing at all after its first ping.** 0.28.17 swapped the keeper's elapsed-time throttle for reset-boundary deduplication, which only holds up while the boundary keeps moving — and it doesn't. The ping runs `claude -p` headless, which never triggers Claude Code's statusLine hook, so `usage-status.json` goes on reporting the boundary that was already handled and the keeper wedges permanently. One machine went 23 hours with no auto-opened window while the cooldown-based Antigravity keeper kept working normally. The boundary check stays, since it is what catches a real rollover the moment it happens; a 5h5m cooldown is added alongside it as a second, independent way to re-arm once the payload has gone stale. Every existing gate is untouched, so a live window still never draws a spurious ping."
+          },
+          {
+            "title": {
+              "zh-TW": "異常中斷留下的暫存檔會自動清理",
+              "en": "Temporary files left by crashes now get cleaned up"
+            },
+            "body": {
+              "zh-TW": "程式在寫入資料時若突然當掉或被強制關閉，`~/.usage/` 裡留下的暫存檔現在會被收走，不會越堆越多。正常情況下，原子寫入（先寫好新檔再一次換上去，避免寫到一半壞掉）結束時會刪除 `mkstemp` 產生的檔案；但遇到 SIGKILL（作業系統立刻強制終止程式的訊號）或崩潰，清理步驟來不及跑。一台電腦曾在 12 天累積 40 MB，主要是寫得較慢的 JSONL 快取（把算過／查過的結果暫存起來直接用）。現在啟動時會掃描 `~/.usage/` 和它直接底下的 `*.d` 資料夾，只刪符合名稱、超過 24 小時未碰過的一般檔案；符號連結和資料夾一律不碰。像倉庫每天開門先清昨夜遺下的包材，仍在裝箱的貨不會被誤丟。",
+              "en": "If the app crashes or is forcibly stopped while saving data, its leftover temporary files in `~/.usage/` will now be cleared instead of piling up. An atomic write normally deletes the file made by `mkstemp` after safely putting the completed new file in place, but SIGKILL or a crash prevents that cleanup from running. One installation gathered 40 MB in 12 days, mostly from slower JSONL caches. On startup, Usage now checks `~/.usage/` and its immediate `*.d` children, deleting only ordinary files with the matching temporary-file name that have not been touched for 24 hours. Symlinks and directories are always left alone. It is like a warehouse clearing yesterday's packing scraps each morning without throwing away a box still being packed."
+            },
+            "original": "**Orphaned temp files piled up in `~/.usage/`.** Every atomic write unlinks its `mkstemp` file in a `finally` block, and that block never runs when the app is SIGKILLed or crashes mid-write. One install had collected 40 MB of them over twelve days, dominated by the large JSONL caches whose slow writes are the likeliest to be interrupted. Startup now sweeps `~/.usage` and its direct `*.d` children, deleting only regular files that match the `mkstemp` name shape and have gone untouched for 24 hours — long enough that a second usage process cannot lose a temp file it is still writing. Symlinks and directories are skipped no matter how well their name matches."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.28.19",
       "raw": {
         "version": "0.28.19",
@@ -274,35 +315,6 @@
               "en": "When you open your HTML usage report (the web-page version you view in a browser) at the end of the month, the important numbers no longer have to fight through a sea of gold. Gold is now reserved for the headline tail, main KPI number (the key performance indicator), Wrapped badge, and terminal cursor; the contribution heatmap and donut chart use a coordinated teal-and-mauve palette instead. It is like saving the spotlight for the lead actor while the rest of the cast wears matching costumes. The six KPI cards now keep even spacing, a long Wrapped total-token count no longer overlaps the phoenix, and the last metric card no longer drops onto a row by itself. Card and section borders are clearer in both color schemes, while button states are easier to recognize. Motion follows reduced-motion preferences, and the share dialog's three icons now use matching-stroke SVG artwork. Even CSS `transition: all` rules now name only properties that move, removing a telltale template habit."
             },
             "original": "**The HTML usage report looks less like a template and reads more cleanly**: gold is no longer a blanket accent — it's now reserved for four focal points (headline tail, primary KPI number, the Wrapped kicker badge, the terminal cursor), with the contribution heatmap and donut chart moved to a cohesive teal/mauve palette instead. Fixed three alignment bugs: the KPI card grid now keeps a consistent rhythm across all six cards, the Wrapped section's total-token figure no longer overlaps the phoenix illustration at high digit counts, and the trailing metric card in that section no longer orphans onto its own row. Also cleans up several small \"obviously AI-generated\" tells: `transition: all` rules now list only the properties that actually animate, card/section borders read at a clearer contrast in both color schemes, disabled/active button states are now styled instead of falling back to defaults, motion respects `prefers-reduced-motion`, and the three share-dialog emoji icons are now matched-stroke SVGs."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.28.10",
-      "raw": {
-        "version": "0.28.10",
-        "period": "2026-07-18",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-18",
-        "entries": [
-          "**Switching panels no longer stalls the UI with a beachball**: cold-rebuilding a panel view (evicted from the small LRU cache) reread and reassembled its HTML from disk every time — now the assembled markup is cached per panel and only built once. Selecting a panel no longer forces `NSUserDefaults.synchronize()` on the main thread. Unchanged panel state is no longer redundantly re-serialized and re-injected when a switch triggers two refresh passes back to back. Evicting an old cached panel view from the LRU cache is now deferred off the click's run-loop turn instead of running inline with the new panel's setup."
-        ]
-      },
-      "curated": {
-        "version": "0.28.10",
-        "period": "2026-07-18",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "切換面板不再轉彩球，畫面終於跟得上手",
-              "en": "Panel switching no longer leaves you waiting on a spinning beachball"
-            },
-            "body": {
-              "zh-TW": "你在面板間點來點去查用量時，畫面不該每次都像重新拆箱再組裝。之前若面板剛好被 LRU cache（快取，把算過的結果暫存起來直接用）擠出去，切回去得從磁碟重讀 HTML 並重組；現在每個面板組好的內容會留著，只建一次。切換時也不再讓主執行緒（專門處理你點擊與畫面的主要工作線）硬做設定同步，連著兩次刷新更不會重複打包同一份狀態。舊面板的清理改在點擊之後處理，就像店員先替你打開下一扇門，再慢慢收回前一間的展示架；換面板時終於不必盯著彩球等它回神。",
-              "en": "When you hop between panels to check usage, the app should not unpack and rebuild a room every time. If a panel had been pushed out of the small LRU cache, switching back used to reread its HTML from disk and assemble it again. Now each panel keeps its finished markup and builds it only once. Switching also stops forcing settings synchronization on the main thread, duplicate back-to-back refreshes no longer repackage unchanged state, and cleanup of an old panel happens after your click. Like a shop attendant opening your next door before tidying the last display, rather than making you wait in the aisle."
-            },
-            "original": "**Switching panels no longer stalls the UI with a beachball**: cold-rebuilding a panel view (evicted from the small LRU cache) reread and reassembled its HTML from disk every time — now the assembled markup is cached per panel and only built once. Selecting a panel no longer forces `NSUserDefaults.synchronize()` on the main thread. Unchanged panel state is no longer redundantly re-serialized and re-injected when a switch triggers two refresh passes back to back. Evicting an old cached panel view from the LRU cache is now deferred off the click's run-loop turn instead of running inline with the new panel's setup."
           }
         ]
       }

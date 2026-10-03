@@ -5,6 +5,35 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.28.10",
+      "raw": {
+        "version": "0.28.10",
+        "period": "2026-07-18",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-18",
+        "entries": [
+          "**Switching panels no longer stalls the UI with a beachball**: cold-rebuilding a panel view (evicted from the small LRU cache) reread and reassembled its HTML from disk every time — now the assembled markup is cached per panel and only built once. Selecting a panel no longer forces `NSUserDefaults.synchronize()` on the main thread. Unchanged panel state is no longer redundantly re-serialized and re-injected when a switch triggers two refresh passes back to back. Evicting an old cached panel view from the LRU cache is now deferred off the click's run-loop turn instead of running inline with the new panel's setup."
+        ]
+      },
+      "curated": {
+        "version": "0.28.10",
+        "period": "2026-07-18",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "切換面板不再轉彩球，畫面終於跟得上手",
+              "en": "Panel switching no longer leaves you waiting on a spinning beachball"
+            },
+            "body": {
+              "zh-TW": "你在面板間點來點去查用量時，畫面不該每次都像重新拆箱再組裝。之前若面板剛好被 LRU cache（快取，把算過的結果暫存起來直接用）擠出去，切回去得從磁碟重讀 HTML 並重組；現在每個面板組好的內容會留著，只建一次。切換時也不再讓主執行緒（專門處理你點擊與畫面的主要工作線）硬做設定同步，連著兩次刷新更不會重複打包同一份狀態。舊面板的清理改在點擊之後處理，就像店員先替你打開下一扇門，再慢慢收回前一間的展示架；換面板時終於不必盯著彩球等它回神。",
+              "en": "When you hop between panels to check usage, the app should not unpack and rebuild a room every time. If a panel had been pushed out of the small LRU cache, switching back used to reread its HTML from disk and assemble it again. Now each panel keeps its finished markup and builds it only once. Switching also stops forcing settings synchronization on the main thread, duplicate back-to-back refreshes no longer repackage unchanged state, and cleanup of an old panel happens after your click. Like a shop attendant opening your next door before tidying the last display, rather than making you wait in the aisle."
+            },
+            "original": "**Switching panels no longer stalls the UI with a beachball**: cold-rebuilding a panel view (evicted from the small LRU cache) reread and reassembled its HTML from disk every time — now the assembled markup is cached per panel and only built once. Selecting a panel no longer forces `NSUserDefaults.synchronize()` on the main thread. Unchanged panel state is no longer redundantly re-serialized and re-injected when a switch triggers two refresh passes back to back. Evicting an old cached panel view from the LRU cache is now deferred off the click's run-loop turn instead of running inline with the new panel's setup."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.28.9",
       "raw": {
         "version": "0.28.9",
@@ -335,39 +364,6 @@
               "en": "Project names and folder paths on Windows are no longer bizarrely misread by the app. Because Windows paths can be a bit messy, if your current working directory (cwd) was recorded using POSIX-style cwds (paths using forward slashes like `C:/...` typically seen on Mac or Linux) or if it used a dash-encoded name (a format that replaces slashes with hyphens to safely create filenames), the system stubbornly tried to split them strictly by Windows backslashes. This resulted in it keeping the entire long path string as the \"project name\" or completely failing to decode paths because a bare backslash lacks a drive letter. Now, it smartly normalizes all separators on Windows before splitting, and correctly anchors decoded paths to drive roots (like `C:\\`), restoring your actual project folder flawlessly. It's like a mail carrier who used to get utterly confused and fail to deliver your mail if your address was written with commas instead of standard line breaks; now they automatically clean up your address format in their head and drop the package at the correct house every time."
             },
             "original": "**Project names derive correctly from POSIX-style cwds on Windows**: `usage_session_resume._project_from_cwd` and `adapters.claude.project_from_cwd` split paths on `os.sep` only, so a transcript cwd recorded with forward slashes (or a `C:/...`-style path) kept the whole path as the \"project\" on Windows. Both now normalize separators on Windows before splitting; POSIX behavior is unchanged, since backslashes are legal in POSIX filenames.\n**Encoded project-path decoding now works on Windows**: `project_from_encoded_path` reconstructed a project's real directory from its dash-encoded name by searching from the filesystem root, but a bare Windows `\\` has no drive letter and never matches a real path, so decoding always fell back to the raw encoded string. It now anchors at the drive root (e.g. `C:\\`) when the encoded name starts with one; POSIX behavior is unchanged."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.28.0",
-      "raw": {
-        "version": "0.28.0",
-        "period": "2026-07-15",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-15",
-        "entries": [
-          "**Full Windows support**: `usage` now runs natively on Windows, including the TUI, Claude Code status-line hook, and Codex history parsing.",
-          "**Windows system tray UI**: a dynamic tray icon shows the Claude quota percentage; its tooltip summarizes Claude and Codex windows. Left-click opens the same 11 HTML theme panels used on macOS through WebView2, while the right-click menu offers panel switching, refresh, launch at login, update checks, and quit.",
-          "**Portable Windows release**: GitHub Releases now include `usage-windows.zip`, containing `usage.exe` for unzip-and-run use. It requires the Microsoft Edge WebView2 Runtime, which is normally already present on Windows 10 and 11.",
-          "Windows packaging and CI now use PyInstaller and `windows-latest` for both checks and release artifacts. The optional `windows` extra installs pystray, pywebview, and Pillow; macOS-only PyObjC dependencies are guarded by a Darwin platform marker.",
-          "Status-line hook file locking and generated hook-command quoting are platform-aware, so they work on Windows as well as macOS."
-        ]
-      },
-      "curated": {
-        "version": "0.28.0",
-        "period": "2026-07-15",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Windows 全面支援：免安裝直接跑，還有專屬系統匣",
-              "en": "Full Windows support: Native portable release with a dedicated system tray"
-            },
-            "body": {
-              "zh-TW": "Windows 使用者現在能獲得與 Mac 同等級的完整體驗，不用再經過繁瑣的設定就能直接查看 AI 的使用額度了。這次更新讓 `usage` 原生地支援 Windows 系統，包含 TUI（文字使用者介面，沒有滑鼠按鈕、純靠鍵盤在黑底白字命令列裡操作的畫面）、Claude Code 的 status-line hook（狀態列掛鉤，一種能把自己掛在命令列提示字元旁邊、隨時吐出剩餘額度的小程式），以及 Codex 歷史紀錄的解析。你可以在系統右下角看到一個動態的常駐圖示，隨時顯示 Claude 額度百分比，滑鼠懸停還能看見 Claude 與 Codex 兩者的視窗摘要。左鍵點擊會透過 Windows 內建的 WebView2（微軟內建用來在一般軟體裡顯示網頁的底層引擎）開啟那 11 款華麗的 HTML 報告面板；右鍵選單則能切換面板、重新整理、設定開機自動啟動、檢查更新以及結束程式。如果你不想自己安裝環境，GitHub Releases 現在直接提供打包好的 `usage-windows.zip`，解壓縮點開 `usage.exe` 就能用（需有 Windows 10/11 通常已內建的 Microsoft Edge WebView2 Runtime）。背後為了這件事，開發團隊的 CI（持續整合，每次開發者交程式碼時，在雲端自動幫忙測試並打包成軟體的機器人流水線）改用 PyInstaller（一種能把需要環境設定的 Python 程式碼，連同工具包全部壓成一個單一執行檔的打包軟體）來製作發布檔，並把原本 Mac 專用的依賴套件隔開。同時，狀態列掛鉤在讀寫檔案時的鎖定機制與指令引號寫法，也都針對跨平台做了調整，確保兩邊都不會卡死。這就像是原本只在蘋果生態系發行的限定版精裝日曆，現在不但為 Windows 使用者重新開模做了一份，還直接升級成插電即用的免安裝電子版，並且附贈了一個隨時能看的精巧小時鐘釘在你的桌面上。",
-              "en": "Windows users can now enjoy a fully native, first-class experience for tracking AI quotas without jumping through complicated setup hoops. The `usage` tool now runs natively on Windows, fully supporting the TUI (text user interface, a screen operated purely by keyboard in the black-and-white command line without mouse buttons), the Claude Code status-line hook (a small widget that hooks itself next to your command prompt to spit out remaining quotas), and Codex history parsing. You'll find a dynamic system tray icon resting in your lower-right taskbar, displaying your Claude quota percentage; hovering over it summarizes your active windows. A left-click uses WebView2 (Microsoft's built-in engine for rendering web pages inside regular software) to launch the same 11 gorgeous HTML theme panels available on Mac, while a right-click gives you a menu to switch panels, refresh, set it to launch at login, check for updates, or quit. For those who hate setting up environments, GitHub Releases now offers a portable `usage-windows.zip` — just extract and double-click `usage.exe`. Under the hood, the CI (Continuous Integration, a robot pipeline in the cloud that automatically tests and packages the software whenever developers submit code) now uses PyInstaller (a packaging software that squashes environment-dependent Python code and its toolkits into a single executable) to build the release, smartly walling off Mac-specific dependencies. Additionally, the file-locking mechanics and command-quoting for the status-line hook have been made platform-aware so they run flawlessly on both operating systems. It's like a premium designer calendar that used to be a Mac-exclusive product — it hasn't just been remolded for Windows, it's been delivered as a fully assembled, plug-and-play digital edition that comes with a handy little clock permanently pinned to your desk."
-            },
-            "original": "**Full Windows support**: `usage` now runs natively on Windows, including the TUI, Claude Code status-line hook, and Codex history parsing.\n**Windows system tray UI**: a dynamic tray icon shows the Claude quota percentage; its tooltip summarizes Claude and Codex windows. Left-click opens the same 11 HTML theme panels used on macOS through WebView2, while the right-click menu offers panel switching, refresh, launch at login, update checks, and quit.\n**Portable Windows release**: GitHub Releases now include `usage-windows.zip`, containing `usage.exe` for unzip-and-run use. It requires the Microsoft Edge WebView2 Runtime, which is normally already present on Windows 10 and 11.\nWindows packaging and CI now use PyInstaller and `windows-latest` for both checks and release artifacts. The optional `windows` extra installs pystray, pywebview, and Pillow; macOS-only PyObjC dependencies are guarded by a Darwin platform marker.\nStatus-line hook file locking and generated hook-command quoting are platform-aware, so they work on Windows as well as macOS."
           }
         ]
       }

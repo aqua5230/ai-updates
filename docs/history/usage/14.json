@@ -5,6 +5,35 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.22.1",
+      "raw": {
+        "version": "0.22.1",
+        "period": "2026-06-21",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Idle menu-bar refreshes no longer react to unrelated agent state writes**: FSEvents now watches Claude and Codex usage-history directories instead of their entire data roots, and unchanged status titles no longer trigger redundant AppKit layout work."
+        ]
+      },
+      "curated": {
+        "version": "0.22.1",
+        "period": "2026-06-21",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "選單列不再因為無關的檔案變動而白忙一場",
+              "en": "Menu bar stops useless refreshes on unrelated file changes"
+            },
+            "body": {
+              "zh-TW": "你的選單列現在不會再因為無關的檔案變動而莫名其妙重新排版了。以前系統在背後監聽時會盯著整個資料夾看，只要有任何代理（agent）寫入無關的狀態檔，選單列就會傻傻地跟著刷新；現在它只會緊盯 Claude 與 Codex 真正用來記錄歷史的特定資料夾，而且如果標題根本沒變，它就不會浪費力氣重新排版。就像警衛以前只要看到大樓裡有人走動就全棟廣播，現在只盯著大門看，沒人進出就不會隨便拉警報。",
+              "en": "Your menu bar will no longer inexplicably re-render its layout due to unrelated file changes. Previously, when the system listened in the background, it watched the entire data directory, meaning any agent writing to an unrelated status file would cause the menu bar to foolishly trigger a full visual refresh. Now, it strictly watches only the specific directories where Claude and Codex save their usage history, and if the status title hasn't actually changed, it won't waste effort re-rendering the layout. It's like a security guard who used to trigger a building-wide alarm every time they saw movement inside, but now strictly watches the front door and only sounds the alarm when someone actually enters or leaves."
+            },
+            "original": "**Idle menu-bar refreshes no longer react to unrelated agent state writes**: FSEvents now watches Claude and Codex usage-history directories instead of their entire data roots, and unchanged status titles no longer trigger redundant AppKit layout work."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.22.0",
       "raw": {
         "version": "0.22.0",
@@ -313,49 +342,6 @@
               "en": "If you only use one AI tool, you can now make the interface much cleaner. The \"Switch Panel\" menu now features a \"Hide Sections\" submenu, allowing you to independently hide Claude Code or Codex. Once hidden, not only does the tool's card disappear from the popover, but its percentage also vanishes from the menu bar, bumping your remaining tool straight to the front (if you hide both, a little paw icon remains so you can still click it). You also don't have to worry about losing the settings button; if the first card is hidden, the button automatically moves to the next visible card. At the same time, the settings menu has gotten shorter: the redundant \"Automatically Check for Updates\" toggle is gone (the system handles it silently by default), and the hide toggles are neatly grouped together. Like a toolbox that used to force a wrench into the spotlight even if you never used it — now you can tuck unused tools into a hidden drawer, keeping your favorite screwdriver right where you need it."
             },
             "original": "**Hide Claude Code section**: a new \"Hide Sections ▸\" submenu in the Switch Panel menu lets you hide Claude Code and Codex independently, so Codex-only users can hide the Claude Code card from every panel theme and the Claude Code percentage from the menu bar (Codex then leads the readout). Every panel keeps its \"Switch Panel\" button reachable — when the Claude Code card is hidden, the button moves to the next visible card. (#35, requested by @ilss0902)\n**Hiding a provider now also hides its percentage from the menu bar** (previously \"Hide Codex Section\" only hid the popover card). With both providers hidden, the paw icon stays in the menu bar as the click target.\n**Shorter settings menu**: the \"Automatically Check for Updates\" row is gone — update checks simply stay on by default (still honored if disabled in `~/.claude/usage-preferences.json`), and the two hide toggles are consolidated into the \"Hide Sections ▸\" submenu."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.18.0",
-      "raw": {
-        "version": "0.18.0",
-        "period": "2026-06-11",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Health-check diagnosis on every new conversation**: usage now runs a background diagnosis engine against your Claude Code session logs and, when it finds meaningful waste, quietly appends a one-line reminder to the Progress Concierge's opening handoff. Say \"show me\" and the model reads the full snapshot (`~/.claude/usage-diagnosis.json`) and explains findings with specific suggestions. The reminder is suppressed for 7 days once a fingerprint is seen, re-surfaces when the diagnosis changes, and is skipped entirely when the snapshot is stale (>48 h).",
-          "**Five-rule diagnosis engine** (`analyzer/diagnoser.py`): detects repeated file reads, polluter directories (node_modules, .venv, dist, …), anomalous session sizes, noisy Bash output, and repeated Bash commands. Findings are ranked by estimated token waste so the most actionable finding is always surfaced first.",
-          "**Daily diagnosis snapshot** (`usage_diagnosis_snapshot.py`): the menu-bar app refreshes `~/.claude/usage-diagnosis.json` once per day in the background so the cost estimate is always fresh when you open a new conversation.",
-          "**Anomaly-session waste estimates are no longer inflated ~9×**: the engine previously counted the entire token total of an anomalous session as waste and priced every token at the full $3/MTok input rate. Long sessions are dominated by cache reads billed at a tenth of that ($0.30/MTok), and the work done in the session isn't waste at all — only the excess over the project baseline is. Cost is now split by token type and scaled to the excess share (real-data result: $254 → $27)."
-        ]
-      },
-      "curated": {
-        "version": "0.18.0",
-        "period": "2026-06-11",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "每次開新對話都會幫你抓漏，省下不必要的開銷",
-              "en": "Opening a new conversation now runs a health check to stop quota leaks"
-            },
-            "body": {
-              "zh-TW": "每次你開啟新的 Claude Code 對話時，系統都會在背景默默幫你的紀錄做一次健康檢查，如果發現你在白白浪費額度，進度管家就會在開場白最後悄悄補上一句提醒。只要你回覆「看」，系統就會讀取每天在背景自動更新一次的快照（`~/.claude/usage-diagnosis.json`），把哪裡浪費、該怎麼改詳細解釋給你聽。同一個問題提醒過後，7 天內都不會再吵你，直到出現新問題才會再提醒；如果快照太舊（超過 48 小時），它也會識趣地直接略過。就像每次出車前技師都會偷偷幫你檢查底盤，發現漏油才小聲提醒你，而且講過一次就不會天天碎唸，免得你嫌煩。",
-              "en": "Every time you open a new Claude Code conversation, the system now quietly runs a background health check on your logs; if it spots you burning quota pointlessly, the Progress Concierge will slip a one-line reminder at the end of its opening greeting. Just reply \"show me,\" and the model will read the snapshot (updated daily in the background to `~/.claude/usage-diagnosis.json`) to explain exactly what's wasting tokens and how to fix it. Once reminded about a specific issue, it won't pester you about it again for 7 days unless a new diagnosis appears; if the snapshot is too old (over 48 hours), it will smartly skip the warning altogether. It's like a mechanic doing a quick inspection under your car before every trip — they only tap your shoulder if there's an oil leak, and they won't nag you about the same puddle every single day."
-            },
-            "original": "**Health-check diagnosis on every new conversation**: usage now runs a background diagnosis engine against your Claude Code session logs and, when it finds meaningful waste, quietly appends a one-line reminder to the Progress Concierge's opening handoff. Say \"show me\" and the model reads the full snapshot (`~/.claude/usage-diagnosis.json`) and explains findings with specific suggestions. The reminder is suppressed for 7 days once a fingerprint is seen, re-surfaces when the diagnosis changes, and is skipped entirely when the snapshot is stale (>48 h).\n**Daily diagnosis snapshot** (`usage_diagnosis_snapshot.py`): the menu-bar app refreshes `~/.claude/usage-diagnosis.json` once per day in the background so the cost estimate is always fresh when you open a new conversation."
-          },
-          {
-            "title": {
-              "zh-TW": "診斷規則更聰明，不再誇大浪費的金額",
-              "en": "Smarter diagnosis rules stop inflating your wasted money"
-            },
-            "body": {
-              "zh-TW": "現在系統能更精準地幫你抓出浪費，不再拿天價數字嚇你了。系統加裝了五大規則引擎（會抓出重複讀檔、掃到 `node_modules` 等垃圾目錄、對話過度膨脹、終端機輸出太長、重複跑指令），並會把最該修的浪費排在最前面告訴你。同時，當它發現對話太長時，不會再像以前那樣傻傻把所有字都用最貴的費率算成「浪費」，搞出誇大 9 倍的天價；現在它懂得區分哪裡是你已經快取（cache，省下重複計算的暫存紀錄）的便宜字數，並且只把「超出正常水準」的部份算成浪費。就像計程車跳表機，以前一繞路就把整趟車資當成損失來嚇你，現在它會精準算出「只算繞路多跑的里程」，而且會幫你扣掉會員打折的費用，給你一張公道精準的收據。",
-              "en": "The system now flags your wasted tokens much more precisely and stops scaring you with wildly inflated estimates. We've armed the engine with five core rules (flagging repeated file reads, scanning trash directories like `node_modules`, anomalous session bloat, massive terminal outputs, and repeated bash commands), ensuring the most pressing waste is always surfaced first. Additionally, when it detects an overly long session, it no longer foolishly bills every single word at the most expensive rate and calls the entire session \"waste\", which used to inflate estimates by 9 times; it now smartly separates out your cheap cached (temporarily saved to skip recalculations) tokens, and only counts the exact portion that exceeds your project's baseline as actual waste. Like a taxi meter that used to point at the total fare and call the whole trip a loss just because the driver took one wrong turn — now it calculates exactly the few miles of the detour and applies your membership discount, handing you a fair and precise receipt."
-            },
-            "original": "**Five-rule diagnosis engine** (`analyzer/diagnoser.py`): detects repeated file reads, polluter directories (node_modules, .venv, dist, …), anomalous session sizes, noisy Bash output, and repeated Bash commands. Findings are ranked by estimated token waste so the most actionable finding is always surfaced first.\n**Anomaly-session waste estimates are no longer inflated ~9×**: the engine previously counted the entire token total of an anomalous session as waste and priced every token at the full $3/MTok input rate. Long sessions are dominated by cache reads billed at a tenth of that ($0.30/MTok), and the work done in the session isn't waste at all — only the excess over the project baseline is. Cost is now split by token type and scaled to the excess share (real-data result: $254 → $27)."
           }
         ]
       }
