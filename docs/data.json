@@ -1138,104 +1138,130 @@
       "id": "agy",
       "name": "Antigravity",
       "latest": {
-        "version": "1.2.14",
+        "version": "1.2.16",
         "raw": {
-          "version": "1.2.14",
-          "period": "2026-09-30",
+          "version": "1.2.16",
+          "period": "2026-10-03",
           "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-          "fetched_at": "2026-09-30",
+          "fetched_at": "2026-10-03",
           "entries": [
-            "Added the `Queued Messages` option to `/config`: keep the default `Queue` to hold follow-up messages until the current turn ends, or choose `Send Immediately` to interrupt the agent with them; it can also be set with `\"queuedMessages\": \"send-immediately\"` in `settings.json`, which was previously ignored",
-            "Improved `remote-control start` on Linux machines without a systemd user service manager, such as most containers: instead of failing, it now starts the daemon as a background process and warns that it will not restart after a crash or start at boot; `remote-control status` shows its PID and `remote-control stop` shuts it down",
-            "Improved loading long conversations: resuming a conversation with thousands of steps is noticeably faster because the CLI no longer scans every step up front",
-            "Improved automatically generated conversation titles to take images and files attached to your first message into account, so screenshot- or file-driven requests get specific titles and messages with only attachments get a title too",
-            "Improved the sign-in error shown to accounts blocked for a Terms of Service violation, which now includes a link to submit an appeal",
-            "Changed `--json-schema` to reject plain text, bare type names such as `string`, and missing schema files instead of silently treating them as a string schema; these inputs, and any schema whose root is not `\"type\": \"object\"`, now fail at startup with an error and exit code `1`",
-            "Fixed the prompt cursor drifting away from the end of the text after emoji such as ⚠️ or 👩‍💻, or scripts with combining marks such as Devanagari and Thai, especially inside `tmux`, and fixed prompt wrapping splitting such characters across two lines",
-            "Fixed the agent hanging when it tried to view a pipe, socket, or device file, and a conversation getting stuck with `INVALID_ARGUMENT` errors after the agent viewed a truncated MP4, MOV, or M4A recording; both are now rejected up front with a clear message",
-            "Fixed resuming a conversation whose history had a missing step, for example after a crash or an interrupted write, hiding the most recent steps and letting new messages overwrite them"
+            "Added `←`/`→` shortcuts to `/config`: on a highlighted setting they switch to the previous or next value and save it right away, without opening the dropdown, and the footer shows a `←/→ Change` hint",
+            "Improved responsiveness in long conversations in no flicker (altscreen) mode: resizing the terminal no longer freezes or lags the CLI, the full-screen view redraws the messages on screen first instead of showing text wrapped for the old width until the whole conversation has re-rendered, and interrupting the agent with `Esc` or resuming a conversation no longer re-renders every step already on screen.",
+            "Improved mouse text selection in the `altscreen` view and in the artifact viewer: dragging past the top or bottom now auto-scrolls, the selection stays on its text while the agent streams or you scroll with the wheel, and copying includes lines that scrolled off screen, without line numbers or comment previews from the artifact viewer",
+            "Improved the always-allow suggestion when approving `go` commands: approving a command such as `go vet` or `go build` now offers to allow that subcommand with any arguments, while `go run`, `go test`, `go generate`, `go install`, and `go tool` still require the exact command",
+            "Improved the `Send Immediately` option for Queued Messages in `/config`: a message you send while earlier messages are still queued now goes to the agent together with them, in order, instead of joining the queue, and a message that fails to send mid-turn goes back to the queue instead of being lost",
+            "Changed how the agent generates images: it now hands image requests to a built-in `image-generator` subagent, which writes the prompt, checks each result with up to three attempts, and saves the images to the conversation's artifacts, so image generation appears as a subagent run in the conversation",
+            "Fixed the agent stalling when a background command it was waiting on crashed or was killed by the system, for example when it ran out of memory; the agent now sees the command finish with its exit code, such as `137` or `134`, and keeps going",
+            "Fixed headless `-p` runs sometimes exiting before the agent could respond to a background command that finished after its first turn",
+            "Fixed `k` in Vim Normal mode recalling the last history entry instead of your queued messages when pressed on the top line, which could send a queued message twice; `k` now pulls queued messages back into the editor like the `Up` arrow does",
+            "Fixed `skills.json`, `rules.json`, and other customization manifests in a parent `.agents/` directory being ignored when a session started in a subdirectory; manifests now load from every `.agents/` directory between the working directory and the project root",
+            "Fixed the `/` menu listing built-in skills that the current agent does not enable, which inserted instructions for tools the agent could not use when selected",
+            "Fixed settings failing to load when `~/.gemini/config/config.json` starts with a UTF-8 byte order mark, as files saved by Notepad or PowerShell `Set-Content` on Windows do",
+            "Fixed slash-command output and alerts where a line exactly as wide as the terminal had its last word pushed to the start of the next line without indentation"
           ]
         },
         "curated": {
-          "version": "1.2.14",
-          "period": "2026-09-30",
+          "version": "1.2.16",
+          "period": "2026-10-03",
           "items": [
             {
               "title": {
-                "zh-TW": "設定選單新增排隊選項，可隨時插話打斷對話",
-                "en": "Settings Menu Adds Queue Option to Interrupt Conversations Anytime"
+                "zh-TW": "設定選單支援左右方向鍵，切換選項立即儲存",
+                "en": "Settings menu supports left and right arrow keys to switch options and save instantly"
               },
               "body": {
-                "zh-TW": "當你看到助理正朝錯誤方向執行長任務時，現在可以直接插話叫停。⟦跟看著助手搬錯箱子時直接出聲喊停一樣，以前只能等他把整批貨搬完才能交代新指令，現在一開口就能立刻打斷他。⟧你可以在 `/config` 選單找到 `Queued Messages` 選項。保持預設的 `Queue` 會把補充訊息暫存到當前輪次結束，切換成 `Send Immediately` 則能立即中斷助理。這項偏好也能直接寫入全域設定檔 `settings.json`，修正了以往寫入該設定卻被系統忽略的問題：\n```json\n{\"queuedMessages\": \"send-immediately\"}\n```",
-                "en": "When you see your assistant heading in the wrong direction during a long task, you can now speak up and stop it directly. ⟦Think of calling out to stop a helper carrying the wrong box: previously you had to wait until the entire shipment was moved to issue new instructions, but now you can interrupt immediately.⟧ You can find the `Queued Messages` option in the `/config` menu. Keeping the default `Queue` buffers follow-up messages until the current turn ends, while switching to `Send Immediately` interrupts the assistant right away. This preference can also be written directly to the global configuration file `settings.json`, fixing an issue where writing this setting previously got ignored by the system:\n```json\n{\"queuedMessages\": \"send-immediately\"}\n```"
+                "zh-TW": "當你想調整工具偏好卻不想在一層層下拉選單裡反覆按確認時，現在有更快的改法。在終端機輸入 `/config` 開啟設定頁面，將游標停在想要修改的項目上，直接按鍵盤的 `←` 或 `→` 鍵，就能立刻切換到上一個或下一個選項數值並直接儲存，不需要再按 Enter 展開下拉清單。畫面最下方的頁尾也會顯示 `←/→ Change` 的提示字樣。⟦像在電視選單按左右鍵切換訊號源或音效模式，不用每次都展開整排下拉選單再按確定，手指一撥設定就立刻生效。⟧",
+                "en": "When you want to adjust tool preferences without repeatedly pressing confirm across dropdown menus, there is now a faster way. Typing `/config` in the terminal opens the settings page. Highlight the setting you want to change and press `←` or `→` on your keyboard to instantly switch to the previous or next value and save immediately, without needing to press Enter to expand the dropdown list. The footer at the very bottom of the screen also displays a `←/→ Change` prompt. ⟦Like toggling input sources or sound modes with the arrow keys on a TV menu, settings apply instantly with a flick of a finger instead of expanding an entire dropdown list and confirming every time.⟧"
               },
-              "original": "Added the `Queued Messages` option to `/config`: keep the default `Queue` to hold follow-up messages until the current turn ends, or choose `Send Immediately` to interrupt the agent with them; it can also be set with `\"queuedMessages\": \"send-immediately\"` in `settings.json`, which was previously ignored"
+              "original": "Added `←`/`→` shortcuts to `/config`: on a highlighted setting they switch to the previous or next value and save it right away, without opening the dropdown, and the footer shows a `←/→ Change` hint"
             },
             {
               "title": {
-                "zh-TW": "Linux 容器環境支援遠端控制，沒有 systemd 使用者服務管理員也能背景啟動",
-                "en": "Remote Control Now Supported in Linux Containers, Starting in Background Without systemd User Service Manager"
+                "zh-TW": "全螢幕對話不再卡頓，滑鼠選取與重繪更流暢",
+                "en": "Fullscreen chats no longer freeze, with smoother mouse selection and repainting"
               },
               "body": {
-                "zh-TW": "當你在輕量 Docker 環境裡想要連線操作時，過去常因底層缺少自動託管機制而直接碰壁卡關。⟦彷彿在沒有自動排班系統的小型倉庫裡改由工人手動輪值，雖然當機時不會自動重啟、開機也不會自動執行，但依然能把手邊的工作順利跑起來。⟧在沒有 systemd 使用者服務管理員（替個人帳號管理背景服務的程式）的 Linux 機器上執行 `remote-control start` 時，現在會直接將常駐程式以背景行程啟動，並警告該行程當機後不會自動重啟且開機時不會自動載入。你隨時能輸入 `remote-control status` 查詢其行程識別碼（PID），需要結束時輸入 `remote-control stop` 即可將其關閉。",
-                "en": "When you want to connect and operate inside a lightweight Docker environment, you previously hit a wall because the underlying system lacked an automated hosting mechanism. ⟦Picture running a small warehouse without an automated scheduling system by having workers take manual shifts: although it will not automatically restart on crashes or launch on boot, it still keeps your current work running smoothly.⟧ When running `remote-control start` on Linux machines without a systemd user service manager (a program that manages background services for a user account), the daemon now starts directly as a background process, warning that the process will not restart on crash or launch on boot. You can enter `remote-control status` anytime to check its process ID (PID), and enter `remote-control stop` whenever you need to shut it down."
+                "zh-TW": "當你在長對話中調整終端機視窗大小或用滑鼠選取文字時，畫面反應現在更加敏捷。在無閃爍的 `altscreen`（終端機全螢幕顯示模式）與產出物檢視器中，拉動視窗不會再讓介面卡死，系統會優先重繪目前畫面上的訊息，不再卡在舊寬度等待整段對話重繪完畢。按 `Esc` 中斷代理人或恢復對話時，也不會把螢幕上的所有步驟全部重新繪製一次。使用滑鼠拖曳反白超過頂端或底端時會自動捲動，滾動滾輪或在代理人串流輸出時選取範圍都不會跑位。複製文字還能完整包含捲出畫面的行數，並自動濾除產出物檢視器中的行號與註解預覽。⟦彷彿閱讀排版精美的長卷軸電子書，拉大視窗時眼前文字立刻依新寬度排好，反白選取整段內容往下拉也能順暢捲動，複製時更不會把旁邊的頁碼與輔助備忘一起剪進去。⟧",
+                "en": "When you resize terminal windows or select text with a mouse during long chats, the display responds much more quickly. In the flicker-free `altscreen` (terminal fullscreen display mode) and artifact viewer, dragging the window will no longer freeze the interface. The system prioritizes repainting the messages currently on screen instead of getting stuck at the old width waiting for the entire conversation to finish repainting. Pressing `Esc` to interrupt the agent or resume the conversation also avoids repainting all steps on screen from scratch. Dragging to highlight past the top or bottom with the mouse now auto-scrolls, and scrolling the mouse wheel or selecting text while the agent streams output will not cause selections to drift. Copying text also captures lines scrolled off screen and automatically strips line numbers and annotation previews in the artifact viewer. ⟦Picture reading a beautifully formatted long-scroll e-book: resizing the window instantly wraps the text before you to the new width, dragging the selection downward scrolls smoothly, and copying omits side page numbers and helper notes.⟧"
               },
-              "original": "Improved `remote-control start` on Linux machines without a systemd user service manager, such as most containers: instead of failing, it now starts the daemon as a background process and warns that it will not restart after a crash or start at boot; `remote-control status` shows its PID and `remote-control stop` shuts it down"
+              "original": "Improved responsiveness in long conversations in no flicker (altscreen) mode: resizing the terminal no longer freezes or lags the CLI, the full-screen view redraws the messages on screen first instead of showing text wrapped for the old width until the whole conversation has re-rendered, and interrupting the agent with `Esc` or resuming a conversation no longer re-renders every step already on screen.\nImproved mouse text selection in the `altscreen` view and in the artifact viewer: dragging past the top or bottom now auto-scrolls, the selection stays on its text while the agent streams or you scroll with the wheel, and copying includes lines that scrolled off screen, without line numbers or comment previews from the artifact viewer"
             },
             {
               "title": {
-                "zh-TW": "長對話載入更快，缺步歷程不再覆寫舊進度",
-                "en": "Long Conversations Load Faster, and Histories with Missing Steps No Longer Overwrite Old Progress"
+                "zh-TW": "Go 指令授權更省事，編譯與檢查可永久放行",
+                "en": "Simpler Go command approvals allow permanent authorization for builds and checks"
               },
               "body": {
-                "zh-TW": "當你接續聊了很久的繁重工作階段，或是中途遇上當機想接回紀錄時，整個流程順暢且安心許多。⟦如同翻開厚重日記時直接跳到最新的書籤頁，不必每次都從第一頁逐字掃描，就算中間曾掉了一頁，後續記錄也絕不會錯位覆蓋。⟧重啟擁有數千步驟的對話時，命令列介面不再預先逐步掃描，載入速度明顯加快。歷程若曾因當機或寫入中斷而出現遺漏步驟，恢復時不會再隱藏最新內容，更不會讓新訊息意外覆寫舊紀錄。自動產生的對話標題現在也會將首則訊息附加的圖片與檔案納入考量，純傳截圖或檔案的請求也能擁有具體的標題。",
-                "en": "When you resume a heavy, long-running session or reconnect to your history after a crash, the entire workflow is noticeably smoother and safer. ⟦A reader opening a thick journal jumps straight to the newest bookmarked page without scanning word-by-word from the start, ensuring later entries never misalign or overwrite old notes even if a page went missing.⟧ When restarting conversations with thousands of steps, the command-line interface no longer pre-scans step-by-step, significantly speeding up load times. If history was missing steps due to crashes or interrupted writes, resuming will no longer hide the latest content, nor will new messages accidentally overwrite old records. Auto-generated conversation titles now also factor in images and files attached to the first message, giving concrete titles to requests that only include screenshots or files."
+                "zh-TW": "當你頻繁讓代理人編譯或檢查 Go 專案程式碼時，授權流程變得更加省心。批准 `go vet` 或 `go build` 等安全指令時，系統現在會提供直接放行該子指令（主指令底下負責特定功能的附屬指令）所有後續參數的選項，日後帶不同參數都不必再次手動按確認。但針對會執行或安裝程式碼的 `go run`、`go test`、`go generate`、`go install` 與 `go tool`，這些子指令仍須以完整指令為放行範圍。⟦跟廚房領用食材一樣，拿取安全調味料只要登記一次就能自由取用不同份量，但遇到動用瓦斯爐或刀具等高風險操作，放行時仍須寫明完整操作內容。⟧",
+                "en": "When you frequently have the agent compile or check Go project code, the authorization process is much easier. When approving safe commands like `go vet` or `go build`, the system now provides an option to allow all future arguments for that subcommand, so passing different arguments later will not require manual confirmation again. However, for subcommands that execute or install code—such as `go run`, `go test`, `go generate`, `go install`, and `go tool`—approvals must still cover the exact full command. ⟦Much like requisitioning ingredients in a kitchen, signing out safe seasonings once allows you to freely take different quantities later, whereas high-risk tasks like using the stove or knives still require explicit approval for each full action.⟧"
               },
-              "original": "Improved loading long conversations: resuming a conversation with thousands of steps is noticeably faster because the CLI no longer scans every step up front\nImproved automatically generated conversation titles to take images and files attached to your first message into account, so screenshot- or file-driven requests get specific titles and messages with only attachments get a title too\nFixed resuming a conversation whose history had a missing step, for example after a crash or an interrupted write, hiding the most recent steps and letting new messages overwrite them"
+              "original": "Improved the always-allow suggestion when approving `go` commands: approving a command such as `go vet` or `go build` now offers to allow that subcommand with any arguments, while `go run`, `go test`, `go generate`, `go install`, and `go tool` still require the exact command"
             },
             {
               "title": {
-                "zh-TW": "帳號違規遭封鎖時，登入錯誤提示附上申訴連結",
-                "en": "Login Error Prompts Include Appeal Links When Accounts Are Blocked for Violations"
+                "zh-TW": "排隊訊息支援合併即時送出，Vim 快捷鍵不再誤送",
+                "en": "Queued messages support merged immediate delivery, fixing Vim shortcut mishandling"
               },
               "body": {
-                "zh-TW": "早上一開工卻被擋在門外，畫面上只寫著因違反服務條款（Terms of Service）遭到停權，常讓人不知道該去哪裡詢問。以前遇到帳號受阻只能看見失敗提示，摸不清該找誰處理；現在登入失敗的錯誤訊息裡會直接附上申訴連結，讓你能立刻點擊網址提交說明。⟦就像門禁卡突然失效時，感應機不再只發出逼逼警告聲，而是直接在螢幕上顯示管理室的服務電話與分機。⟧",
-                "en": "Starting your morning only to find yourself locked out, with a screen stating your account has been suspended for violating the Terms of Service, often leaves you wondering where to turn. Previously, encountering a blocked account only showed a generic failure message with no clear contact point; now, login failure error messages directly include an appeal link, letting you click the URL immediately to submit an explanation. ⟦Instead of merely beeping when an access card fails, a card reader now displays the management office phone number and extension directly on its screen.⟧"
+                "zh-TW": "當你在代理人忙碌時連續輸入多條指令，訊息的排隊與召回機制現在更為可靠。在 `/config` 設定中開啟排隊訊息的 `Send Immediately`（立即發送）時，若前面已有訊息在排隊，新送出的內容會依照先後順序連同排隊訊息一起交給代理人，不再單獨落後排隊。若訊息在回合中途發送失敗，也會自動退回佇列（排隊等候處理的清單）而不會憑空遺失。在 Vim 常規模式的最頂行按下 `k` 鍵時，現在會如同向上方向鍵一樣將排隊訊息抽回編輯區，修復了以前誤抓歷史紀錄導致排隊訊息重複送出的問題。⟦宛若在郵局櫃台寄信，臨時追加的急件能直接併入當前的包裹一起秤重寄出，如果櫃台忙碌沒收下也會退回你手上，不必重新排隊重填一張單據。⟧",
+                "en": "When you enter multiple commands while the agent is busy, message queuing and recall are now more reliable. When enabling `Send Immediately` in `/config`, if messages are already queued, newly submitted input is delivered to the agent in order along with the existing queued messages rather than falling behind in a separate queue. If message delivery fails mid-turn, the message automatically returns to the queue instead of vanishing. Pressing `k` on the top line in Vim normal mode now pulls queued messages back into the editor like the Up arrow key, fixing an issue where pulling history mistakenly caused duplicate submissions of queued messages. ⟦Think of mailing items at a post office counter: an urgent addition merges directly into your current parcel to be weighed and shipped together, and if the counter fails to process it, it is returned directly to your hands without waiting in line to fill out a new slip.⟧"
               },
-              "original": "Improved the sign-in error shown to accounts blocked for a Terms of Service violation, which now includes a link to submit an appeal"
+              "original": "Improved the `Send Immediately` option for Queued Messages in `/config`: a message you send while earlier messages are still queued now goes to the agent together with them, in order, instead of joining the queue, and a message that fails to send mid-turn goes back to the queue instead of being lost\nFixed `k` in Vim Normal mode recalling the last history entry instead of your queued messages when pressed on the top line, which could send a queued message twice; `k` now pulls queued messages back into the editor like the `Up` arrow does"
             },
             {
               "title": {
-                "zh-TW": "`--json-schema` 啟動時嚴格檢查，根層級非物件立即報錯",
-                "en": "`--json-schema` Strictly Validated at Startup, Failing Immediately If Root Level Is Not an Object"
+                "zh-TW": "圖片生成改由專屬子代理負責，自動重試並存入產出物",
+                "en": "Image generation moves to a dedicated subagent with automatic retries and artifact saving"
               },
               "body": {
-                "zh-TW": "當你為指令傳入結構描述時，若格式有誤或檔案遺失，系統在啟動階段就會立即攔截。⟦好比海關在登機門前嚴格核對護照格式，發現拿的是白紙、寫錯代碼或缺件就當場拒絕通行，而不是放行登機後才引發混亂。⟧參數 `--json-schema` 不再將純文字、單獨型態名稱（如 `string`）或不存在的結構描述檔默默當成字串型態處理。現在只要輸入上述無效內容，或是根層級不是物件（`\"type\": \"object\"`）的結構描述，程式在啟動時就會直接輸出錯誤訊息並以結束代碼 `1` 中斷退出。",
-                "en": "When you pass a schema to a command, the system now intercepts formatting errors or missing files right at startup. ⟦Customs officers strictly check passport formats at the boarding gate, turning away blank paper, mistyped codes, or missing documents on the spot rather than causing chaos after boarding.⟧ The `--json-schema` parameter no longer silently treats plain text, bare type names (such as `string`), or non-existent schema files as string types. Supplying any of these invalid inputs, or a schema whose root level is not an object (`\"type\": \"object\"`), now causes the program to output an error message at startup and exit immediately with exit code `1`."
+                "zh-TW": "當你請代理人繪製插圖或設計素材時，產圖的工作流程變得更有條理。主代理人現在會將生圖需求轉交給內建的 `image-generator` 子代理（在背景協助處理特定專門任務的輔助助理）。它會負責撰寫提示詞（引導 AI 生成具體內容的描述句）、檢查每次產生的圖片，且最多會自動嘗試三次直到成功，最後將完成的圖片儲存至對話的產出物中。整個產圖過程也會在對話紀錄中明確呈現為獨立的子代理執行階段。⟦猶如把設計海報的工作交給專門的美編助理，他會自己琢磨提示詞並反覆微調，最多嘗試三次，最後把滿意的圖檔規矩收進專案資料夾，不再需要總指導親自逐筆摸索。⟧",
+                "en": "When you ask the agent to draw illustrations or design assets, the image generation workflow is now better organized. The primary agent delegates image creation to the built-in `image-generator` subagent. It handles prompt writing, inspects each generated image, and makes up to three attempts automatically until successful before saving the completed images to the conversation artifacts. The entire generation process is clearly recorded in the conversation transcript as an independent subagent execution stage. ⟦A design lead delegates poster design to a dedicated graphic assistant, who crafts prompts, iterates up to three times, and files the finished image into the project folder without requiring the lead to tweak every detail manually.⟧"
               },
-              "original": "Changed `--json-schema` to reject plain text, bare type names such as `string`, and missing schema files instead of silently treating them as a string schema; these inputs, and any schema whose root is not `\"type\": \"object\"`, now fail at startup with an error and exit code `1`"
+              "original": "Changed how the agent generates images: it now hands image requests to a built-in `image-generator` subagent, which writes the prompt, checks each result with up to three attempts, and saves the images to the conversation's artifacts, so image generation appears as a subagent run in the conversation"
             },
             {
               "title": {
-                "zh-TW": "輸入提示不再游標偏離，表情符號與特殊文字換行不割裂",
-                "en": "Prompt Input Eliminates Cursor Drift, Keeping Emojis and Complex Characters Intact Across Line Wraps"
+                "zh-TW": "背景指令中斷不再卡死，無頭模式精確等待結果",
+                "en": "Interrupted background commands no longer hang, with accurate waiting in headless mode"
               },
               "body": {
-                "zh-TW": "在終端機輸入特殊字元或在多重視窗中作業時，游標位置與文字折行現在能精準對齊。⟦就像使用排版工具編輯圖文，以前遇到複雜貼圖或組合文字時游標會飄到半空中、換行還會把圖案切成兩半，現在游標與字元邊界都緊緊貼合。⟧修復了在提示列輸入 ⚠️ 或 👩‍💻 等表情符號，以及天城文（Devanagari）與泰文等組合字元時游標尾端偏離的問題，特別是在 `tmux` 環境下更是如此。當文字過長自動折行時，也不會再將這類特殊字元拆散切成兩行顯示。",
-                "en": "When entering special characters in the terminal or working across multiplexed windows, cursor positioning and text wrapping now align precisely. ⟦Like laying out text and graphics in a publishing tool where complex stickers previously floated the cursor into mid-air and line breaks sliced graphics in half, the cursor and character boundaries now fit tightly together.⟧ Fixed trailing cursor drift when entering emojis such as ⚠️ or 👩‍💻, as well as combining characters like Devanagari and Thai in the prompt line, especially inside `tmux` environments. When long text wraps automatically, it will also no longer split these special characters across two lines."
+                "zh-TW": "當代理人在背景執行的耗時指令遭遇系統強制中止或記憶體不足時，處理流程不再停滯。以前代理人等待背景指令時，若指令當機或因記憶體耗盡遭系統終止，代理人會卡在原地等待。現在系統能正確辨識如 `137` 或 `134` 等結束代碼（程式執行完畢後回傳給系統的狀態數字）並繼續後續工作。在以無頭模式（沒有終端機視窗或視覺介面的執行模式）使用 `-p` 參數執行時，也修復了背景指令於第一回合後完成時代理人尚未回應程式就提前結束的問題。⟦就如外送平台派單給外勤騎士，就算路上機車拋錨或意外中斷，系統收到騎士回傳的異常代碼後也能立刻轉派或繼續流程，不會傻等在原地直到整家店打烊。⟧",
+                "en": "When long-running background commands executed by the agent are terminated by the system or run out of memory, execution no longer stalls. Previously, if a background command crashed or was killed by the system due to out-of-memory errors, the agent remained stuck waiting. The system now correctly recognizes exit codes like `137` or `134` and proceeds with subsequent tasks. When running in headless mode with the `-p` flag, it also fixes an issue where the process exited prematurely if a background command finished after the first turn before the agent responded. ⟦A delivery platform dispatches orders to couriers: if a scooter breaks down along the route, the system receives the abnormal status code and immediately reroutes or proceeds, rather than waiting idly until the store closes.⟧"
               },
-              "original": "Fixed the prompt cursor drifting away from the end of the text after emoji such as ⚠️ or 👩‍💻, or scripts with combining marks such as Devanagari and Thai, especially inside `tmux`, and fixed prompt wrapping splitting such characters across two lines"
+              "original": "Fixed the agent stalling when a background command it was waiting on crashed or was killed by the system, for example when it ran out of memory; the agent now sees the command finish with its exit code, such as `137` or `134`, and keeps going\nFixed headless `-p` runs sometimes exiting before the agent could respond to a background command that finished after its first turn"
             },
             {
               "title": {
-                "zh-TW": "檢視管線裝置與損毀影音不再卡死，事前攔截並清楚提示",
-                "en": "Inspecting Pipe Devices and Corrupted Media No Longer Hangs, Intercepting Early with Clear Prompts"
+                "zh-TW": "子目錄可正常載入上層技能，斜線選單不再列出停用工具",
+                "en": "Subdirectories properly load parent skills, and slash menus omit disabled tools"
               },
               "body": {
-                "zh-TW": "當助理嘗試讀取特殊系統檔案或不完整的影音錄影時，對話不會再陷入無止境的等待或報錯。⟦宛如播放器遇到未下載完成的影片或特殊資料通道時直接提示檔案損毀，而不是整台機器當機轉圈圈。⟧以前助理若嘗試檢視管線（pipe）、通訊端或裝置檔等特殊檔案，流程很容易直接卡死。檢視未錄製完整的 MP4、MOV 或 M4A 影音檔時，對話也會陷入無效引數（`INVALID_ARGUMENT`）錯誤而無法繼續。現在遇到這兩類檔案時，系統會在讀取前直接攔截並給出明確的提示訊息。",
-                "en": "When the assistant attempts to read special system files or incomplete audiovisual recordings, conversations no longer get trapped in endless waiting or error states. ⟦A media player encountering an incomplete video download or a special data stream alerts you to file corruption directly instead of freezing the entire machine with a spinning wheel.⟧ Previously, if the assistant tried to inspect special files such as pipes, sockets, or device files, the process easily hung completely. Inspecting incompletely recorded MP4, MOV, or M4A media files also threw `INVALID_ARGUMENT` errors that blocked the conversation from continuing. When encountering either type of file, the system now intercepts before reading and provides a clear prompt."
+                "zh-TW": "當你在專案深層的子資料夾開啟工作階段時，專案層級的自訂擴充現在能完整生效。以前若從子目錄啟動工作階段（使用者與 AI 進行的一連串連續互動對話），上層目錄 `.agents/` 裡的 `skills.json` 與 `rules.json` 等自訂清單會被忽略。現在系統會從目前工作目錄一路向上至專案根目錄，完整載入各層級的設定檔。輸入 `/` 開啟的選單也修復了會列出當前代理人未啟用的內建技能之問題，避免選取後注入代理人無法使用的工具指令。⟦如同翻閱總公司與各分部的工作手冊，在分店工作也能一路向上查找總部規章，且目錄索引裡只會列出當前分店真正具備的工具清單。⟧",
+                "en": "When you launch a session from deep within a project subdirectory, project-level customizations now take full effect. Previously, starting a session from a subdirectory ignored custom definitions like `skills.json` and `rules.json` in parent `.agents/` folders. The system now traverses upward from the current working directory to the project root, loading configuration files across all levels. The menu opened by typing `/` also fixes an issue where it listed built-in skills disabled for the current agent, preventing selection from injecting instructions for tools the agent cannot use. ⟦Consulting employee handbooks across headquarters and branches: working at a branch lets you look up company-wide policies upward, while the table of contents only lists tools actually available at that location.⟧"
               },
-              "original": "Fixed the agent hanging when it tried to view a pipe, socket, or device file, and a conversation getting stuck with `INVALID_ARGUMENT` errors after the agent viewed a truncated MP4, MOV, or M4A recording; both are now rejected up front with a clear message"
+              "original": "Fixed `skills.json`, `rules.json`, and other customization manifests in a parent `.agents/` directory being ignored when a session started in a subdirectory; manifests now load from every `.agents/` directory between the working directory and the project root\nFixed the `/` menu listing built-in skills that the current agent does not enable, which inserted instructions for tools the agent could not use when selected"
+            },
+            {
+              "title": {
+                "zh-TW": "支援含 UTF-8 簽章的設定檔，Windows 儲存不再報錯",
+                "en": "Configuration files with UTF-8 BOM now supported without Windows saving errors"
+              },
+              "body": {
+                "zh-TW": "在 Windows 環境下使用記事本或 PowerShell 的 `Set-Content` 編輯設定檔時，檔案開頭常會自動加入 UTF-8 位元組順序記號（標記檔案文字編碼的隱藏字元）。以前這會導致 `~/.gemini/config/config.json` 無法正常載入設定，現在這個問題已經修好，能順暢讀取各類編輯器儲存的設定檔。",
+                "en": "When editing configuration files on Windows using Notepad or PowerShell's `Set-Content`, editors often prepend a UTF-8 byte order mark (a hidden character indicating text encoding). Previously, this prevented `~/.gemini/config/config.json` from loading settings properly. This issue has now been resolved, ensuring smooth parsing across various editors."
+              },
+              "original": "Fixed settings failing to load when `~/.gemini/config/config.json` starts with a UTF-8 byte order mark, as files saved by Notepad or PowerShell `Set-Content` on Windows do"
+            },
+            {
+              "title": {
+                "zh-TW": "修復終端機剛好滿行時的文字折行與縮排異常",
+                "en": "Fixed word wrapping and indentation glitches when terminal lines are exactly full"
+              },
+              "body": {
+                "zh-TW": "當斜線指令的輸出或系統警示訊息剛好與終端機視窗等寬時，以前最後一個單字會被直接擠到下一行開頭且失去縮排，破壞閱讀版面。現在版面排版邏輯已經修正，即便字元長度剛好貼齊邊界也能保持整齊換行與原有縮排。",
+                "en": "When slash command output or system warnings match the exact width of the terminal window, the final word previously wrapped to the start of the next line while losing indentation and disrupting the layout. The rendering logic is now fixed, maintaining clean wrapping and consistent indentation even when text reaches the exact window boundary."
+              },
+              "original": "Fixed slash-command output and alerts where a line exactly as wide as the terminal had its last word pushed to the start of the next line without indentation"
             }
           ]
         }
