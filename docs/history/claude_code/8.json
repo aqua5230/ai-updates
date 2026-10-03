@@ -5,6 +5,80 @@
   "pages": 9,
   "versions": [
     {
+      "version": "2.1.199",
+      "raw": {
+        "version": "2.1.199",
+        "period": "2026-07-02",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Stacked slash-skill invocations like `/skill-a /skill-b do XYZ` now load all leading skills (up to 5), not just the first",
+          "Fixed SSL certificate errors (TLS-inspecting proxies, missing `NODE_EXTRA_CA_CERTS`, expired certs) burning retries before showing actionable guidance — they now fail immediately with the fix hint",
+          "Fixed streaming responses being discarded when the API emits a mid-stream overloaded/server error after partial output — the partial is now kept with an incomplete-response notice",
+          "Fixed subagents cut off by a rate limit or server error silently failing instead of returning their partial work to the parent",
+          "Fixed subagents reporting API errors (e.g. usage limit reached) as successful results — the error is now reported to the parent agent",
+          "Fixed the background-agent daemon on Linux killing itself and every running agent every ~50 seconds after an unclean shutdown left a corrupted worker record",
+          "Fixed background agents failing to cold-start over SSH on macOS with \"Could not switch to audit session\" (regression in 2.1.196)",
+          "Fixed `claude stop` being silently undone when it raced a background-agent respawn — the respawn now honors the stop",
+          "Fixed background job progress indicators stalling for minutes while the job ran long commands",
+          "Fixed background sessions on memory-starved machines showing a generic error — they now indicate low memory and suggest freeing resources",
+          "Fixed remote sessions briefly flapping between Working and Idle in the agent view when a background agent completes",
+          "Fixed idle subagents vanishing from the agent panel while other subagents were still working; surplus idle agents now collapse into an expandable summary row",
+          "Fixed typing `/model` or `/fast` while viewing a subagent silently opening the lead's model picker — a notice now explains the command applies to the lead",
+          "Fixed `SessionStart`, `Setup`, and `SubagentStart` hooks silently hiding stderr when exiting with code 2 — the error is now shown in the transcript",
+          "Fixed `claude --dangerously-skip-permissions daemon <subcommand>` being treated as a chat prompt instead of running the subcommand",
+          "Fixed `SendMessage` silently misrouting when a re-spawned agent reuses a previous agent's name — the tool now detects the mismatch and asks the caller to retarget",
+          "Fixed opening or resuming a session with no new messages needlessly growing the transcript file",
+          "Fixed backgrounding a session with `←` or `/background` dropping its `/color` from the agent view row",
+          "Fixed resetting a corrupted config file from the startup recovery dialog destroying it unrecoverably — it now backs up the file first",
+          "Fixed Claude in Chrome repeatedly opening the reconnect page when sessions run from different builds or config directories",
+          "Fixed plan mode not prompting for state-changing browser tool calls; read-only `browser_batch` calls are now correctly auto-allowed",
+          "Transient server rate-limit errors (429s unrelated to your usage limit) are now retried automatically with backoff for subscribers instead of failing the turn",
+          "`CLAUDE_CODE_RETRY_WATCHDOG` now raises the default retry count for non-capacity transient errors to 300 and lifts the cap of 15 on `CLAUDE_CODE_MAX_RETRIES`",
+          "`claude agents` session rows now show pull-request links as bare `#N` without the redundant \"PR\" label"
+        ]
+      },
+      "curated": {
+        "version": "2.1.199",
+        "period": "2026-07-02",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "網路不穩或被限流不再直接死機，自動重試且保留進度",
+              "en": "Network hiccups and rate limits no longer kill tasks; retries and partial progress kept"
+            },
+            "body": {
+              "zh-TW": "當 API 伺服器超載或你的網路稍微不穩時，現在系統變得更有彈性了。以前如果 Claude 話講到一半伺服器出錯，已經講出來的字會全部不見，現在它會幫你保留下來並標記「尚未講完」；如果是被暫時性的限流（rate limit，防止瞬間請求過多的機制）擋下，系統現在會自動幫你稍後重試，不會直接判你失敗，且重試次數上限也大幅放寬。如果子任務（subagent）被中斷，它不再會騙你「任務成功」，而是會老實回報錯誤，或者把做了一半的半成品交接給主管。遇到 SSL 憑證這種根本無法連線的錯誤，它也會直接教你怎麼修，不會傻傻重試到天荒地老。這就像打越洋電話，以前只要雜音一來就直接斷線，而且聊一半的內容都不算數，現在它不但會保留剛才聽懂的話，還會自動幫你重新撥號。",
+              "en": "The system is now much more resilient against overloaded API servers or minor network blips. Previously, if the server errored out mid-sentence, everything Claude had already streamed would vanish; now it saves that partial output with an \"incomplete\" notice. If you get temporarily blocked by a rate limit (a mechanism preventing too many rapid requests), the system will automatically retry with a delay instead of instantly failing your turn, and the retry cap has been significantly raised. If a subagent is cut off, it no longer lies about \"success\" but honestly reports the error or hands its partial work back to the parent agent. For hard connection errors like SSL certificate issues, it won't pointlessly burn through retries but will fail immediately and tell you exactly how to fix it. It's like a long-distance phone call: a burst of static used to drop the call and erase everything you just said; now it remembers what it heard and automatically redials for you."
+            },
+            "original": "Fixed SSL certificate errors (TLS-inspecting proxies, missing `NODE_EXTRA_CA_CERTS`, expired certs) burning retries before showing actionable guidance — they now fail immediately with the fix hint\nFixed streaming responses being discarded when the API emits a mid-stream overloaded/server error after partial output — the partial is now kept with an incomplete-response notice\nFixed subagents cut off by a rate limit or server error silently failing instead of returning their partial work to the parent\nFixed subagents reporting API errors (e.g. usage limit reached) as successful results — the error is now reported to the parent agent\nTransient server rate-limit errors (429s unrelated to your usage limit) are now retried automatically with backoff for subscribers instead of failing the turn\n`CLAUDE_CODE_RETRY_WATCHDOG` now raises the default retry count for non-capacity transient errors to 300 and lifts the cap of 15 on `CLAUDE_CODE_MAX_RETRIES`"
+          },
+          {
+            "title": {
+              "zh-TW": "背景代理與連線大掃除，不再無限重啟或無故罷工",
+              "en": "Background agents and connections debugged: No more infinite loops or offline errors"
+            },
+            "body": {
+              "zh-TW": "背景運作的任務現在變得更強韌了。以前在 Linux 上如果沒正常關機，留下來的壞紀錄會導致系統每 50 秒就自殺一次，並砍掉所有正在跑的任務；在 Mac 上用 SSH 遠端連線時也常發生無法開機的狀況；或是當你下令叫任務停下來時，系統卻又手賤自動把它重開——這些詭異的現象都修好了。如果你電腦記憶體不夠，任務不會再丟出一句看不懂的錯誤代碼，而是會明確叫你「釋放記憶體」。在不同資料夾開 Claude 時，Chrome 的外掛也不會再瘋狂跳出重新連線的網頁了。這就像一間公司的打卡系統，以前只要前一天不小心沒打卡下班，隔天整間公司就會每分鐘自動跳電一次，現在它終於修好，大家可以安穩上班了。",
+              "en": "Background tasks are now vastly more robust. Previously on Linux, if the system shut down uncleanly, corrupted leftover records would cause the background program to commit suicide every 50 seconds, taking all running tasks down with it. On Macs, background agents frequently failed to start over an SSH connection, and if you explicitly told a task to stop, the system would sometimes stubbornly auto-restart it right back up. These bizarre behaviors are now fixed. If your computer is starved for memory, tasks won't spit out a cryptic error anymore; they'll explicitly tell you to free up resources. Also, running Claude in different folders will no longer cause the Chrome extension to spam you with reconnect pages. It's like a company's timeclock system that used to trigger a building-wide blackout every minute if someone forgot to punch out yesterday; it's finally fixed, and everyone can work in peace."
+            },
+            "original": "Fixed the background-agent daemon on Linux killing itself and every running agent every ~50 seconds after an unclean shutdown left a corrupted worker record\nFixed background agents failing to cold-start over SSH on macOS with \"Could not switch to audit session\" (regression in 2.1.196)\nFixed `claude stop` being silently undone when it raced a background-agent respawn — the respawn now honors the stop\nFixed background job progress indicators stalling for minutes while the job ran long commands\nFixed background sessions on memory-starved machines showing a generic error — they now indicate low memory and suggest freeing resources\nFixed Claude in Chrome repeatedly opening the reconnect page when sessions run from different builds or config directories"
+          },
+          {
+            "title": {
+              "zh-TW": "介面與防呆優化：技能可連發，不會把對話紀錄塞爆",
+              "en": "UI and operation foolproof: Stacked skills, no bloated transcripts"
+            },
+            "body": {
+              "zh-TW": "你可一次載入最多五個斜線技能，且空開對話不再把紀錄檔越撐越大。現在你可以一次呼叫多個斜線技能（像 `/skill-a /skill-b 幫我做某事`），它會乖乖把前五個技能都載入，不會只讀第一個。看代理清單時，如果子代理沒事做，它們會乖乖收成一行，不會直接消失讓你想找也找不到；當你在看子代理的畫面時，如果不小心打了切換模型的指令，它會提醒你這只對主代理有效，不會偷偷幫別人換模型。遇到設定檔壞掉要重設時，它也學會先幫你備份，不會直接把你過去的設定刪光光了。這就像你去點餐，以前一口氣點兩杯不同的飲料店員只會做第一杯，現在他能一口氣記住你的要求，而且結帳時不會因為你沒買新東西就多印一張空白發票給你。",
+              "en": "You can now load up to five slash skills at once, and opening empty sessions no longer bloats your transcript file. You can now stack multiple slash skills in one breath (like `/skill-a /skill-b do XYZ`) and it will properly load up to the first five, instead of stubbornly ignoring everything after the first. In the agent list, idle subagents now neatly collapse into a summary row instead of vanishing completely out of sight. If you accidentally type a model-switching command while looking at a subagent, it now warns you that this only applies to the main lead agent, rather than silently making unwanted changes. If your configuration file gets corrupted and needs resetting, the system now safely backs it up first instead of mercilessly wiping your old settings. It's like ordering at a cafe: the barista used to only make the first drink if you ordered two at once, but now remembers your whole order, and the register won't print a long blank receipt if you didn't end up buying anything."
+            },
+            "original": "Stacked slash-skill invocations like `/skill-a /skill-b do XYZ` now load all leading skills (up to 5), not just the first\nFixed remote sessions briefly flapping between Working and Idle in the agent view when a background agent completes\nFixed idle subagents vanishing from the agent panel while other subagents were still working; surplus idle agents now collapse into an expandable summary row\nFixed typing `/model` or `/fast` while viewing a subagent silently opening the lead's model picker — a notice now explains the command applies to the lead\nFixed `SessionStart`, `Setup`, and `SubagentStart` hooks silently hiding stderr when exiting with code 2 — the error is now shown in the transcript\nFixed `claude --dangerously-skip-permissions daemon <subcommand>` being treated as a chat prompt instead of running the subcommand\nFixed `SendMessage` silently misrouting when a re-spawned agent reuses a previous agent's name — the tool now detects the mismatch and asks the caller to retarget\nFixed opening or resuming a session with no new messages needlessly growing the transcript file\nFixed backgrounding a session with `←` or `/background` dropping its `/color` from the agent view row\nFixed resetting a corrupted config file from the startup recovery dialog destroying it unrecoverably — it now backs up the file first\nFixed plan mode not prompting for state-changing browser tool calls; read-only `browser_batch` calls are now correctly auto-allowed\n`claude agents` session rows now show pull-request links as bare `#N` without the redundant \"PR\" label"
+          }
+        ]
+      }
+    },
+    {
       "version": "2.1.198",
       "raw": {
         "version": "2.1.198",
@@ -745,73 +819,6 @@
               "en": "When you are waiting for an API response, the hint now says \"Waiting for API response · will retry in …\" instead of declaring that there was no response. It also waits for 20 seconds of silence before appearing, rather than 10. So a brief silence does not produce the hint as quickly, while a genuinely long wait still tells you that a retry is coming. It is like a support agent saying they are checking something instead of immediately claiming the call was lost."
             },
             "original": "The stream-stall hint now reads \"Waiting for API response · will retry in …\" instead of \"No response from API · Retrying in …\", and triggers after 20s of silence instead of 10s"
-          }
-        ]
-      }
-    },
-    {
-      "version": "2.1.183",
-      "raw": {
-        "version": "2.1.183",
-        "period": "2026-06-19",
-        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-        "fetched_at": "2026-07-13",
-        "entries": [
-          "Improved auto mode safety: destructive git commands (`git reset --hard`, `git checkout -- .`, `git clean -fd`, `git stash drop`) are now blocked when you didn't ask to discard local work, `git commit --amend` is blocked when the commit wasn't made by the agent this session, and `terraform destroy`/`pulumi destroy`/`cdk destroy` are blocked unless you asked for the specific stack",
-          "Added a warning when the requested model is deprecated or automatically updated to a newer model, shown on stderr in print mode (`-p`) and now also covering models set in agent frontmatter",
-          "Added `attribution.sessionUrl` setting to omit the claude.ai session link from commits and PRs in web and Remote Control sessions",
-          "Added `/config --help` to list all available shorthand keys for `/config key=value`",
-          "Changed `/config` toggle behavior: Enter and Space both change the selected setting, and Esc now saves and closes instead of reverting",
-          "Removed the startup \"setup issues\" line under the logo — run `/doctor` to see configuration issues or use `--debug`",
-          "Fixed `thinking.disabled.display: Extra inputs are not permitted` 400 errors on subagent spawns and session-title generation for affected configurations",
-          "Fixed WebSearch returning empty results in subagents",
-          "Fixed the terminal cursor being stranded above the prompt after navigating history in vim mode with the native cursor enabled",
-          "Fixed fullscreen TUI corruption (statusline mid-screen, duplicated spinner rows, merged text) in Windows Terminal under heavy nested-subagent load",
-          "Fixed turns silently completing with no visible output when the model returned only a thinking block; Claude now re-prompts once",
-          "Fixed user-level skills appearing multiple times in slash-command autocomplete when multiple plugins are enabled",
-          "Fixed MCP servers requiring authentication exposing auth-stub tools to the model in headless/SDK mode",
-          "Fixed tmux teammate panes failing to launch when the shell has slow rc-file initialization, and keystrokes typed during agent spawn leaking into the new tmux pane instead of the leader prompt",
-          "Fixed background tasks started by a teammate being killed when the teammate finishes a turn",
-          "Fixed scheduled task and webhook trigger deliveries being treated as keyboard input; they now classify as task notifications and can no longer approve a pending action or set the session title in auto mode",
-          "Fixed focus mode showing \"Ran N PostToolUse hooks\" timing lines under each response"
-        ]
-      },
-      "curated": {
-        "version": "2.1.183",
-        "period": "2026-06-19",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "自動模式加裝防護網，攔截破壞性刪除指令",
-              "en": "Auto mode gets safety nets against destructive commands"
-            },
-            "body": {
-              "zh-TW": "Claude 現在不會在你未明講放棄工作內容時執行破壞性的 Git 指令。如果你沒有明確叫它放棄目前的工作進度，系統會主動攔截那些危險的 Git 指令（像是 `git reset --hard`、`git clean -fd` 等會刪掉檔案的操作）；對於 `git commit --amend`，如果不是它自己這次對話做的提交，它也不准修改。如果你用的是 Terraform 或 Pulumi 等基礎設施工具，除非你點名要刪除特定環境，否則系統會嚴格禁止執行 `destroy` 把伺服器砍掉。此外，以前排程任務或 Webhook 收到的訊號會被系統誤當成你的鍵盤輸入，甚至不小心幫 AI 按下「同意」按鈕，現在這個安全漏洞也被補上了。這就像給除草機加裝了安全鎖，除非你明確解鎖並指著那片花圃，否則它絕對不會把珍貴的玫瑰花當成雜草一起絞掉；而且外頭飛進來的鳥也不會再誤觸開關啟動機器了。",
-              "en": "Claude will no longer execute destructive Git commands unless you explicitly ask it to discard your local work. The system will now actively block destructive Git commands (like `git reset --hard` and `git clean -fd` that irreversibly delete files). It also refuses to run `git commit --amend` unless the agent itself made that specific commit during the current session. For infrastructure-as-code tools like Terraform or Pulumi, running a `destroy` command is now strictly forbidden unless you specifically name the target stack. Additionally, scheduled tasks and Webhook triggers used to be incorrectly interpreted as your keyboard inputs, sometimes accidentally 'approving' an AI action on your behalf; this dangerous loophole has been firmly closed. It's like putting a safety guard on a lawnmower: unless you explicitly flip the switch and point at a specific patch of dirt, it absolutely refuses to shred your prized rose bushes, and a stray bird landing on the handle can no longer accidentally start the engine."
-            },
-            "original": "Improved auto mode safety: destructive git commands (`git reset --hard`, `git checkout -- .`, `git clean -fd`, `git stash drop`) are now blocked when you didn't ask to discard local work, `git commit --amend` is blocked when the commit wasn't made by the agent this session, and `terraform destroy`/`pulumi destroy`/`cdk destroy` are blocked unless you asked for the specific stack\nFixed scheduled task and webhook trigger deliveries being treated as keyboard input; they now classify as task notifications and can no longer approve a pending action or set the session title in auto mode"
-          },
-          {
-            "title": {
-              "zh-TW": "代理人團隊更強韌，網路搜尋與輸出不再罷工",
-              "en": "Agent teams are tougher, and search/output glitches are gone"
-            },
-            "body": {
-              "zh-TW": "讓 AI 分工合作的代理人團隊現在更可靠了。以前如果你用 tmux（一種終端機分割工具）開出新隊友，遇到電腦載入太慢就會啟動失敗，甚至你在主畫面打的字會莫名其妙跑到新隊友的視窗去，現在這些互相干擾的問題都解決了。而且，以前隊友交代給子代理人去跑的背景任務，只要隊友一結束回合就會被無情砍掉，現在任務會順利跑完。針對 AI 的搜尋與思考，以前子代理人去查網頁（WebSearch）老是查出空白結果，或是 AI 花了一大堆時間思考（thinking block）卻沒吐出任何實質對話就結束回合，現在會再提示一次模型產生可見輸出。最後，因為設定衝突導致生出子代理人時狂跳 `400 Extra inputs are not permitted` 錯誤的毛病也修好了。這就像是工廠裡的生產線，以前新來的機器人開機太慢會讓產線停擺，交代給實習生的工作也會因為主管下班就被強制丟進垃圾桶；現在大家交接順暢，就算主管下班，實習生也會把手上的工作乖乖做完。",
-              "en": "Team-based AI collaboration just got a lot more dependable. Previously, spawning a teammate in a tmux pane (a terminal multiplexer) could fail if your shell initialization was slow, and keystrokes you typed on the main screen would bizarrely leak into the new teammate's window; these chaotic overlaps are now fixed. Also, if a teammate dispatched a background task to a subagent, that task used to be ruthlessly killed the moment the teammate finished its turn—now it survives to completion. On the cognitive side, subagents using WebSearch no longer return totally blank results, and if the AI spins its wheels generating a \"thinking block\" but fails to produce actual visible output, it won't just silently give up anymore—it will re-prompt the model once to produce visible output. Finally, we squashed the annoying `400 Extra inputs are not permitted` errors that plagued subagent spawns on certain configurations. It's like a busy factory floor: previously, a slow-booting new robot would jam the assembly line, and any chore handed to an intern was immediately thrown in the trash the moment their manager clocked out for the day. Now, handoffs are flawless, and the interns faithfully finish their tasks even after their boss goes home."
-            },
-            "original": "Fixed tmux teammate panes failing to launch when the shell has slow rc-file initialization, and keystrokes typed during agent spawn leaking into the new tmux pane instead of the leader prompt\nFixed background tasks started by a teammate being killed when the teammate finishes a turn\nFixed WebSearch returning empty results in subagents\nFixed turns silently completing with no visible output when the model returned only a thinking block; Claude now re-prompts once\nFixed `thinking.disabled.display: Extra inputs are not permitted` 400 errors on subagent spawns and session-title generation for affected configurations"
-          },
-          {
-            "title": {
-              "zh-TW": "設定與介面大掃除，畫面更乾淨無 Bug",
-              "en": "Settings and UI cleaned up, squash screen-corrupting bugs"
-            },
-            "body": {
-              "zh-TW": "這次的介面變得更清爽順手了。設定面板（`/config`）現在操作更直覺，你可以按 Enter 或空白鍵直接切換開關，按 Esc 也會乖乖存檔關閉，而不是像以前一樣取消還原；想知道有什麼快捷指令，也可以直接打 `/config --help` 查詢。畫面上，我們移除了每次開機都會顯示的「設定問題」警告，現在想檢查問題請直接用 `/doctor` 指令。選到已淘汰或會自動升級的模型時，現在會看到警告。針對各種當機與干擾也做了大掃除：修好了在 Windows 終端機跑大量代理人時整個畫面崩潰混亂的問題、解決了在 vim 模式下游標會卡在輸入框上面的靈異事件、拔掉了專注模式下每句話底下吵死人的 Hooks 執行計時文字，也確保你自己寫的技能不會在清單上像影分身一樣出現好幾次。最後，如果你在無頭環境（headless，沒有螢幕）需要認證 MCP 伺服器，現在也不會再因為系統亂拿假工具給 AI 用而當機了。這就像把雜亂的工作桌重新整理，不該響的警報器拔掉、壞掉的按鈕修好，連會讓螢幕閃爍的舊燈管也一併換新，讓你專心工作不被打擾。",
-              "en": "The interface is now noticeably cleaner and more intuitive. The settings menu (`/config`) makes sense now: you can hit Enter or Space to toggle switches, and pressing Esc actually saves and closes instead of reverting all your changes. You can also run `/config --help` to easily look up shorthand keys. We've scrubbed the constant 'setup issues' nag from the startup logo; if you want a system health check, just run `/doctor`. You'll now get clear warnings if you request a deprecated model or one that automatically updates to a newer version. We also squashed a ton of screen-corrupting bugs: the total UI meltdown (merged text and duplicated spinners) in Windows Terminal under heavy subagent loads is fixed, your cursor won't get stranded above the prompt in vim mode anymore, the noisy 'PostToolUse' timing lines cluttering focus mode are gone, and user-level skills won't infinitely duplicate themselves in your autocomplete list. Finally, headless environments (running without a screen) will no longer crash by exposing fake auth-stub tools to the AI when an MCP server demands authentication. It's like thoroughly decluttering your workstation: broken buttons now work predictably, phantom alarms have been silenced, and the flickering monitor that scrambled your spreadsheets has finally been replaced, leaving you with a distraction-free space."
-            },
-            "original": "Changed `/config` toggle behavior: Enter and Space both change the selected setting, and Esc now saves and closes instead of reverting\nAdded `/config --help` to list all available shorthand keys for `/config key=value`\nAdded `attribution.sessionUrl` setting to omit the claude.ai session link from commits and PRs in web and Remote Control sessions\nRemoved the startup \"setup issues\" line under the logo — run `/doctor` to see configuration issues or use `--debug`\nAdded a warning when the requested model is deprecated or automatically updated to a newer model, shown on stderr in print mode (`-p`) and now also covering models set in agent frontmatter\nFixed fullscreen TUI corruption (statusline mid-screen, duplicated spinner rows, merged text) in Windows Terminal under heavy nested-subagent load\nFixed the terminal cursor being stranded above the prompt after navigating history in vim mode with the native cursor enabled\nFixed user-level skills appearing multiple times in slash-command autocomplete when multiple plugins are enabled\nFixed MCP servers requiring authentication exposing auth-stub tools to the model in headless/SDK mode\nFixed focus mode showing \"Ran N PostToolUse hooks\" timing lines under each response"
           }
         ]
       }

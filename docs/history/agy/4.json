@@ -2,8 +2,323 @@
   "id": "agy",
   "name": "Antigravity",
   "page": 4,
-  "pages": 6,
+  "pages": 7,
   "versions": [
+    {
+      "version": "1.1.15",
+      "raw": {
+        "version": "1.1.15",
+        "period": "2026-08-19",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-08-19",
+        "entries": [
+          "Added `--input-format stream-json` to print mode, which reads newline-delimited JSON prompts from stdin and runs one turn per message in a single conversation, so a driver can keep a session open.",
+          "Added a `rules:` key to markdown agent frontmatter, so an agent can name rule files directly instead of inheriting your whole rule tree; a rule named this way always applies.",
+          "Added plugin support for a top-level `rules.json`, so a plugin can declare the rule files it ships the same way it already declares its skills.",
+          "Added a more specific hint on the spinner line, which now names the tool call the agent is currently running.",
+          "Fixed the CLI aborting at startup on hosts that preload their own allocator through `LD_PRELOAD`, such as Cloud TPU VM images, where it died before the interface appeared.",
+          "Fixed personal accounts hitting a resource-exhausted error at startup when saved credentials were restored from the system keyring, and cut the repeated account checks that followed.",
+          "Fixed your billing project, and the license tier it selects, being lost when the CLI restarted and restored saved credentials from the system keyring.",
+          "Fixed a spurious \"Out of credits\" message for enterprise users signed in through Application Default Credentials.",
+          "Fixed the `/model` picker cutting off models, and its own header, on terminals too short to show every model; the list now scrolls.",
+          "Fixed the `/model` picker misaligning its columns for model names that are not plain ASCII, by measuring column widths in display cells rather than bytes.",
+          "Fixed the spinner line flickering to a generic label between quick tool calls.",
+          "Fixed streamed text corrupting non-ASCII characters into replacement characters, in both the interactive display and `--output-format stream-json` text deltas.",
+          "Fixed artifacts written into a subdirectory of a conversation's artifact directory, such as `scratch/`, never appearing in the artifact list.",
+          "Fixed reading a `.wav` file failing as an unsupported media type, by normalizing non-canonical MIME types such as `audio/wave` before they reach the model."
+        ]
+      },
+      "curated": {
+        "version": "1.1.15",
+        "period": "2026-08-19",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "串流 JSON 讓外部程式續用同一段對話",
+              "en": "Stream JSON keeps external programs in one conversation"
+            },
+            "body": {
+              "zh-TW": "你要讓外部程式連續把多筆問題交給 Antigravity 時，現在可在 print mode（把回答直接印出的模式）加上 `--input-format stream-json`。它會從 stdin（程式接收輸入的管道）讀取每行一筆 JSON 提示，每則訊息在同一段對話跑一回合。驅動程式可以讓這段工作階段一直開著，不必每筆都另起對話。⟦這像白板保留同一幅草圖；每次添上一筆，都接著同一份構想。⟧",
+              "en": "When an external program needs to send Antigravity a run of prompts, print mode can now take `--input-format stream-json`. It reads one newline-delimited JSON prompt from stdin for each turn in one conversation. A driver can keep that session open instead of starting a new conversation for every message. ⟦It is like keeping one sketch on a whiteboard: every new stroke continues the same idea.⟧"
+            },
+            "original": "Added `--input-format stream-json` to print mode, which reads newline-delimited JSON prompts from stdin and runs one turn per message in a single conversation, so a driver can keep a session open."
+          },
+          {
+            "title": {
+              "zh-TW": "代理與外掛可點名要套用的規則檔",
+              "en": "Agents and plugins can name rule files to apply"
+            },
+            "body": {
+              "zh-TW": "替代理安排規則時，可以在 Markdown agent frontmatter（檔案開頭的欄位區）直接加 `rules:`，列出要套用的規則檔。被這樣點名的規則一定會套用，不必再承接整棵 rule tree。外掛也能在最上層放 `rules.json`，宣告它隨附的規則檔，方式與既有 skill 宣告一致。⟦像交代新人只帶指定幾頁手冊，不必抱走整個資料櫃；外掛也把自帶手冊列在封面。⟧",
+              "en": "When setting rules for an agent, add `rules:` to its Markdown frontmatter and name rule files directly. A rule named there always applies, without inheriting whole rule tree. A plugin can also put `rules.json` at top level to declare rule files it ships, as it already declares skills. ⟦It is like giving new hire named handbook pages, not whole filing cabinet; plugin lists own pages on cover.⟧"
+            },
+            "original": "Added a `rules:` key to markdown agent frontmatter, so an agent can name rule files directly instead of inheriting your whole rule tree; a rule named this way always applies.\nAdded plugin support for a top-level `rules.json`, so a plugin can declare the rule files it ships the same way it already declares its skills."
+          },
+          {
+            "title": {
+              "zh-TW": "轉圈提示會顯示工具名稱，也不再跳回泛稱",
+              "en": "Spinner names tool call and stops reverting to generic label"
+            },
+            "body": {
+              "zh-TW": "代理正在跑工具時，轉圈那行現在會說出正在跑哪個 tool call（代理請工具執行的動作）。快速接連呼叫工具的空檔，它也不再閃回通用標籤。⟦像維修櫃台亮出目前經手人的名牌；換手很快時，名牌不會忽然變成沒名字的牌子。⟧這讓你能看懂代理此刻在忙什麼，而非只盯著一個轉圈符號。看著這行時，也不用猜它是否真的仍在處理工作，更加方便判讀。",
+              "en": "While agent runs tool, spinner line now names current tool call. It also no longer flickers back to generic label in gaps between quick tool calls. ⟦It is like repair desk showing name badge of person handling your job; fast handoffs do not turn badge into blank sign.⟧ You can see what agent is doing instead of only watching spinner."
+            },
+            "original": "Added a more specific hint on the spinner line, which now names the tool call the agent is currently running.\nFixed the spinner line flickering to a generic label between quick tool calls."
+          },
+          {
+            "title": {
+              "zh-TW": "預載記憶體配置元件的主機可正常開啟 CLI",
+              "en": "CLI starts on hosts that preload a memory allocator"
+            },
+            "body": {
+              "zh-TW": "有些主機會用 `LD_PRELOAD`（啟動前指定要載入程式庫的環境變數）。它會先載入自己的記憶體配置元件（allocator，決定程式如何取得記憶體）。CLI（在終端機裡操作的工具）以前會在介面出現前就中止，例如 Cloud TPU VM images。現在這類主機不會在啟動時把 CLI 擋在門外。⟦這像會場先裝上自家的插座轉接器；接待台終於能開門，而不是來客尚未進場就停電。⟧",
+              "en": "Some hosts use `LD_PRELOAD` to load own allocator before program starts. CLI used to abort before interface appeared on those hosts, including Cloud TPU VM images. CLI now starts on these hosts. ⟦It is like venue installing own plug adapter before doors open; reception desk can open rather than losing power before anyone enters.⟧"
+            },
+            "original": "Fixed the CLI aborting at startup on hosts that preload their own allocator through `LD_PRELOAD`, such as Cloud TPU VM images, where it died before the interface appeared."
+          },
+          {
+            "title": {
+              "zh-TW": "還原登入資料後，帳號與計費選擇不再遺失",
+              "en": "Restored sign-in data keeps account and billing choices"
+            },
+            "body": {
+              "zh-TW": "登入資料從系統 keyring（保存登入憑證的地方）還原時，個人帳號不再在啟動就撞上資源耗盡錯誤，後續重複的帳號檢查也減少。CLI 重新啟動後，計費專案與它選定的授權級別也會保留，不需因為重開工具再重新選擇，這些選擇會一起保留。⟦像舞台重啟時控制台載回上回特別選定的燈光設定，不會在一開場就反覆測試，也不會忘了原先選用的模式。⟧",
+              "en": "When saved credentials return from system keyring, personal accounts no longer hit resource-exhausted error at startup and repeated account checks are cut. After CLI restarts, billing project and license tier it selects also stay put. ⟦It is like a stage console reloading its chosen lighting setup after a restart: it does not repeatedly test at opening or forget selected mode.⟧"
+            },
+            "original": "Fixed personal accounts hitting a resource-exhausted error at startup when saved credentials were restored from the system keyring, and cut the repeated account checks that followed.\nFixed your billing project, and the license tier it selects, being lost when the CLI restarted and restored saved credentials from the system keyring."
+          },
+          {
+            "title": {
+              "zh-TW": "企業帳號不再誤報額度用完",
+              "en": "Enterprise accounts no longer get false out-of-credits alert"
+            },
+            "body": {
+              "zh-TW": "企業使用者若透過 Application Default Credentials（應用程式預設憑證）登入，現在不會再看到錯誤的「Out of credits」訊息。這一項修正處理的正是這個誤報。⟦像門口的餘額看板把有效通行證誤讀成餘額歸零；錯誤的「Out of credits」顯示現在不再出現。⟧登入時曾看見這個提示的企業使用者，現在不會再看到錯誤的「Out of credits」訊息。",
+              "en": "Enterprise users signed in through Application Default Credentials no longer see spurious \"Out of credits\" message. This update fixes that false alert. ⟦It is like balance sign at gate misreading valid pass as empty balance; spurious \"Out of credits\" message no longer appears.⟧ Enterprise users who saw this message no longer see spurious \"Out of credits\" message."
+            },
+            "original": "Fixed a spurious \"Out of credits\" message for enterprise users signed in through Application Default Credentials."
+          },
+          {
+            "title": {
+              "zh-TW": "矮終端機裡的模型清單能捲動，也對得齊欄位",
+              "en": "Model picker scrolls and aligns columns in short terminals"
+            },
+            "body": {
+              "zh-TW": "終端機高度不夠顯示全部模型時，`/model` 選擇器不再把模型或自己的標頭截掉，清單可以捲動。模型名稱含非 ASCII 字元時，欄位也改按顯示格數計寬度，不再按位元組數量算錯位置。⟦像書架太矮時改用可上下滑動的目錄，而且每本書名不論字形寬窄都排在同一欄。⟧你能看完整清單，也較容易讀對每列資訊，不必猜被截掉的模型或欄位內容。",
+              "en": "If terminal is too short to show every model, `/model` picker now scrolls instead of cutting off models or own header. For model names beyond plain ASCII, columns measure display cells rather than bytes and stay aligned. ⟦It is like short bookcase using scrollable catalog, with every title lined up in same column no matter character width.⟧ You can read whole list and each row more clearly."
+            },
+            "original": "Fixed the `/model` picker cutting off models, and its own header, on terminals too short to show every model; the list now scrolls.\nFixed the `/model` picker misaligning its columns for model names that are not plain ASCII, by measuring column widths in display cells rather than bytes."
+          },
+          {
+            "title": {
+              "zh-TW": "串流文字不再把非 ASCII 字元顯示成替代符號",
+              "en": "Streamed text preserves non-ASCII characters"
+            },
+            "body": {
+              "zh-TW": "回覆以串流方式一段段送出時，非 ASCII 字元以前可能被毀成替代字元。互動式畫面與 `--output-format stream-json` 的文字增量都受影響。現在兩處都會保留原來的字元，不會把讀到一半的文字換成看不懂的符號，內容可照原樣讀下去。⟦像傳真機把原稿的特殊字形壓成方塊；現在紙張送到兩個收件口時，都能留下原本的字。⟧",
+              "en": "When reply arrives as stream, non-ASCII characters used to become replacement characters. Both interactive display and text deltas from `--output-format stream-json` were affected. They now preserve original characters instead of changing text midstream into unreadable symbols. ⟦It is like fax machine crushing special letterforms into boxes; pages now retain original letters at both receiving slots.⟧"
+            },
+            "original": "Fixed streamed text corrupting non-ASCII characters into replacement characters, in both the interactive display and `--output-format stream-json` text deltas."
+          },
+          {
+            "title": {
+              "zh-TW": "對話產物放進子資料夾也會列出",
+              "en": "Conversation artifacts in subdirectories appear in list"
+            },
+            "body": {
+              "zh-TW": "對話產生的檔案若放在 artifact directory 的子資料夾，例如 `scratch/`，以前不會出現在 artifact list（產物清單）。artifact directory 是對話產物的存放處。現在這些子資料夾裡的產物也會被列出。⟦像把工作文件收入有標籤的內頁夾；清單終於會翻進內頁，而不是只數桌面最上層。⟧這讓放進 `scratch/` 的檔案能和其他對話產物一起找到。",
+              "en": "A file written under subdirectory of conversation artifact directory, such as `scratch/`, used to miss artifact list. Artifact directory stores conversation artifacts. Those artifacts now appear in list too. ⟦It is like filing work papers inside labeled inner folder; list now opens folder rather than counting only top of desk.⟧ Files in `scratch/` can be found with other conversation artifacts."
+            },
+            "original": "Fixed artifacts written into a subdirectory of a conversation's artifact directory, such as `scratch/`, never appearing in the artifact list."
+          },
+          {
+            "title": {
+              "zh-TW": "讀取 WAV 音檔時會先校正媒體類型",
+              "en": "WAV audio reads after media type normalization"
+            },
+            "body": {
+              "zh-TW": "讀取 `.wav` 音檔時，原本可能因不支援的媒體類型而失敗。現在會先正規化非標準的 MIME type（檔案內容類型標記），例如 `audio/wave`，再交給模型處理。⟦像收件人先把不合規的地址寫法改成郵局認得的格式，再把包裹送上分揀帶。⟧因此 `.wav` 不會只因標記寫法不同就被當成不支援的媒體，不會在中途被擋下。",
+              "en": "Reading `.wav` file could fail as unsupported media type. It now normalizes non-canonical MIME types such as `audio/wave` before they reach model. ⟦It is like clerk rewriting unusual address form into format post office recognizes before package reaches sorting belt.⟧ A `.wav` is not rejected only because type label uses different form."
+            },
+            "original": "Fixed reading a `.wav` file failing as an unsupported media type, by normalizing non-canonical MIME types such as `audio/wave` before they reach the model."
+          }
+        ]
+      }
+    },
+    {
+      "version": "1.1.14",
+      "raw": {
+        "version": "1.1.14",
+        "period": "2026-08-18",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-08-18",
+        "entries": [
+          "Added a faster return path for enterprise sign-in, so a returning user is offered a single `Continue with ...` option naming the method they last used.",
+          "Added support for OAuth client ID metadata documents when connecting to an MCP server, so servers implementing that part of the specification no longer require a manually supplied client ID or dynamic client registration.",
+          "Improved the `/context` panel, which is now scrollable and sized to the terminal. `/usage` is sized the same way.",
+          "Improved markdown-defined agents with a single `inheritCustomizations` switch that decides whether the agent adopts your skills, rules, plugins, subagents and MCP servers, replacing per-kind defaults that silently disagreed with each other.",
+          "Improved the setting that allows access outside your workspace, which now grants only read access; writes are auto approved according to the cycle mode setting.",
+          "Fixed the CLI exiting silently when its language server failed, both at startup and while running; the failure is now printed to the terminal and the process exits non-zero instead of reporting success.",
+          "Fixed the sign-in URL and other links rendering as garbled text on terminals that do not parse OSC 8 hyperlinks, such as GNU `screen`, which are now detected and given plain text instead.",
+          "Fixed `Enter` being swallowed while the path-suggestion popup was still loading, which sent the prompt and then popped the results open on top of it.",
+          "Fixed the artifact list marking every earlier artifact as approved when reopened, so artifacts that were unreviewed, commented on or rejected in a previous turn keep their real status.",
+          "Fixed one malformed entry in your MCP configuration bringing down every other server, which is now logged and skipped so the remaining servers still load.",
+          "Fixed built-in skills, rules and plugins disappearing from an agent that set `inherit_user` to false, which was only meant to opt out of your personal customizations, not the ones shipped with the CLI.",
+          "Fixed reverting or branching a long conversation failing with `too many SQL variables`.",
+          "Fixed a long conversation's title jumping to an unrelated older message once history was truncated, by protecting the checkpoint the title is derived from.",
+          "Fixed a multi-line paste submitting one prompt per line on terminals that do not honour bracketed paste."
+        ]
+      },
+      "curated": {
+        "version": "1.1.14",
+        "period": "2026-08-18",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "回訪登入少走岔路，直接看見上次方法",
+              "en": "Returning sign-in points straight to your last method"
+            },
+            "body": {
+              "zh-TW": "公司帳號又要登入時，畫面不必再讓你猜該選哪條路。回來的使用者現在會看到一個 `Continue with ...` 選項，名稱就是自己上次採用的登入方式。⟦這像閱讀器記住你上次停下閱讀的章節，重新打開時會先帶你回到那一章。⟧你仍是在選登入方式，只是入口先對準已知方向，少了在多個選項間來回找的步驟。選項也會直接點出那個方法名稱。",
+              "en": "Returning to an enterprise account no longer starts with guessing which route to take. You are offered one `Continue with ...` choice named after the method you used last time. ⟦It is like an e-reader remembering the chapter where you stopped and taking you there when you reopen it.⟧ You still choose how to sign in; the entry point now begins with a known direction instead of a row of possibilities."
+            },
+            "original": "Added a faster return path for enterprise sign-in, so a returning user is offered a single `Continue with ...` option naming the method they last used."
+          },
+          {
+            "title": {
+              "zh-TW": "連 MCP 伺服器時，登入身分資料可自動接手",
+              "en": "MCP servers can supply their OAuth client identity details"
+            },
+            "body": {
+              "zh-TW": "要把工具接到 MCP（讓 AI 連接外部工具的協定）伺服器時，原本可能得自己交出 client ID，或替它辦動態註冊。現在伺服器若有實作 OAuth client ID metadata 文件，就能提供這份登入身分資料。⟦像展覽牆列出場館資料，讀得懂格式的導覽機可直接讀取，不必由遊客補填。⟧因此，符合這段規格的伺服器不再要求手動提供 client ID 或動態 client 註冊；沒有實作這段規格的伺服器，更新內容沒有承諾改變。",
+              "en": "When connecting a tool to an MCP server, you may previously have needed to supply a client ID yourself or arrange dynamic client registration. A server that implements OAuth client ID metadata documents can now provide those identity details. ⟦It is like an exhibition wall listing venue details that a guide device can read directly instead of making visitors fill them in.⟧ Such servers no longer require a manually supplied client ID or dynamic client registration."
+            },
+            "original": "Added support for OAuth client ID metadata documents when connecting to an MCP server, so servers implementing that part of the specification no longer require a manually supplied client ID or dynamic client registration."
+          },
+          {
+            "title": {
+              "zh-TW": "內容與用量面板跟著終端機大小，可捲動查看",
+              "en": "Context and usage panels fit terminal and scroll"
+            },
+            "body": {
+              "zh-TW": "在終端機裡打開 `/context` 想看內容時，面板現在能捲動，也會依終端機尺寸調整。`/usage` 的尺寸也採相同作法。⟦像可伸縮的文件架會跟著桌面大小收放；架子看得到的範圍不夠時，文件沒有被裁掉，而是往下捲動查看。⟧因此兩個面板都跟著眼前終端機調整，`/context` 還能查看超出畫面的部分。這項變更沒有宣稱增加內容、用量資料或新的指令。",
+              "en": "Opening `/context` in the terminal now gives you a scrollable panel sized to the terminal. `/usage` uses the same sizing. ⟦Think of an expandable document rack that adjusts to the desk: when its visible area is not enough, the documents are not cut off; you scroll down to see more.⟧ Both panels therefore adapt to the terminal, and `/context` lets you view what extends beyond the screen. This does not claim new context, usage data, or commands."
+            },
+            "original": "Improved the `/context` panel, which is now scrollable and sized to the terminal. `/usage` is sized the same way."
+          },
+          {
+            "title": {
+              "zh-TW": "代理程式繼承個人自訂，改用一個總開關決定",
+              "en": "One switch decides what a markdown agent inherits"
+            },
+            "body": {
+              "zh-TW": "你在 Markdown 寫代理程式時，現在可用 `inheritCustomizations` 一個開關決定它是否採用你的 skills、rules、plugins、subagents 與 MCP servers。先前各種類各自有預設值，彼此還會默默不一致。⟦這像把五把各自方向不同的燈開關，換成一個總開關來決定整間房是否沿用你的佈置。⟧內建的 skills、rules、plugins 也不會因代理程式把 `inherit_user` 設為 false 而消失，因為 false 原本只表示不採用你的個人自訂，不是退出 CLI 隨附的內容。",
+              "en": "When defining an agent in Markdown, one `inheritCustomizations` switch now decides whether it adopts your skills, rules, plugins, subagents, and MCP servers. Each kind previously had defaults that could silently disagree. ⟦It is like replacing five light switches facing different directions with one main switch for whether a room keeps your arrangement.⟧ Built-in skills, rules, and plugins also remain when an agent sets `inherit_user` to false, because that setting only opts out of personal customizations, not CLI-supplied ones."
+            },
+            "original": "Improved markdown-defined agents with a single `inheritCustomizations` switch that decides whether the agent adopts your skills, rules, plugins, subagents and MCP servers, replacing per-kind defaults that silently disagreed with each other.\nFixed built-in skills, rules and plugins disappearing from an agent that set `inherit_user` to false, which was only meant to opt out of your personal customizations, not the ones shipped with the CLI."
+          },
+          {
+            "title": {
+              "zh-TW": "工作區外存取改成唯讀，寫入照循環模式處理",
+              "en": "Outside-workspace access is read-only; cycle mode governs writes"
+            },
+            "body": {
+              "zh-TW": "需要讓代理程式查看工作區外的檔案時，這個存取設定現在只授予讀取權。寫入則依 cycle mode 設定自動核准。⟦這像借閱室把館外資料交給你翻閱，但要在上面動筆，仍按另一套借閱規則處理。⟧讀取與寫入不再由同一句「允許工作區外存取」混在一起；前者限為唯讀，後者明確交給 cycle mode。這是既有設定權限的調整，並非宣告可任意寫進工作區外位置。",
+              "en": "When an agent needs to view files outside your workspace, that access setting now grants read access only. Writes are automatically approved according to the cycle mode setting. ⟦It is like a reading room handing you material from outside its shelves to examine, while marking it still follows a separate borrowing rule.⟧ Reading and writing are no longer bundled under one outside-workspace permission: the first is read-only and the second is assigned to cycle mode."
+            },
+            "original": "Improved the setting that allows access outside your workspace, which now grants only read access; writes are auto approved according to the cycle mode setting."
+          },
+          {
+            "title": {
+              "zh-TW": "語言伺服器失敗不再假裝成功，終端機會說明",
+              "en": "Language-server failures are reported instead of looking successful"
+            },
+            "body": {
+              "zh-TW": "CLI 啟動時或正在運作時，語言伺服器（替程式理解語言內容的背景服務）若失敗，現在會把失敗印在終端機，並以非零狀態結束。過去它會安靜離開，卻回報成功。⟦這像店裡的收銀機壞了，門不再悄悄關上並在帳上蓋「交易完成」，而是把故障寫在櫃檯上。⟧它不會再安靜離開卻報成成功。你因此能從終端機和結束狀態辨認失敗；更新內容沒有表示會自動修好語言伺服器本身。",
+              "en": "If the language server, a background service that helps the program understand language content, fails during startup or while the CLI is running, the failure now prints in the terminal and the process exits non-zero. It previously left silently while reporting success. ⟦It is like a broken cash register that no longer closes its door and stamps the ledger “completed,” but writes the fault on the counter.⟧ The terminal output and exit status can now show the failure; this does not claim to repair the language server itself."
+            },
+            "original": "Fixed the CLI exiting silently when its language server failed, both at startup and while running; the failure is now printed to the terminal and the process exits non-zero instead of reporting success."
+          },
+          {
+            "title": {
+              "zh-TW": "不懂 OSC 8 的終端機，也能看清登入連結",
+              "en": "Terminals without OSC 8 support get readable sign-in links"
+            },
+            "body": {
+              "zh-TW": "若你的終端機不會解析 OSC 8 hyperlinks，登入 URL 和其他連結先前可能顯示成亂碼。現在程式會偵測這種終端機，例如 GNU `screen`，改給純文字。⟦這像對方看不懂附有暗號的邀請卡時，改遞上一張把地址完整寫出的紙條。⟧改變的是連結在不支援 OSC 8 的終端機裡的呈現方式；支援該格式的終端機，原始更新沒有說要改成純文字。",
+              "en": "If your terminal cannot parse OSC 8 hyperlinks, the sign-in URL and other links could previously render as garbled text. The program now detects such terminals, including GNU `screen`, and gives plain text instead. ⟦It is like replacing an invitation written with an unreadable code with a note that writes out the address.⟧ The change concerns links in terminals that do not support OSC 8; it does not say supported terminals lose their hyperlink format."
+            },
+            "original": "Fixed the sign-in URL and other links rendering as garbled text on terminals that do not parse OSC 8 hyperlinks, such as GNU `screen`, which are now detected and given plain text instead."
+          },
+          {
+            "title": {
+              "zh-TW": "路徑建議還在載入，Enter 不會先送出提示",
+              "en": "Enter no longer submits prompt while path suggestions load"
+            },
+            "body": {
+              "zh-TW": "剛叫出路徑建議視窗，結果還在載入時按 Enter，先前 Enter 會被吃掉：提示送出後，結果又在提示上方彈開。現在不再發生這個順序錯亂。⟦像同一個輸入欄的選單尚未載入完，按鍵卻先把內容送出，接著選單結果又蓋到剛送出的內容上。⟧修正針對路徑建議彈出視窗仍在載入的狀態，以及 Enter 被吞掉後造成的送出與結果重疊。結果不會在提示上方再開一次。",
+              "en": "When the path-suggestion popup was still loading, pressing Enter used to swallow the key: the prompt was sent, then results opened on top of it. That ordering error is now fixed. ⟦It is like a menu in the same input field still loading when a key submits its content first, then the menu results cover what was just sent.⟧ The fix covers the popup's loading state and the overlap caused by the swallowed Enter key. Results no longer open over the prompt."
+            },
+            "original": "Fixed `Enter` being swallowed while the path-suggestion popup was still loading, which sent the prompt and then popped the results open on top of it."
+          },
+          {
+            "title": {
+              "zh-TW": "重開產物清單，舊項目的審核狀態不再全變通過",
+              "en": "Reopened artifact lists keep each earlier review status"
+            },
+            "body": {
+              "zh-TW": "重開 artifact list（對話產生的程式碼或文件清單）時，先前每個 artifact 不會再一律被標為 approved。上一輪尚未審核、留下評論、或被拒絕的項目，現在會保留原本狀態。⟦這像把上次批改過的作業本重新翻開，空白、註記與退回的頁面仍各自留在原位，不會全部蓋成「通過」。⟧因此清單反映的是前一輪實際審查結果，而非重開動作替所有舊項目改寫狀態。",
+              "en": "When reopening the artifact list, a list of code or documents produced in a conversation, every earlier artifact is no longer marked approved. Items left unreviewed, commented on, or rejected in the previous turn keep their actual status. ⟦It is like reopening a graded workbook where blank, annotated, and returned pages stay in their places instead of receiving one “approved” stamp.⟧ The list therefore reflects the previous review result rather than rewriting every old item because you reopened it."
+            },
+            "original": "Fixed the artifact list marking every earlier artifact as approved when reopened, so artifacts that were unreviewed, commented on or rejected in a previous turn keep their real status."
+          },
+          {
+            "title": {
+              "zh-TW": "一筆壞 MCP 設定不再拖垮其他伺服器",
+              "en": "One malformed MCP entry no longer takes down other servers"
+            },
+            "body": {
+              "zh-TW": "MCP（讓 AI 連接外部工具的協定）設定裡若有一筆格式不正確，過去可能連其他伺服器都無法啟動。現在這筆錯誤會被記錄並略過，剩下的伺服器仍會載入。⟦像樂團名單裡有一張看不懂的譜，指揮先把那張放到一旁，其他樂手照常上台。⟧錯誤會留下紀錄，但不擋住其他載入。它沒有把壞設定變正確，也沒有保證那台伺服器會載入；改變的是單一錯誤不再帶倒其餘伺服器。",
+              "en": "If one entry in an MCP configuration is malformed, it previously could bring down every other server too. That error is now logged and skipped, while the remaining servers still load. ⟦It is like a conductor putting aside one unreadable sheet of music so the other players can still take the stage.⟧ The bad entry is not made correct and its server is not promised to load; the change is that one error no longer topples the rest."
+            },
+            "original": "Fixed one malformed entry in your MCP configuration bringing down every other server, which is now logged and skipped so the remaining servers still load."
+          },
+          {
+            "title": {
+              "zh-TW": "長對話回退或分支，不再被 SQL 變數上限擋住",
+              "en": "Long conversations can revert or branch past the SQL-variable limit"
+            },
+            "body": {
+              "zh-TW": "對話拉得很長後，想回退到先前內容或另開分支，過去可能因 `too many SQL variables` 而失敗。這是 SQL（用來查詢資料庫的語言）變數過多造成的錯誤訊息。⟦像要從一大疊索引卡找回某段記錄或另開一份副本，舊作法把太多卡一次塞進查詢格，因而卡住。⟧現在長對話的回退與分支不會再被這個錯誤擋下；這張卡只說這兩個操作，沒有涵蓋標題或歷史截斷的修正。",
+              "en": "After a conversation grows long, reverting to earlier content or opening a branch could fail with `too many SQL variables`. SQL is a language for querying databases, and that message means too many query variables were involved. ⟦It is like trying to retrieve a passage from a huge stack of index cards or make a new copy, while the old method jams too many cards into one query slot.⟧ Long-conversation reverts and branches no longer fail with that error. This fix concerns those two actions, not titles or history truncation."
+            },
+            "original": "Fixed reverting or branching a long conversation failing with `too many SQL variables`."
+          },
+          {
+            "title": {
+              "zh-TW": "歷史截斷後，長對話標題不再跳到舊訊息",
+              "en": "Long-conversation titles no longer jump to old messages after truncation"
+            },
+            "body": {
+              "zh-TW": "長對話的歷史被截斷後，標題先前可能跳到無關的舊訊息。修正會保護標題所依據的 checkpoint（用來記住某個進度位置的標記），讓標題仍從正確來源取得。⟦像整理一本太厚的筆記時收起前段頁面，封面標題原本誤讀了舊書籤；現在真正用來決定標題的書籤受到保護。⟧因此歷史截斷不會把標題帶往不相干的舊訊息。這張卡只處理標題來源錯置，沒有涵蓋回退、分支或 SQL 變數錯誤。",
+              "en": "After a long conversation's history was truncated, its title could jump to an unrelated older message. The fix protects the checkpoint, a marker that remembers a progress position, from which the title is derived, so the title keeps its correct source. ⟦It is like putting away early pages of an overgrown notebook: the cover title used to read an old bookmark, but the bookmark that determines the title is now protected.⟧ History truncation therefore no longer sends the title to an unrelated old message. This fix concerns title sourcing, not reverting, branching, or SQL-variable errors."
+            },
+            "original": "Fixed a long conversation's title jumping to an unrelated older message once history was truncated, by protecting the checkpoint the title is derived from."
+          },
+          {
+            "title": {
+              "zh-TW": "貼上多行文字時，不會一行送出一個提示",
+              "en": "A multi-line paste no longer sends one prompt per line"
+            },
+            "body": {
+              "zh-TW": "在不支援 bracketed paste 的終端機貼上多行文字時，先前每一行都可能被當成一個提示送出。現在整段貼上不再逐行提交。⟦這像把一疊紙交給收件櫃，過去它把每張都當成獨立信件投遞，現在能把這次貼上的內容當成同一疊。⟧修正的條件是終端機不遵守 bracketed paste；更新內容沒有宣稱改變支援該機制的終端機行為了。",
+              "en": "Pasting multiple lines into a terminal that does not honor bracketed paste used to submit one prompt for each line. The pasted block is no longer submitted line by line. ⟦It is like placing a stack of papers in a mail slot that once delivered every sheet as a separate letter, but now recognizes this paste as one stack.⟧ The fix applies where the terminal does not honor bracketed paste; it does not claim to change terminals that do."
+            },
+            "original": "Fixed a multi-line paste submitting one prompt per line on terminals that do not honour bracketed paste."
+          }
+        ]
+      }
+    },
     {
       "version": "1.1.13",
       "raw": {
@@ -922,197 +1237,6 @@
               "en": "When a program fails, the worst outcome is an error that points somewhere else. If print mode, the `-p` mode that outputs an answer without an interactive interface, cannot create a conversation, it now shows the real creation failure rather than claiming there is no active conversation. When the sandbox, the protective restricted space for running programs, blocks a command first, it records that block even with the network proxy off; approval and denial messages are cleaner too. The background auto-updater also fixes a double-spawn race, so two processes cannot each launch an updater in the same update window. When no background shell commands are running, a remapped `ctrl+b` shortcut is now respected. It is like a control room finally filing the right incident report and sending only one repair crew for one shift."
             },
             "original": "Improved overall reliability and stability across the CLI with additional hardening and fixes for intermittent failures in background tasks, print mode, and interactive flows.\nFixed a crash when a command was blocked by sandbox permissions before its output was captured, and cleaned up the permission approval and denial messages.\nFixed print mode (`-p`) surfacing the real conversation-creation failure instead of a misleading \"no active conversation\" error.\nFixed a background auto-updater double-spawn race where two processes could each spawn an updater within a single update window.\nFixed sandbox error reporting so blocked actions are recorded even when the network proxy is disabled.\nFixed the `ctrl+b` shortcut being hardcoded to background shell commands even when none were running, so a remapped `ctrl+b` is now respected whenever there are no running shell commands in the conversation."
-          }
-        ]
-      }
-    },
-    {
-      "version": "1.1.5",
-      "raw": {
-        "version": "1.1.5",
-        "period": "2026-07-21",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-07-21",
-        "entries": [
-          "Added a `/effort` command to view and change the current model's reasoning effort, with a left/right timeline-gauge picker and a direct `/effort <level>` form so you can trade latency for depth on the fly.",
-          "Added an `--effort` flag to select a model's reasoning-effort variant when launching the CLI.",
-          "Added stable, user-facing model slugs that appear in the `/model` picker and are accepted by `--model`, so you can pin a specific model reliably across sessions.",
-          "Added a `model` option to custom agent frontmatter so an agent runs at a chosen model tier (such as `flash` or `pro`) when invoked as a subagent, defaulting to `inherit` (the parent's model).",
-          "Redesigned the `/model` picker to group models by their base model and choose reasoning effort from a timeline gauge navigable with Left and Right, and added an effort badge to the status line for models that expose multiple effort variants.",
-          "Improved the `/settings` (`/config`) panel by making it a bounded, scrollable list so it renders correctly in short terminals instead of overflowing, and stopped it from flickering when opening and closing dropdowns.",
-          "Improved background-task reliability by moving long-running work onto a shared lifecycle with deterministic startup and shutdown and panic-safe launching, so a failure in one background task no longer disrupts the session and pending analytics are flushed on exit instead of dropped.",
-          "Improved responsiveness of bursty background refreshes by coalescing rapid repeated triggers into a single run, cutting redundant work.",
-          "Fixed a crash when triggering Authenticate on a remote MCP server in the `/mcp` panel.",
-          "Fixed MCP tool results containing embedded resources being silently dropped, so text and inline media returned by MCP servers now surface in the conversation.",
-          "Fixed permission checks splitting a single command into a pipeline when an argument contained quoted shell metacharacters (such as `--grep=\"a|b\"`), which caused spurious permission prompts.",
-          "Fixed the file-view and file-search tools failing with invalid-UTF-8 errors when a multi-byte character was split at a truncation boundary.",
-          "Fixed a data race when collecting customization rules by guarding the shared structures.",
-          "Added support for stacking multiple leading slash commands in a single prompt, so a chain like `/plan /grill-me <prompt>` parses, activates, and renders every command in the order you typed them.",
-          "Improved scrolling in the `/diff` viewer so paging through a diff no longer jitters or pushes the status line off the screen when lines wrap or comments expand.",
-          "Fixed custom agents that declare `subagent: false` still appearing in the available-subagents list and being invocable as subagents.",
-          "Fixed headless (`-p` / `--print`) runs so they now honor persisted `settings.json` policies, including `permissions`, file access, sandbox mode, auto-execution, and artifact review.",
-          "Fixed `/btw` side-questions leaking into the conversation list as duplicate entries that carried the parent conversation's title.",
-          "Fixed the prompt to honor a custom Enter binding to `prompt.insert_newline`, so a remapped Enter inserts a newline instead of submitting.",
-          "Fixed eligibility error messages so the CLI shows the real reason again instead of defaulting to a generic \"unknown reason\"."
-        ]
-      },
-      "curated": {
-        "version": "1.1.5",
-        "period": "2026-07-21",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "模型選擇多了深淺旋鈕，也能替代理指定等級",
-              "en": "Model choice gains a depth dial and agent-specific tiers"
-            },
-            "body": {
-              "zh-TW": "趕著回覆訊息時，你會想要快；遇到棘手問題時，則願意多等一下換更深的推理。新的 `/effort` 指令把這個取捨做成時間軸儀表，可左右選擇，也能直接輸入等級；啟動 CLI 時則用 `--effort` 選定。`/model` 現在用穩定的 model slug（模型的固定代號）列出選項，跨工作階段也能可靠指定同一款模型。你替 custom agent（自訂代理，預先寫好工作規則的小幫手）加上 `model` 後，叫它當子代理時可跑 flash 或 pro；沒指定便沿用父代理。像相機不只選鏡頭，還能轉快門：快拍或細拍，由你在當下決定。",
-              "en": "When a reply is urgent, you want speed; when a problem is thorny, you may accept a wait for deeper reasoning. The new `/effort` command turns that tradeoff into a left/right timeline gauge, and also accepts a level directly; `--effort` makes the choice when launching the CLI. `/model` now shows stable model slugs, fixed names you can reliably reuse across sessions. A custom agent, a helper with prewritten instructions, can now declare its own `model`: as a subagent it can use a tier such as flash or pro, otherwise it inherits its parent’s model. It is like setting both a camera lens and shutter speed: choose quick or deliberate for task in front of you."
-            },
-            "original": "Added a `/effort` command to view and change the current model's reasoning effort, with a left/right timeline-gauge picker and a direct `/effort <level>` form so you can trade latency for depth on the fly.\nAdded an `--effort` flag to select a model's reasoning-effort variant when launching the CLI.\nAdded stable, user-facing model slugs that appear in the `/model` picker and are accepted by `--model`, so you can pin a specific model reliably across sessions.\nAdded a `model` option to custom agent frontmatter so an agent runs at a chosen model tier (such as `flash` or `pro`) when invoked as a subagent, defaulting to `inherit` (the parent's model).\nRedesigned the `/model` picker to group models by their base model and choose reasoning effort from a timeline gauge navigable with Left and Right, and added an effort badge to the status line for models that expose multiple effort variants."
-          },
-          {
-            "title": {
-              "zh-TW": "短終端機也看得清設定，檢視差異不再把畫面推歪",
-              "en": "Settings fit short terminals and diff viewing stays steady"
-            },
-            "body": {
-              "zh-TW": "筆電分割畫面時，設定清單不該像過長的海報從視窗底下溢出去。`/settings` 或 `/config` 現在是有邊界、可捲動的清單，開關下拉選單也不再閃爍。你查看程式修改處時，`/diff` 檢視器在換頁、長行折行或展開留言後，不會抖動，更不會把狀態列擠出螢幕。連輸入框也聽得懂你的重綁 Enter：若綁到 `prompt.insert_newline`，按下去會換行而非送出。這些改動像把凌亂書桌換成有抽屜的工作台；內容還是那些內容，手邊位置終於穩了。",
-              "en": "On a split laptop screen, a settings list should not spill below the window like an overlong poster. `/settings` and `/config` are now bounded, scrollable lists, and their dropdowns no longer flicker. While reviewing code changes, the `/diff` viewer no longer jitters or pushes the status line offscreen when you page, wrapped lines appear, or comments expand. The prompt also honors a remapped Enter: if it is bound to `prompt.insert_newline`, it inserts a line break instead of submitting. It is like replacing a messy desk with a workbench full of drawers: same tools, but they stay where your hands expect them."
-            },
-            "original": "Improved the `/settings` (`/config`) panel by making it a bounded, scrollable list so it renders correctly in short terminals instead of overflowing, and stopped it from flickering when opening and closing dropdowns.\nImproved scrolling in the `/diff` viewer so paging through a diff no longer jitters or pushes the status line off the screen when lines wrap or comments expand.\nFixed the prompt to honor a custom Enter binding to `prompt.insert_newline`, so a remapped Enter inserts a newline instead of submitting."
-          },
-          {
-            "title": {
-              "zh-TW": "背景工作不再一處失火、整場陪葬",
-              "en": "Background work becomes isolated, orderly, and less wasteful"
-            },
-            "body": {
-              "zh-TW": "讓 CLI 在背景慢慢更新資料時，最怕其中一件小事出錯，整個工作階段跟著亂掉。現在長時間背景任務共用同一套生命週期，啟動與關閉都有固定順序，啟動時也能安全面對 panic（程式遇到嚴重錯誤而中斷）；單一任務失敗不再拖垮整場，離開前待送的分析資料也會送完。短時間內連續觸發更新，則會合併成一次，少做重複工作。收集自訂規則時的 data race（多個工作同時碰同份資料造成結果不穩）也補上保護。像廚房把各道菜分到獨立爐火，並把連按三次的叫餐鈴合成一張單；一口鍋燒焦，不會讓整間餐廳停擺。",
-              "en": "When the CLI refreshes data in the background, one small failure should not scramble the whole session. Long-running background tasks now share one lifecycle, with deterministic start and shutdown and panic-safe launching; one failed task no longer disrupts the session, and pending analytics are flushed before exit. Several refresh triggers arriving in a burst are coalesced into one run instead of repeating work. A data race, where concurrent work touches shared data unpredictably, is also guarded while customization rules are collected. It is like giving each dish in a kitchen its own burner and turning three rapid bell rings into one order: one burnt pan does not close the restaurant."
-            },
-            "original": "Improved background-task reliability by moving long-running work onto a shared lifecycle with deterministic startup and shutdown and panic-safe launching, so a failure in one background task no longer disrupts the session and pending analytics are flushed on exit instead of dropped.\nImproved responsiveness of bursty background refreshes by coalescing rapid repeated triggers into a single run, cutting redundant work.\nFixed a data race when collecting customization rules by guarding the shared structures."
-          },
-          {
-            "title": {
-              "zh-TW": "MCP 登入不當機，伺服器回傳內容不再消失",
-              "en": "MCP authentication stays up and returned content reaches chat"
-            },
-            "body": {
-              "zh-TW": "你在 `/mcp` 面板替遠端 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器按 Authenticate 時，現在不會再把 CLI 按到當機。更重要的是，MCP 工具回傳的 embedded resources（嵌入式資源，文字或內嵌媒體等隨結果附上的內容）以前會被悄悄丟掉，現在會出現在對話裡。也就是說，接上外部工具後，登入這扇門能打開，工具端帶回來的說明或圖片也不會留在門外。像快遞站以前辦證時會關門，包裹裡附的文件還會被抽走；現在櫃台照常辦理，附檔也完整交到你手上。",
-              "en": "Pressing Authenticate for a remote MCP server in the `/mcp` panel no longer crashes the CLI. More importantly, embedded resources, extra text or inline media carried inside an MCP tool result, used to be silently discarded; they now appear in the conversation. In other words, once you connect an external tool through MCP, the authentication door opens and its explanation or image can come through with it. It is like a parcel counter that once shut down while checking your ID and removed documents from packages; now the counter stays open and every enclosure reaches your hands."
-            },
-            "original": "Fixed a crash when triggering Authenticate on a remote MCP server in the `/mcp` panel.\nFixed MCP tool results containing embedded resources being silently dropped, so text and inline media returned by MCP servers now surface in the conversation."
-          },
-          {
-            "title": {
-              "zh-TW": "指令判讀與檔案搜尋更耐髒資料，錯誤也說人話",
-              "en": "Command checks and file search handle awkward input more safely"
-            },
-            "body": {
-              "zh-TW": "你下 `--grep=\"a|b\"` 這類指令時，管線符號明明只是引號裡的參數，權限檢查卻曾誤以為你真要建立 pipeline（管線，把一個指令輸出交給下一個指令的串接），跳出多餘提示；現在能正確看懂。檢視或搜尋檔案時，若多位元字元剛好被截在中間，也不再因 invalid UTF-8 而失敗。資格不符時，CLI 也重新顯示真正原因，不再只說「unknown reason」。這像機場安檢終於會分辨行李標籤上的豎線和危險物，掃描到半截外文字也不會當成壞行李；拒絕登機時，還會告訴你缺的是哪份證件。",
-              "en": "With a command such as `--grep=\"a|b\"`, a pipe character inside a quoted argument is not a pipeline, a chain that passes one command’s output to another. Permission checks used to misread it and ask unnecessarily; now they interpret it correctly. File viewing and search also stop failing with invalid UTF-8 when a multibyte character is cut at a truncation boundary. And when you are not eligible, the CLI again shows the real reason rather than “unknown reason.” It is like airport screening that can distinguish a vertical mark on a luggage tag from a hazardous item, and can explain which document is missing when it cannot let you board."
-            },
-            "original": "Fixed permission checks splitting a single command into a pipeline when an argument contained quoted shell metacharacters (such as `--grep=\"a|b\"`), which caused spurious permission prompts.\nFixed the file-view and file-search tools failing with invalid-UTF-8 errors when a multi-byte character was split at a truncation boundary.\nFixed eligibility error messages so the CLI shows the real reason again instead of defaulting to a generic \"unknown reason\"."
-          },
-          {
-            "title": {
-              "zh-TW": "多指令能連著下，代理與無頭執行也各守界線",
-              "en": "Chained commands, agents, and headless runs now follow their intended rules"
-            },
-            "body": {
-              "zh-TW": "規劃完還想立刻請它挑毛病？現在同一句可排 `/plan /grill-me <prompt>`，每個開頭斜線指令會依輸入順序解析、啟用並顯示。custom agent 若明確寫 `subagent: false`，也不會再混進可呼叫的子代理清單。用 `-p` 或 `--print` 跑 headless（無頭模式，沒有終端機視窗／視覺介面的執行模式）時，已儲存的 `settings.json` 政策終於會生效，包括權限、檔案存取、sandbox mode（沙盒模式，把程式限制在安全範圍內的執行方式）、自動執行與成品審查。`/btw` 的岔題也不再複製成另一筆同標題對話。像火車站的轉乘牌：能依序換線，但標著不接客的月台不會被派車，沒有站務員的夜車仍照既定規則行駛。",
-              "en": "Finished planning and want an immediate critique? One prompt can now begin `/plan /grill-me <prompt>`; each leading slash command is parsed, activated, and displayed in typed order. A custom agent explicitly marked `subagent: false` no longer sneaks into the callable-subagent list. Headless runs, execution through `-p` or `--print` without a terminal window, now honor saved `settings.json` policies: permissions, file access, sandbox mode, auto-execution, and artifact review. A `/btw` side question also stops making a duplicate conversation with its parent’s title. It is like a station transfer board: you can change lines in order, closed platforms are not assigned trains, and an unattended night train still follows its rules."
-            },
-            "original": "Added support for stacking multiple leading slash commands in a single prompt, so a chain like `/plan /grill-me <prompt>` parses, activates, and renders every command in the order you typed them.\nFixed custom agents that declare `subagent: false` still appearing in the available-subagents list and being invocable as subagents.\nFixed headless (`-p` / `--print`) runs so they now honor persisted `settings.json` policies, including `permissions`, file access, sandbox mode, auto-execution, and artifact review.\nFixed `/btw` side-questions leaking into the conversation list as duplicate entries that carried the parent conversation's title."
-          }
-        ]
-      }
-    },
-    {
-      "version": "1.1.3",
-      "raw": {
-        "version": "1.1.3",
-        "period": "2026-07-16",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-07-16",
-        "entries": [
-          "Added a `/codesearch` command (aliases `/cs` and `/search`) to interactively search code across your workspace, interpreting queries as regex by default with `-F`/`--literal` for exact matching and `f:`/`file:` globs to include or exclude paths.",
-          "Added copy-on-select in no-flickering mode so dragging highlights text and releasing the mouse copies the ANSI-stripped selection to the clipboard, and hides the virtual scrollbar so it no longer interferes with copying multi-line output.",
-          "Added an indicator at each context-compaction boundary so you can see where earlier compaction happened.",
-          "Improved interactive startup latency by loading skills asynchronously so the CLI no longer blocks on a synchronous, filesystem-heavy skill-discovery pass during bring-up.",
-          "Improved eligibility error handling by showing errors with a verification URL inline in the input loop instead of stacking them above the screen.",
-          "Improved customization loading latency for skills, rules, agents, and hooks by consolidating directory walks and caching filesystem lookups to cut redundant I/O during discovery.",
-          "Removed the padding spaces around inline code for tighter rendering.",
-          "Fixed code-block corruption where `$..$` math expansion desynced from the Markdown parser and mangled fenced shell snippets such as `git fetch \"$GIT_REMOTE\"` by detecting fenced code blocks line-by-line.",
-          "Fixed headless (`-p`) runs hanging or silently auto-approving tools that require a permission confirmation, so the CLI now soft-denies such tools and prints a stderr notice naming the allow-rule needed to permit them.",
-          "Fixed outside-of-workspace file writes being incorrectly auto-approved in always-proceed mode.",
-          "Fixed high CPU and unbounded render cost on large conversations in no-flickering mode by making index rebuilds idempotent so the conversation index converges instead of growing on every rebuild.",
-          "Fixed lingering artifact comments after dismissing the artifact detail view and corrected no-flickering-mode row math so the status line renders correctly within the viewport.",
-          "Fixed repeated sign-in prompts on Linux caused by the OS keyring: the CLI now bypasses the keyring when no D-Bus session bus is present (headless hosts and containers), skips it for an hour after a timeout, and uses longer keyring timeouts so a slow-but-successful credential read is no longer cut short and forced into a fresh login.",
-          "Fixed MCP servers hanging the agent indefinitely when a server never responds by bounding connection, tool-listing, and per-tool-call attempts with timeouts.",
-          "Fixed conversations breaking after certain tool calls, which previously corrupted the conversation history and blocked all further responses.",
-          "Fixed customization rules being loaded twice when a rules directory is reachable through a symlink."
-        ]
-      },
-      "curated": {
-        "version": "1.1.3",
-        "period": "2026-07-16",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "找程式碼有專屬指令，排版錯亂與報錯畫面一次修好",
-              "en": "A dedicated code search command, plus fixes for garbled formatting and intrusive errors"
-            },
-            "body": {
-              "zh-TW": "你能用全新的 `/codesearch`（或 `/cs`）指令快速翻找整個專案的程式碼了。它預設支援正規表達式（regex，一種用符號匹配字串的進階語法），你也能加上 `-F` 進行字字精準的比對，甚至用 `f:` 來過濾特定檔案。在介面體驗上，系統排版變聰明了：它會明確畫出一條線，告訴你先前的對話在哪裡被壓縮過（context-compaction，把舊記憶摺疊起來省空間的功能）；行內程式碼周圍多餘的空白被移除了；含有錢字號的終端機指令，也不會再被 Markdown 解析器誤認成數學公式而變成亂碼。此外，遇到 eligibility error（資格驗證錯誤）時，錯誤訊息和驗證網址現在會乖乖安插在輸入框裡，不會再把你的畫面往上頂。就像你買了一個新書櫃，不只附贈了超強的檢索系統幫你精準找書，還順手把原本會爆出櫃子的通知單好好夾在書頁裡、撫平書本間的折頁。",
-              "en": "You can now quickly dig through your entire project's code using the new `/codesearch` (or `/cs`) command. It interprets your queries as regular expressions (regex, an advanced syntax for pattern matching) by default, but you can use `-F` for strictly literal matches and filter specific files using `f:` globs. Visually, the interface has grown smarter: it now draws a clear indicator line to show exactly where earlier conversation history was squeezed down (context-compaction, the feature that folds old memories to save space); extra padding spaces around inline code have been stripped away; and shell commands containing dollar signs will no longer be mistaken for math formulas. Also, when an eligibility error occurs, the message and verification URL now sit politely inline in your input loop, rather than pushing your whole screen upwards. It's like getting a new bookshelf that comes with a powerful cataloging system to pinpoint any book, neatly tucks annoying notification slips into the pages, and smooths out the awkward gaps between the books."
-            },
-            "original": "Added a `/codesearch` command (aliases `/cs` and `/search`) to interactively search code across your workspace, interpreting queries as regex by default with `-F`/`--literal` for exact matching and `f:`/`file:` globs to include or exclude paths.\nAdded an indicator at each context-compaction boundary so you can see where earlier compaction happened.\nImproved eligibility error handling by showing errors with a verification URL inline in the input loop instead of stacking them above the screen.\nRemoved the padding spaces around inline code for tighter rendering.\nFixed code-block corruption where `$..$` math expansion desynced from the Markdown parser and mangled fenced shell snippets such as `git fetch \"$GIT_REMOTE\"` by detecting fenced code blocks line-by-line."
-          },
-          {
-            "title": {
-              "zh-TW": "啟動與載入效能大躍進，不再繞遠路讀檔案",
-              "en": "Startup and discovery speeds skyrocket, cutting out redundant file reads"
-            },
-            "body": {
-              "zh-TW": "現在你打開 Antigravity（Google 的終端機 AI 助手）時，不用再枯等它暖機了。以前在啟動階段，系統會為了尋找技能（skills，提供額外能力的設定）而卡死在漫長的檔案掃描上；現在它改成非同步載入（asynchronously loading，讓主程式先跑，背景慢慢找），大幅縮短了啟動時間。不只如此，當系統在找技能、規則（rules）、代理或掛鉤（hooks）這類客製化設定時，現在懂得把所有路線整合起來並快取（caching，把查過的結果暫存起來直接用）尋找紀錄，砍掉了多餘的磁碟讀寫。同時，它也修好了一個小蟲：如果你的規則資料夾是用符號連結（symlink，指向另一個位置的檔案）連過去的，系統不會再笨笨地把它載入兩次。就像你開車出門，以前每次都要全車地毯式安檢，現在只要一發動就能上路，而且導航系統會記住去過的地方，不用每次都在同一個路口找路。",
-              "en": "You no longer have to stare at a stalling screen while Antigravity (Google's terminal AI assistant) warms up. Previously, during bring-up, the CLI would completely block your interactive startup while it laboriously scanned your file system to discover skills (settings providing extra capabilities); it now loads them asynchronously (letting the main interface start instantly while loading happens in the background), drastically cutting down startup latency. Moreover, when the system hunts for customizations like skills, rules, agents, or hooks, it now consolidates these directory walks and caches (temporarily saving results for instant reuse) its filesystem lookups, eliminating redundant I/O reads. It also fixed a minor hiccup where customization rules were loaded twice if the directory was reached via a symlink (a file pointing to another location). It's like driving your car: instead of a full-body security sweep every time you turn the key, you can just start the engine and go, and your GPS remembers the routes so it doesn't have to recalculate at every intersection."
-            },
-            "original": "Improved interactive startup latency by loading skills asynchronously so the CLI no longer blocks on a synchronous, filesystem-heavy skill-discovery pass during bring-up.\nImproved customization loading latency for skills, rules, agents, and hooks by consolidating directory walks and caching filesystem lookups to cut redundant I/O during discovery.\nFixed customization rules being loaded twice when a rules directory is reachable through a symlink."
-          },
-          {
-            "title": {
-              "zh-TW": "畫面不再耗能死當，長對話與滑鼠複製更順手",
-              "en": "No more CPU spikes on huge chats, and mouse copying works smoothly"
-            },
-            "body": {
-              "zh-TW": "在使用不閃爍模式（no-flickering mode，讓終端機畫面更新時不會一直閃爍的顯示模式）時，你的電腦不會再因為超長對話而卡死了。以前對話累積太多，每次更新畫面都會重新把對話索引（index）越長越大，導致 CPU 狂飆；現在重建索引改成了冪等（idempotent，不管跑幾次結果都一樣，不會無限疊加），讓負載穩定下來。此模式下的行數計算也修好了，狀態列不再跑出視窗外；關閉獨立文件預覽（artifact，系統生成的獨立文件預覽）詳細畫面後，也不會再有幽靈留言殘留在螢幕上。現在更支援了選取即複製（copy-on-select）：滑鼠拖曳反白，放開就能把純文字（不含 ANSI 顏色代碼）複製到剪貼簿，且虛擬卷軸會自動隱藏不礙事。就像畫超長的清明上河圖，以前每畫一筆書僮都要從頭數到尾，現在他只看最新變化；當你想臨摹其中一段，一框起來就印好給你，畫軸也會自動閃避。",
-              "en": "Your computer will no longer choke on massive conversations when using no-flickering mode (a display mode that prevents the terminal screen from flashing on every update). Previously, as the chat grew, every single screen refresh would rebuild the conversation index (the internal map of the chat) larger and larger, causing high CPU usage and unbounded rendering costs. This index rebuild is now idempotent (meaning it converges to a stable state no matter how many times it runs), keeping system load stable. Row math in this mode was also corrected so the status line stays neatly inside your viewport, and dismissing an artifact (a standalone document preview generated by the system) detail view will no longer leave ghost comments on the screen. Even better, it now supports copy-on-select: dragging to highlight text and simply releasing the mouse instantly copies the clean text (stripped of ANSI terminal color codes) to your clipboard, hiding the virtual scrollbar so it doesn't interfere. It's like working on a mile-long scroll — previously, your assistant would recount the entire scroll every time you added a stroke; now, they only process what's needed. And when you want to trace a section, circling it instantly gives you a clean photocopy, while the scroll handles tuck themselves away."
-            },
-            "original": "Added copy-on-select in no-flickering mode so dragging highlights text and releasing the mouse copies the ANSI-stripped selection to the clipboard, and hides the virtual scrollbar so it no longer interferes with copying multi-line output.\nFixed high CPU and unbounded render cost on large conversations in no-flickering mode by making index rebuilds idempotent so the conversation index converges instead of growing on every rebuild.\nFixed lingering artifact comments after dismissing the artifact detail view and corrected no-flickering-mode row math so the status line renders correctly within the viewport."
-          },
-          {
-            "title": {
-              "zh-TW": "權限放行不再出包，無頭模式與 Linux 登入更安分",
-              "en": "Tighter permissions for headless runs, and no more login loops on Linux"
-            },
-            "body": {
-              "zh-TW": "當你把系統放在背景自動跑任務時，它不會再自作主張開後門。以前在無頭模式（headless runs，無終端機視窗的執行模式）下，遇到需確認權限的工具時不是卡死就是自動同意；現在會溫和拒絕並提示需設定哪條白名單（allow-rule）。在「一律同意（always-proceed）」模式下，也不會再錯誤批准寫入工作區之外的檔案。Linux 使用者以前常因作業系統鑰匙圈（OS keyring，存密碼的保險箱）讀取太慢而被切斷，逼得重新登入；現在若無 D-Bus 工作階段匯流排（D-Bus session bus，用來在工作階段溝通的管道）就直接繞過鑰匙圈，超時先跳過一小時並放寬讀取時間。就像派機器人去倉庫，遇到鎖住的門它不硬闖也不傻等，只回報缺哪把鑰匙；保全動作慢，它也願意多等，不會動不動要你重簽通行證。",
-              "en": "When running tasks in the background, the system no longer makes unauthorized decisions. Previously in headless runs (modes without a terminal window, like `-p`), tools requiring permission either hung or auto-approved; the CLI now soft-denies them and prints a stderr notice showing the allow-rule needed to permit them. In \"always-proceed\" mode, outside-of-workspace file writes are no longer incorrectly auto-approved. Linux users are saved from login loops caused by slow OS keyring reads; the CLI now bypasses the keyring if no D-Bus session bus is present, skips it for an hour after a timeout, and extends timeout windows. Like sending a robot to a warehouse: encountering a locked door, it reports the key it needs; if the guard is slow, it waits longer instead of triggering alarms."
-            },
-            "original": "Fixed headless (`-p`) runs hanging or silently auto-approving tools that require a permission confirmation, so the CLI now soft-denies such tools and prints a stderr notice naming the allow-rule needed to permit them.\nFixed outside-of-workspace file writes being incorrectly auto-approved in always-proceed mode.\nFixed repeated sign-in prompts on Linux caused by the OS keyring: the CLI now bypasses the keyring when no D-Bus session bus is present (headless hosts and containers), skips it for an hour after a timeout, and uses longer keyring timeouts so a slow-but-successful credential read is no longer cut short and forced into a fresh login."
-          },
-          {
-            "title": {
-              "zh-TW": "外部工具連線設下停損，對話不再突然壞死",
-              "en": "Timeout limits on runaway servers save conversations from sudden death"
-            },
-            "body": {
-              "zh-TW": "當你讓 AI 呼叫外部工具時，它不會再因為對方的失誤而跟著同歸於盡了。以前如果你的 MCP（Model Context Protocol，讓 AI 連結外部工具的通訊協定）伺服器沒有回應，代理（agent）就會像石化了一樣無限期死等；現在系統為連線、列出工具清單與呼叫工具的動作都設下了超時停損點（timeouts），時間一到就會果斷放棄。此外，有些特定的工具呼叫以前會弄壞對話紀錄（corrupted history），導致 AI 之後完全無法回應，整個對話直接壞死；這個嚴重的蟲現在也被抓出來修好了。就像派助理去拿資料，以前沒人他會永遠死等並弄丟聯絡簿；現在給他設了超時規定，時間一到就直接回報，也不會再搞丟聯絡簿。",
-              "en": "When you ask the AI to invoke an external tool, it will no longer get dragged down by unresponsive servers. Previously, if your MCP (Model Context Protocol, a standard connecting AI to external tools) server simply never responded, the agent would freeze like a statue and hang indefinitely; the system now actively bounds connection attempts, tool-listing requests, and per-tool-call attempts with strict timeouts, allowing it to gracefully give up and move on. Furthermore, certain tool calls used to catastrophically break the conversation by corrupting the history (the underlying memory of the chat), which blocked all further responses and killed the session instantly; this fatal bug has been fully squashed. It's like sending an assistant to fetch a document — they used to stand there forever if the room was empty and lose their walkie-talkie; now you've given them a strict timeout rule, so they come back if nobody answers, and keep their radio perfectly safe."
-            },
-            "original": "Fixed MCP servers hanging the agent indefinitely when a server never responds by bounding connection, tool-listing, and per-tool-call attempts with timeouts.\nFixed conversations breaking after certain tool calls, which previously corrupted the conversation history and blocked all further responses."
           }
         ]
       }
