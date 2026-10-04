@@ -5,6 +5,35 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.22.12",
+      "raw": {
+        "version": "0.22.12",
+        "period": "2026-07-01",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**New model pricing refreshes as soon as usage sees an unknown model**: fresh cached pricing could hide newly-added models until the 7-day TTL expired, temporarily rendering them as $0.00/unknown. A pricing miss now triggers a debounced background refresh, and Claude Sonnet 5 has an offline fallback price so first-run or offline usage still estimates cost."
+        ]
+      },
+      "curated": {
+        "version": "0.22.12",
+        "period": "2026-07-01",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "看到沒見過的新模型會馬上查價格，不再假裝免費",
+              "en": "The system instantly looks up prices for unknown models instead of pretending they're free"
+            },
+            "body": {
+              "zh-TW": "遇到還沒見過的新模型時，現在能立刻查到正確價格，不會再被誤算成 0 元。以前為了省網路，系統會把價格表快取 7 天，結果剛上線的新模型會因為查不到價格，被當成 0 元顯示好幾天；現在只要一遇到沒見過的新模型，它就會在背後觸發帶有防抖動（debounce，短時間內重複觸發只算最後一次，避免頻繁重新整理）機制的延遲更新去抓最新的價格表，而且還內建了一份 Claude Sonnet 5 這個型號的保底價格，讓你就算離線也算得出錢。就像收銀員以前遇到沒見過的條碼，會裝作不用錢讓你拿走，現在他懂得馬上打電話問店長，如果電話不通他也有備用的最新主打商品價目表可以查。",
+              "en": "Run into a model it's never seen before, and it now looks up the real price right away instead of quietly showing $0.00. Previously, to save network calls, it cached the master price list for 7 days. This meant that newly-released AI models wouldn't have a price, causing them to temporarily show up as completely free ($0.00) for days. Now, the moment it spots an unknown model, it triggers a debounced (debouncing delays the action and groups repeated rapid requests into a single one) background refresh to fetch the latest prices, and it even carries a built-in fallback price specifically for Claude Sonnet 5 so it can estimate costs even when you are fully offline. It's like a cashier who used to give away items for free if the barcode wouldn't scan; now they immediately call the manager to check the price, and keep a backup clipboard for the most popular new item just in case the phone lines are down."
+            },
+            "original": "**New model pricing refreshes as soon as usage sees an unknown model**: fresh cached pricing could hide newly-added models until the 7-day TTL expired, temporarily rendering them as $0.00/unknown. A pricing miss now triggers a debounced background refresh, and Claude Sonnet 5 has an offline fallback price so first-run or offline usage still estimates cost."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.22.11",
       "raw": {
         "version": "0.22.11",
@@ -277,35 +306,6 @@
               "en": "If the pinned usage percentage on your menu bar gets stuck because the underlying tool's settings got disconnected, the system will no longer let you stare blindly at a dead number. If it detects that you're clearly still chatting (your project logs show activity) but the status file hasn't updated in over 30 minutes, it will proactively pop up an actionable warning teaching you to re-run `--setup` or restart the app to fix it. It preserves the last known real number, never fabricates data, and remains completely offline. It's like looking at a clock thinking you have plenty of time: instead of quietly dying on the wall and making you miss a meeting, the clock now pops up a sign saying \"I'm out of battery, change it now.\""
             },
             "original": "**Warns when the status line stops updating while you're still working**: the menu bar percentage comes only from the file the status line hook writes, so if that hook gets unwired (another tool rewrites `settings.json`) or stops firing, the pinned number would silently freeze. usage now detects this — when the status file hasn't updated for 30 minutes but your `~/.claude/projects` logs show recent activity — and shows an actionable warning telling you to re-run `--setup` or restart Claude Code. The last known percentage is kept, never fabricated, and there is still no network call."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.22.2",
-      "raw": {
-        "version": "0.22.2",
-        "period": "2026-06-21",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**HTML report no longer fails inside the packaged .app**: the year-in-review spirit images (phoenix/dragon) were resolved with a source-tree path that doesn't exist in the py2app bundle, so generating any report raised `FileNotFoundError`. They are now resolved through the bundle's resource path, with the source-tree path kept as a fallback for source/CLI runs."
-        ]
-      },
-      "curated": {
-        "version": "0.22.2",
-        "period": "2026-06-21",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "獨立 App 產出報告時不再因為找不到神獸圖片而崩潰",
-              "en": "Packaged app stops crashing over missing spirit images when generating reports"
-            },
-            "body": {
-              "zh-TW": "如果你是直接執行打包好的獨立 App（.app），現在產出年度報告時不會再直接當掉了。以前在算年度回顧時，系統會去抓鳳凰或飛龍的圖片，但它找圖片的路徑是用給開發者看的原始碼路徑，所以在打包好的 App 裡根本找不到，導致整個報告出不來。現在它懂得在打包好的資源資料夾裡找圖片了，讓報告能順利生出來。就像你把食譜帶去別人家廚房煮菜，以前一直去原本家裡的位置找鹽巴所以煮不出來，現在懂得在別人家的調味料櫃裡找了。",
-              "en": "If you're running the standalone packaged App (.app), generating the annual report will no longer cause it to crash outright. Previously, when calculating the year-in-review, the system tried to fetch the phoenix or dragon images using a source code path meant for developers. This path didn't exist inside the packaged app, causing the entire report generation to fail. Now, it knows to look for the images inside the bundled resources folder, ensuring the report generates smoothly. It's like taking a recipe to cook in someone else's kitchen: you used to fail because you kept reaching for salt in the exact spot it is in your own house, but now you know to look in the host's actual spice cabinet."
-            },
-            "original": "**HTML report no longer fails inside the packaged .app**: the year-in-review spirit images (phoenix/dragon) were resolved with a source-tree path that doesn't exist in the py2app bundle, so generating any report raised `FileNotFoundError`. They are now resolved through the bundle's resource path, with the source-tree path kept as a fallback for source/CLI runs."
           }
         ]
       }

@@ -5,6 +5,36 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.15.12",
+      "raw": {
+        "version": "0.15.12",
+        "period": "2026-06-06",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Fixed a file-descriptor leak from Codex SQLite connections not being closed after reads (#30)**: reading Codex's `logs_2.sqlite` / `state_5.sqlite` only ended the transaction without actually closing the connection, accumulating open file descriptors over long runs. Connections are now properly closed after every read.",
+          "**Codex quota refresh is now applied before the history scan (#31)**: during background refresh, the Codex quota result is now applied to the main view synchronously before the project history scan runs, avoiding a brief display of stale quota."
+        ]
+      },
+      "curated": {
+        "version": "0.15.12",
+        "period": "2026-06-06",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Codex 額度更新不再慢半拍，背後也不再偷吃系統資源",
+              "en": "Codex quota updates are now instantly responsive and resource-friendly"
+            },
+            "body": {
+              "zh-TW": "你的 Codex 額度顯示現在更即時，電腦資源也不會再被偷偷吃掉了。當系統在背景重新抓取額度時，以前會等所有笨重的歷史紀錄都掃描完，才把最新的 Codex 額度貼上畫面，導致這中間畫面會短暫閃出過期的舊數字；現在它學會一拿到新額度就立刻送上畫面，不再慢半拍。另外，以前在讀取 Codex 的本機紀錄檔（SQLite 資料庫）時，只結束了動作卻沒把檔案關好，時間久了會累積一堆沒關的檔案通道、偷偷吃掉系統資源；現在每次讀完都會確實把門關上。就像是餐廳服務生以前要等整張清單的菜都做完才一次端上桌，現在有熱騰騰的菜就先上；而且收盤子時也不會再把推車丟在走道上擋路了。",
+              "en": "Your Codex quota display is now instantly responsive, and your computer's resources will no longer be quietly drained in the background. Previously, during a background refresh, the system would wait until the heavy project history scan completely finished before dispatching the fresh Codex quota to the UI, causing the screen to briefly flash a stale number. Now, the new quota is sent to the screen the exact second it's fetched. Additionally, when reading Codex's local history files (SQLite databases), the system used to finish the transaction but forget to explicitly close the file connection, slowly leaking file descriptors over time and quietly eating up system resources; it now strictly closes the door after every read. It's like a waiter who used to wait until an entire massive order was cooked before bringing out any food; now they bring out hot dishes immediately. Plus, they no longer leave empty carts cluttering the aisles after bussing tables."
+            },
+            "original": "**Fixed a file-descriptor leak from Codex SQLite connections not being closed after reads (#30)**: reading Codex's `logs_2.sqlite` / `state_5.sqlite` only ended the transaction without actually closing the connection, accumulating open file descriptors over long runs. Connections are now properly closed after every read.\n**Codex quota refresh is now applied before the history scan (#31)**: during background refresh, the Codex quota result is now applied to the main view synchronously before the project history scan runs, avoiding a brief display of stale quota."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.11",
       "raw": {
         "version": "0.15.11",
@@ -287,48 +317,6 @@
               "en": "Your Codex quota display is much steadier now and won't randomly disappear for a split second. Previously, if the system hit a bump while reading your historical usage in the background, it would mistakenly wipe out the Codex quota it had already successfully fetched, making those rows flash blank; it now knows to hold onto the good data it already has when an error occurs. Like watching a streaming video that encounters a slight network hiccup — it used to just cut to a black screen, but now it freezes on the last clear frame until the signal quietly catches up."
             },
             "original": "**Codex quota no longer blanks out on refresh errors (#25)**: follow-up to #24. When the later refresh stage (history parsing) failed, the error state reset the Codex session/weekly rows to blank, overwriting the quota that had already been loaded at the start of the refresh. The error path now preserves those already-loaded Codex rows, so they no longer flash empty."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.15.2",
-      "raw": {
-        "version": "0.15.2",
-        "period": "2026-06-02",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Steadier background refresh**: file-change–triggered refreshes are now always marshalled to the main thread, and the refresh routine has an outer guard so it can't get stuck in a state where it never refreshes again.",
-          "**Lighter refresh when sessions pile up**: history change-detection narrowed from scanning all of `~/.claude` to the `~/.claude/projects` it actually reads; Codex recent-session enumeration now walks the dated folder structure and scans only what's needed (skipping hidden files like `.DS_Store`) instead of rglob-ing the whole tree on every refresh.",
-          "**No stall on first launch / offline**: the pricing-table download moved to the background; cost calculation always uses the local cache or built-in fallback first and auto-refreshes once the download lands. A long-running app also refreshes pricing in the background after the cache expires."
-        ]
-      },
-      "curated": {
-        "version": "0.15.2",
-        "period": "2026-06-02",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "對話再多也不拖慢電腦，背景更新再也不卡死",
-              "en": "Smoother background updates that won't bog down your machine no matter how much you chat"
-            },
-            "body": {
-              "zh-TW": "就算你累積了幾百個專案的對話，這套工具現在也不會拖慢你了。以前系統為了察覺歷史用量有沒有變，每次都會把所有資料夾從頭掃描一次，現在它學會了只盯著真正有用的範圍看，還懂得自動略過隱藏的系統垃圾檔。此外，我們幫背景更新機制加了一道保險，徹底解決了極少數情況下更新卡住、數字從此再也不動的怪問題。就像圖書館員以前為了找一本新書要把整間圖書館每一層樓全逛一遍，現在他知道直接走到特定書架巡視就好，而且再也不會迷路卡在書庫裡出不來。",
-              "en": "Even if you've piled up hundreds of chat sessions, the app won't drag your computer down anymore. Previously, to detect changes in your usage history, the system would aggressively scan every single folder top to bottom; now it smartly narrows its focus to only the relevant directories and safely skips hidden system junk files. We also wrapped the background refresh mechanism in a safety guard, completely eliminating a rare bug where updates could get permanently stuck, freezing your numbers forever. It's like a librarian who used to wander every floor of the building just to spot a single new arrival, but now knows exactly which shelf to check, and has a failsafe so they never get lost in the archives again."
-            },
-            "original": "**Steadier background refresh**: file-change–triggered refreshes are now always marshalled to the main thread, and the refresh routine has an outer guard so it can't get stuck in a state where it never refreshes again.\n**Lighter refresh when sessions pile up**: history change-detection narrowed from scanning all of `~/.claude` to the `~/.claude/projects` it actually reads; Codex recent-session enumeration now walks the dated folder structure and scans only what's needed (skipping hidden files like `.DS_Store`) instead of rglob-ing the whole tree on every refresh."
-          },
-          {
-            "title": {
-              "zh-TW": "離線或首次啟動不再卡頓，花費估算全自動跟上",
-              "en": "No more stalls on first launch or offline, and cost estimates catch up seamlessly"
-            },
-            "body": {
-              "zh-TW": "現在你打開 App 時，再也不用等它慢慢下載價格表了。以前在首次啟動或斷網時，系統為了估算成本，會卡在那裡硬等價格表下載完；現在它會先用本機記住的舊價格或內建的預設值頂著，把下載工作丟到背景默默進行，等抓完最新價格再自動幫你重新計算。就算你電腦一直開著，它也會在價格過期後自動幫你更新。就像去餐廳點菜，服務生不會因為網路連不上總公司就讓你站在門口乾等，而是先拿昨天的菜單讓你點，等連線恢復再幫你確認最新價錢。",
-              "en": "You no longer have to wait for the app to slowly download pricing tables when you open it. Previously, on a fresh launch or when completely offline, the system would aggressively stall the whole interface just to fetch AI pricing data for your cost estimates; it now instantly uses cached prices or built-in fallbacks while pushing the download to the background, and seamlessly recalculates your costs once the fresh data arrives. If you leave the app running for days, it even auto-updates the pricing out of sight when the cache expires. Like arriving at a restaurant with a broken internet connection—the waiter won't leave you standing at the door waiting for corporate to sync the register, but hands you yesterday's menu to get started, and quietly confirms the latest prices once they're back online."
-            },
-            "original": "**No stall on first launch / offline**: the pricing-table download moved to the background; cost calculation always uses the local cache or built-in fallback first and auto-refreshes once the download lands. A long-running app also refreshes pricing in the background after the cache expires."
           }
         ]
       }
