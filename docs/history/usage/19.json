@@ -5,6 +5,37 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.11.9",
+      "raw": {
+        "version": "0.11.9",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**TUI session table no longer crashes on `cost_usd=None`**: widened `ui/tables.py:_fmt_cost` to `float | None` so entries written without a cost (a known path on the Codex side) now render as `--`, matching the popover-side behavior in `panels/web_panel.py`. Previously the `>=` comparison raised `TypeError` and broke the whole table.",
+          "**Update check now handles pre-release versions**: `update_checker._parse_version` now strips pre-release / build suffixes via regex, so `0.11.0-beta.1` / `0.11.0+build.5` no longer return `None` and no longer make `compare_versions` raise. Beta testers receive update prompts correctly. No new package dependencies were added.",
+          "**Pricing falls back to a stale cache when offline**: the fallback order in `pricing.py` is now fresh cache → network fetch → stale cache → hardcoded fallback. Previously a >7-day-old cache combined with no network dropped straight to the hardcoded prices, skewing cost estimates; the real (if stale) historical cache is now preferred."
+        ]
+      },
+      "curated": {
+        "version": "0.11.9",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "離線估價更準確，測試版更新不再漏接，終端介面不崩潰",
+              "en": "Accurate offline estimates, fixed beta updates, and crash-free terminal UI"
+            },
+            "body": {
+              "zh-TW": "現在帶筆電出門沒網路時，系統估算花費會直接拿你上週剛抓過的價目表來算，不會再傻傻退回最古老的出廠價，讓成本估算大失真。如果你是愛用測試版的勇者，系統現在也看得懂「beta」這類後綴版號，有新版會正確跳出更新提示，不再報錯裝死。另外，用終端機查看對話紀錄時，就算有些紀錄沒有標示花費金額，畫面現在只會顯示「--」，不會再導致整個表格直接崩潰壞掉。就像出國沒網路時，你會拿出幾天前存的舊匯率表來換算，而不是硬用十年前的書本價格；而且就算清單裡某幾項商品沒貼標籤，結帳機台也不會整台當機了。",
+              "en": "When you're working offline without internet, the system now smartly estimates your costs using the real price list you fetched last week, instead of wildly falling back to ancient factory-default prices and skewing your budget. If you're an early adopter running beta versions, the update checker now understands version numbers ending in \"beta\", delivering update prompts correctly instead of throwing an error and playing dead. Also, when viewing your session history in the terminal, if a specific entry happens to lack cost data, it now gracefully displays \"--\" rather than crashing the entire table. It's like traveling abroad without data: you use the exchange rate you saved a few days ago instead of blindly relying on a ten-year-old guidebook; and if a couple of items on your grocery receipt are missing price tags, the whole cash register doesn't explode."
+            },
+            "original": "**Pricing falls back to a stale cache when offline**: the fallback order in `pricing.py` is now fresh cache → network fetch → stale cache → hardcoded fallback. Previously a >7-day-old cache combined with no network dropped straight to the hardcoded prices, skewing cost estimates; the real (if stale) historical cache is now preferred.\n**Update check now handles pre-release versions**: `update_checker._parse_version` now strips pre-release / build suffixes via regex, so `0.11.0-beta.1` / `0.11.0+build.5` no longer return `None` and no longer make `compare_versions` raise. Beta testers receive update prompts correctly. No new package dependencies were added.\n**TUI session table no longer crashes on `cost_usd=None`**: widened `ui/tables.py:_fmt_cost` to `float | None` so entries written without a cost (a known path on the Codex side) now render as `--`, matching the popover-side behavior in `panels/web_panel.py`. Previously the `>=` comparison raised `TypeError` and broke the whole table."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.8",
       "raw": {
         "version": "0.11.8",
@@ -324,35 +355,6 @@
               "en": "You no longer have to manually check the GitHub repository for new releases. On launch, the app now automatically checks for new versions and pops up a dialog with the release notes and a one-click button to download it. To respect your focus, this auto-check runs at most once every 24 hours. If a particular update doesn't interest you, you can hit \"Skip this version\" and it won't bother you about that specific release again. You are in full control — you can toggle off \"Automatically Check for Updates\" in the Switch Panel menu, or manually trigger a \"Check for Updates Now\" whenever you want. It's like your car's GPS silently checking for new maps in the background and only asking if you want to upgrade when there's actually a major new route, instead of forcing you to click OK every time you start the engine."
             },
             "original": "**In-app update check (Stage 1)**: On launch, usage pings GitHub Releases for a newer version (rate-limited to once per 24h so you're not nagged every time you open the app). When a newer version is found, an NSAlert shows the version + release notes with three buttons: **Download**, **Later**, **Skip this version**. \"Download\" opens the Release page in your default browser — manually replace the old `.app` with the new one. (Stage 2 will bring Sparkle-style auto download + replace.)\n**Two new entries in the \"Switch panel\" menu**:\n- **Automatically Check for Updates** (toggleable): unchecking it disables the launch-time auto check entirely; the manual entry below still works.\n- **Check for Updates Now**: manually triggers a check, bypassing the 24h cooldown and skip-version preference. If you're already up to date, an alert says so; on network error you see \"Update check failed\".\nPreferences are stored in the existing `~/.claude/usage-preferences.json`, with three new keys: `auto_update_check` (default true), `update_dismissed_at` (Unix timestamp), `update_skipped_version` (skipped version string).\n`setup_app.py` now bundles `pyproject.toml` and `update_checker` into the py2app build — so the packaged `.app` can fall back to reading `pyproject.toml` when `importlib.metadata` can't resolve the version."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.10.1",
-      "raw": {
-        "version": "0.10.1",
-        "period": "2026-05-24",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Weekly burn-rate warning false positive**: Extrapolating the last 10 minutes of usage slope onto a 7-day weekly quota was too aggressive (e.g. 56% used → projected 5h50m to exhaustion → \"Runs out in 5h50m (resets in 4d6h)\" warning), since users don't sustain that rate 24/7. Fix: `_quota_row` gained a `warning_max_seconds` parameter, and the three weekly call sites pass a 24h ceiling — projections beyond 24 hours no longer trigger the warning. Session warnings are unchanged."
-        ]
-      },
-      "curated": {
-        "version": "0.10.1",
-        "period": "2026-05-24",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "每週額度的用完警告不再過度恐慌",
-              "en": "Weekly quota burn-rate warnings are no longer overly dramatic"
-            },
-            "body": {
-              "zh-TW": "現在系統預估「每週額度（weekly quota）」什麼時候會用完時，不會再隨便嚇你了。以前它會拿你最近 10 分鐘瘋狂輸出的速度，直接推算你接下來整週都會不眠不休地工作，然後在你額度其實還剩近一半時，就急著跳出「剩不到 6 小時就用完」的紅字警告。現在系統加上了 24 小時的預測上限，如果按照目前速度算出來還能撐超過一整天，它就不會跳警告來煩你；但針對單次對話（session）的額度警告則維持原樣。這就像手機電量預估，以前你只是剛好開了五分鐘的耗電遊戲，系統就斷言你手機半小時後會沒電並狂響警報，現在它學會考量你不會一直玩下去，不再過度反應。",
-              "en": "The system will no longer cause unnecessary panic when predicting when your weekly quota will run out. Previously, it would take your furious typing speed over the last 10 minutes and extrapolate that you'd be working non-stop 24/7, prematurely flashing a red \"runs out in 6 hours\" warning even when your quota was only half empty. Now, the system enforces a 24-hour prediction ceiling — if your current pace indicates you'll survive for more than a full day, it won't bother you with a warning. Short-term session quota warnings remain unchanged. It's like your phone's battery estimator: it used to panic and scream that your phone would die in 30 minutes just because you launched a heavy game for five minutes, but now it understands you won't be playing forever and stops overreacting."
-            },
-            "original": "**Weekly burn-rate warning false positive**: Extrapolating the last 10 minutes of usage slope onto a 7-day weekly quota was too aggressive (e.g. 56% used → projected 5h50m to exhaustion → \"Runs out in 5h50m (resets in 4d6h)\" warning), since users don't sustain that rate 24/7. Fix: `_quota_row` gained a `warning_max_seconds` parameter, and the three weekly call sites pass a 24h ceiling — projections beyond 24 hours no longer trigger the warning. Session warnings are unchanged."
           }
         ]
       }

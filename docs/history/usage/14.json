@@ -5,6 +5,35 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.22.6",
+      "raw": {
+        "version": "0.22.6",
+        "period": "2026-06-23",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Annual Wrapped and the 52-week contribution heatmap no longer lose history when source logs are pruned**: the year view recomputed everything from whatever Claude Code / Codex session logs still existed on disk, so once those logs were rotated away it could only ever show the last ~2 months. usage now persists a daily ledger (`~/.usage/year_ledger.json`) that accumulates over time — each rebuild merges the currently-available days in (overwriting a stored day only when the fresh total is at least as large, so a partially-pruned day can't shrink the record) and trims entries beyond the 53-week window. The heatmap, streaks, active days, and Wrapped totals are all computed from the merged ledger, so coverage fills toward a full year from here on."
+        ]
+      },
+      "curated": {
+        "version": "0.22.6",
+        "period": "2026-06-23",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "你的年度回顧與熱力圖不會因為對話紀錄被清掉而跟著縮水",
+              "en": "Your year-in-review and heatmap no longer shrink when chat logs are cleared"
+            },
+            "body": {
+              "zh-TW": "年度回顧的各種總計與 52 週熱力圖，現在會自己記帳，不會再因為舊對話紀錄被砍掉而失憶了。以前它們每次都是從你電腦上現存的對話紀錄重算一次，所以只要紀錄被清掉，你的回顧就只剩下最近兩個月；現在系統每天會自己把當天的成績抄進一本專用的「帳本」裡保存下來。就算你把舊對話全砍了，帳本上的紀錄還是會保留著（最多保留 53 週，超過這個窗口的舊資料會被自動修剪掉）。就像以前老師算學期總成績是去數你抽屜裡還剩幾張考卷，現在老師會每天把分數登記在成績單上，就算考卷弄丟了分數也不會不見。",
+              "en": "Your Year in Review totals and the 52-week heatmap now keep their own ledger and won't suffer from amnesia just because your old chat logs get cleaned up. Previously, they recalculated everything from scratch using whatever conversation logs still existed on your computer, meaning if your logs got rotated out, your review shrank to just the last two months. Now, the system copies your daily score into a dedicated \"ledger\" every single day. Even if you completely delete all your old chats, the records in the ledger remain untouched (up to a 53-week window, beyond which older data is automatically trimmed). It's like a teacher who used to calculate your final grade by counting how many tests you still kept in your desk — now they record your score in a gradebook every day, so even if you lose the actual test papers, your points are safe."
+            },
+            "original": "**Annual Wrapped and the 52-week contribution heatmap no longer lose history when source logs are pruned**: the year view recomputed everything from whatever Claude Code / Codex session logs still existed on disk, so once those logs were rotated away it could only ever show the last ~2 months. usage now persists a daily ledger (`~/.usage/year_ledger.json`) that accumulates over time — each rebuild merges the currently-available days in (overwriting a stored day only when the fresh total is at least as large, so a partially-pruned day can't shrink the record) and trims entries beyond the 53-week window. The heatmap, streaks, active days, and Wrapped totals are all computed from the merged ledger, so coverage fills toward a full year from here on."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.22.5",
       "raw": {
         "version": "0.22.5",
@@ -287,47 +316,6 @@
               "en": "When you use Codex to fork a conversation (fork — making a copy of an existing chat to take it in a new direction), the system no longer double-charges you for the old history it pulled over; additionally, the tokens the model uses to think behind the scenes (reasoning tokens) are no longer billed twice. Previously, the system would mindlessly charge you for the copied legacy content and the already-priced reasoning words, but it now strips out that fluff and bills only for truly new expenditure. It's like photocopying an old draft to start a new essay: the clerk used to charge you for the words already printed on the draft, but now you only pay for the fresh ink you add."
             },
             "original": "**Forked Codex conversations no longer replay parent history as new usage**: Codex can embed a timestamp-rewritten copy of the parent conversation in a fork JSONL. The loader now matches and excludes that replay while retaining both the original parent usage and new post-fork usage. (#40, by @ericweichun)\n**Codex reasoning tokens are no longer charged twice**: `reasoning_output_tokens` is already included in Codex's `output_tokens`, so JSONL and SQLite usage readers now price the output total once. (#40, by @ericweichun)"
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.20.2",
-      "raw": {
-        "version": "0.20.2",
-        "period": "2026-06-16",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Codex model attribution now falls back to turn context**: newer Codex sessions can store the model in `turn_context.payload.model`, while `state_5.sqlite` may not have a matching thread row yet. The reader still prefers SQLite when available, but now uses the turn context as a fallback so cost estimates and model distribution no longer collapse to unknown or $0. (#38, by @ericweichun)",
-          "**Animated quota rows no longer restart on every panel refresh**: panels with animated quota tracks, including Prism Arcade, Black Hole, and Aquarium, now mount each quota row once and update it in place instead of rebuilding the markup on every status update. This prevents the CSS animation flicker during normal refreshes. (#39, by @ericweichun)"
-        ]
-      },
-      "curated": {
-        "version": "0.20.2",
-        "period": "2026-06-16",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "算錢與模型統計不再漏接 Codex 的資料",
-              "en": "Cost and model tracking no longer miss Codex data"
-            },
-            "body": {
-              "zh-TW": "現在查看帳單或模型使用比例時，你不會再被 0 元或未知的 Codex 估算數字誤導了。新版的 Codex 有時候把用哪個模型這件事記在別的地方（turn context），如果系統在原本習慣的地方找不到，現在會懂得去新的地方挖出來，讓你的帳單跟統計圖表保持完整。就像結帳時如果收銀機找不到條碼，店員現在懂得自己去翻包裝盒底下的備用標籤一樣。",
-              "en": "When checking your bills or model usage, you will no longer be misled by $0 or \"unknown\" estimates just because Codex logs are missing. Newer versions of Codex sometimes stash which model was used in a different spot (turn context); if the system can't find it in the usual place, it now knows to dig it out from the new location, keeping your bills and charts perfectly intact. It's like a cashier who, unable to find the main barcode, now knows to check under the box for the backup sticker."
-            },
-            "original": "**Codex model attribution now falls back to turn context**: newer Codex sessions can store the model in `turn_context.payload.model`, while `state_5.sqlite` may not have a matching thread row yet. The reader still prefers SQLite when available, but now uses the turn context as a fallback so cost estimates and model distribution no longer collapse to unknown or $0. (#38, by @ericweichun)"
-          },
-          {
-            "title": {
-              "zh-TW": "動畫面板更新時不再閃爍",
-              "en": "Animated panels stop flickering on refresh"
-            },
-            "body": {
-              "zh-TW": "那些額度進度條有動畫的面板（例如 Prism Arcade、黑洞、水族箱等），現在更新數字時畫面不會再閃一下了。以前每次狀態更新，系統都會把整個動畫軌道打掉重做，導致動畫會重新播放而產生閃爍；現在它只會在原地更新數字，不會中斷正在跑的動畫。就像換球場上的記分板數字，以前是把整個板子拆下來重裝，現在只換數字卡片，比賽照常進行。",
-              "en": "Panels that feature animated quota progress bars (like the Prism Arcade, Black Hole or Aquarium themes) no longer flash when their numbers update. Previously, on every status refresh, the system would tear down and rebuild the entire animation track, causing the animation to restart and flicker; it now just updates the digits in place without interrupting the moving parts. Like changing the score at a stadium: instead of tearing down the entire scoreboard and installing a new one, they just flip the number cards while the game plays on."
-            },
-            "original": "**Animated quota rows no longer restart on every panel refresh**: panels with animated quota tracks, including Prism Arcade, Black Hole, and Aquarium, now mount each quota row once and update it in place instead of rebuilding the markup on every status update. This prevents the CSS animation flicker during normal refreshes. (#39, by @ericweichun)"
           }
         ]
       }

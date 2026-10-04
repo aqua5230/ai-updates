@@ -5,6 +5,35 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.24.9",
+      "raw": {
+        "version": "0.24.9",
+        "period": "2026-07-08",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Analysis report occasionally failed with `ZipImportError: bad local file header`**: `analyzer/reporter.py` imported three single-file modules (`persona_loader.py`, `subscription.py`, `ai_updates_loader.py`) that lived outside the package directories py2app already unzips, so they still loaded through `python313.zip` — the same failure mode the earlier adapters/analyzer/ui packaging fix was meant to close. Moved all three under `analyzer/` so the entire report pipeline is now free of zipimport."
+        ]
+      },
+      "curated": {
+        "version": "0.24.9",
+        "period": "2026-07-08",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "解決報表偶爾罷工的錯誤，徹底擺脫壓縮檔讀取問題",
+              "en": "Fixed occasional report failures by moving all modules out of zipped loads"
+            },
+            "body": {
+              "zh-TW": "以前看分析報表時，有時候會突然跳出 `ZipImportError` 這種錯誤說讀不到檔案，現在這問題已經被徹底解決了。這是因為系統在跑報表時，會去讀取三個散落在外面的小檔案，而這些檔案被包在 `python313.zip` 這種壓縮檔裡，跟之前修好的介面閃退問題是同一個原因。現在工程師把這三個檔案都搬進了報表專用的資料夾裡，讓整個報表產出流程都不用再去拆壓縮檔了。就像是一間工廠的組裝線，原本員工要跑去外面的倉庫，手忙腳亂地拆紙箱拿少數幾個零件，偶爾還會拆壞箱子；現在把所有需要的零件通通搬進組裝線旁邊的零件櫃裡，隨手就能拿到，再也不會出錯卡線了。",
+              "en": "If you occasionally encountered a `ZipImportError` that crashed your analysis report, this issue is now completely resolved. The problem happened because the reporting system needed three stray files that were still awkwardly trapped inside the `python313.zip` archive—the exact same root cause behind an earlier UI crash. The engineers have now moved all three of these files safely inside the dedicated report folder, meaning the entire report pipeline no longer needs to unzip anything to run. It's like a factory assembly line where workers previously had to run to an outside warehouse and frantically tear open cardboard boxes just to grab three specific screws, occasionally ripping the box and stalling the line; now, those screws have been moved to the parts bin right next to the conveyor belt, perfectly within reach."
+            },
+            "original": "**Analysis report occasionally failed with `ZipImportError: bad local file header`**: `analyzer/reporter.py` imported three single-file modules (`persona_loader.py`, `subscription.py`, `ai_updates_loader.py`) that lived outside the package directories py2app already unzips, so they still loaded through `python313.zip` — the same failure mode the earlier adapters/analyzer/ui packaging fix was meant to close. Moved all three under `analyzer/` so the entire report pipeline is now free of zipimport."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.24.8",
       "raw": {
         "version": "0.24.8",
@@ -265,51 +294,6 @@
               "en": "The menu bar now features an incredibly powerful \"AI Talent Market\" panel. This is a fully offline, no-account-required catalog of curated AI assistant teams tailored for specific scenarios (like a one-person law practice or a solo software studio). You can install these personas directly onto your machine with one click and summon them by name in any conversation; you can even click a specific role to read their full profile and instantly launch them into a specific target folder. At the same time, we've entirely eliminated the agonizing 17+ second menu bar freezes that plagued long-time users. Previously, when you accumulated too many conversation logs, the system's tiny cache (temporary memory) would overflow—files it just remembered were instantly kicked out, forcing it to re-read the entire history from scratch on every tick. The cache has now been appropriately upsized, and the system now smartly parses incrementally from where it left off. It's like having a bookshelf that only held 10 books, forcing you to throw out and re-buy books every day; now you have a massive shelf and finally learned to use bookmarks. Plus, a brand-new temp agency just opened in your house, full of lawyers and engineers ready to be dispatched to any room the moment you point."
             },
             "original": "**AI Talent Market**: a new menu-bar panel for installing curated teams of Claude Code subagent personas — organized by scenario (a one-person law practice, a solo software studio, and more) — straight into `~/.claude/agents/`; once installed, call a persona by name in any Claude Code conversation. Search or browse by team, drill into a role for a full write-up and one-click launch into a new Terminal session, and pick which folder each launch targets instead of it being guessed for you. Runs fully local through a bundled companion CLI — no account, no network call.\n**Menu bar refresh could take 17+ seconds on long-running installs**: the Claude Code / Codex history loaders cached parsed JSONL files behind a 512-entry LRU, too small once a machine has accumulated more sessions than that — every refresh evicted and fully re-parsed files that had just been cached the tick before. Both loaders now parse incrementally from the last confirmed byte offset instead of re-reading whole files, the cache is sized to hold a real working set, and a redundant title update that forced a full relayout on every critter-animation frame has been removed too."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.23.2",
-      "raw": {
-        "version": "0.23.2",
-        "period": "2026-07-04",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Matrix panel's countdown and footer text was too dim to read**: `--muted` opacity was bumped up and a subtle glow (matching the card titles) added to the reset countdown and footer status lines.",
-          "**Black Hole panel's signature animation was barely visible**: the accretion-disk scene was drawn directly behind the cards, and their 16px frosted-glass blur was smearing it into a faint blob; the blur is now much lighter so the disk, event horizon, and particle stream actually show through.",
-          "**Newspaper and Win95 panels could clip the last project row**: both panels' outer layout was missing the `flex: none` / `flex: 1` split every other panel uses to absorb variable content height, so with 3 projects showing, the bottom of the list (and sometimes the footer) got silently cut off by `overflow: hidden`. Layout fixed and registered panel heights recalibrated to the real measured minimum for each panel (Win95 800→870, others tightened after also trimming row spacing).",
-          "**Newspaper panel's row spacing was looser than every other panel**: track height, line-heights, and card padding are now in line with Classic's proportions, so the panel isn't noticeably taller without needing extra clipping-avoidance padding.",
-          "**Newspaper panel now leans into the \"aged paper\" look**: deeper amber tone, a faint compass-rose watermark, ink-shadowed titles, and a double-line decorative border.",
-          "**Terse Mode now covers Codex CLI too**: the same menu-bar toggle installs a matching SessionStart hook for Codex when it's detected on the machine, using Codex's native hooks system (`[features] hooks = true` plus a `~/.codex/hooks.json` entry). No separate switch — one toggle, both tools. Turning it off only removes usage's own hook entry; it leaves the `hooks` feature flag and any other hooks you've installed for Codex untouched."
-        ]
-      },
-      "curated": {
-        "version": "0.23.2",
-        "period": "2026-07-04",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "多款主題面板變得更好看，最底下的字不再被切斷",
-              "en": "Several theme panels look better and no longer clip the bottom text"
-            },
-            "body": {
-              "zh-TW": "現在切換到特殊主題面板時，畫面不再殘缺或看不清了。駭客任務（Matrix）面板的倒數計時跟狀態文字變亮，不再暗到看不見；黑洞（Black Hole）面板的背景吸積盤跟粒子流不會再被毛玻璃糊成一團，現在能清楚看透。對報紙（Newspaper）與 Win95 面板來說，專案一多，最下面一行的專案甚至底部的文字不會再被悄悄裁掉（原本版面高度計算有誤）。同時，報紙面板現在行距更緊湊，並加上更深的琥珀底色、羅盤浮水印、雙線裝飾框等設計，更有泛黃古紙的味道。就像去主題餐廳，原本有些區塊燈光太暗看不見菜單，或者桌子太小讓最後一道菜掉出桌外，現在不但燈光和桌子都調整好了，裝潢也變得更有沉浸感。",
-              "en": "When switching to special theme panels, the interface is no longer clipped or unreadable. On the Matrix panel, the countdown and status text are now brighter, instead of being too dim to read; for the Black Hole panel, the background accretion disk and particle stream are no longer smeared into a blob by the frosted glass, showing through clearly now. As for the Newspaper and Win95 panels, having multiple projects will no longer silently cut off the bottom row or the footer (due to previous layout height miscalculations). Meanwhile, the Newspaper panel now features tighter row spacing and leans into an \"aged paper\" look with a deeper amber tone, a compass-rose watermark, and a double-line decorative border. It's like visiting a themed restaurant where some areas used to be too dim to read the menu, or the tables were too small causing the last dish to fall off; now, not only are the lights and tables fixed, but the decor is also much more immersive."
-            },
-            "original": "**Matrix panel's countdown and footer text was too dim to read**: `--muted` opacity was bumped up and a subtle glow (matching the card titles) added to the reset countdown and footer status lines.\n**Black Hole panel's signature animation was barely visible**: the accretion-disk scene was drawn directly behind the cards, and their 16px frosted-glass blur was smearing it into a faint blob; the blur is now much lighter so the disk, event horizon, and particle stream actually show through.\n**Newspaper and Win95 panels could clip the last project row**: both panels' outer layout was missing the `flex: none` / `flex: 1` split every other panel uses to absorb variable content height, so with 3 projects showing, the bottom of the list (and sometimes the footer) got silently cut off by `overflow: hidden`. Layout fixed and registered panel heights recalibrated to the real measured minimum for each panel (Win95 800→870, others tightened after also trimming row spacing).\n**Newspaper panel's row spacing was looser than every other panel**: track height, line-heights, and card padding are now in line with Classic's proportions, so the panel isn't noticeably taller without needing extra clipping-avoidance padding.\n**Newspaper panel now leans into the \"aged paper\" look**: deeper amber tone, a faint compass-rose watermark, ink-shadowed titles, and a double-line decorative border."
-          },
-          {
-            "title": {
-              "zh-TW": "精簡模式也支援 Codex，開一次開關讓兩位助理講話變精簡",
-              "en": "Terse Mode supports Codex too, making both assistants concise with one click"
-            },
-            "body": {
-              "zh-TW": "你想讓 AI 講話簡短一點時，現在開一次開關就能同時設定兩套工具了。精簡模式（Terse Mode，讓 AI 回答變短的開關）現在不只管 Claude Code，也涵蓋 Codex（另一套在終端機運作的 AI 寫程式工具）。只要在選單列開一次這個開關，系統會偵測你電腦上有沒有裝 Codex，有的話就會透過 Codex 原生的掛鉤機制（hooks，讓你在程式啟動時自動跑一段自訂指令的設定檔）幫它裝好對應的規則。不用分開找兩顆開關——一顆開關兩邊都生效。而且當你關掉它時，系統只會拿掉自己裝的那條掛鉤設定，絕對不會動到你自己幫 Codex 裝的其他掛鉤。就像你想讓辦公室裡的兩個助理講話都簡潔一點，以前你要分開個別下指令，現在只要廣播一次開關，兩個人就都會照做，而且當你收回命令時，也不會干擾他們原本在忙的其他工作。",
-              "en": "When you want the AI to speak more concisely, you can now set up both tools simultaneously with one click. Terse Mode (the toggle that makes AI responses shorter) now covers not only Claude Code but also Codex (another AI coding tool running in the terminal). By flipping this single toggle in the menu bar, the system detects if you have Codex installed and automatically sets up the matching rule using Codex's native hooks system (a configuration that runs custom commands automatically on startup). You don't need to hunt for separate switches—one toggle works for both tools. Furthermore, when you turn it off, the system only removes its own hook entry, leaving any other hooks you've manually installed for Codex completely untouched. It's like wanting two assistants in your office to speak more concisely: you used to have to instruct them individually, but now you just make one broadcast and they both comply, and when you rescind the order, it doesn't interfere with their other ongoing tasks."
-            },
-            "original": "**Terse Mode now covers Codex CLI too**: the same menu-bar toggle installs a matching SessionStart hook for Codex when it's detected on the machine, using Codex's native hooks system (`[features] hooks = true` plus a `~/.codex/hooks.json` entry). No separate switch — one toggle, both tools. Turning it off only removes usage's own hook entry; it leaves the `hooks` feature flag and any other hooks you've installed for Codex untouched."
           }
         ]
       }
