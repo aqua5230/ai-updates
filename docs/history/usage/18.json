@@ -5,6 +5,115 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.12.1",
+      "raw": {
+        "version": "0.12.1",
+        "period": "2026-05-29",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**File-level cache for the HTML report loaders**: `adapters/claude.py` and `adapters/codex.py` gain an `mtime`+`size`-keyed LRU cache (matching `history_loader`), so generating a report no longer re-parses every JSONL log on each run; the Codex adapter shares one cache between `load_entries` and `load_rate_limits`. Whole-file `OSError` / `PermissionError` / `sqlite3.Error` are now printed to stderr when `USAGE_DEBUG=1` (per-line `JSONDecodeError` stays silent).",
+          "**mypy `--strict` now covers the whole codebase**: removed the mypy exclude for `adapters/`, `analyzer/`, `ui/` and `usage_cli.py` (a ~35% type-checking blind spot), added the missing generics and function annotations, and switched `_group_by_agent` to a PEP 695 type parameter. `mypy --strict` now checks all 70 source files.",
+          "**Three cross-module functions in `adapters/claude.py` are now public API**: `get_claude_dirs`, `extract_project_from_dir`, `parse_jsonl` (previously underscore-private), dropping the matching `# type: ignore[attr-defined]` in `analyzer/reporter.py`.",
+          "Removing the mypy exclude surfaced and fixed a few latent issues: a redundant `parsed_entries` re-annotation left over from the cache change in `adapters/claude.py`, the `agent` loop variable reused with two different types in `analyzer/reporter.py` (inner accumulator renamed `agent_totals`), and a redundant `cast` in `menubar.py`.",
+          "Added coverage for `_apply_sort` with the `\"time\"` sort key (which maps to `None` and is handled per-command).",
+          "Added an i18n key-parity test asserting all five `i18n.json` language sections share the same key set, so a forgotten translation fails CI instead of silently falling back to English."
+        ]
+      },
+      "curated": {
+        "version": "0.12.1",
+        "period": "2026-05-29",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "產出報告不再龜速，底層抓蟲大掃除",
+              "en": "Report generation speeds up, and deep bugs get swept away"
+            },
+            "body": {
+              "zh-TW": "現在你點擊產出 HTML 分析報告時，速度會快上很多。以前系統很笨，每次產報告都會把你的所有歷史紀錄檔從頭到尾重新讀一遍；現在它學會了「快取（cache，把讀過的資料暫存在記憶體裡）」，只要檔案沒被改過，它就會直接拿上次記住的結果來用。同時，我們對系統底層進行了大規模的「型別檢查（type-checking，確保每個變數都裝對東西的健康檢查）」，原本有 35% 的程式碼是檢查死角，現在全面覆蓋後，順手抓出了好幾個隱藏的變數錯用和重複設定問題。我們還加上了多國語系的自動防呆測試，以後只要有一國語言漏翻譯，系統在出廠前就會自動擋下，不會再發生切成日文卻默默跑出英文的怪事。就像圖書館員以前每次有人問庫存，都要把整座圖書館的書重新數一遍，現在他終於學會看庫存登記簿了；而且圖書館還趁機做了一次全棟安檢，把以前偷懶沒巡到的黑暗死角全掃了一遍，連標示牌翻譯漏字的瑕疵都抓出來了。",
+              "en": "Generating your HTML analysis reports is now significantly faster. Previously, the system was stubbornly inefficient, re-reading every single one of your historical log files from scratch every time you asked for a report. It now employs caching (saving previously read data into memory): if a file hasn't changed, it instantly reuses what it already remembers. Meanwhile, we've subjected the system's foundation to a massive type-checking sweep (a health check ensuring every variable holds the right kind of data). We uncovered a 35% blind spot in the codebase, and by covering it, we swept out several latent bugs involving mixed-up variables and redundant settings. We also added an automated failsafe for translations, meaning if a single word is left untranslated in any language, the build will immediately fail before release, stopping the weird glitch where a Japanese menu would silently fall back to English. It's like a librarian who used to recount every single book in the building whenever you asked for inventory, but has finally learned to just read the ledger. Plus, the library just passed a full-building safety inspection that shined a light into all the neglected dark corners, fixing even the missing translations on the exit signs."
+            },
+            "original": "**File-level cache for the HTML report loaders**: `adapters/claude.py` and `adapters/codex.py` gain an `mtime`+`size`-keyed LRU cache (matching `history_loader`), so generating a report no longer re-parses every JSONL log on each run; the Codex adapter shares one cache between `load_entries` and `load_rate_limits`. Whole-file `OSError` / `PermissionError` / `sqlite3.Error` are now printed to stderr when `USAGE_DEBUG=1` (per-line `JSONDecodeError` stays silent).\n**mypy `--strict` now covers the whole codebase**: removed the mypy exclude for `adapters/`, `analyzer/`, `ui/` and `usage_cli.py` (a ~35% type-checking blind spot), added the missing generics and function annotations, and switched `_group_by_agent` to a PEP 695 type parameter. `mypy --strict` now checks all 70 source files.\n**Three cross-module functions in `adapters/claude.py` are now public API**: `get_claude_dirs`, `extract_project_from_dir`, `parse_jsonl` (previously underscore-private), dropping the matching `# type: ignore[attr-defined]` in `analyzer/reporter.py`.\nRemoving the mypy exclude surfaced and fixed a few latent issues: a redundant `parsed_entries` re-annotation left over from the cache change in `adapters/claude.py`, the `agent` loop variable reused with two different types in `analyzer/reporter.py` (inner accumulator renamed `agent_totals`), and a redundant `cast` in `menubar.py`.\nAdded coverage for `_apply_sort` with the `\"time\"` sort key (which maps to `None` and is handled per-command).\nAdded an i18n key-parity test asserting all five `i18n.json` language sections share the same key set, so a forgotten translation fails CI instead of silently falling back to English."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.12.0",
+      "raw": {
+        "version": "0.12.0",
+        "period": "2026-05-29",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**\"Your subscription\" section in the HTML report**: auto-detects Claude (plan + subscription start date) and Codex (ChatGPT plan + subscription start date) from the local OAuth account files. Only the plan name and start date are read — tokens, emails and other secrets are never touched. When sharing the report, the subscription date is masked together with the \"Hide project names\" toggle. Adds the `subscription.py` module and its tests.",
+          "**Project-share donut chart in the HTML report**: pure-SVG (zero external deps) breakdown of token share per project; the top 6 projects get their own colour, the rest fold into \"Other\", and the centre shows the total.",
+          "**\"Claude vs Codex\" comparison section in the HTML report**: surfaces the per-agent usage (tokens / share / cost) that `build_report_data` already computed but never displayed.",
+          "**Double-counted report cost**: `build_report_data` summed cost once over all entries and then recomputed it per entry inside the loop — effectively doubling the work on large datasets. Now accumulated once inside the loop.",
+          "**Duplicated clipboard code in the report's \"copy command\" button**: the tip-copy button now reuses the shared `copyText()` helper instead of re-implementing the legacy-browser fallback.",
+          "**Hard-coded TWD rate**: the USD→TWD estimate in the report is now a named `_USD_TO_TWD` constant with a note that it is a display estimate, not a live FX rate."
+        ]
+      },
+      "curated": {
+        "version": "0.12.0",
+        "period": "2026-05-29",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "報告大升級：幫你抓出訂閱方案，新增專案圓環圖",
+              "en": "Report upgrades: auto-detecting subscriptions and a new project donut chart"
+            },
+            "body": {
+              "zh-TW": "HTML 分析報告現在會顯示更多有用的資訊。它新增了「你的訂閱」區塊，會自動從你電腦裡的授權檔讀出你買的是哪種 Claude 方案或 Codex 的 ChatGPT 方案，以及訂閱開始日期（放心，它絕不會偷看你的密碼或 email），而且當你把報告分享給別人並開啟「隱藏專案名稱」時，訂閱日也會自動幫你打上馬賽克。報告裡還多了一張精美的「專案佔比圓環圖」，把最吃資源的前 6 大專案塗上不同顏色，剩下的歸類為「其他」，正中央大字寫著總用量，一目了然。此外，以前系統其實早就默默算好了 Claude 跟 Codex 兩邊的用量對決（花了多少 token、佔比與成本），現在這份「Claude vs Codex」的對比戰報終於解禁顯示出來了。就像你去體檢，以前只給你一張總結數字，現在不僅在開頭幫你印出你買的是哪種等級的健檢套餐，還附上精緻的彩色圓餅圖告訴你哪裡脂肪最多，甚至把你兩隻手的肌肉量拉出來做對比。",
+              "en": "The HTML analysis report now displays a wealth of new insights. It introduces a \"Your subscription\" section that automatically detects which Claude tier or Codex ChatGPT plan you're paying for and when the subscription started, directly from your local authorization files (rest assured, it strictly ignores your passwords and emails). If you share the report and toggle \"Hide project names\", the subscription date gets pixelated out for privacy too. There is also a beautiful new \"Project-share donut chart\" that breaks down your usage, assigning unique colors to your top 6 hungriest projects, folding the rest into \"Other\", and boldly stamping the total in the center. Furthermore, the system had secretly been calculating the usage duel between Claude and Codex (how many tokens, share, and cost each consumed), and this \"Claude vs Codex\" head-to-head comparison is now finally visible. It's like getting a medical checkup: they used to just hand you a single total score, but now the report spells out exactly which premium health package you bought, gives you a vivid color chart of exactly where you're storing the most fat, and even explicitly compares the muscle mass of your left arm versus your right."
+            },
+            "original": "**\"Your subscription\" section in the HTML report**: auto-detects Claude (plan + subscription start date) and Codex (ChatGPT plan + subscription start date) from the local OAuth account files. Only the plan name and start date are read — tokens, emails and other secrets are never touched. When sharing the report, the subscription date is masked together with the \"Hide project names\" toggle. Adds the `subscription.py` module and its tests.\n**Project-share donut chart in the HTML report**: pure-SVG (zero external deps) breakdown of token share per project; the top 6 projects get their own colour, the rest fold into \"Other\", and the centre shows the total.\n**\"Claude vs Codex\" comparison section in the HTML report**: surfaces the per-agent usage (tokens / share / cost) that `build_report_data` already computed but never displayed."
+          },
+          {
+            "title": {
+              "zh-TW": "整理底層管線，除錯也不再讓電腦做白工",
+              "en": "Internal pipelines polished, saving your computer from doing double duty"
+            },
+            "body": {
+              "zh-TW": "產出報告的速度變得更快，因為系統改掉了背後的愚蠢計算方式。在計算報告的花費時，系統以前很糊塗，會先把所有數字加總一次，然後又在小圈圈裡一筆一筆重新算，如果你的資料量很大，它等於是在做雙倍的白工；現在改為只在小圈圈裡算一次，速度順暢多了。另外，報告裡「複製指令」按鈕的程式碼也被清理過了，不再疊床架屋寫兩份一樣的複製邏輯；而報告裡用來估算的台幣匯率，也標上了清楚的內部註解，說明這只是個固定的預估值、不是即時連網抓的匯率。就像餐廳的結帳櫃檯，以前算帳時會先把所有菜單全拿出來用計算機按一次，然後又翻開點菜單一筆一筆再加一次，客人排隊排到天荒地老；現在收銀員變聰明了，一邊點菜一邊就算好總金額。而且點餐機裡的程式碼也整理過了，上面還貼了張便條紙提醒新來的員工「這裡的匯率是寫死的參考值，不要傻傻去對當天的新聞」。",
+              "en": "Your reports now generate faster because the system dropped some silly internal calculation habits. When calculating your report costs, the system used to be deeply confused: it would sum up all the numbers once, and then redundantly re-calculate everything piece by piece inside a loop. If you had massive amounts of data, it was effectively doing double the work for nothing; it now smartly accumulates the total in a single pass, saving processing time. We also cleaned up the clipboard code for the \"copy command\" buttons in the report so it no longer relies on two duplicated chunks of logic, and we added a clear internal note to the hard-coded TWD exchange rate explaining it's just a static display estimate rather than a live network fetch. It's like a restaurant checkout counter: the cashier used to punch every single receipt into the calculator once, and then painstakingly re-add every itemized dish again while the line grew out the door; now they simply tally the total in one smooth motion. The cash register's software is much cleaner now, too, sporting a sticky note that reminds the new hires, \"The exchange rate here is just an estimate, don't try matching it against the morning news.\""
+            },
+            "original": "**Double-counted report cost**: `build_report_data` summed cost once over all entries and then recomputed it per entry inside the loop — effectively doubling the work on large datasets. Now accumulated once inside the loop.\n**Duplicated clipboard code in the report's \"copy command\" button**: the tip-copy button now reuses the shared `copyText()` helper instead of re-implementing the legacy-browser fallback.\n**Hard-coded TWD rate**: the USD→TWD estimate in the report is now a named `_USD_TO_TWD` constant with a note that it is a display estimate, not a live FX rate."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.19",
+      "raw": {
+        "version": "0.11.19",
+        "period": "2026-05-29",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**\"Hide Codex Section\" menu toggle**: the menubar gained a \"Hide Codex Section\" option that collapses the Codex card across all 9 HTML panels and shrinks popover height per-panel. The preference persists via `NSUserDefaults` so it survives restarts. i18n keys added for all 5 locales. (PR #19, thanks @RayCHWong for the first-time contribution)",
+          "**`HTMLPanel.codex_card_height` is now a required keyword-only argument with no default**: previously the parameter had a `192.0` default, so a new panel that forgot to set its height in `panels/__init__.py` would silently fall back to the default — the Codex card would render at a height that doesn't match the rest of the panel without raising any error. Now declared as `*, codex_card_height: float` (keyword-only, no default), so any missing call site raises `TypeError` at import. All 9 existing panels already pass it by keyword and are unaffected; added `test_html_panel_requires_explicit_codex_card_height` to lock the contract."
+        ]
+      },
+      "curated": {
+        "version": "0.11.19",
+        "period": "2026-05-29",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "新增「隱藏 Codex 區塊」開關，不用 Codex 也能讓面板保持清爽",
+              "en": "Hide the Codex section for a cleaner panel if you don't use it"
+            },
+            "body": {
+              "zh-TW": "你現在可以在選單列裡找到一個「隱藏 Codex 區塊」的新選項。如果你平常只用 Claude 而不用 Codex，只要打開這個選項，所有 9 款 HTML 面板裡的 Codex 卡片就會全部收起來，彈出視窗（popover）的高度也會自動跟著縮減，幫你省下寶貴的螢幕空間。這個設定會被系統記住，重新開機也不用重調。對於想要自己新增面板的開發者，我們也加強了防呆機制——現在在程式碼裡強制規定必須明確指定 Codex 卡片的高度，如果忘了寫，系統在載入時就會立刻報錯提醒，而不是像以前一樣默默套用預設高度而導致版面錯位。這就像是買便當不吃配菜可以勾選「不要配菜」來換取更小的餐盒；同時廚房的點餐系統也加了防呆，沒填包裝盒尺寸的訂單直接退回，再也不會出現大便當裝小菜的尷尬情況。",
+              "en": "You can now find a new \"Hide Codex Section\" toggle in the menubar. If you only use Claude and not Codex, checking this option will instantly collapse the Codex cards across all 9 HTML panels and automatically shrink the popover windows to match, saving you valuable screen real estate. This preference is saved automatically, so it stays exactly as you left it even after a restart. For developers building new custom panels, we've also added a strict safeguard—the codebase now explicitly requires you to specify the Codex card height. If you forget, it will immediately throw an error at load time instead of silently falling back to a default height that misaligns your layout. It's like ordering a bento box and ticking \"no side dishes\" so they give you a more compact box; meanwhile, the kitchen's ordering system was upgraded to reject tickets with missing box sizes, preventing tiny sides from awkwardly floating in a massive container."
+            },
+            "original": "**\"Hide Codex Section\" menu toggle**: the menubar gained a \"Hide Codex Section\" option that collapses the Codex card across all 9 HTML panels and shrinks popover height per-panel. The preference persists via `NSUserDefaults` so it survives restarts. i18n keys added for all 5 locales. (PR #19, thanks @RayCHWong for the first-time contribution)\n**`HTMLPanel.codex_card_height` is now a required keyword-only argument with no default**: previously the parameter had a `192.0` default, so a new panel that forgot to set its height in `panels/__init__.py` would silently fall back to the default — the Codex card would render at a height that doesn't match the rest of the panel without raising any error. Now declared as `*, codex_card_height: float` (keyword-only, no default), so any missing call site raises `TypeError` at import. All 9 existing panels already pass it by keyword and are unaffected; added `test_html_panel_requires_explicit_codex_card_height` to lock the contract."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.18",
       "raw": {
         "version": "0.11.18",
@@ -251,108 +360,6 @@
               "en": "When you're working offline without internet, the system now smartly estimates your costs using the real price list you fetched last week, instead of wildly falling back to ancient factory-default prices and skewing your budget. If you're an early adopter running beta versions, the update checker now understands version numbers ending in \"beta\", delivering update prompts correctly instead of throwing an error and playing dead. Also, when viewing your session history in the terminal, if a specific entry happens to lack cost data, it now gracefully displays \"--\" rather than crashing the entire table. It's like traveling abroad without data: you use the exchange rate you saved a few days ago instead of blindly relying on a ten-year-old guidebook; and if a couple of items on your grocery receipt are missing price tags, the whole cash register doesn't explode."
             },
             "original": "**Pricing falls back to a stale cache when offline**: the fallback order in `pricing.py` is now fresh cache → network fetch → stale cache → hardcoded fallback. Previously a >7-day-old cache combined with no network dropped straight to the hardcoded prices, skewing cost estimates; the real (if stale) historical cache is now preferred.\n**Update check now handles pre-release versions**: `update_checker._parse_version` now strips pre-release / build suffixes via regex, so `0.11.0-beta.1` / `0.11.0+build.5` no longer return `None` and no longer make `compare_versions` raise. Beta testers receive update prompts correctly. No new package dependencies were added.\n**TUI session table no longer crashes on `cost_usd=None`**: widened `ui/tables.py:_fmt_cost` to `float | None` so entries written without a cost (a known path on the Codex side) now render as `--`, matching the popover-side behavior in `panels/web_panel.py`. Previously the `>=` comparison raised `TypeError` and broke the whole table."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.11.8",
-      "raw": {
-        "version": "0.11.8",
-        "period": "2026-05-27",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**git worktree entries collapse into the main project**: running Claude Code or Codex inside a worktree (a duplicate working tree of the same repo) no longer splits `usage` and `usage-fix-bug` into two separate rows in the HTML report and TUI ranking. They are now grouped under the main worktree's directory name. A new `project_resolver.py` module (stdlib only, 3-second timeout, falls back to the previous basename behavior when git is unavailable) is shared by `history_loader.py` and `codex_loader.py`. Seeing historical totals merge on first upgrade is the intended behavior."
-        ]
-      },
-      "curated": {
-        "version": "0.11.8",
-        "period": "2026-05-27",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "同一個專案的平行副本，用量不再被拆得七零八落",
-              "en": "Parallel working copies of the same project no longer fracture your usage stats"
-            },
-            "body": {
-              "zh-TW": "當你用工作樹（worktree，讓同一個專案多開幾份平行副本的 Git 功能）來修 bug 或開發新功能時，系統終於懂得把帳算在一起了。以前它會把你主資料夾跟副本資料夾的用量拆成兩個獨立專案，導致你的用量排行榜看起來很亂；現在它會自動把這些副本的用量，全部算在主專案頭上。升級後如果你看到某些專案的數字突然變大、名次合體，這是正常的。就像你拿了幾張附卡給家人刷，以前帳單會分開好幾份寄來讓你眼花，現在全部彙整到主卡帳單裡，一眼就能看出總共花了多少。",
-              "en": "When you use worktrees (a Git feature that lets you check out multiple parallel copies of the same project) to fix bugs or build features, the system finally knows how to consolidate the bill. Previously, it would split the usage from your main folder and your copies into separate projects, cluttering your leaderboards; it now intelligently groups all that usage under the main project's name. If you notice some project totals suddenly merging and growing upon upgrading, this is completely expected. It's like handing out supplementary credit cards to your family: instead of receiving a confusing pile of separate statements, everything is now cleanly rolled up into one master bill, making it immediately clear how much was spent in total."
-            },
-            "original": "**git worktree entries collapse into the main project**: running Claude Code or Codex inside a worktree (a duplicate working tree of the same repo) no longer splits `usage` and `usage-fix-bug` into two separate rows in the HTML report and TUI ranking. They are now grouped under the main worktree's directory name. A new `project_resolver.py` module (stdlib only, 3-second timeout, falls back to the previous basename behavior when git is unavailable) is shared by `history_loader.py` and `codex_loader.py`. Seeing historical totals merge on first upgrade is the intended behavior."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.11.7",
-      "raw": {
-        "version": "0.11.7",
-        "period": "2026-05-27",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Pricing cache moved under `~/.usage/`**: the LiteLLM pricing cache now lives at `~/.usage/pricing_cache.json` instead of `~/.claude/pricing_cache.json`, following the principle that usage-owned state belongs in its own directory. The legacy path stays as a read-only fallback for seamless migration. Thanks @ericweichun.",
-          "**Explicit `usage report --help` and unknown-option handling**: previously the CLI silently ignored unknown report options and `--help` still triggered agent detection. Now `--help` returns the help text immediately and unknown options error out cleanly. Thanks @ericweichun."
-        ]
-      },
-      "curated": {
-        "version": "0.11.7",
-        "period": "2026-05-27",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "設定檔搬家不留痕跡，終端機指令不再裝聾作啞",
-              "en": "Configs move homes seamlessly, and terminal commands stop playing deaf"
-            },
-            "body": {
-              "zh-TW": "你平常不用管的計費快取（cache，暫存資料的地方）現在搬到了專屬的資料夾裡，而且系統會自己讀舊檔案當備用，你完全不用重設。另外，在終端機打 `usage report` 指令時，如果打錯字，以前系統會假裝沒看到直接跑預設畫面，現在它會明確報錯教你怎麼打；查說明文件（`--help`）的速度也變快了。就像你把家裡的工具箱換了個抽屜放，要用的時候自動拿到手；而平常那個問錯問題就沉默的助理，現在終於會主動說「不好意思，你指的是這個嗎？」了。",
-              "en": "The billing cache (where temporary data is stored) has smoothly moved to its own dedicated folder. The system will still read your old file as a backup, so you don't have to lift a finger to migrate. Also, when you make a typo running the `usage report` command in the terminal, instead of silently ignoring you and running the default report, the system now stops and tells you what went wrong. Looking up the help manual (`--help`) is also noticeably faster. It's like moving your toolbox to a new drawer and having your tools automatically show up in your hand when needed; and that assistant who used to stare blankly when asked the wrong question finally speaks up to say, \"Sorry, did you mean this instead?\""
-            },
-            "original": "**Pricing cache moved under `~/.usage/`**: the LiteLLM pricing cache now lives at `~/.usage/pricing_cache.json` instead of `~/.claude/pricing_cache.json`, following the principle that usage-owned state belongs in its own directory. The legacy path stays as a read-only fallback for seamless migration. Thanks @ericweichun.\n**Explicit `usage report --help` and unknown-option handling**: previously the CLI silently ignored unknown report options and `--help` still triggered agent detection. Now `--help` returns the help text immediately and unknown options error out cleanly. Thanks @ericweichun."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.11.6",
-      "raw": {
-        "version": "0.11.6",
-        "period": "2026-05-27",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Codex model shown in the popover footer**: the footer now displays the currently detected Codex model; when no model data is available it falls back to `unknown` instead of leaving the state blank.",
-          "**Analysis report period follows the Project Usage range**: the Report button now switches output periods with the current project range, mapping 1d to today, 7d to week, and 30d to month. No new UI was added; it uses the existing range control.",
-          "**Japanese / Korean Codex model labels completed**: added the missing ja / ko `model_label` translations so footer model information no longer renders blank in Japanese and Korean UIs.",
-          "**Codex today / week / month reports now use tail scanning**: users with many sessions no longer wait for a full history scan when opening reports. Today reports drop from roughly 7 seconds to the 0.03-second range, with week / month benefiting from the same path."
-        ]
-      },
-      "curated": {
-        "version": "0.11.6",
-        "period": "2026-05-27",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "底部清楚標示 Codex 模型，日韓介面也不會一片空白",
-              "en": "The popover footer clearly displays the Codex model, and Japanese/Korean UIs are no longer blank"
-            },
-            "body": {
-              "zh-TW": "你現在可以直接在介面底部看到目前正在使用的 Codex 模型。以前如果剛好沒有模型資料，畫面會空一塊讓你以為壞掉了，現在它會老實印出「unknown」。同時，日文與韓文介面的模型標籤也補齊了，切換語系一樣看得到。就像去餐廳點無菜單料理，以前主廚不說話你會以為沒菜了，現在菜單底部會確實寫上今日食材或是「主廚特製」，而且各國語言的菜單都印得清清楚楚。",
-              "en": "You can now see exactly which Codex model is currently active right at the bottom of the interface. Previously, if no model data was available, the space was left completely blank, making you wonder if the app broke; it now honestly prints \"unknown\". Additionally, the missing Japanese and Korean model labels have been filled in, so you get the same clear info regardless of language. Like a mysterious chef's tasting menu—instead of leaving the dish name blank and making you guess if the kitchen closed, the menu now explicitly says \"Chef's Secret\" or prints the actual ingredients, fully translated for every guest."
-            },
-            "original": "**Codex model shown in the popover footer**: the footer now displays the currently detected Codex model; when no model data is available it falls back to `unknown` instead of leaving the state blank.\n**Japanese / Korean Codex model labels completed**: added the missing ja / ko `model_label` translations so footer model information no longer renders blank in Japanese and Korean UIs."
-          },
-          {
-            "title": {
-              "zh-TW": "分析報告時間範圍跟著專案走，累積再多對話也秒開",
-              "en": "Analysis reports sync with your project range and open instantly regardless of history size"
-            },
-            "body": {
-              "zh-TW": "你現在按出分析報告時，它的時間區間會自動對齊你正在看的專案範圍（Project Usage），切換 1d 就看今天、7d 就看本週，不用另外找按鈕設定。對於重度使用者來說，現在按出今日報告的時間從 7 秒大幅縮短到只要 0.03 秒。因為系統學會了「從尾巴往前掃描」，不再傻傻從盤古開天闢地第一筆對話開始讀。就像去圖書館查昨天的報紙，以前館員會從十年前的舊報紙一路翻到今天，現在他直接從最新的一疊拿給你，而且你說要找體育版，他拿出來的就直接是體育版。",
-              "en": "When you generate an analysis report, its time period now automatically matches the project range (Project Usage) you're currently viewing—selecting 1d shows today, 7d shows this week, without needing a separate toggle. For heavy users, generating today's report has plummeted from a sluggish 7 seconds down to lightning-fast 0.03 seconds. The system now smartly scans backwards from the newest entries instead of mindlessly reading your entire history from the dawn of time. Like asking a librarian for yesterday's newspaper—instead of flipping through a decade of archives from page one, they now grab right from the top of the freshest pile, already opened to the section you requested."
-            },
-            "original": "**Analysis report period follows the Project Usage range**: the Report button now switches output periods with the current project range, mapping 1d to today, 7d to week, and 30d to month. No new UI was added; it uses the existing range control.\n**Codex today / week / month reports now use tail scanning**: users with many sessions no longer wait for a full history scan when opening reports. Today reports drop from roughly 7 seconds to the 0.03-second range, with week / month benefiting from the same path."
           }
         ]
       }

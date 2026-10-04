@@ -5,6 +5,189 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.30.14",
+      "raw": {
+        "version": "0.30.14",
+        "period": "2026-09-12",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-09-13",
+        "entries": [
+          "**No more black console windows flashing at Windows startup** ([#130](https://github.com/aqua5230/usage/issues/130)). `usage.exe` is packaged without a console, but no `subprocess` call in the project passed `CREATE_NO_WINDOW`, so Windows created and closed a console window for every child process. The flash count equalled the number of distinct project directories in the Claude history — `resolve_project_name()` runs `git worktree list --porcelain` once per directory and caches per process, so every launch repeated it. A shared `usage_common/subprocess_utils.py` now supplies the `creationflags`, every child process in the project goes through it, and the missing `stdin=subprocess.DEVNULL` was added along the way. `usage_session_resume.py` and `usage_statusline_forwarder.py` are copied verbatim into `~/.claude/` and run by the system Python, so they keep an inlined equivalent instead of importing the project; a new test uses `ast` to keep every copied-out script free of project imports. The forwarder also had no version-upgrade path at all — `_copy_forwarder_script()` was only called on reinstall or when the state looked broken — so it gained `FORWARDER_VERSION` and a `self_heal()` upgrade step like the other hooks.",
+          "**The Windows panel no longer flashes at its old position before moving.** pywebview's WinForms backend passes `SWP_SHOWWINDOW` in both `resize()` and `move()`, so the `resize()` in `_place_window_on_ui_thread()` made the still-hidden window visible at the previous coordinates; the following `move()` then moved it and only then did `show()` run. Measured at 1 ms sampling, the window sat visible in the wrong place for 36 ms, about two frames. Position and size are now applied while the window is hidden in a single `SetWindowPos` without `SWP_SHOWWINDOW`, leaving display to the existing `show()` path; without a native handle, or off Windows, it falls back to `resize()` + `move()` unchanged. Applying geometry is also skipped entirely when the current physical-pixel geometry already matches, so `_apply_content_height_now()` no longer makes a pointless native call when the content height has not changed."
+        ]
+      },
+      "curated": {
+        "version": "0.30.14",
+        "period": "2026-09-12",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 啟動時不再連閃黑色主控台視窗，子行程全面安靜呼叫",
+              "en": "Windows startup no longer flashes black console windows, child processes fully silenced"
+            },
+            "body": {
+              "zh-TW": "在 Windows 啟動 Usage 時，桌面不再連閃黑色主控台視窗。⟦這好比助手出門採買，每趟都按門鈴吵到客人；改走安靜通道後，前台才重回安寧。⟧usage.exe 打包時無主控台，但呼叫子行程未帶 CREATE_NO_WINDOW，使系統每次都開關黑窗。閃爍次數等於歷史目錄數，因 resolve_project_name() 跑 git worktree list --porcelain。現由 usage_common/subprocess_utils.py 統一為子行程帶旗標與標準輸入 stdin=subprocess.DEVNULL。複製至 ~/.claude/ 的腳本改採內聯實作且經 ast 測試零相依，轉發器補上 FORWARDER_VERSION 與 self_heal()，比照其他 hook（掛鉤，特定事件發生時被觸發的小程式）自動換新。",
+              "en": "When launching Usage on Windows, the desktop no longer repeatedly flashes black console windows. ⟦This is like an assistant going out for errands and ringing the doorbell every trip, disturbing guests; switching to a quiet hallway restores peace to the front desk.⟧ usage.exe is packaged without a console, but calling child processes did not pass CREATE_NO_WINDOW, causing the system to open and close a black window every time. The flash count equaled the number of history directories because resolve_project_name() runs git worktree list --porcelain. usage_common/subprocess_utils.py now uniformly supplies flags for child processes along with standard input stdin=subprocess.DEVNULL. Scripts copied to ~/.claude/ now use inlined implementations verified by ast tests to have zero dependencies, and the forwarder adds FORWARDER_VERSION and self_heal() to auto-update just like other hooks."
+            },
+            "original": "**No more black console windows flashing at Windows startup** ([#130](https://github.com/aqua5230/usage/issues/130)). `usage.exe` is packaged without a console, but no `subprocess` call in the project passed `CREATE_NO_WINDOW`, so Windows created and closed a console window for every child process. The flash count equalled the number of distinct project directories in the Claude history — `resolve_project_name()` runs `git worktree list --porcelain` once per directory and caches per process, so every launch repeated it. A shared `usage_common/subprocess_utils.py` now supplies the `creationflags`, every child process in the project goes through it, and the missing `stdin=subprocess.DEVNULL` was added along the way. `usage_session_resume.py` and `usage_statusline_forwarder.py` are copied verbatim into `~/.claude/` and run by the system Python, so they keep an inlined equivalent instead of importing the project; a new test uses `ast` to keep every copied-out script free of project imports. The forwarder also had no version-upgrade path at all — `_copy_forwarder_script()` was only called on reinstall or when the state looked broken — so it gained `FORWARDER_VERSION` and a `self_heal()` upgrade step like the other hooks."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 面板不再先閃現舊位置，單次設定尺寸坐標徹底消除跳動",
+              "en": "Windows panel no longer flashes at old position, single geometry update eliminates jumpiness"
+            },
+            "body": {
+              "zh-TW": "點開 Windows 面板時，畫面不再先在舊坐標閃爍一下才跳回定位。pywebview 的 WinForms 後端在 resize() 與 move() 都帶 SWP_SHOWWINDOW，使 _place_window_on_ui_thread() 提早在舊坐標顯示視窗，隨後才移到定點。以 1 毫秒取樣實測，面板在錯位可見 36 毫秒，約兩個畫面幀。現在視窗改在隱藏時以單次 SetWindowPos 一起設定位置與大小且不帶顯示旗標，顯示交由 show() 處理；非 Windows 或取不到原生視窗時退回既有備援流程。套用前也會先比對目前的實體像素幾何，完全相同便跳過，避免 _apply_content_height_now() 在高度未變時白白呼叫。⟦這種穿幫宛如舞台劇換幕，道具桌還留在上一場的站位，工作人員就失手拉開布幕才急忙把它推定位。⟧",
+              "en": "When opening the Windows panel, the screen no longer flashes briefly at its old coordinates before snapping into position. The WinForms backend of pywebview passed SWP_SHOWWINDOW in both resize() and move(), causing _place_window_on_ui_thread() to prematurely display the window at previous coordinates before moving it to its target location. Measured at 1 ms sampling, the panel was visible in the wrong position for 36 ms, or about two frames. The window now sets position and size together via a single SetWindowPos without show flags while hidden, leaving display to show(), and falls back to the existing fallback flow off Windows or when native handles are unavailable. It also compares the current physical-pixel geometry before applying and skips entirely if identical, preventing _apply_content_height_now() from being called unnecessarily when height is unchanged. ⟦This glitch is like a stage scene change where the prop table is still at the previous scene's spot when staff accidentally pull open the curtain before hastily shoving it into place.⟧"
+            },
+            "original": "**The Windows panel no longer flashes at its old position before moving.** pywebview's WinForms backend passes `SWP_SHOWWINDOW` in both `resize()` and `move()`, so the `resize()` in `_place_window_on_ui_thread()` made the still-hidden window visible at the previous coordinates; the following `move()` then moved it and only then did `show()` run. Measured at 1 ms sampling, the window sat visible in the wrong place for 36 ms, about two frames. Position and size are now applied while the window is hidden in a single `SetWindowPos` without `SWP_SHOWWINDOW`, leaving display to the existing `show()` path; without a native handle, or off Windows, it falls back to `resize()` + `move()` unchanged. Applying geometry is also skipped entirely when the current physical-pixel geometry already matches, so `_apply_content_height_now()` no longer makes a pointless native call when the content height has not changed."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.30.13",
+      "raw": {
+        "version": "0.30.13",
+        "period": "2026-09-12",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-09-12",
+        "entries": [
+          "**The Windows panel opens inside the screen at high display scaling** ([#130](https://github.com/aqua5230/usage/issues/130)). pywebview 6.2.1 returns screen bounds in physical pixels but labels them as scale 1.0, while `move()` / `resize()` multiply their input by the window's DPI again. At 250% on 3840x2160 the default x came out as 3840 − 380 − 12 = 3448, pinning the panel to the bottom-right edge, and that position was saved, so every relaunch repeated it. Screen rectangles are now converted to logical pixels with the window's own DPI (only when the primary screen reports 1.0 while the window DPI is not 96, so a future pywebview that fixes this is not double-converted), and `window.show()` is queued behind the placement so the panel never appears at a stale position.",
+          "**The Windows panel reopens on the display it was closed on with mixed scaling.** The saved position was physical pixels divided by the DPI of whichever monitor the window was on at that moment, so a panel closed on a 225% display reopened on the 100% primary. Positions are now saved in physical pixels and converted with the window's current DPI when placed. The preference key and shape are unchanged.",
+          "**The bottom of the Windows panel is no longer cut off on short high-DPI screens.** The 0.6 zoom floor did not account for the window's DPI, so at 2560x1440 @225% the panel was held above the zoom it needed and lost its rate/status row and Refresh/Quit buttons. Windows now uses `MIN_PANEL_SCALE / window DPI scale` as the floor, so text still never renders smaller than 0.6× of a 100% display; macOS is unchanged.",
+          "**The Windows tray tooltip is capped at 127 characters.** Since the Grok row was added, the English tooltip with every provider at 100% reached 129 characters; pystray raised `ValueError: string too long`, which `_refresh_worker()` swallowed along with the same iteration's `inject_state()`, so an open panel silently stopped updating.",
+          "**Installed status line and session resume hooks are replaced with the current copies.** Both scripts had changed without a version bump — the status line's `1000k` fix and ten session-resume fixes since July — so existing installs kept the old files. The status line goes to `1.6` and session resume to `1.7`, and a new test keeps the session-resume script version and installer constant in step."
+        ]
+      },
+      "curated": {
+        "version": "0.30.13",
+        "period": "2026-09-12",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 面板在高縮放螢幕不再貼邊，重開位置精準",
+              "en": "Windows panel no longer clings to screen edge at high scaling, reopening accurately"
+            },
+            "body": {
+              "zh-TW": "使用 3840x2160 高解析度螢幕並開啟 250% 縮放時，Windows 面板現在會準確開在畫面之內。⟦這好比木工師傅照著設計圖施工，助手卻誤把圖面上的公尺當成公分再放大換算，讓做好的櫃子直接卡死在牆角。⟧底層套件 `pywebview 6.2.1` 回傳的螢幕範圍明明是實體像素，卻標記成縮放 1.0。後續 `move()` 與 `resize()` 又拿視窗自身 DPI 重複相乘，使得預設水平坐標被算成 3840 − 380 − 12 = 3448，將面板釘在右下角邊緣，且該位置還被存檔讓每次重開都重演。現在程式只在主螢幕回報 1.0 且視窗 DPI 不是 96 時，才用視窗自己的 DPI 將螢幕矩形換算回邏輯像素，避免未來 `pywebview` 修好時重複換算；同時將 `window.show()` 排在擺位之後，面板絕不再閃現在舊位置。",
+              "en": "When using a 3840x2160 high-resolution display with 250% scaling, the Windows panel now opens accurately within the screen bounds. ⟦This is like a carpenter building according to blueprints, but an assistant mistakes meters for centimeters and scales them up again, leaving the finished cabinet wedged tightly against the wall corner.⟧ The underlying package `pywebview 6.2.1` returns screen bounds in physical pixels but labels them with a scale of 1.0. Subsequent `move()` and `resize()` operations then multiplied their inputs by the window's own DPI again, causing the default horizontal coordinate to be calculated as 3840 − 380 − 12 = 3448, pinning the panel to the bottom-right edge, and that position was saved so every relaunch repeated the issue. Now the program converts screen rectangles back to logical pixels using the window's own DPI only when the primary screen reports 1.0 while the window DPI is not 96, preventing double conversion if a future `pywebview` release fixes this; at the same time, `window.show()` is queued after placement, ensuring the panel never flashes at a stale position."
+            },
+            "original": "**The Windows panel opens inside the screen at high display scaling** ([#130](https://github.com/aqua5230/usage/issues/130)). pywebview 6.2.1 returns screen bounds in physical pixels but labels them as scale 1.0, while `move()` / `resize()` multiply their input by the window's DPI again. At 250% on 3840x2160 the default x came out as 3840 − 380 − 12 = 3448, pinning the panel to the bottom-right edge, and that position was saved, so every relaunch repeated it. Screen rectangles are now converted to logical pixels with the window's own DPI (only when the primary screen reports 1.0 while the window DPI is not 96, so a future pywebview that fixes this is not double-converted), and `window.show()` is queued behind the placement so the panel never appears at a stale position."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 面板支援混合縮放多螢幕，重開精準回到原螢幕",
+              "en": "Windows panel supports mixed-scaling multi-monitor setups, reopening precisely on the original display"
+            },
+            "body": {
+              "zh-TW": "外接不同螢幕工作的讀者，若各螢幕設定了不同的縮放比例，關閉 Windows 面板後重新開啟，它現在會老實回到當初關閉的那台螢幕。先前系統儲存面板位置時，是把實體像素除以視窗當下所在螢幕的 DPI；這導致在 225% 縮放螢幕上關閉的面板，重新開啟時卻莫名其妙彈回 100% 的主螢幕。新版改為直接儲存實體像素，等到擺放面板位置時，才搭配視窗當下的 DPI 進行換算。⟦這如同在不同比例尺的地圖之間穿梭，標記位置時若除以當前圖紙比例，重新翻開時便會走樣跳回起點；改存真實公尺距離後，在哪張地圖合上就在哪張地圖展開。⟧這項改進完全不改變偏好設定的鍵名與資料格式。",
+              "en": "For users working with external monitors configured with different scale factors, closing the Windows panel and reopening it now reliably returns it to the specific display where it was closed. Previously, the system saved the panel's position by dividing physical pixels by the DPI of whichever display the window was currently on; as a result, a panel closed on a 225% scaling display would unexpectedly jump back to the 100% primary screen upon reopening. The new version saves positions directly in physical pixels and only converts them using the window's current DPI when placing the panel. ⟦This is like navigating between maps of different scales: if marked locations are divided by the current sheet's ratio, reopening them distorts the coordinates back to the starting point; storing the actual meter distances instead ensures that whichever map you close on is where you reopen.⟧ This improvement leaves preference key names and data formats completely unchanged."
+            },
+            "original": "**The Windows panel reopens on the display it was closed on with mixed scaling.** The saved position was physical pixels divided by the DPI of whichever monitor the window was on at that moment, so a panel closed on a 225% display reopened on the 100% primary. Positions are now saved in physical pixels and converted with the window's current DPI when placed. The preference key and shape are unchanged."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 面板放寬矮螢幕縮放下限，按鈕與狀態列不再裁切",
+              "en": "Windows panel relaxes zoom floor on short displays, preventing buttons and status row from being cut off"
+            },
+            "body": {
+              "zh-TW": "把 Windows 面板開在偏矮的螢幕上時，若曾碰過重新整理或結束按鈕被切出畫面外的窘境，現在這類版面裁切問題已徹底解決。⟦這彷彿在低矮的天花板下擺放展示架，若硬性規定層架間隔不能縮小，最底層的控制旋鈕就會被地面擋住；按空間比例動態調降底線，底部按鍵才不被擠出視野。⟧過去面板設有 0.6 的縮放下限，卻未考慮視窗自身的 DPI，使得 2560x1440 搭配 225% 縮放時，面板被卡在比實際需要更大的縮放比例，導致速率與狀態列以及重新整理和結束按鈕全部掉出畫面之外。現在 Windows 將縮放下限改為 `MIN_PANEL_SCALE / window DPI scale`，確保文字顯示依然絕不小於 100% 螢幕的 0.6 倍，同時讓整張面板順利塞進螢幕內；macOS 則維持原樣不變。",
+              "en": "When opening the Windows panel on shorter screens, any issues where the Refresh or Quit buttons were cut off outside the viewport are now completely resolved. ⟦This is like placing a display rack under a low ceiling: if shelf spacing is rigidly forbidden from shrinking, the bottom control knobs get blocked by the floor; dynamically lowering the floor based on available space keeps bottom buttons from being squeezed out of view.⟧ Previously, the panel enforced a 0.6 zoom floor without accounting for the window's own DPI, causing the panel at 2560x1440 with 225% scaling to remain stuck above the zoom level it actually needed, which pushed the rate and status row as well as the Refresh and Quit buttons entirely off-screen. Windows now changes the zoom floor to `MIN_PANEL_SCALE / window DPI scale`, ensuring text rendering is still never smaller than 0.6× of a 100% display while allowing the entire panel to fit smoothly inside the screen; macOS remains unchanged."
+            },
+            "original": "**The bottom of the Windows panel is no longer cut off on short high-DPI screens.** The 0.6 zoom floor did not account for the window's DPI, so at 2560x1440 @225% the panel was held above the zoom it needed and lost its rate/status row and Refresh/Quit buttons. Windows now uses `MIN_PANEL_SCALE / window DPI scale` as the floor, so text still never renders smaller than 0.6× of a 100% display; macOS is unchanged."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 系統匣提示限制字數，避免例外吞沒導致面板停更",
+              "en": "Windows tray tooltip enforces character limit, preventing swallowed exceptions from stalling panel updates"
+            },
+            "body": {
+              "zh-TW": "開啟 Windows 系統匣觀察各家 AI 用量，開著的面板現在絕不會無聲無息地停止更新。先前新增了 Grok 欄位之後，在英文介面且每家提供商額度皆滿 100% 的極端狀況下，提示文字長度會達到 129 個字元；這讓底層圖示套件 `pystray` 拋出 `ValueError: string too long` 錯誤，但該錯誤卻被背景工作常駐程式 `_refresh_worker()` 默默吞掉，連同該輪更新畫面的 `inject_state()` 也一併跳過，導致面板看似開著卻再也不會刷新數據。現在系統匣提示文字強制限制在 127 個字元以內，徹底防範字串過長引發的崩潰。⟦這種脫節宛如展場跑馬燈因文字過長當機，值班警衛不但沒回報還順手切斷訊號線，讓大廳螢幕默默停在上一輪舊畫面。⟧",
+              "en": "When opening the Windows tray to check AI usage across providers, an open panel will no longer silently stop updating. Previously, after adding the Grok row, tooltip text reached 129 characters in the extreme case of an English interface with every provider's quota at 100%; this caused the underlying icon library `pystray` to raise a `ValueError: string too long` error, which was silently swallowed by the background worker `_refresh_worker()`, skipping that cycle's UI update `inject_state()` as well and leaving the open panel unable to refresh data. The tray tooltip text is now strictly capped at 127 characters, completely preventing crashes caused by excessively long strings. ⟦This disconnection is like an exhibition marquee crashing from text that is too long, and instead of reporting it, the duty guard casually disconnects the signal cable, leaving the lobby display quietly frozen on the previous frame.⟧"
+            },
+            "original": "**The Windows tray tooltip is capped at 127 characters.** Since the Grok row was added, the English tooltip with every provider at 100% reached 129 characters; pystray raised `ValueError: string too long`, which `_refresh_worker()` swallowed along with the same iteration's `inject_state()`, so an open panel silently stopped updating."
+          },
+          {
+            "title": {
+              "zh-TW": "終端機狀態列與接續提醒自動換新，補齊修復並校準版號",
+              "en": "Terminal status line and session resume hooks update automatically, incorporating fixes and aligning version numbers"
+            },
+            "body": {
+              "zh-TW": "先前已在電腦中安裝過狀態列與工作階段接續提醒的使用者，現在升級時會自動替換成最新版腳本。過去這兩支 hook（特定事件發生時被觸發的小程式）雖然歷經多次修改，涵蓋狀態列進位的 `1000k` 修正以及 7 月以來工作階段接續提醒的十項修正，卻因為未調升版號，讓既有安裝一直留在舊檔案。新版將狀態列升級至 1.6 版、接續提醒升級至 1.7 版，安裝程式會主動用最新副本覆蓋舊檔，並新增自動化測試確保腳本版號與安裝常數隨時步調一致。⟦這恰似圖書館借閱處更新了服務規章，封皮上的版本代號卻漏未換新，讓館員誤以為抽屜裡積滿灰塵的舊手冊仍是現行規定。⟧",
+              "en": "Users who previously installed the status line and session resume hooks on their systems will now have them automatically replaced with the latest script versions upon upgrading. In the past, although both hooks underwent numerous modifications—including the status line rounding fix for `1000k` and ten fixes to session resume since July—the lack of version bumps left existing installations stuck on older files. The new release bumps the status line to version 1.6 and session resume to 1.7, with the installer actively overwriting old files with the latest copies and adding an automated test to ensure script version numbers and installer constants stay strictly in step. ⟦This is just like a library circulation desk updating its service policies but forgetting to update the version code on the cover, leading librarians to mistakenly believe the dusty manual in the drawer is still the active rulebook.⟧"
+            },
+            "original": "**Installed status line and session resume hooks are replaced with the current copies.** Both scripts had changed without a version bump — the status line's `1000k` fix and ten session-resume fixes since July — so existing installs kept the old files. The status line goes to `1.6` and session resume to `1.7`, and a new test keeps the session-resume script version and installer constant in step."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.30.12",
+      "raw": {
+        "version": "0.30.12",
+        "period": "2026-09-11",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-09-12",
+        "entries": [
+          "**`CLAUDE_CONFIG_DIR` is respected everywhere, not only for transcripts** ([#129](https://github.com/aqua5230/usage/issues/129)). With a relocated Claude Code config dir, \"Set Up Status Line\" wrote to `~/.claude/settings.json`, which Claude Code never read, so both quota bars sat at 0% with \"Reset imminent\", the fallback surfaced a stale `~/.claude.json`, and Project Usage stayed empty because an `.app` launched from Finder or the Dock does not inherit the shell environment. A new `loaders/claude_paths.py` resolves the directory from the environment, then `launchctl getenv CLAUDE_CONFIG_DIR`, then `~/.claude`; comma-separated values are read in full and written to the first entry. Files Claude Code owns follow it — `settings.json`, `.claude.json` (inside the directory whenever the variable is set, the same rule Claude Code uses), and `projects/`. usage's own files — the statusline script, `usage-status.json`, prefs — stay pinned to `~/.claude`: the script runs as a Claude Code subprocess and sees the variable while the app may not, and deriving both from it would let them write and read in different places.",
+          "**Token counts no longer read `1000k` at a unit boundary.** The three statusline scripts promoted to `M` at `value >= 1_000_000`, but `k` is formatted `:.0f`, so anything from 999,500 rounded to `1000k` first; there was no `B` step either, so 1.5 billion read `1500.0M`. The thresholds now compare against the rounded boundary (999,500 for k→M, 999,950,000 for M→B) and a `B` step was added, matching the already-correct version in `ui/tables.py`.",
+          "**Weekly trend bars in the report show their date range and cost on hover.** Each row only carried a token count, with no way to tell which week it was or what it cost. The range is clamped to the report's actual span, so an unfinished last week does not claim seven days next to three days of numbers.",
+          "**Insight notes in the report are square, borderless tinted rows.** They were the last framed surface left — 8px corners and a 3px left stripe — and now match the report's other full-row fills."
+        ]
+      },
+      "curated": {
+        "version": "0.30.12",
+        "period": "2026-09-11",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "自訂 Claude Code 設定路徑處處生效，狀態列與專案用量不再空白",
+              "en": "Custom Claude Code config paths take effect everywhere, keeping status lines and project usage from going blank"
+            },
+            "body": {
+              "zh-TW": "如果你搬移了 Claude Code 的設定資料夾，狀態列與專案用量現在處處都能正常讀取。⟦這好比工作室搬遷後，公文仍投進舊信箱，讓新辦公室的值班看板始終查無進度。⟧先前「設定狀態列」仍寫進 `~/.claude/settings.json`，Claude Code 根本不讀，兩條額度長條圖停在 0% 且標記「即將重置」；備援機制甚至翻出過期的 `~/.claude.json`，且從 Finder 或 Dock 開啟的桌面程式抓不到終端機變數，專案用量一片空白。\n\n```\n# 路徑解析順序（逗號分隔時讀取全部、寫入第一筆）：\n# 1. 環境變數 CLAUDE_CONFIG_DIR\n# 2. launchctl getenv CLAUDE_CONFIG_DIR\n# 3. 預設路徑 ~/.claude\n\n# 跟隨變數搬移：settings.json, .claude.json, projects/\n# 固定留在原處：狀態列腳本, usage-status.json, 偏好設定\n```\n\n新版 `loaders/claude_paths.py` 依序解析目錄，Claude Code 檔案跟著走，而 usage 自己的檔案固定留在原處，避免子行程與桌面端分頭讀寫造成錯位。",
+              "en": "If you relocate Claude Code's configuration directory, the status line and project usage can now be read properly everywhere. ⟦It is like moving to a new studio while official mail is still delivered to the old mailbox, leaving the duty board in the new office with no updates to display.⟧ Previously, \"Set Up Status Line\" still wrote to `~/.claude/settings.json`, which Claude Code never read, leaving both quota bars stuck at 0% with \"Reset imminent\"; the fallback mechanism even surfaced a stale `~/.claude.json`, and desktop apps launched from Finder or the Dock could not catch terminal environment variables, leaving project usage completely blank.\n\n```\n# Path resolution order (reads all when comma-separated, writes to the first entry):\n# 1. Environment variable CLAUDE_CONFIG_DIR\n# 2. launchctl getenv CLAUDE_CONFIG_DIR\n# 3. Default path ~/.claude\n\n# Moves with the variable: settings.json, .claude.json, projects/\n# Stays pinned in place: statusline script, usage-status.json, preferences\n```\n\nThe new `loaders/claude_paths.py` resolves directories in order so that Claude Code files follow the variable while usage's own files stay pinned in place, preventing misalignment from subprocesses and the desktop app reading and writing in different locations."
+            },
+            "original": "**`CLAUDE_CONFIG_DIR` is respected everywhere, not only for transcripts** ([#129](https://github.com/aqua5230/usage/issues/129)). With a relocated Claude Code config dir, \"Set Up Status Line\" wrote to `~/.claude/settings.json`, which Claude Code never read, so both quota bars sat at 0% with \"Reset imminent\", the fallback surfaced a stale `~/.claude.json`, and Project Usage stayed empty because an `.app` launched from Finder or the Dock does not inherit the shell environment. A new `loaders/claude_paths.py` resolves the directory from the environment, then `launchctl getenv CLAUDE_CONFIG_DIR`, then `~/.claude`; comma-separated values are read in full and written to the first entry. Files Claude Code owns follow it — `settings.json`, `.claude.json` (inside the directory whenever the variable is set, the same rule Claude Code uses), and `projects/`. usage's own files — the statusline script, `usage-status.json`, prefs — stay pinned to `~/.claude`: the script runs as a Claude Code subprocess and sees the variable while the app may not, and deriving both from it would let them write and read in different places."
+          },
+          {
+            "title": {
+              "zh-TW": "狀態列 Token 在單位邊界不再顯示 1000k，並補齊十億級距",
+              "en": "Status line token counts no longer show 1000k at unit boundaries, adding the billion step"
+            },
+            "body": {
+              "zh-TW": "在狀態列查看消耗進度時，若 Token（AI 處理與計費的文字單位）數值剛好逼近單位邊界，現在不再顯示彆扭的 `1000k`。⟦這種尷尬宛如汽車儀表板的里程計數器，在行駛累積到九百九十九點五公尺時本該跳轉為一公里，卻因提早進位而顯示出一千公尺；重新對準門檻後，大單位才會準時接棒切換。⟧過去三支狀態列腳本在數值達到 1,000,000 時才升級為 `M`，但 `k` 是整數格式化，999,500 以上會先四捨五入成 `1000k`；腳本也沒有 `B` 級距，使得 15 億被印成 `1500.0M`。現在門檻改為比對進位後的邊界（`k` 到 `M` 用 999,500、`M` 到 `B` 用 999,950,000）並補上 `B` 級距，對齊 `ui/tables.py` 既有的正確寫法。",
+              "en": "When checking usage progress in the status line, token values near unit boundaries no longer display an awkward `1000k`. ⟦This awkwardness is like a car odometer that should flip to 1 kilometer at 999.5 meters, but instead displays 1000 meters due to early rounding; readjusting the threshold ensures the larger unit takes over right on time.⟧ Previously, the three status line scripts only upgraded to `M` when reaching 1,000,000, but `k` used integer formatting, causing values of 999,500 and above to round up to `1000k` first; the scripts also lacked a `B` step, causing 1.5 billion to be printed as `1500.0M`. The thresholds now compare against rounded boundaries (999,500 for `k` to `M`, 999,950,000 for `M` to `B`) and add the `B` step, matching the existing correct implementation in `ui/tables.py`."
+            },
+            "original": "**Token counts no longer read `1000k` at a unit boundary.** The three statusline scripts promoted to `M` at `value >= 1_000_000`, but `k` is formatted `:.0f`, so anything from 999,500 rounded to `1000k` first; there was no `B` step either, so 1.5 billion read `1500.0M`. The thresholds now compare against the rounded boundary (999,500 for k→M, 999,950,000 for M→B) and a `B` step was added, matching the already-correct version in `ui/tables.py`."
+          },
+          {
+            "title": {
+              "zh-TW": "報表週趨勢長條支援懸停顯示，標註日期區間與花費",
+              "en": "Report weekly trend bars support hover display, showing date ranges and costs"
+            },
+            "body": {
+              "zh-TW": "打開用量報表查看每週趨勢長條時，滑鼠移過去現在會即時浮現日期區間與花費。⟦這有如專案白板上的進度橫條，湊近細看才能得知起訖日期與開銷明細，且剛進行三天的當週絕不會虛報成整整七天。⟧以前每列長條只標記 Token（AI 處理與計費的文字單位）數量，完全看不出那是哪一週、花了多少費用。新版在滑鼠懸停時補齊了具體時間與金額，顯示的日期區間也會嚴格限制在報表的實際範圍內，讓還沒過完的最後一週不會宣稱涵蓋七天、旁邊卻只有三天的數據。",
+              "en": "When viewing weekly trend bars in the usage report, hovering over them now reveals their date range and cost. ⟦It is like a progress bar on a project whiteboard where looking closely reveals exact start and end dates and expense details, ensuring a current week with only three days is never falsely shown as a full seven days.⟧ Previously, each row only marked token counts, with no way to tell which week it was or how much it cost. The new version provides the exact timeframe and amount on hover, and clamps the displayed date range strictly to the report's actual span so an unfinished last week does not claim seven days next to three days of numbers."
+            },
+            "original": "**Weekly trend bars in the report show their date range and cost on hover.** Each row only carried a token count, with no way to tell which week it was or what it cost. The range is clamped to the report's actual span, so an unfinished last week does not claim seven days next to three days of numbers."
+          },
+          {
+            "title": {
+              "zh-TW": "報表洞察備忘改為方角無框，對齊全列填色風格",
+              "en": "Insight notes in reports become square and borderless, matching full-row fill styling"
+            },
+            "body": {
+              "zh-TW": "報表底部的洞察備忘（提供用量趨勢與分析提醒的備忘列），現在全面改為方角、無外框的淡色整列。它們原本是整個報表介面中最後一處還帶有外框的表面，帶有 8px 圓角與 3px 左側色條，現在已改為與報表其餘整列填色完全一致的視覺風格。⟦整張介面有如筆記本排版，當所有章節內容都已換成清爽的無框滿版底色時，最後一個帶有外框與側邊色條的便簽也同步抹平框線，讓整頁閱讀動線不再突兀。⟧",
+              "en": "Insight notes at the bottom of the report are now entirely square, borderless tinted full rows. They were originally the last framed surfaces left across the entire report interface, featuring 8px rounded corners and a 3px left stripe, and have now been updated to match the visual style of the report's other full-row fills. ⟦The entire interface is like a notebook layout where, once all chapter contents have switched to clean borderless full-bleed background colors, the last sticky note with a border and side stripe also flattens its outlines so the reading flow across the page is no longer disjointed.⟧"
+            },
+            "original": "**Insight notes in the report are square, borderless tinted rows.** They were the last framed surface left — 8px corners and a 3px left stripe — and now match the report's other full-row fills."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.30.11",
       "raw": {
         "version": "0.30.11",
@@ -691,237 +874,6 @@
               "en": "⟦Like removing a bobblehead figurine and its motorized timer base from a car dashboard to free up a mounting slot for a warning indicator light.⟧ The menu bar no longer displays animated spirit companions, as `menubar/critter_frames.py`, the shared NSTimer, the `animateCritters_` selector, `critter_animation_tick()`, and `refresh.py`'s `animation_groups` data flow have all been removed alongside the 15 animation frames and the `assets/critters/lion/` directory. Grok now takes over that space: when `not hide_grok` and `grok_weekly.percent is not None`, `_menubar_attributed_title()` and `_compose_title()` use `assets/grok_mono_menubar.png` and `_grok_menubar_icon()` to insert Grok right after Antigravity while preserving the existing separator behavior. The `hide_grok` setting remains `True` by default."
             },
             "original": "**The menu bar no longer shows animated spirit companions; Grok now uses their space.** `menubar/critter_frames.py`, the shared NSTimer and `animateCritters_` selector, `critter_animation_tick()`, and `refresh.py`'s `animation_groups` data flow were removed, together with the 15 animation frames and `assets/critters/lion/`. `assets/grok_mono_menubar.png` and `_grok_menubar_icon()` now add Grok after Antigravity in `_menubar_attributed_title()` and `_compose_title()` when `not hide_grok` and `grok_weekly.percent is not None`, preserving the existing separator behavior; `hide_grok` remains `True` by default."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.30.4",
-      "raw": {
-        "version": "0.30.4",
-        "period": "2026-08-30",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-08-30",
-        "entries": [
-          "**Scaled Windows panels now show all their content, with no blank strip below the footer.** `_WindowsTrayController._apply_panel_zoom()` now calls `window.usageApplyPanelZoom()` from a background thread before passing only resize and move work to the UI thread, avoiding a WebView2 deadlock. `usageApplyPanelZoom()` receives the natural height, expands `body` before applying CSS `zoom`, and `naturalContentHeight()` temporarily removes that compensation while measuring, so the scaled layout has enough space instead of clipping cards.",
-          "**Windows now counts Grok CLI activity in today's cost, token total, and project list.** `_WindowsTrayController._load_entries()` now calls `grok_loader.load_entries()` alongside the Claude and Codex loaders. If reading the Grok log fails, its matching error handling leaves the Claude and Codex entries already collected intact.",
-          "**Token Saver now gives short replies three concrete rules for plainer language.** The `terse_mode_instruction` strings in `i18n.json` and their standalone copies in `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now turn nominalizations back into verbs, cut sentences that announce without informing, and put known information before new information, in all five languages. `TERSE_HOOK_VERSION` in `installer/session_hooks.py` and `__version__` in `usage_terse_mode.py` both move to 1.3, so `_installed_terse_version()` keeps installed sidecars current instead of rewriting them on every session."
-        ]
-      },
-      "curated": {
-        "version": "0.30.4",
-        "period": "2026-08-30",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Windows 面板縮放完整呈現，消弭底部空白且防範死結",
-              "en": "Scaled Windows panels show full content without footer gaps or deadlocks"
-            },
-            "body": {
-              "zh-TW": "⟦就像裁縫師在布料縮水前先預留延伸長度，量測尺寸時暫時扣除這段預留值，處理完後版型恰好合身，既不緊繃也不拖地。⟧ Windows 上的經過縮放的面板能完整顯示所有內容，頁尾下方不再殘留空白條帶。控制器 `_WindowsTrayController._apply_panel_zoom()` 改由背景執行緒呼叫 `window.usageApplyPanelZoom()`，隨後僅將調整大小與位移交給 UI 執行緒，避開了 WebView2 的死結（deadlock，處理序互相等待而卡住）。函式 `usageApplyPanelZoom()` 接收自然高度並在套用 CSS `zoom` 前擴展 `body`，而 `naturalContentHeight()` 量測時會暫時移除該補償，確保縮放版面有足夠空間而不裁切卡片。",
-              "en": "⟦Like a tailor allowing extra length for fabric shrinkage and temporarily deducting that allowance during measurements, ensuring the finished garment fits neatly without being cropped or dragging.⟧ Scaled Windows panels now display all their content completely, eliminating the blank strip below the footer. `_WindowsTrayController._apply_panel_zoom()` now invokes `window.usageApplyPanelZoom()` from a background thread before delegating only resize and move work to the UI thread, avoiding a WebView2 deadlock. The `usageApplyPanelZoom()` function receives natural height and expands `body` before applying CSS `zoom`, while `naturalContentHeight()` temporarily removes that compensation during measurements so the scaled layout preserves ample space instead of clipping cards."
-            },
-            "original": "**Scaled Windows panels now show all their content, with no blank strip below the footer.** `_WindowsTrayController._apply_panel_zoom()` now calls `window.usageApplyPanelZoom()` from a background thread before passing only resize and move work to the UI thread, avoiding a WebView2 deadlock. `usageApplyPanelZoom()` receives the natural height, expands `body` before applying CSS `zoom`, and `naturalContentHeight()` temporarily removes that compensation while measuring, so the scaled layout has enough space instead of clipping cards."
-          },
-          {
-            "title": {
-              "zh-TW": "Windows 納入 Grok CLI 用量統計，日誌讀取失敗不影響既有紀錄",
-              "en": "Windows tracks Grok CLI activity with fault-isolated log loaders"
-            },
-            "body": {
-              "zh-TW": "在 Windows 開啟今日用量面板查看費用、token（AI 計費與文字計量單位）總數與專案清單時，Grok CLI 紀錄會一併出現。控制器 `_WindowsTrayController._load_entries()` 在載入既有的 Claude 與 Codex 資料時，會一併呼叫 `grok_loader.load_entries()` 讀取記錄。若 Grok 日誌讀取失敗，對應的錯誤處理機制會保留已收集的 Claude 與 Codex 項目。⟦像三條獨立水管流進同一個水槽，第三條堵住時，前兩條已流入的水仍留在槽裡。⟧",
-              "en": "When you open today's usage panel on Windows to check costs, token totals, and the project list, Grok CLI records now appear too. Inside `_WindowsTrayController._load_entries()`, the controller calls `grok_loader.load_entries()` alongside the existing Claude and Codex loaders. If reading the Grok log fails, dedicated error handling preserves the Claude and Codex entries already collected. ⟦Like three separate pipes feeding one tank, a blockage in the third pipe leaves the water from the first two in place.⟧"
-            },
-            "original": "**Windows now counts Grok CLI activity in today's cost, token total, and project list.** `_WindowsTrayController._load_entries()` now calls `grok_loader.load_entries()` alongside the Claude and Codex loaders. If reading the Grok log fails, its matching error handling leaves the Claude and Codex entries already collected intact."
-          },
-          {
-            "title": {
-              "zh-TW": "Token Saver 導入三項白話寫作規則，版號升級免除重複重寫",
-              "en": "Token Saver enforces three plain-language rules with versioned sidecars"
-            },
-            "body": {
-              "zh-TW": "你請 Token Saver 把一段回覆縮短時，這 3 條規則會套用。在 `i18n.json` 的 `terse_mode_instruction`，以及其在 `_DEFAULT_INSTRUCTION` 中的獨立副本裡，5 種語言皆要求將名詞化還原為動詞、刪除只報幕不提供資訊的句子，並先放已知資訊，再放新資訊。同時 `installer/session_hooks.py` 的 `TERSE_HOOK_VERSION` 與 `usage_terse_mode.py` 的 `__version__` 皆升至 1.3，讓 `_installed_terse_version()` 維持已安裝 sidecar（隨附輔助檔）最新，免於每個工作階段重寫。⟦像一台有三個調整鈕的機器，三種寫法依設定一起運作；標記升至 1.3 時，只替已裝好的小模組換新版。⟧",
-              "en": "When you ask Token Saver to shorten a reply, these three rules apply. Across all five languages, `terse_mode_instruction` in `i18n.json` and its standalone copies in `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` turn nominalizations back into verbs, cut sentences that announce without informing, and put known information before new information. Meanwhile, `TERSE_HOOK_VERSION` in `installer/session_hooks.py` and `__version__` in `usage_terse_mode.py` both move to 1.3, so `_installed_terse_version()` keeps installed sidecars current instead of rewriting them on every session. ⟦Like a machine with three adjustment knobs, the three writing rules work together; when its marker reaches 1.3, only the installed small module is swapped for the new version.⟧"
-            },
-            "original": "**Token Saver now gives short replies three concrete rules for plainer language.** The `terse_mode_instruction` strings in `i18n.json` and their standalone copies in `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now turn nominalizations back into verbs, cut sentences that announce without informing, and put known information before new information, in all five languages. `TERSE_HOOK_VERSION` in `installer/session_hooks.py` and `__version__` in `usage_terse_mode.py` both move to 1.3, so `_installed_terse_version()` keeps installed sidecars current instead of rewriting them on every session."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.30.3",
-      "raw": {
-        "version": "0.30.3",
-        "period": "2026-08-28",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-08-28",
-        "entries": [
-          "**Token Saver now keeps short replies easy to understand.** `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now makes plain language the style alongside brevity, adds a one-time gloss for unavoidable technical terms, and asks replies to close with the result and next step; `usage_terse_reminder.py`'s `_DEFAULT_REMINDER` reinforces the same rule. `TERSE_HOOK_VERSION` in `installer/session_hooks.py` was bumped so `_self_heal_terse_mode()` replaces existing sidecars instead of leaving them on the old wording.",
-          "**Token Saver's guidance now agrees with itself and starts in your language.** `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now permits the opening-greeting emoji and a one-line tool intent while still excluding them from the reply body. `_write_terse_sidecar()` in `installer/session_hooks.py` records `detect_lang()` under `lang`, and `_read_sidecar()` / `_detect_lang()` in both hook scripts read it after environment overrides, so sessions without language variables no longer default to the longer English prompt; missing or corrupt sidecars still safely fall back to English.",
-          "**Existing Token Saver reminder hooks now update instead of staying stale.** `_self_heal_terse_reminder()` in `installer/session_hooks.py` previously restored only a missing script or registration, leaving an installed older script unchanged. `TERSE_REMINDER_HOOK_VERSION` and `_installed_terse_reminder_version()` now compare versions and replace stale copies, recording `update_terse_reminder_hook` for diagnosis."
-        ]
-      },
-      "curated": {
-        "version": "0.30.3",
-        "period": "2026-08-28",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Token Saver 簡短回覆兼顧好懂，技術術語加註白話並提示下一步",
-              "en": "Token Saver keeps short replies plain and clear with term glosses and next steps"
-            },
-            "body": {
-              "zh-TW": "⟦像主管交代交接事項：話要精練且說白話，遇到行話加句白話註釋，結尾交代成果與下一步，並換掉舊指引便條。⟧ Token Saver 讓簡短回覆兼顧好懂。模組 `usage_terse_mode.py` 的 `_DEFAULT_INSTRUCTION` 將白話風格與精簡並列，規定不可避免的技術術語加一次性白話註釋，並要求回覆以結果與下一步收尾；`usage_terse_reminder.py` 的 `_DEFAULT_REMINDER` 也強化此規則。`installer/session_hooks.py` 提高 `TERSE_HOOK_VERSION`，使自我修復函式 `_self_heal_terse_mode()` 主動替換既有 sidecar（隨附設定檔），不再停留在舊措辭。",
-              "en": "⟦Like a manager briefing a team handoff: keeping updates brief while speaking plain language, adding a quick plain-words gloss whenever technical jargon is unavoidable, closing with the result and next action, and immediately swapping out obsolete guidelines.⟧ Token Saver now keeps concise replies easy to understand. In `usage_terse_mode.py`, `_DEFAULT_INSTRUCTION` pairs plain language directly alongside brevity, adds a one-time explanation for unavoidable technical terms, and instructs responses to conclude with the concrete result and next step; `usage_terse_reminder.py`'s `_DEFAULT_REMINDER` reinforces this exact requirement. Furthermore, `TERSE_HOOK_VERSION` in `installer/session_hooks.py` was bumped so `_self_heal_terse_mode()` actively replaces existing sidecar config files instead of leaving them on outdated prompt phrasing."
-            },
-            "original": "**Token Saver now keeps short replies easy to understand.** `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now makes plain language the style alongside brevity, adds a one-time gloss for unavoidable technical terms, and asks replies to close with the result and next step; `usage_terse_reminder.py`'s `_DEFAULT_REMINDER` reinforces the same rule. `TERSE_HOOK_VERSION` in `installer/session_hooks.py` was bumped so `_self_heal_terse_mode()` replaces existing sidecars instead of leaving them on the old wording."
-          },
-          {
-            "title": {
-              "zh-TW": "Token Saver 指引自我一致，放行問候表情並依語言載入提示",
-              "en": "Token Saver guidance reconciles rules and loads prompt in your language"
-            },
-            "body": {
-              "zh-TW": "Token Saver 提示指引消除矛盾，並自動以在地語言開啟。模組 `usage_terse_mode.py` 的 `_DEFAULT_INSTRUCTION` 允許開頭問候 emoji 與單行工具意圖，但仍排除在回覆正文之外。在 `installer/session_hooks.py` 中，`_write_terse_sidecar()` 將 `detect_lang()` 記錄於 `lang`，兩組 hook（事件發生時觸發的小程式）腳本內的 `_read_sidecar()` 與 `_detect_lang()` 會在環境變數覆蓋後讀取。未設語言變數的工作階段不再預設載入較長英文提示詞；若 sidecar 隨附檔遺失或損毀依然安全備援至英文。⟦宛如多語接待櫃台：服務員可開頭致意並亮出名牌，正文維持精練，依訪客母語遞上簡章而非預設長篇英文，簡章遺失時以英語備援。⟧",
-              "en": "Token Saver's prompt instructions now reconcile internal rules and launch directly in your local language. In `usage_terse_mode.py`, `_DEFAULT_INSTRUCTION` now permits an opening greeting emoji and a one-line tool intent while keeping them strictly outside the reply body. Inside `installer/session_hooks.py`, `_write_terse_sidecar()` writes the output of `detect_lang()` under `lang`, and `_read_sidecar()` / `_detect_lang()` in both hook scripts parse it after checking environment overrides. Consequently, sessions lacking explicit language environment variables no longer fall back to the longer English prompt; missing or corrupted sidecar files still safely default to English. ⟦It is like a multilingual reception desk: permitting the greeter to wave and display a one-line badge while keeping the response brief, handing visitors brochures in their native language instead of defaulting to a bulky English manual, and using English only as a safe fallback when records are lost.⟧"
-            },
-            "original": "**Token Saver's guidance now agrees with itself and starts in your language.** `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now permits the opening-greeting emoji and a one-line tool intent while still excluding them from the reply body. `_write_terse_sidecar()` in `installer/session_hooks.py` records `detect_lang()` under `lang`, and `_read_sidecar()` / `_detect_lang()` in both hook scripts read it after environment overrides, so sessions without language variables no longer default to the longer English prompt; missing or corrupt sidecars still safely fall back to English."
-          },
-          {
-            "title": {
-              "zh-TW": "既有提醒掛鉤支援版本比對，過期腳本主動換新不留舊版",
-              "en": "Existing reminder hooks upgrade automatically instead of staying stale"
-            },
-            "body": {
-              "zh-TW": "升級 usage 後，既有的 Token Saver 提醒掛鉤（hook，事件發生時觸發的小程式）現在會自動同步最新版。過去 `installer/session_hooks.py` 裡的自我修復函式 `_self_heal_terse_reminder()` 僅在腳本或註冊遺失時重新補上，已安裝的舊版腳本則原樣保留。現在系統透過 `TERSE_REMINDER_HOOK_VERSION` 與 `_installed_terse_reminder_version()` 比對版號並主動替換過期副本，記錄 `update_terse_reminder_hook` 供診斷。⟦恰似大樓巡檢廣播設備：以前檢查員只在設備遺失時才補裝，裝好的舊款從不更換；現在會核對型號主動換新，並在檢修日誌登記換裝明細以供備查。⟧",
-              "en": "After upgrading usage, existing Token Saver reminder hooks now update themselves to the latest version automatically. Previously, `_self_heal_terse_reminder()` in `installer/session_hooks.py` only intervened when a script file or its registration was entirely missing, leaving older installed scripts untouched on stale wording. The system now uses `TERSE_REMINDER_HOOK_VERSION` and `_installed_terse_reminder_version()` to compare version numbers and actively replace outdated script copies, logging an `update_terse_reminder_hook` event for future diagnostics. ⟦It is like a building inspector checking public address speakers: previously only replacing a unit if it was missing while leaving obsolete speakers in place, but now verifying serial numbers, actively replacing aged hardware, and logging the maintenance in service records.⟧"
-            },
-            "original": "**Existing Token Saver reminder hooks now update instead of staying stale.** `_self_heal_terse_reminder()` in `installer/session_hooks.py` previously restored only a missing script or registration, leaving an installed older script unchanged. `TERSE_REMINDER_HOOK_VERSION` and `_installed_terse_reminder_version()` now compare versions and replace stale copies, recording `update_terse_reminder_hook` for diagnosis."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.30.2",
-      "raw": {
-        "version": "0.30.2",
-        "period": "2026-08-28",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-08-28",
-        "entries": [
-          "**Panels that are too tall for the screen now scale down instead of clipping.** `clamp_content_height()` used the visible frame as its ceiling, leaving rows beyond that height unreachable. `panels/panel_scale.py` now calculates a fit scale, no lower than `MIN_PANEL_SCALE`, and macOS's `PopoverViewController.applyPanelScale()` and Windows's `_WindowsTrayController._apply_panel_zoom()` apply it to the whole panel through `window.usageApplyPanelZoom()`.",
-          "**Codex status lines now install and remove correctly when `config.toml` has no bare `[tui]` header.** Configurations that declare `tui` only through `[tui.*]` subtables or top-level dotted keys previously made the setup and unsetup paths silently write nothing while reporting success. `_insert_table_line()`, `_remove_table_line()`, and `_replace_table_line()` now handle both forms, validate every candidate with `tomllib.loads`, and report failure when no change can be safely made.",
-          "**Windows builds now point their hidden imports at the installer modules' current paths.** The v0.29.37 fix restored the missing `wintray.app` and `tui.app` entry points; after a separate refactor, `scripts/build_windows.ps1` still named `session_hooks` and `setup_hook` as obsolete top-level modules. The bundle was never broken — `main.py` imports both statically — but the flags were dead configuration of exactly the kind that shipped the unusable v0.29.34–36 builds. They now name `installer.session_hooks` and `installer.setup_hook`, so PyInstaller can diagnose a future omission.",
-          "**Toggling the macOS login item no longer fails when the app was opened by double-clicking.** Without `LANG`, `subprocess.run(..., text=True)` used ASCII and could raise `UnicodeDecodeError` while reading `launchctl` or `gh` output containing non-ASCII text. Those reads now explicitly use UTF-8 with replacement for invalid bytes.",
-          "**Claude cost totals now include advisor iterations and one-hour cache writes.** The Claude parsers now read `usage.iterations` and `usage.cache_creation.ephemeral_1h_input_tokens`; only `advisor_message` iterations get separate entries, avoiding double-counting ordinary messages. One-hour cache writes are priced at twice the base input rate, and the history cache schema is bumped so existing entries are reparsed.",
-          "**Dragging the Grok card no longer moves the panel differently from the other three on Windows.** The tray's WebKit shim turns a quota card's empty area into a native `pywebview` drag region, but its selector listed only Claude, Codex and Antigravity. Grok fell through to the shared card-reorder handler instead, so the same gesture that moved the window from the first three cards did something else from the fourth. The selector now matches all four, as `panel_core.js` already did on macOS.",
-          "Moved public contribution and security guides to `.github/` and localized README and changelog files to `docs/`, cleaning up the repository root and updating all links.",
-          "Backfilled the Grok CLI card into the Simplified Chinese, Japanese and Korean READMEs, which had missed the feature list entry, the Hide Sections list and the comparison-table row.",
-          "Bumped PyObjC to 12.2.2 and ruff to 0.16.4, closing five separately raised dependency updates in a single lockfile change."
-        ]
-      },
-      "curated": {
-        "version": "0.30.2",
-        "period": "2026-08-28",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "過高面板自動等比縮放，畫面完整呈現不被截斷",
-              "en": "Oversized panels scale down to fit screen instead of clipping"
-            },
-            "body": {
-              "zh-TW": "⟦像用相機拍攝高聳建築時自動切換廣角，把整棟大樓等比縮進觀景窗，而不是直接裁掉屋頂。⟧ 當螢幕直向空間不足而面板（popover）內容過長時，視窗現在會等比縮小而非裁切畫面。過去 `clamp_content_height()` 直接以可見畫面高度為上限，超出高度的資料列完全無法看見也點不到。新模組 `panels/panel_scale.py` 會計算適應螢幕的縮放比例，且不低於保底的 `MIN_PANEL_SCALE`；macOS 的 `PopoverViewController.applyPanelScale()` 與 Windows 的 `_WindowsTrayController._apply_panel_zoom()` 則透過 `window.usageApplyPanelZoom()` 將比例套用至整個面板，確保所有列完整呈現。",
-              "en": "⟦Like a camera automatically zooming out to wide-angle when capturing a tall skyscraper, fitting the entire building proportionally into the viewfinder instead of slicing off the roof.⟧ When a popover grows too tall for the screen, it now scales down proportionally rather than getting clipped. Previously, `clamp_content_height()` capped height strictly to the visible screen frame, leaving any lower rows unreachable and invisible. The new `panels/panel_scale.py` module computes a fit scale that stays above `MIN_PANEL_SCALE`, and macOS's `PopoverViewController.applyPanelScale()` together with Windows's `_WindowsTrayController._apply_panel_zoom()` apply it across the entire panel using `window.usageApplyPanelZoom()`."
-            },
-            "original": "**Panels that are too tall for the screen now scale down instead of clipping.** `clamp_content_height()` used the visible frame as its ceiling, leaving rows beyond that height unreachable. `panels/panel_scale.py` now calculates a fit scale, no lower than `MIN_PANEL_SCALE`, and macOS's `PopoverViewController.applyPanelScale()` and Windows's `_WindowsTrayController._apply_panel_zoom()` apply it to the whole panel through `window.usageApplyPanelZoom()`."
-          },
-          {
-            "title": {
-              "zh-TW": "Codex 狀態列支援點記法設定，安裝與移除不再靜默失敗",
-              "en": "Codex status lines install cleanly on dotted and subtable configs"
-            },
-            "body": {
-              "zh-TW": "在 Codex 設定檔 `config.toml` 未使用獨立 `[tui]` 區段標頭時，安裝與移除狀態列（status line，終端機最底下的即時資訊列）的功能現在能正確運作。以前若設定檔僅透過 `[tui.*]` 子表格或頂層點記法鍵值宣告，設定與解除流程會靜默跳過寫入卻回報成功。現在 `_insert_table_line()`、`_remove_table_line()` 與 `_replace_table_line()` 同時支援這兩種結構，每次修改皆透過 `tomllib.loads` 驗證語法，並在無法安全變更時明確回報失敗。⟦這好比水電師傅查驗配電箱：不論總標籤寫在總開關還是分路子面板上都能正確接線，送電前以電表驗證，無法安全施工時便明確告知而非假裝完工。⟧",
-              "en": "Codex status lines now install and remove reliably even when `config.toml` lacks a bare `[tui]` header. Configurations declaring `tui` solely through `[tui.*]` subtables or top-level dotted keys previously caused setup and removal routines to write nothing while falsely claiming success. Helper functions `_insert_table_line()`, `_remove_table_line()`, and `_replace_table_line()` now support both config structures, parse and validate every proposed edit with `tomllib.loads`, and raise a clear failure when no change can be made safely. ⟦It is like an electrician inspecting a breaker box: wiring connections correctly whether the label sits on the main switch or individual branch circuits, testing voltages before power-up, and flagging faults instead of pretending everything is installed.⟧"
-            },
-            "original": "**Codex status lines now install and remove correctly when `config.toml` has no bare `[tui]` header.** Configurations that declare `tui` only through `[tui.*]` subtables or top-level dotted keys previously made the setup and unsetup paths silently write nothing while reporting success. `_insert_table_line()`, `_remove_table_line()`, and `_replace_table_line()` now handle both forms, validate every candidate with `tomllib.loads`, and report failure when no change can be safely made."
-          },
-          {
-            "title": {
-              "zh-TW": "Windows 建置校正隱藏匯入路徑，清除無效模組設定",
-              "en": "Windows builds point hidden imports to current installer modules"
-            },
-            "body": {
-              "zh-TW": "Windows 建置腳本修復了打包設定中的過期模組路徑。先前 v0.29.37 修復了遺漏的 `wintray.app` 與 `tui.app` 進入點；但在獨立重構後，`scripts/build_windows.ps1` 仍將 `session_hooks` 與 `setup_hook` 列為舊版頂層模組。雖然 `main.py` 靜態匯入了兩者而未影響執行檔運作，但這些旗標屬於無效設定，正是過去導致 v0.29.34 至 v0.29.36 版無法啟動的同類隱患。現在旗標已更正為 `installer.session_hooks` 與 `installer.setup_hook`，讓 PyInstaller 未來能及早診斷遺漏。⟦宛如物流清單上的備忘地址：將舊門牌更新為正確路徑，才能在未來漏載時第一時間示警。⟧",
-              "en": "Windows build scripts now direct their hidden import flags to the current installer module paths. The v0.29.37 update restored the missing `wintray.app` and `tui.app` entry points; after a separate code refactor, `scripts/build_windows.ps1` still pointed to `session_hooks` and `setup_hook` as obsolete top-level modules. The packaged executable was never broken because `main.py` imports both statically, but the outdated flags were dead configuration of the exact kind that previously caused broken v0.29.34–36 builds. They now properly specify `installer.session_hooks` and `installer.setup_hook`, enabling PyInstaller to diagnose any future omissions. ⟦It is like updating warehouse addresses on a shipping checklist: keeping the registry accurate ensures the system catches a missing crate before trucks leave the dock.⟧"
-            },
-            "original": "**Windows builds now point their hidden imports at the installer modules' current paths.** The v0.29.37 fix restored the missing `wintray.app` and `tui.app` entry points; after a separate refactor, `scripts/build_windows.ps1` still named `session_hooks` and `setup_hook` as obsolete top-level modules. The bundle was never broken — `main.py` imports both statically — but the flags were dead configuration of exactly the kind that shipped the unusable v0.29.34–36 builds. They now name `installer.session_hooks` and `installer.setup_hook`, so PyInstaller can diagnose a future omission."
-          },
-          {
-            "title": {
-              "zh-TW": "macOS 雙擊啟動改用萬國碼讀取，切換開機項目不再崩潰",
-              "en": "Double-clicked macOS app toggles login items safely with UTF-8"
-            },
-            "body": {
-              "zh-TW": "⟦就像快遞員開箱驗貨：以前若沒人提醒語言就預設只認純英文字母，遇上外文標籤便當場罷工；現在一律配備萬國碼字典，遇到損壞字元自動替換並繼續派送。⟧ 在 macOS 上透過滑鼠連點開啟 App 時，切換開機啟動項目不再無預警失敗。雙擊啟動時環境中常缺少 `LANG` 變數，導致子行程（subprocess，由主程式分支出來處理特定任務的背景程序）呼叫 `subprocess.run(..., text=True)` 時預設採用 ASCII 編碼，讀取 `launchctl` 或 `gh` 產生的非 ASCII 文字時會拋出 `UnicodeDecodeError` 錯誤。現在這些讀取動作一律明確指定使用 UTF-8 編碼，並對無效位元組進行容錯替換。",
-              "en": "⟦Like a customs inspector who once defaulted to English-only and rejected any foreign package, now equipped with a universal dictionary to replace unreadable symbols and keep shipments moving.⟧ Toggling login items on macOS no longer fails when the app is launched via double-click. Without the `LANG` environment variable, `subprocess.run(..., text=True)` defaulted to ASCII, causing a `UnicodeDecodeError` whenever `launchctl` or `gh` outputs contained non-ASCII characters. These process outputs are now explicitly parsed using UTF-8 encoding, safely substituting replacement characters for any invalid byte sequences."
-            },
-            "original": "**Toggling the macOS login item no longer fails when the app was opened by double-clicking.** Without `LANG`, `subprocess.run(..., text=True)` used ASCII and could raise `UnicodeDecodeError` while reading `launchctl` or `gh` output containing non-ASCII text. Those reads now explicitly use UTF-8 with replacement for invalid bytes."
-          },
-          {
-            "title": {
-              "zh-TW": "Claude 費用納入顧問迭代與 1 小時快取，歷史紀錄重算更精準",
-              "en": "Claude cost totals add advisor iterations and one-hour cache writes"
-            },
-            "body": {
-              "zh-TW": "查看 Claude 的花費總額時，現在已完整納入顧問迭代與 1 小時快取寫入費用。解析器新增讀取 `usage.iterations` 與 `usage.cache_creation.ephemeral_1h_input_tokens` 欄位；其中僅有 `advisor_message` 迭代會拆分為獨立資料列，避免重複計算普通訊息。1 小時快取（cache，將資料暫存以加速讀取的機制）寫入則依基礎輸入費率的 2 倍計價，且歷史快取架構版本已同步更新，讓過往既有紀錄能自動重算。⟦這如同會計事務所升級審計帳本：把特別顧問的諮詢與專用保鮮費列入報銷，依雙倍費率計價並重審舊單據，避免多算也絕不漏計。⟧",
-              "en": "Claude cost totals now accurately capture advisor iterations and one-hour cache write expenses. Claude usage parsers now inspect `usage.iterations` and `usage.cache_creation.ephemeral_1h_input_tokens`, creating separate breakdown rows solely for `advisor_message` iterations to avoid double-counting regular turns. One-hour cache writes are priced at twice the base input token rate, and the history cache schema version has been bumped so past sessions are reparsed automatically. ⟦It is like an accounting firm updating its audit ledgers: billing special advisor consults and short-term secure storage at double rates, while auditing archived receipts to guarantee nothing is missed or duplicated.⟧"
-            },
-            "original": "**Claude cost totals now include advisor iterations and one-hour cache writes.** The Claude parsers now read `usage.iterations` and `usage.cache_creation.ephemeral_1h_input_tokens`; only `advisor_message` iterations get separate entries, avoiding double-counting ordinary messages. One-hour cache writes are priced at twice the base input rate, and the history cache schema is bumped so existing entries are reparsed."
-          },
-          {
-            "title": {
-              "zh-TW": "Windows 系統匣拖曳 Grok 卡片修正，視窗移動行為全數統一",
-              "en": "Dragging Grok card on Windows moves panel consistently with others"
-            },
-            "body": {
-              "zh-TW": "在 Windows 系統匣（tray，工作列右下角常駐圖示區）拖曳 Grok 額度卡片時，視窗移動行為不再與其他三家卡片不同步。系統匣的 WebKit 墊片原先會將額度卡片的空白區域轉為 `pywebview` 原生拖曳區，但其選取器過去僅列出 Claude、Codex 與 Antigravity。這導致 Grok 卡片掉入共用的卡片排序處理器，在第四張卡片上做出與前三張相同的拖曳手勢時卻引發不同反應。現在選取器已涵蓋全部四家服務商，與 macOS 上的 `panel_core.js` 保持一致。⟦如同控制台上的四組手把：前三組能平移整座台面，第四組因未貼標籤而只能移動自身；補齊設定後，四組操作手感完全一致。⟧",
-              "en": "Dragging the Grok card in the Windows tray now moves the entire panel smoothly, just like the other three provider cards. The tray's WebKit shim converts empty space on quota cards into native `pywebview` drag handles, but its element selector previously named only Claude, Codex, and Antigravity. As a result, dragging Grok fell through to the shared card-reordering logic, causing the fourth card to reorder itself rather than moving the window. The drag selector now includes all four providers, matching behavior already established in `panel_core.js` on macOS. ⟦It is like a control board with four grab handles: three shifted the entire deck while the fourth slipped because it missed a grip pad; outfitting all four ensures consistent handling everywhere.⟧"
-            },
-            "original": "**Dragging the Grok card no longer moves the panel differently from the other three on Windows.** The tray's WebKit shim turns a quota card's empty area into a native `pywebview` drag region, but its selector listed only Claude, Codex and Antigravity. Grok fell through to the shared card-reorder handler instead, so the same gesture that moved the window from the first three cards did something else from the fourth. The selector now matches all four, as `panel_core.js` already did on macOS."
-          },
-          {
-            "title": {
-              "zh-TW": "指南移至專屬目錄且整理說明文件，專案根目錄全面整潔",
-              "en": "Contribution guides and localized docs move to dedicated folders"
-            },
-            "body": {
-              "zh-TW": "⟦像圖書館整頓大廳：將讀者規約歸檔至管理處，把各語系導覽手冊移入閱覽室，讓大廳井然有序且指示牌一目了然。⟧ 專案根目錄進行了結構整理與檔案搬移。公開的貢獻指南與安全政策文件已移至 `.github/` 資料夾。各語言版本的說明文件（README，專案首頁介紹檔）與更新日誌 changelog 則統一集中至 `docs/` 目錄。這項整理清空了專案根目錄的雜亂檔案，並同步更新了所有相互參照的超連結。",
-              "en": "⟦Like a library tidying its lobby: filing reader policies into administrative offices and shelving multilingual guides in study rooms so the entrance stays clutter-free with clear signposts.⟧ The repository root has been cleaned up and reorganized. Public contribution guidelines and security policies have been relocated into `.github/`. Multilingual README documentation and changelog history files are now consolidated under `docs/`. This housekeeping cleans up the root directory and updates all internal navigation links across the project."
-            },
-            "original": "Moved public contribution and security guides to `.github/` and localized README and changelog files to `docs/`, cleaning up the repository root and updating all links."
-          },
-          {
-            "title": {
-              "zh-TW": "簡中日韓說明文件補齊 Grok 介紹，功能清單與比較表全面同步",
-              "en": "Simplified Chinese, Japanese, and Korean READMEs backfill Grok CLI"
-            },
-            "body": {
-              "zh-TW": "查閱非英文的專案說明文件時，各語言讀者現在都能獲得完整的 Grok CLI 功能介紹。先前在簡體中文、日文與韓文的說明文件（README，專案首頁介紹檔）中，遺漏了 Grok CLI 卡片於功能清單、「隱藏區塊」設定項目以及跨工具比較表中的資料列。本次更新將這三處缺漏逐一回填至三種語言的說明文件中，確保不同語系的使用者都能查閱到一致的規格與選項說明。⟦這恰似多國語言的商品目錄改版：為簡中、日語及韓語版本補印新產品的特色條目、選配開關與規格比較表，使所有語系的型錄內容完全同步。⟧",
-              "en": "Readers consulting localized documentation will now find complete coverage for the Grok CLI card. The Simplified Chinese, Japanese, and Korean README files previously missed mentions of the Grok card in their feature lists, the Hide Sections toggle documentation, and the provider comparison tables. This update backfills all three missing entries across all three translations, ensuring readers across every supported language have access to the exact same feature overviews and settings details. ⟦It is like updating international product catalogs: reprinting feature summaries, accessory switches, and comparison charts for localized editions so every market receives identical documentation.⟧"
-            },
-            "original": "Backfilled the Grok CLI card into the Simplified Chinese, Japanese and Korean READMEs, which had missed the feature list entry, the Hide Sections list and the comparison-table row."
-          },
-          {
-            "title": {
-              "zh-TW": "升級 PyObjC 與 ruff 工具，單次鎖定檔結案五項相依更新",
-              "en": "Bump PyObjC to 12.2.2 and ruff to 0.16.4 across dependency updates"
-            },
-            "body": {
-              "zh-TW": "專案相依套件與程式碼檢查工具進行了例行升級。本次將 macOS 系統橋接套件 PyObjC 升級至 12.2.2，並將靜態檢查工具 ruff 更新至 0.16.4。這項調整在單次鎖定檔（lockfile，記錄精確套件版本的設定檔）變更中，一次結案了先前分別提出的 5 項相依套件更新提案，確保建置環境與開發工具鏈維持在最新穩定狀態。⟦這宛若工廠保養時彙整五張零件更換單，統一升級操作面板元件與校準測量尺，一次鎖定新版規格而無須分批停機。⟧",
-              "en": "Project dependencies and linting toolchains have been upgraded to their latest releases. This update bumps the macOS system bridge PyObjC to 12.2.2 and the static analysis linter ruff to 0.16.4. By consolidating these version bumps into a single lockfile commit, the release cleanly resolves five separate dependency update requests at once, keeping the development environment and automated checks current. ⟦It is like factory maintenance consolidating five separate work orders into one shift, upgrading control circuits and calibrating measurement tools in a single scheduled pass without recurring downtime.⟧"
-            },
-            "original": "Bumped PyObjC to 12.2.2 and ruff to 0.16.4, closing five separately raised dependency updates in a single lockfile change."
           }
         ]
       }
