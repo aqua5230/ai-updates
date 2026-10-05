@@ -5,6 +5,61 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.29.14",
+      "raw": {
+        "version": "0.29.14",
+        "period": "2026-08-02",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-02",
+        "entries": [
+          "**The panel no longer creeps downward every time you open and close it.** Dragging it into place used to hold for one cycle at most: each reopen landed it a little lower than the last. Two anchors disagreed. The saved position was the window's bottom-left corner, but `setContentSizeKeepingTopLeft_` — added in 0.29.9 precisely so the panel would not appear to jump while resizing — holds the *top* edge. To hold that edge it calls `setFrameOrigin_`, and macOS posts `NSWindowDidMoveNotification` for a programmatic move just as it does for a drag, so `windowDidMove_` recorded a resize as though the user had dragged the window. Every open re-measured the content height, the bottom-left corner dropped by the difference, and that drop was saved as the new position. The anchor is now the top edge on both sides, so resizing cannot change the stored value. Positions saved by earlier versions are read through a migration path and are not reset.",
+          "**Opening the panel no longer starts short and then stretches.** Two height systems were computing the same number and disagreeing: `popover_dimensions` estimates from a panel's base height by arithmetic (subtract a card when Claude or Codex is hidden, subtract a row when Codex has no data, add for a wrapped status line or an install button), while the script in `panels/dynamic_height.py` measures the rendered content and reports it back. The window opened at the estimate and jumped to the measurement. The gap was widest with cards hidden, where the most terms are subtracted. The measured height is now remembered per panel and used on open, leaving the estimate as a fallback for a panel that has never been measured. The arithmetic constants were deliberately left alone — tuning them is whack-a-mole, since every new UI element needs another adjustment. The panel still adjusts once when the content genuinely changes size.",
+          "**A state file corrupted into non-UTF-8 bytes no longer raises instead of degrading.** `_load_preferences`, `_load_ping_state` and `_load_last_ping` each catch `OSError` and `json.JSONDecodeError` around a `read_text(encoding=\"utf-8\")` — but a file containing invalid UTF-8 raises `UnicodeDecodeError`, which is a sibling of `JSONDecodeError` under `ValueError`, not a subclass of it. All three are contracted to fall back quietly when their file is unusable, and a half-written or damaged file broke that contract by propagating the exception.",
+          "**The macOS notification bridge moved out of `menubar.py` into `menubar_notify.py`.** The six module-level functions that talk to `UNUserNotificationCenter` had no reason to live in a 2230-line file. They were not folded into `usage_notifications.py`, which stays free of PyObjC so its decision logic remains testable without the ObjC runtime — these functions call `objc.registerMetaDataForSelector`. The update-dismissal cooldown joined `update_gate.py`, where the other update-timing constants already were. `menubar.py` is down to 2139 lines and its ceiling followed.",
+          "**`jsonl_utils` and `time_utils` gained direct unit tests.** Both are shared by several loaders and had only incidental coverage through the modules above them. The JSONL reader's tolerance for blank lines, malformed rows and non-object values is now pinned, including the deliberate choice to raise on invalid UTF-8 when no `errors` argument is given — that decision belongs to the caller."
+        ]
+      },
+      "curated": {
+        "version": "0.29.14",
+        "period": "2026-08-02",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "面板記住位置與高度，開啟不再位移拉伸",
+              "en": "Panels remember their position and height instead of shifting or stretching open"
+            },
+            "body": {
+              "zh-TW": "每次打開又關閉面板後，若你已把它拖到順手位置，現在它不會一回比一回往下滑。之前它像掛歪的相框：儲存位置抓左下角，調整內容大小卻固定上緣；程式自己因高度改變移動視窗時，又誤當成你拖動，於是把偏移記下來。現在兩邊都認上緣，尺寸變動不會覆蓋你選的位置。舊版存下的位置也會經遷移（把舊資料換成新格式的轉換）讀取，不必重設。面板量過高度後，開啟不再先矮後拉長；尚未量過時仍以估算值作備援。內容真的變高或變矮時，仍會再調整一次。",
+              "en": "After you drag a panel where you want it, opening and closing it will no longer make it creep lower each time. It was like a crooked picture frame: the saved position used its bottom-left corner, while resizing held its top edge; when the app moved the window for a height change, it mistook that move for your drag and saved the offset. Both sides now use the top edge, so resizing cannot overwrite your chosen spot. Older saved positions are migrated rather than reset. A measured panel no longer opens short and then stretches; an estimate remains the fallback before measurement. It still adjusts when content truly changes size."
+            },
+            "original": "**The panel no longer creeps downward every time you open and close it.** Dragging it into place used to hold for one cycle at most: each reopen landed it a little lower than the last. Two anchors disagreed. The saved position was the window's bottom-left corner, but `setContentSizeKeepingTopLeft_` — added in 0.29.9 precisely so the panel would not appear to jump while resizing — holds the *top* edge. To hold that edge it calls `setFrameOrigin_`, and macOS posts `NSWindowDidMoveNotification` for a programmatic move just as it does for a drag, so `windowDidMove_` recorded a resize as though the user had dragged the window. Every open re-measured the content height, the bottom-left corner dropped by the difference, and that drop was saved as the new position. The anchor is now the top edge on both sides, so resizing cannot change the stored value. Positions saved by earlier versions are read through a migration path and are not reset.\n**Opening the panel no longer starts short and then stretches.** Two height systems were computing the same number and disagreeing: `popover_dimensions` estimates from a panel's base height by arithmetic (subtract a card when Claude or Codex is hidden, subtract a row when Codex has no data, add for a wrapped status line or an install button), while the script in `panels/dynamic_height.py` measures the rendered content and reports it back. The window opened at the estimate and jumped to the measurement. The gap was widest with cards hidden, where the most terms are subtracted. The measured height is now remembered per panel and used on open, leaving the estimate as a fallback for a panel that has never been measured. The arithmetic constants were deliberately left alone — tuning them is whack-a-mole, since every new UI element needs another adjustment. The panel still adjusts once when the content genuinely changes size."
+          },
+          {
+            "title": {
+              "zh-TW": "狀態檔讀到壞編碼，不再讓 usage 中斷",
+              "en": "A damaged state file no longer stops usage cold"
+            },
+            "body": {
+              "zh-TW": "某次電腦突然關機或檔案只寫到一半時，usage 的狀態檔（存偏好和上次連線資料的檔案）若混進不能用 UTF-8 的位元組，程式現在不會直接報錯中斷。它會把這份無法讀取的檔案當作暫時不可用，安靜改走備援處理。先前程式只攔住作業系統讀檔錯誤與 JSON 格式錯誤，卻漏了不合法 UTF-8 造成的解碼錯誤；三個載入偏好、連線狀態與上次連線時間的地方因此可能把錯誤一路丟出。這像讀到被水泡爛的便條：看不清就先放下，不讓整個工作台停擺。",
+              "en": "If a computer shuts down suddenly or a file is written only halfway, a usage state file can contain bytes that are not valid UTF-8. That no longer throws an error and stops the app. The unreadable file is treated as temporarily unusable and the app falls back quietly. Previously it caught operating-system read errors and malformed JSON, but missed decoding errors from invalid UTF-8; three loaders for preferences, connection state, and last connection time could let that error escape. It is like finding a note soaked through with water: set it aside when you cannot read it, instead of shutting down the whole workbench."
+            },
+            "original": "**A state file corrupted into non-UTF-8 bytes no longer raises instead of degrading.** `_load_preferences`, `_load_ping_state` and `_load_last_ping` each catch `OSError` and `json.JSONDecodeError` around a `read_text(encoding=\"utf-8\")` — but a file containing invalid UTF-8 raises `UnicodeDecodeError`, which is a sibling of `JSONDecodeError` under `ValueError`, not a subclass of it. All three are contracted to fall back quietly when their file is unusable, and a half-written or damaged file broke that contract by propagating the exception."
+          },
+          {
+            "title": {
+              "zh-TW": "通知程式拆開、共用讀檔工具補上測試",
+              "en": "Notification code is separated and shared file readers get direct tests"
+            },
+            "body": {
+              "zh-TW": "你收到通知、或開發者修改共用讀檔工具時，這版沒有添畫面上的新按鈕，卻把容易藏錯的角落收好。macOS 的通知橋接程式（把 app 與系統通知中心接起來的程式碼）從龐大的選單列檔拆到獨立檔案；更新通知的冷卻時間也移到管理其他更新時機的地方。通知的判斷邏輯仍不依賴 macOS 專用元件，因此可在沒有 macOS 執行環境下測試。另一邊，讀 JSONL（每行一筆 JSON 資料的檔案格式）與時間的共用工具補上直接單元測試：空白行、壞行和不是物件的資料怎麼處理都被固定下來；未指定錯誤處理時，遇到壞 UTF-8 仍會報錯，決定權留給呼叫它的地方。像把工具櫃裡常用尺和螺絲起子逐件驗過，往後修其他東西時較不易誤踩壞掉的工具。",
+              "en": "If you receive notifications or maintain shared file-reading code, this release adds no visible button but tidies places where bugs can hide. The macOS notification bridge, which connects the app to the system notification center, moves out of the huge menu-bar file into its own file; update-dismissal timing joins the other update timing rules. The decision logic still avoids macOS-only pieces, so it can be tested without that runtime. Meanwhile, the shared JSONL and time utilities get direct unit tests. Their behavior for blank lines, malformed rows, and non-object values is now pinned down; invalid UTF-8 still raises when the caller has not asked for error handling, leaving that choice to the caller. It is like checking each ruler and screwdriver in a tool cabinet before repairing something else."
+            },
+            "original": "**The macOS notification bridge moved out of `menubar.py` into `menubar_notify.py`.** The six module-level functions that talk to `UNUserNotificationCenter` had no reason to live in a 2230-line file. They were not folded into `usage_notifications.py`, which stays free of PyObjC so its decision logic remains testable without the ObjC runtime — these functions call `objc.registerMetaDataForSelector`. The update-dismissal cooldown joined `update_gate.py`, where the other update-timing constants already were. `menubar.py` is down to 2139 lines and its ceiling followed.\n**`jsonl_utils` and `time_utils` gained direct unit tests.** Both are shared by several loaders and had only incidental coverage through the modules above them. The JSONL reader's tolerance for blank lines, malformed rows and non-object values is now pinned, including the deliberate choice to raise on invalid UTF-8 when no `errors` argument is given — that decision belongs to the caller."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.29.13",
       "raw": {
         "version": "0.29.13",
@@ -302,37 +357,6 @@
               "en": "In AI Council, Claude participants are told to discuss rather than use tools, yet they used to carry a whole unused toolbox into every turn, consuming Claude quota. When `claude -p` ran without an attached project folder, it omitted `--tools`, so Claude Code still packed its built-in tools—Bash, Edit, Write, and more—into each turn's input. It now explicitly sends `--tools \"\"` in that case, leaving the toolbox outside. Every Claude call also adds `--exclude-dynamic-system-prompt-sections`, keeping the system-prompt prefix byte-for-byte stable across turns and giving Anthropic's automatic prompt cache a better chance to reuse it. Codex and Antigravity participants are unchanged."
             },
             "original": "**AI Council spends less Claude quota per turn**: `claude -p` calls without an attached project folder used to omit `--tools` entirely, so Claude Code loaded its full built-in toolset — Bash, Edit, Write, and the rest — into every turn's input even though the council prompt already tells participants not to call tools. Calls now pass `--tools \"\"` when no project folder is attached, and every Claude call adds `--exclude-dynamic-system-prompt-sections` to keep the system prompt prefix byte-stable across turns for a better shot at Anthropic's automatic prompt caching. Codex and Antigravity participants are unaffected."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.29.4",
-      "raw": {
-        "version": "0.29.4",
-        "period": "2026-07-26",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-27",
-        "entries": [
-          "**Steer the council mid-discussion**: an opt-in \"guidance between rounds\" toggle pauses the session before every round after the first, so you can react to what you just heard — \"we're single-host, no cluster\" — instead of watching a debate run off in the wrong direction or stopping and restarting from scratch. The pause waits up to 5 minutes and is skipped automatically if left blank; the round then proceeds exactly as it did before.",
-          "**See who disagreed, not just how many**: the consensus tally under the moderator's summary now lists each participant by name next to their stance, with dissenting and alternative positions colored so they stand out, instead of a bare \"2 agree, 1 alternative\" that meant scrolling back through the transcript to find out who.",
-          "**The five debate tones now explain themselves**: a one-line plain-language hint appears under the tone picker — devil's advocate, for instance, now reads \"the AIs will deliberately argue the opposite side to test whether a plausible conclusion holds up\" — so a first-time user isn't left guessing how \"adversarial\" differs from \"devil's advocate.\""
-        ]
-      },
-      "curated": {
-        "version": "0.29.4",
-        "period": "2026-07-26",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "AI 開會時能插話校正，也一眼看懂誰持反對意見",
-              "en": "Steer an AI council as it talks, and see exactly who disagrees"
-            },
-            "body": {
-              "zh-TW": "幾個 AI 正在替你討論方案，第一輪卻發現大家把你的單機需求當成要做叢集，也就是讓多台主機一起運作；現在不用整場喊停重來。開啟「輪次間指引」開關後，討論工作階段（一次連續進行的討論）每一輪結束、下一輪開始前都會暫停，讓你補一句「只有單一主機，不要叢集」。若一直空白，最多等五分鐘便自動略過，討論照原本方式繼續，像主持會議時每回合按一下暫停鈴，及早把話題拉回來。主持人摘要下方的共識統計（列出每位參與者採取的立場）也會直接寫出名字；反對與替代意見用顏色標出，不必再翻紀錄猜是誰說的。第一次挑辯論語氣時，五種選項下方都有白話提示；例如「魔鬼代言人」會刻意站到相反邊，測試看似合理的結論是否站得住腳，因此不會再把它和「對抗式」混為一談。",
-              "en": "Picture an AI council discussing a plan, then learning after round one that your single-host setup is being mistaken for a cluster. You no longer need to scrap the whole discussion. Turn on “guidance between rounds” and the session pauses before every later round, so you can add a correction such as “single host, no cluster.” A blank pause skips itself after five minutes, then the next round continues normally—like a chairperson’s bell that gets the meeting back on topic early. The consensus tally beneath the moderator’s summary now names each participant beside their position and colors dissenting or alternative views, so you need not hunt through the transcript. New to the five debate tones? Each picker option now has a plain-language hint: devil’s advocate deliberately argues the other side to test whether a plausible conclusion actually holds up, rather than merely being adversarial."
-            },
-            "original": "**Steer the council mid-discussion**: an opt-in \"guidance between rounds\" toggle pauses the session before every round after the first, so you can react to what you just heard — \"we're single-host, no cluster\" — instead of watching a debate run off in the wrong direction or stopping and restarting from scratch. The pause waits up to 5 minutes and is skipped automatically if left blank; the round then proceeds exactly as it did before.\n**See who disagreed, not just how many**: the consensus tally under the moderator's summary now lists each participant by name next to their stance, with dissenting and alternative positions colored so they stand out, instead of a bare \"2 agree, 1 alternative\" that meant scrolling back through the transcript to find out who.\n**The five debate tones now explain themselves**: a one-line plain-language hint appears under the tone picker — devil's advocate, for instance, now reads \"the AIs will deliberately argue the opposite side to test whether a plausible conclusion holds up\" — so a first-time user isn't left guessing how \"adversarial\" differs from \"devil's advocate.\""
           }
         ]
       }

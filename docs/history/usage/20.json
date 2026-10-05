@@ -5,6 +5,38 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.11.0",
+      "raw": {
+        "version": "0.11.0",
+        "period": "2026-05-24",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**In-app update check (Stage 1)**: On launch, usage pings GitHub Releases for a newer version (rate-limited to once per 24h so you're not nagged every time you open the app). When a newer version is found, an NSAlert shows the version + release notes with three buttons: **Download**, **Later**, **Skip this version**. \"Download\" opens the Release page in your default browser — manually replace the old `.app` with the new one. (Stage 2 will bring Sparkle-style auto download + replace.)",
+          "**Two new entries in the \"Switch panel\" menu**:\n- **Automatically Check for Updates** (toggleable): unchecking it disables the launch-time auto check entirely; the manual entry below still works.\n- **Check for Updates Now**: manually triggers a check, bypassing the 24h cooldown and skip-version preference. If you're already up to date, an alert says so; on network error you see \"Update check failed\".",
+          "Preferences are stored in the existing `~/.claude/usage-preferences.json`, with three new keys: `auto_update_check` (default true), `update_dismissed_at` (Unix timestamp), `update_skipped_version` (skipped version string).",
+          "`setup_app.py` now bundles `pyproject.toml` and `update_checker` into the py2app build — so the packaged `.app` can fall back to reading `pyproject.toml` when `importlib.metadata` can't resolve the version."
+        ]
+      },
+      "curated": {
+        "version": "0.11.0",
+        "period": "2026-05-24",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "App 學會自己檢查更新了，且不會煩死你",
+              "en": "The app now checks for updates automatically without annoying you"
+            },
+            "body": {
+              "zh-TW": "你現在不用再時不時跑去 GitHub 網頁看有沒有新版本了。App 啟動時會自動去檢查有沒有新版，如果發現更新，會直接跳出視窗告訴你新版本的改動內容，讓你點「Download」連過去下載。為了不打擾你，這個自動檢查一天最多只會跑一次；如果你覺得這個版本不重要，也可以點「跳過此版本」，它就不會再拿同一個版本煩你。當然，如果你想要手動控制，可以在「更換面板」選單裡關掉「自動檢查更新」，或者隨時點「立刻檢查更新」來強迫它查一次。就像你的汽車導航，現在懂自己在背景偷偷查圖資有沒有更新，有重大改變才問你要不要更新，而不是每次一發動就逼著你按確認。",
+              "en": "You no longer have to manually check the GitHub repository for new releases. On launch, the app now automatically checks for new versions and pops up a dialog with the release notes and a one-click button to download it. To respect your focus, this auto-check runs at most once every 24 hours. If a particular update doesn't interest you, you can hit \"Skip this version\" and it won't bother you about that specific release again. You are in full control — you can toggle off \"Automatically Check for Updates\" in the Switch Panel menu, or manually trigger a \"Check for Updates Now\" whenever you want. It's like your car's GPS silently checking for new maps in the background and only asking if you want to upgrade when there's actually a major new route, instead of forcing you to click OK every time you start the engine."
+            },
+            "original": "**In-app update check (Stage 1)**: On launch, usage pings GitHub Releases for a newer version (rate-limited to once per 24h so you're not nagged every time you open the app). When a newer version is found, an NSAlert shows the version + release notes with three buttons: **Download**, **Later**, **Skip this version**. \"Download\" opens the Release page in your default browser — manually replace the old `.app` with the new one. (Stage 2 will bring Sparkle-style auto download + replace.)\n**Two new entries in the \"Switch panel\" menu**:\n- **Automatically Check for Updates** (toggleable): unchecking it disables the launch-time auto check entirely; the manual entry below still works.\n- **Check for Updates Now**: manually triggers a check, bypassing the 24h cooldown and skip-version preference. If you're already up to date, an alert says so; on network error you see \"Update check failed\".\nPreferences are stored in the existing `~/.claude/usage-preferences.json`, with three new keys: `auto_update_check` (default true), `update_dismissed_at` (Unix timestamp), `update_skipped_version` (skipped version string).\n`setup_app.py` now bundles `pyproject.toml` and `update_checker` into the py2app build — so the packaged `.app` can fall back to reading `pyproject.toml` when `importlib.metadata` can't resolve the version."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.1",
       "raw": {
         "version": "0.10.1",
@@ -296,35 +328,6 @@
               "en": "Previously, because there weren't enough samples to reliably project depletion times, the app would startlingly throw red warnings right after starting up, even when you'd barely used 1% or 14% of your quota. We've now added two safety valves: first, the system must collect enough samples over a sufficient period (at least 5 samples spanning 5 minutes) before it begins estimating; second, the warning only actually displays when you've consumed at least 50% of your quota. Otherwise, it simply keeps the standard \"Resets in X\" text. It's like sprinting for the very first minute of a run — your coach won't instantly warn you of exhaustion, but will wait until you've settled into a pace and actually drained half your stamina before giving a reliable heads-up."
             },
             "original": "**Burn-rate warning false positives**: after v0.6.6 shipped, real-world testing showed the red warning firing at 1% / 14% / 36% used right after restart, because a 2-point slope based on only 2-3 fresh samples is unstable and low-percent forecasts have huge headroom regardless. Fix adds two guardrails: forecasting only runs when the last-10-minute window holds ≥ 5 samples spanning ≥ 5 minutes; the warning only replaces the reset line when the current percent is ≥ 50%. Otherwise the original \"Resets in X\" text stays."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.6.6",
-      "raw": {
-        "version": "0.6.6",
-        "period": "2026-05-22",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Burn-rate warning**: when usage projects you'll exhaust a quota before the window resets at your current pace, the normal \"Resets in X\" line is replaced by a red warning: \"⚠ Empty in X (resets in Y)\". When you're not burning hot, the panel looks exactly the same as before — no extra noise. Covers Claude Code Session / Weekly and Codex Session / Weekly (all 4 quotas), with theme-matched reds on Classic / Matrix / Newspaper / Win95. Internally it samples percent on a 15-minute rolling buffer and projects from the last-10-minute slope; samples are cleared on quota reset to avoid false alarms."
-        ]
-      },
-      "curated": {
-        "version": "0.6.6",
-        "period": "2026-05-22",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "額度快用完時，會出現紅字警告",
-              "en": "Red warning appears when quotas are burning out too fast"
-            },
-            "body": {
-              "zh-TW": "當系統預估你照目前狂用的速度，會在額度重置前先把配額燒光時，原本顯示「重置 X 分鐘」的地方會自動換成一句紅色的警告：「⚠ 剩 X 分用完（重置還要 Y 分）」。當你沒在大量消耗時，面板長得跟平常一模一樣，完全不打擾你。這項警告涵蓋了 Claude Code 與 Codex 的 4 種額度，而且在不同的面板主題上，還會貼心搭配不同風格的紅色。就像是你開車時，平常油表只會安靜指著剩餘油量，但當你猛踩油門、油箱快見底又還沒開到下一個加油站時，它就會立刻亮起紅燈警告你。",
-              "en": "When the system estimates that, at your current burning pace, you'll exhaust your quota before the window resets, the normal \"Resets in X\" text is automatically replaced by a red warning: \"⚠ Empty in X (resets in Y)\". When you aren't consuming heavily, the panel looks exactly the same as always, causing zero distraction. This warning covers all 4 quotas across Claude Code and Codex, and even sports theme-matched shades of red depending on your chosen panel. It's like driving a car: normally the fuel gauge quietly points to the remaining gas, but when you floor the pedal and are about to run dry before reaching the next gas station, a red light immediately flashes to warn you."
-            },
-            "original": "**Burn-rate warning**: when usage projects you'll exhaust a quota before the window resets at your current pace, the normal \"Resets in X\" line is replaced by a red warning: \"⚠ Empty in X (resets in Y)\". When you're not burning hot, the panel looks exactly the same as before — no extra noise. Covers Claude Code Session / Weekly and Codex Session / Weekly (all 4 quotas), with theme-matched reds on Classic / Matrix / Newspaper / Win95. Internally it samples percent on a 15-minute rolling buffer and projects from the last-10-minute slope; samples are cleared on quota reset to avoid false alarms."
           }
         ]
       }

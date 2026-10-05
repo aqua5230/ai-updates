@@ -5,6 +5,35 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.28.16",
+      "raw": {
+        "version": "0.28.16",
+        "period": "2026-07-21",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-21",
+        "entries": [
+          "**Idle CPU and disk I/O cut significantly across the board.** History scanning now uses FSEvents-reported paths to stat only changed files instead of re-walking and stat'ing every Claude/Codex session JSONL (thousands of files) on every refresh tick; a full rescan still runs periodically as a safety net. Startup no longer unconditionally re-downloads the pricing table or checks for updates — both now respect their existing cache freshness windows. Codex rate-limit reads reuse the same file index instead of re-scanning session directories, and SQLite reads (thread metadata, rate limits) are skipped entirely when the underlying database file hasn't changed. The on-disk parse cache is now sharded into 32 buckets so a single active session only rewrites its own shard instead of the whole multi-megabyte cache file."
+        ]
+      },
+      "curated": {
+        "version": "0.28.16",
+        "period": "2026-07-21",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "閒置時少做白工，Usage 更省 CPU 與硬碟",
+              "en": "Usage stops doing busywork while idle, saving CPU and disk activity"
+            },
+            "body": {
+              "zh-TW": "電腦明明沒在操作 Usage，CPU 與硬碟卻不該一直忙著翻舊帳。這版把背景整理改成像圖書館只查看剛歸還的書：它會依 FSEvents（macOS 告知哪些檔案改過的通知）只挑出有變動的檔案。於是它只讀取有變動的 Claude、Codex 工作階段 JSONL（每行存一筆資料的紀錄檔），不再每次更新都重翻成千上萬個檔案；仍會定期全面檢查，避免漏掉變更。啟動時，價格表與更新檢查也會尊重既有快取（把查過的結果暫存起來直接用）的有效期限，不再每次重抓。Codex 的限流資料會共用檔案索引，SQLite（放在單一檔案裡的小型資料庫）檔沒變就不讀；解析快取更分成 32 份，活躍工作階段只改自己的那份。結果是閒置時明顯減少 CPU 與硬碟讀寫，啟動也少做無謂工作。",
+              "en": "When you are not even using Usage, your CPU and disk should not be stuck riffling through old records. This release makes its background housekeeping work like a library checking only books that were just returned: FSEvents, macOS notifications about changed files, tells it which files to inspect. It now reads only changed Claude and Codex session JSONL logs, rather than re-walking and checking thousands of files on every refresh; a full scan still runs from time to time as a safety net. On startup, the pricing table and update check now honor their existing cache, saved results that remain valid for a while, instead of downloading again every time. Codex rate-limit reads share the file index, unchanged SQLite database files are skipped, and the parse cache is split into 32 buckets so an active session rewrites only its own. The result: substantially less idle CPU and disk I/O, plus less needless work at launch."
+            },
+            "original": "**Idle CPU and disk I/O cut significantly across the board.** History scanning now uses FSEvents-reported paths to stat only changed files instead of re-walking and stat'ing every Claude/Codex session JSONL (thousands of files) on every refresh tick; a full rescan still runs periodically as a safety net. Startup no longer unconditionally re-downloads the pricing table or checks for updates — both now respect their existing cache freshness windows. Codex rate-limit reads reuse the same file index instead of re-scanning session directories, and SQLite reads (thread metadata, rate limits) are skipped entirely when the underlying database file hasn't changed. The on-disk parse cache is now sharded into 32 buckets so a single active session only rewrites its own shard instead of the whole multi-megabyte cache file."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.28.15",
       "raw": {
         "version": "0.28.15",
@@ -264,62 +293,6 @@
               "en": "You can now use Chinese, Japanese, or Korean characters in your project paths on Windows without fearing that tool commands will crash, or that your quota card will stay stubbornly blank. Previously on some Windows setups, the statusLine hook would fail to fire, causing the usage quota card to remain blank; now the tool automatically falls back to reading the configurations directly to populate the info. At the same time, if CJK characters in your project paths caused session hooks to error out, the self-heal process now normalizes them to their standard directory targets, and this migration is idempotent so it won't repeatedly write redundant logs on restarts. It is like a plumber who not only clears out pebbles blocking your pipe but also routes a backup water line in case the main line clogs, ensuring the faucet works smoothly and the configuration is set once and for all."
             },
             "original": "**Claude quota now shows on Windows even when the statusLine hook never fires**: a Claude Code regression stops the hook from being invoked on some Windows setups, leaving the Claude quota card permanently blank. `usage_client.py` now falls back to reading `cachedUsageUtilization` straight out of Claude Code's own `~/.claude.json` when no `usage-status.json` exists, so the card still populates.\n**Session hooks no longer break on non-ASCII (CJK) project paths on Windows**: the resume, terse-mode, and terse-reminder hook commands could point into the project or app-bundle source path, which failed to execute on Windows when that path contained Chinese/Japanese/Korean characters. Self-heal now normalizes these commands to their canonical `~/.claude/` targets, and the migration is idempotent — it no longer rewrites `settings.json` and appends a duplicate self-heal log entry on every restart once the command is already correct."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.28.6",
-      "raw": {
-        "version": "0.28.6",
-        "period": "2026-07-17",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-17",
-        "entries": [
-          "**Windows hook and setup output now uses UTF-8**: statusLine bars keep their intended Unicode glyphs when Claude Code reads a pipe, and `--setup` / `--unsetup` no longer fail in legacy cp950 consoles when localized messages contain characters such as ✓.",
-          "**Windows panel controls now fit and follow the macOS grouping**: Change Panel and Hide Sections expand in place inside a scrollable menu instead of opening clipped side submenus; the panel menu now ends with only Refresh Now, avoiding duplicate update, position-reset, and quit actions.",
-          "**Windows quota-card empty areas now drag the panel rather than reorder cards**: the Windows shim temporarily marks only non-interactive card presses as native drag regions, retaining saved card order while buttons and links remain clickable.",
-          "**Windows panel switch buttons now open a focused controls menu**: clicking a panel's built-in Switch Panel button opens a localized HTML overlay for panel, visibility, refresh, notification, and workflow controls; tray-only update, position-reset, and quit actions stay out of the panel menu.",
-          "**Windows tray panels can now be repositioned**: a subtle top drag handle and quota-card empty areas move frameless panels with grab/grabbing cursors; the position is restored on the next open, clamped to the current work area, and can be reset from the tray menu.",
-          "**Windows tray menu parity for daily updates and workflow controls**: the Windows system tray now links to AI Update Daily, offers a Hide Sections submenu for Claude, Codex, and Antigravity, supports quota-alert notifications at the same thresholds as macOS, and exposes Resume Last Session and Token Saver toggles. Changes to visible sections are injected into an open panel immediately; quota alerts use native Windows tray notifications. The macOS-only AI Talent Market remains unavailable on Windows."
-        ]
-      },
-      "curated": {
-        "version": "0.28.6",
-        "period": "2026-07-17",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Windows 控制台不再亂碼，進度條與設定順利顯示",
-              "en": "Windows console stops showing gibberish, progress bars and setup output display perfectly"
-            },
-            "body": {
-              "zh-TW": "在老舊的 Windows 控制台裡執行指令時，你不會再被莫名其妙的亂碼或錯誤中斷了。以前在傳統的 cp950（繁體中文的舊編碼）控制台環境下，跑 `--setup` 和 `--unsetup` 時若遇到像「✓」這樣的在地化符號，系統會因為讀不懂這些 Unicode（萬國碼）字元而直接失敗中斷。現在這些 hook（用來攔截並回報狀態的隱藏外掛）與設定輸出都全面改用 UTF-8（現代通用編碼），因此 `--setup` 系列指令不再報錯，而且當 Claude Code 從 pipe（用來傳遞資料的通道）讀取時，statusLine（顯示在最底下的狀態列）進度條也能順利保留原本的圖形字元。就像你拿著一本現代的表情符號字典去給只懂古文的老爺爺看，以前他會直接罷工，現在系統幫你請了個翻譯，爺爺也能看懂並笑著幫你辦事了。",
-              "en": "You will no longer be interrupted by bizarre gibberish errors when running commands in legacy Windows consoles. Previously, in traditional cp950 (legacy text encoding) console environments, encountering localized symbols like \"✓\" during `--setup` and `--unsetup` would cause the system to fail because it couldn't understand those Unicode (universal character standard) characters. Now, these hooks (hidden plugins used to intercept and report status) and setup outputs strictly use UTF-8 (modern text encoding). As a result, setup commands no longer fail, and when Claude Code reads a pipe for the statusLine (the progress bar at the bottom), it successfully keeps its intended glyphs. It's like handing a modern emoji dictionary to a grandfather who only reads ancient text; he used to just walk away, but now the system provides a translator so he can understand and happily do his job."
-            },
-            "original": "**Windows hook and setup output now uses UTF-8**: statusLine bars keep their intended Unicode glyphs when Claude Code reads a pipe, and `--setup` / `--unsetup` no longer fail in legacy cp950 consoles when localized messages contain characters such as ✓."
-          },
-          {
-            "title": {
-              "zh-TW": "Windows 選單介面大翻新，操作對齊 macOS 且不再被裁切",
-              "en": "Windows menus get a massive overhaul, aligning with macOS and fixing clipped screens"
-            },
-            "body": {
-              "zh-TW": "Windows 用戶現在點開系統匣或面板選單，不會再找不到按鈕了。以前面板的子選單常被視窗邊緣裁切掉；現在「更換面板」與「隱藏區塊」等選項會直接在可捲動的選單裡原地展開。Windows 的日常更新與工作流程控制也跟上 macOS：面板內建按鈕會彈出在地化的 HTML（網頁標記語言）覆蓋層提供各項控制，系統匣選單補齊 AI 更新日報、Claude、Codex 與 Antigravity 的「隱藏區塊」子選單，加上「接著上次做」與「省 token（AI 處理與計費單位）模式」開關。可見區塊的變更立刻套用，額度提醒也在相同門檻發出 Windows 原生通知。面板選單底部也不再重複列更新、位置重設和退出。就像重新裝潢的中控室：以前螢幕太小、按鈕被切掉按不到；現在換上能捲動的大螢幕，隔壁蘋果部門的好用按鈕也搬齊了。（macOS 限定的 AI 人才市場，Windows 仍不提供。）",
-              "en": "Windows users clicking the system tray or panel menus will now find these features neatly organized and easy to access. Previously, opening panel control submenus on Windows would often cause them to get ruthlessly clipped by the window edge; now, options like Change Panel and Hide Sections expand securely inside a scrollable menu. Furthermore, the Windows interface has reached parity with macOS for daily updates and workflow controls: the built-in panel buttons now launch a localized HTML (web markup language) overlay for controls, and the system tray menu features the AI Update Daily, a Hide Sections submenu for Claude, Codex, and Antigravity, and toggles for Resume Last Session and Token Saver (a mode to save AI processing units). Visibility changes apply instantly to the open panel, and quota alerts correctly use native Windows notifications at the same thresholds as macOS. The panel menu no longer clutters its bottom with duplicate update, position-reset, and quit actions. It's like a newly renovated control room: previously, the screens were so small that some buttons got chopped off, and you lacked some tools the Apple team had. Now you have a scrolling monitor with these workflow buttons brought over and neatly arranged. (Note: the macOS-only AI Talent Market remains unavailable on Windows)."
-            },
-            "original": "**Windows panel controls now fit and follow the macOS grouping**: Change Panel and Hide Sections expand in place inside a scrollable menu instead of opening clipped side submenus; the panel menu now ends with only Refresh Now, avoiding duplicate update, position-reset, and quit actions.\n**Windows panel switch buttons now open a focused controls menu**: clicking a panel's built-in Switch Panel button opens a localized HTML overlay for panel, visibility, refresh, notification, and workflow controls; tray-only update, position-reset, and quit actions stay out of the panel menu.\n**Windows tray menu parity for daily updates and workflow controls**: the Windows system tray now links to AI Update Daily, offers a Hide Sections submenu for Claude, Codex, and Antigravity, supports quota-alert notifications at the same thresholds as macOS, and exposes Resume Last Session and Token Saver toggles. Changes to visible sections are injected into an open panel immediately; quota alerts use native Windows tray notifications. The macOS-only AI Talent Market remains unavailable on Windows."
-          },
-          {
-            "title": {
-              "zh-TW": "Windows 面板支援自由拖曳，再也不會誤觸卡片排序",
-              "en": "Windows panels are now freely draggable without messing up card orders"
-            },
-            "body": {
-              "zh-TW": "你現在可以隨心所欲地在螢幕上拖動 Windows 的系統匣面板了。只要按住無邊框面板頂端不顯眼的把手，或是額度卡片的空白處，游標就會變成抓取的圖示，讓你輕鬆移動視窗；系統也會記住你放的位置，下次打開還在原地，並確保它不會跑出螢幕外。更棒的是，以前在額度卡片空白處按壓可能會不小心觸發重新排列卡片的功能，現在 Windows 墊片（shim，用來轉換不同系統行為的中介層）會暫時把這些非互動區域標記為純拖曳區。這表示你可以放心用它來移動整個面板，不會打亂你原本排好的卡片順序，而卡片上的按鈕和連結依然可以正常點擊。就像一張原本黏死在桌布上的佈告欄，現在不只裝了滑輪讓你隨意推動，而且你推著板子邊緣時，也不用怕不小心把上面的便利貼給撕下來。",
-              "en": "You can now freely drag the Windows system tray panels around your screen. By grabbing the subtle handle at the top of the frameless panel or clicking the empty areas of the quota card, your cursor turns into a grabbing hand, letting you move the window with ease. The system remembers where you put it for the next time, clamping it safely within your active workspace. Even better, pressing empty areas of the quota card used to accidentally trigger card reordering, but now the Windows shim (a compatibility layer bridging different system behaviors) temporarily designates these non-interactive zones exclusively for dragging. This means you can comfortably move the entire panel without scrambling your perfectly organized cards, while all buttons and links remain fully clickable. It's like a corkboard that used to be nailed to the wall—now it has wheels so you can roll it anywhere, and when you push the edges to move it, you no longer have to worry about accidentally knocking all the sticky notes off."
-            },
-            "original": "**Windows quota-card empty areas now drag the panel rather than reorder cards**: the Windows shim temporarily marks only non-interactive card presses as native drag regions, retaining saved card order while buttons and links remain clickable.\n**Windows tray panels can now be repositioned**: a subtle top drag handle and quota-card empty areas move frameless panels with grab/grabbing cursors; the position is restored on the next open, clamped to the current work area, and can be reset from the tray menu."
           }
         ]
       }
