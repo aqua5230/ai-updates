@@ -5,6 +5,36 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.24.1",
+      "raw": {
+        "version": "0.24.1",
+        "period": "2026-07-05",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Menu bar could peg a full CPU core after launch on machines with unpriced models in their history**: `pricing.py`'s model-to-price lookup ran a full linear scan of the entire LiteLLM pricing table for every history entry whose model wasn't in it, with no caching of the \"not found\" result — so every refresh re-scanned the same unresolvable models (e.g. sessions logged by a non-Anthropic/OpenAI backend) from scratch, thousands of times per refresh on machines with a lot of that history. The lookup is now memoized per pricing-table generation, so a given unresolvable model is only scanned once.",
+          "**Claude Code history reparsed from scratch on every relaunch**: `history_loader.py`'s per-file JSONL parse cache only lived in memory, unlike the matching Codex-side cache added in 0.24.0, so every app restart — including auto-launch at login — paid the full history reparse again (measured 5+ seconds on a long-lived install). It now persists to disk the same way the Codex loader already does."
+        ]
+      },
+      "curated": {
+        "version": "0.24.1",
+        "period": "2026-07-05",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "修復 CPU 滿載過熱問題，程式啟動速度大幅提升",
+              "en": "Fixed full CPU core lockups and slow startup times caused by excessive scanning"
+            },
+            "body": {
+              "zh-TW": "電腦不會再被兩個效能問題拖慢了。首先，如果你曾經用過一些系統價目表上沒有的冷門 AI 模型，以前系統在每次更新數字時，都會為了找它的價格，把整張上千筆的價目表從頭到尾翻過一遍，而且找不到還不會記取教訓，下一秒又重新翻一次，這會把你的處理器（CPU）操到滿載；現在系統學會了，如果找不到，它就會把這個名字記在黑名單，下次直接跳過。其次，以前每次重新開啟應用程式，系統都會把你全部的 Claude 對話歷史重新讀取一遍（歷史越長要等越久，有時要等 5 秒以上），因為它把這份記憶放在會揮發的記憶體裡；現在它懂得把讀過的結果存進硬碟裡了。就像是結帳店員以前遇到刷不出條碼的商品，每次都要把整本兩千頁的商品目錄重翻一遍，現在他終於懂得把沒建檔的品項貼在收銀機旁直接略過；而且以前他每天上班都要把你過去十年的消費明細重看一次才能開始工作，現在他只看今天的帳本就好了。",
+              "en": "Your computer won't be bogged down by two performance bugs anymore. First, if you had history containing obscure AI models missing from the system's pricing sheet, the app would wildly scan the entire thousand-item price list from top to bottom on every single refresh trying to find them. Worse, it never remembered failing, so it repeated the scan immediately after, pinning your processor (CPU) at 100%; the system now smartly memoizes \"not found\" results and skips them next time. Second, every time you restarted the app (or when it auto-launched at login), it parsed your entire Claude chat history completely from scratch because its cache only lived in temporary memory, which could take over 5 seconds on older installs. It now safely persists that parsed cache to your disk. It's like a checkout clerk who used to flip through a massive 2,000-page catalog every single time they encountered an unbarcoded item; now they simply tape a \"not found\" note to the register and skip it. Plus, they no longer need to re-read your entire 10-year purchase history from page one every morning just to clock in."
+            },
+            "original": "**Menu bar could peg a full CPU core after launch on machines with unpriced models in their history**: `pricing.py`'s model-to-price lookup ran a full linear scan of the entire LiteLLM pricing table for every history entry whose model wasn't in it, with no caching of the \"not found\" result — so every refresh re-scanned the same unresolvable models (e.g. sessions logged by a non-Anthropic/OpenAI backend) from scratch, thousands of times per refresh on machines with a lot of that history. The lookup is now memoized per pricing-table generation, so a given unresolvable model is only scanned once.\n**Claude Code history reparsed from scratch on every relaunch**: `history_loader.py`'s per-file JSONL parse cache only lived in memory, unlike the matching Codex-side cache added in 0.24.0, so every app restart — including auto-launch at login — paid the full history reparse again (measured 5+ seconds on a long-lived install). It now persists to disk the same way the Codex loader already does."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.24.0",
       "raw": {
         "version": "0.24.0",
@@ -297,35 +327,6 @@
               "en": "Several visual details have been sharpened up. In the \"World Cup\" panel, the side burning more usage will now field more players on the pitch and push their formation forward aggressively; also, the two duel bars that used to get stuck near the middle now properly fill all the way to the edges. Separately, when the system can't find pricing data for an AI model, it used to show a misleading \"$0.00\" (making it look free), but now it honestly displays a \"—\". Furthermore, Codex quota rows are now accurately labelled according to their true time window (Session, Weekly, Monthly), so a 30-day quota is no longer mistakenly labelled as a Session. Finally, parsing Codex logs is much faster now, so a fresh launch no longer has to sluggishly re-read your entire history. It's like checking the price tag on an item: the scanner used to ring up $0 and give you false hope when it couldn't find the barcode, but now it simply draws a dash to admit it doesn't know."
             },
             "original": "**World Cup panel: each team's squad size now reflects its usage**: a side using more of its session quota fields more players (5–8) and presses its formation toward midfield, sharing the same session-percent signal that already drives the ball drift.\n**Models with no pricing data show \"—\" instead of a misleading $0.00**: the cost column rendered unknown models as $0.00, which reads as free rather than unknown; unavailable costs now render as \"—\" in both the HTML report and the CSV export.\n**Codex quota rows are labelled by window length**: the free-plan 30-day window no longer shows as \"Session\" — each row's label now comes from the window length Codex reports (≈ Session / Weekly / Monthly).\n**World Cup quota bars now fill their whole half**: the duel bars used auto-margins that bunched both fills against the centre line, leaving the outer ends blank so a 100% side never reached the track edge; each fill is now anchored to the centre and extended outward.\n**Faster Codex log parsing**: unchanged session files are no longer re-read on every poll, and a versioned on-disk cache lets a fresh launch reuse prior parse results instead of re-scanning all history cold."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.22.8",
-      "raw": {
-        "version": "0.22.8",
-        "period": "2026-06-23",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**A panel that fails to load is no longer pinned to its error screen until restart**: the panel caching added in 0.22.7 stored whatever `build_view` returned — including the `ErrorPanelView` fallback shown when a panel's HTML can't be read — so once a load failed, switching back kept showing the error even after the file was available again. usage now caches only successfully-built web views; a failed build is shown but left uncached and rebuilt on the next switch, so a transient read failure recovers on its own."
-        ]
-      },
-      "curated": {
-        "version": "0.22.8",
-        "period": "2026-06-23",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "面板萬一載入失敗，不會再永遠卡在錯誤畫面",
-              "en": "Panels no longer get permanently stuck on the error screen if they fail to load"
-            },
-            "body": {
-              "zh-TW": "你現在切換面板萬一遇到載入失敗，不會再永遠卡在錯誤畫面了。0.22.7 版雖然讓面板切換變快，但如果某個面板剛好讀取失敗顯示了錯誤畫面，它就會把那個錯誤畫面「快取」起來，導致你之後怎麼切換都只看得到那個錯誤，除非整個程式重開。現在系統學乖了，只有成功載入的面板才會被存起來；如果失敗了，它下次會再努力重讀一次。就像一台會記住畫面的電視機，以前連藍畫面死機都記下來天天播給你聽，現在它只記住正常的節目，碰到雜訊下次懂得自己重抓訊號。",
-              "en": "If you switch panels and encounter a loading failure, you will no longer get permanently stuck on the error screen. While version 0.22.7 made switching panels faster, it had a flaw: if a panel failed to load and showed an error screen, it would \"cache\" that error screen, meaning you'd be stuck looking at that error every time you switched back until you restarted the app. The system has learned its lesson and now only caches successfully loaded panels; if it fails, it will simply try to reload it fresh next time. It's like a TV that records the last channel you watched — it used to record the blue screen of death and replay it for you endlessly, but now it only records actual broadcasts and knows to re-tune the antenna if it hits static."
-            },
-            "original": "**A panel that fails to load is no longer pinned to its error screen until restart**: the panel caching added in 0.22.7 stored whatever `build_view` returned — including the `ErrorPanelView` fallback shown when a panel's HTML can't be read — so once a load failed, switching back kept showing the error even after the file was available again. usage now caches only successfully-built web views; a failed build is shown but left uncached and rebuilt on the next switch, so a transient read failure recovers on its own."
           }
         ]
       }

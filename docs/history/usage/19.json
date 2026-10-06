@@ -5,6 +5,50 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.11.12",
+      "raw": {
+        "version": "0.11.12",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Hook self-heal: broken installs fix themselves, silently**: every startup now runs `setup_hook.self_heal()`, which silently repairs three clearly-safe scenarios: (1) first-run (`is_setup()==False` and no `statusLine` key in settings) → invokes `setup()`; (2) hook script version is out of date (`needs_update()==True`) → `update_hook()`; (3) settings points to a missing hook file with state `us-direct`/`us-forwarder` → re-runs `_copy_hook_script()` + `_copy_forwarder_script()`. When state is `external`/`legacy-tt`, all three skip (no silent override of third-party tools). Each action appends to `settings[\"usage\"][\"selfHealLog\"]` (FIFO, 20 entries). Failures are swallowed; stderr is printed only when `USAGE_DEBUG=1`.",
+          "**Coexistence prompt consolidated**: when an external statusLine tool is detected, usage shows a single NSAlert with two buttons (\"Enable Coexistence Mode\" / \"Keep Current Setup\"). Either button sets `settings[\"usage\"][\"forwarderModePromptDismissed\"]=True` and the prompt never appears again. Replaces the previous three-button repair dialog in `main.py:health_check()`; the \"remind me later (24h cooldown)\" path is removed. Users who previously chose \"Do Not Ask Again\" on the old dialog will be re-prompted once (one click resolves it).",
+          "**`--doctor` hidden CLI flag**: `python3 main.py --doctor` prints a plain-text diagnostic report (English-only for easier GitHub issue searches) covering hook state, version, script file status, status file mtime, external hook detection (recognizes `ccusage` / `lord-kali` keywords), forwarder prompt ack state, last 5 self-heal log entries, and Codex sessions scan count. Hidden from `--help` via `argparse.SUPPRESS` so it doesn't distract typical users. New `doctor.py` renderer module.",
+          "**Weekly burn warning no longer over-reacts to short bursts**: previously the weekly warning extrapolated from the most recent 10-minute sample window, so a single large prompt could trigger a scary \"8 hours until empty\" warning that vanished once the user took a break. The weekly warning now uses a 30-minute sample window with a 30-minute minimum span, requiring sustained high usage for at least half an hour before triggering. Session warnings keep the 10-minute window (session resets are frequent, can't be too strict). `burn_rate.ROLLING_WINDOW_SECONDS` was raised from 15 to 60 minutes so the longer window has enough history.",
+          "**Burn warning text now says \"at current pace\"**: all 5 languages' burn warning strings now explicitly include \"按目前速度 / At current pace / 現在のペース / 현재 속도\", making it clear that this is a momentary extrapolation rather than a stable prediction."
+        ]
+      },
+      "curated": {
+        "version": "0.11.12",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "系統學會自己修復連線，與其他工具和平共存不擾人",
+              "en": "The system repairs its own connections and peacefully coexists with other tools"
+            },
+            "body": {
+              "zh-TW": "以前如果 Claude 的連線程式（hook，負責把用量傳出來的小程式）不小心被刪掉或過期了，你得自己打指令重裝。現在每次開啟 usage，它都會默默幫你檢查；如果是單純的檔案不見或版本太舊，它會一秒內自己修好，你完全不會發現。如果你同時有安裝別人的連線工具，它也不會偷偷蓋掉別人的設定，只會跳一次簡單的視窗問你要不要「共存」，點過一次以後就永遠不會再煩你。就像家裡的水管工，以前管子稍微鬆了還要你打電話叫他來，現在他會定期巡邏默默鎖緊；如果看到有別的師傅在施工，他也會禮貌地問一聲要不要配合，而且只問一次。",
+              "en": "Previously, if Claude's connection hook (the small script that relays your usage data) was accidentally deleted or became outdated, you had to manually run setup commands to fix it. Now, every time usage starts, it quietly checks its own health; if it spots a missing file or an old version, it instantly repairs itself without you ever noticing. If you happen to be running third-party connection tools alongside it, it won't aggressively overwrite their settings. Instead, it asks exactly once if you want to enable \"coexistence\" mode, and then never bothers you about it again. It's like a plumber who used to require a phone call every time a pipe came loose, but now does silent maintenance rounds; and if he sees another contractor working, he politely asks how to coordinate—and only asks once."
+            },
+            "original": "**Hook self-heal: broken installs fix themselves, silently**: every startup now runs `setup_hook.self_heal()`, which silently repairs three clearly-safe scenarios: (1) first-run (`is_setup()==False` and no `statusLine` key in settings) → invokes `setup()`; (2) hook script version is out of date (`needs_update()==True`) → `update_hook()`; (3) settings points to a missing hook file with state `us-direct`/`us-forwarder` → re-runs `_copy_hook_script()` + `_copy_forwarder_script()`. When state is `external`/`legacy-tt`, all three skip (no silent override of third-party tools). Each action appends to `settings[\"usage\"][\"selfHealLog\"]` (FIFO, 20 entries). Failures are swallowed; stderr is printed only when `USAGE_DEBUG=1`.\n**Coexistence prompt consolidated**: when an external statusLine tool is detected, usage shows a single NSAlert with two buttons (\"Enable Coexistence Mode\" / \"Keep Current Setup\"). Either button sets `settings[\"usage\"][\"forwarderModePromptDismissed\"]=True` and the prompt never appears again. Replaces the previous three-button repair dialog in `main.py:health_check()`; the \"remind me later (24h cooldown)\" path is removed. Users who previously chose \"Do Not Ask Again\" on the old dialog will be re-prompted once (one click resolves it)."
+          },
+          {
+            "title": {
+              "zh-TW": "隱藏診斷指令上線，額度用盡警告不再一驚一乍",
+              "en": "Hidden doctor command available, and burn warnings stop crying wolf"
+            },
+            "body": {
+              "zh-TW": "現在如果遇到疑難雜症，你可以用一個隱藏的 `--doctor` 指令來印出英文診斷報告，方便上網抓藥。更棒的是，介面上的「每週額度燃燒警告」變穩重了。以前只要你連續十分鐘狂問問題，系統就會嚇得推算出「剩下 8 小時就會把整週額度用光」的誇張數字；現在它會觀察整整半小時，確定你真的是持續高用量才會發出警告，而且五種語言的警告文字都會明確加上「按目前速度」的免責聲明。就像車子的油表預測，以前你只是踩了一腳油門超車，它就警告你油只夠開三公里；現在它會看你這半小時的平均車速再來估計，還會老實告訴你「這是用你現在猛踩油門的速度算的」。",
+              "en": "If you ever run into tricky issues, you can now use a hidden `--doctor` command to print a full English diagnostic report, making it much easier to search for solutions online. Even better, the weekly burn-rate warning on your dashboard has stopped being so dramatic. Previously, if you blasted through prompts for just 10 minutes, the system would panic and project that you'd drain your entire week's quota in 8 hours. It now observes you for a full 30 minutes to confirm you're actually sustaining a high burn rate before sounding the alarm, and the warning text across all five languages now explicitly adds an \"at current pace\" disclaimer. It's like your car's range estimator: instead of flashing an empty tank warning just because you floored the gas pedal to pass a truck, it now watches your average speed over the last half hour, honestly noting \"this is based on how heavy your foot is right now.\""
+            },
+            "original": "**`--doctor` hidden CLI flag**: `python3 main.py --doctor` prints a plain-text diagnostic report (English-only for easier GitHub issue searches) covering hook state, version, script file status, status file mtime, external hook detection (recognizes `ccusage` / `lord-kali` keywords), forwarder prompt ack state, last 5 self-heal log entries, and Codex sessions scan count. Hidden from `--help` via `argparse.SUPPRESS` so it doesn't distract typical users. New `doctor.py` renderer module.\n**Weekly burn warning no longer over-reacts to short bursts**: previously the weekly warning extrapolated from the most recent 10-minute sample window, so a single large prompt could trigger a scary \"8 hours until empty\" warning that vanished once the user took a break. The weekly warning now uses a 30-minute sample window with a 30-minute minimum span, requiring sustained high usage for at least half an hour before triggering. Session warnings keep the 10-minute window (session resets are frequent, can't be too strict). `burn_rate.ROLLING_WINDOW_SECONDS` was raised from 15 to 60 minutes so the longer window has enough history.\n**Burn warning text now says \"at current pace\"**: all 5 languages' burn warning strings now explicitly include \"按目前速度 / At current pace / 現在のペース / 현재 속도\", making it clear that this is a momentary extrapolation rather than a stable prediction."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.10",
       "raw": {
         "version": "0.11.10",
@@ -316,42 +360,6 @@
               "en": "The numbers on your menu bar will now update instantaneously. Previously, the system relied on a dumb timer that polled your usage once a minute, often lagging far behind reality. Now, it directly listens to your operating system's file events (FSEvents), so the moment you burn through some quota, the on-screen numbers twitch in milliseconds. Not only is it faster, but reading data behind the scenes is much lighter too: it now incrementally parses only the history files that have actually changed, saving your hard drive from redundantly reading identical old files over and over. Additionally, if you run multiple Claude Code sessions in different terminal windows, the system now uses file locks to make them line up politely when saving data, completely preventing them from clobbering each other's usage totals. It's like a restaurant's kitchen flow: waiters used to slowly poke their heads into the kitchen every minute to check for food, but now the kitchen rings a bell the millisecond a dish is ready — and the waiters no longer crash into each other dropping plates on their way out."
             },
             "original": "**`usage_cli.py` crashed on every first run** (thanks @will30-blockchain — [#7](https://github.com/aqua5230/usage/pull/7)): `setup(auto=True)` passed a non-existent keyword argument to `setup_hook.setup()`, causing a `TypeError` on any fresh install or after `unsetup`. Users who already had the hook installed were unaffected. Fix: drop the stale `auto=True` kwarg.\n**Incremental JSONL parsing**: `history_loader` and `codex_loader` now maintain module-level mtime+size caches and skip re-parsing files whose content hasn't changed, significantly reducing per-refresh disk I/O.\n**Parallel hook forwarding**: `usage_statusline_forwarder` now dispatches all hooks concurrently via `ThreadPoolExecutor`; a single slow or timing-out hook no longer stalls the others. Worst-case latency drops from `n × 5s` to `5s`.\n**Multi-session write protection**: `usage_statusline.py`'s `save()` now acquires `fcntl.LOCK_EX` before writing, preventing concurrent Claude Code sessions from clobbering each other's data.\n**Python path resolution**: `setup_hook` now uses `_find_system_python()` when building hook commands — preferring the bundled `.app` Python, then `/usr/bin/python3`, avoiding the broken Xcode stub that `shutil.which(\"python3\")` can resolve to after an Xcode update.\n**FSEvents-driven UI refresh**: `menubar` now uses a CoreServices `FSEventStream` (via ctypes) to watch `~/.claude/`. Changes to `usage-status.json` trigger `_refresh()` immediately, cutting update latency from up to 60 seconds to milliseconds. `NSTimer` is demoted to a 300-second fallback; silently degrades to timer-only mode if CoreServices is unavailable."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.11.1",
-      "raw": {
-        "version": "0.11.1",
-        "period": "2026-05-24",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**[P0] Released `.app` crashes on launch on macOS Sequoia / arm64** (thanks @cmhcm — [#6](https://github.com/aqua5230/usage/pull/6)): all three prior releases (v0.10.0 / v0.10.1 / v0.11.0) are affected. Root cause: in py2app builds `i18n.py` is compiled into `lib/python313.zip` but `i18n.json` lives in `Contents/Resources/`. The old `Path(__file__).with_name(\"i18n.json\")` resolved to a path *through* the zipfile and raised `NotADirectoryError` on first read. Fix: new `i18n.packaged_resource_path()` helper prefers the `RESOURCEPATH` env var that py2app injects at launch (pointing at `Contents/Resources/`) and falls back to the source-adjacent path. All four packaged-resource callsites updated (`i18n.py` / `tui.py` / `main.py` / `menubar.py`). Source-mode runs are unaffected.",
-          "**Packaging metadata completed**: `pyproject.toml` `py-modules` adds the previously-missing `burn_rate` / `update_checker` / `tips_loader` / `usage_lang` / `usage_statusline_forwarder`, and `packages.find` `include` adds `panels*`. Non-editable installs now ship the full code.",
-          "**`.app` license metadata aligned**: `setup_app.py` `NSHumanReadableCopyright` updated from the stale `MIT License` to `Copyright © 2025-2026 lollapalooza. Licensed under AGPL-3.0-only.`, matching what `pyproject.toml` declares.",
-          "**`pricing_cache.json` path unified**: `analyzer/cost.py` now caches to `~/.claude/pricing_cache.json` (was repo root), matching `pricing.py`. A stray 1.1 MB orphan cache at repo root was removed.",
-          "**Panel names go through i18n**: `panels/__init__.py` exposes an `i18n_key` per panel and i18n.json gains the missing keys across all 5 languages. The \"Switch Panel\" menu no longer mixes Chinese names into en / ja / ko UIs.",
-          "**Status-file error messages go through i18n**: `usage_client.py`'s \"status file not found\" and \"no quota data yet\" hints now route through `_t()`, all 5 languages covered.",
-          "**Analytics CLI read order matches the main app**: `adapters/rate_limits.py` previously only read `~/.claude/tt-status.json`; it now follows the same `usage-status.json` → `usag-status.json` → `tt-status.json` fallback chain as `usage_client.py`.",
-          "**README documents the v0.11.0 update check + GitHub Releases as a network exception**: README.md / README.en.md both gain a new \"update check\" bullet and list the GitHub Releases API as the second of two network exceptions (the first remains the LiteLLM pricing table)."
-        ]
-      },
-      "curated": {
-        "version": "0.11.1",
-        "period": "2026-05-24",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "修復 macOS Sequoia 上的閃退死穴，選單語言不再混搭",
-              "en": "Instant crashes on macOS Sequoia fixed, and menu languages are fully localized"
-            },
-            "body": {
-              "zh-TW": "這次解決了一個致命錯誤。前幾個版本的 `.app` 檔在最新的 macOS Sequoia 系統上，只要一打開就會立刻閃退，因為它被包裝後的檔案結構給搞糊塗了，找不到用來顯示多國語言的字典檔；現在它已經學會正確摸黑找到對的資料夾，順利開機。同時，我們把翻譯補得更完整了——以前你在英文、日文或韓文的系統裡點開「更換面板」選單時，裡面還是會硬生生夾雜中文的面板名稱，或者在找不到檔案時拋出中文的錯誤提示；現在這些文字都會乖乖跟著你的系統語言切換。另外，我們也把散落在各處的快取檔案統整到 `~/.claude/` 底下，順手清掉了你硬碟裡 1.1 MB 的孤兒檔案。就像是買回來的進口家電原本會因為電壓不對直接燒斷保險絲，而且說明書還是各國語言亂湊的；現在插上插座就能正常運作，而且說明書保證整本都是你熟悉的語言。",
-              "en": "We've squashed a fatal bug where the released `.app` would instantly crash on launch if you were running the latest macOS Sequoia. The app was getting completely confused by its own packaged file structure and couldn't find its translation dictionary; it has now learned the correct path through the dark to boot up smoothly. Meanwhile, we've filled in the missing translation gaps. Previously, if you used an English, Japanese, or Korean system, your \"Switch Panel\" menu would awkwardly feature Chinese panel names, and system errors would spit out Chinese text. Now, all these strings strictly respect your chosen system language. We also tidied up the pricing cache files, unifying them under the `~/.claude/` folder and sweeping away a 1.1 MB orphaned file from your hard drive. It's like buying an imported appliance that used to blow a fuse immediately due to the wrong voltage while packing a poorly translated, mixed-language manual; now you can plug it in safely, and the instruction book reads perfectly in your native tongue."
-            },
-            "original": "**[P0] Released `.app` crashes on launch on macOS Sequoia / arm64** (thanks @cmhcm — [#6](https://github.com/aqua5230/usage/pull/6)): all three prior releases (v0.10.0 / v0.10.1 / v0.11.0) are affected. Root cause: in py2app builds `i18n.py` is compiled into `lib/python313.zip` but `i18n.json` lives in `Contents/Resources/`. The old `Path(__file__).with_name(\"i18n.json\")` resolved to a path *through* the zipfile and raised `NotADirectoryError` on first read. Fix: new `i18n.packaged_resource_path()` helper prefers the `RESOURCEPATH` env var that py2app injects at launch (pointing at `Contents/Resources/`) and falls back to the source-adjacent path. All four packaged-resource callsites updated (`i18n.py` / `tui.py` / `main.py` / `menubar.py`). Source-mode runs are unaffected.\n**Packaging metadata completed**: `pyproject.toml` `py-modules` adds the previously-missing `burn_rate` / `update_checker` / `tips_loader` / `usage_lang` / `usage_statusline_forwarder`, and `packages.find` `include` adds `panels*`. Non-editable installs now ship the full code.\n**`.app` license metadata aligned**: `setup_app.py` `NSHumanReadableCopyright` updated from the stale `MIT License` to `Copyright © 2025-2026 lollapalooza. Licensed under AGPL-3.0-only.`, matching what `pyproject.toml` declares.\n**`pricing_cache.json` path unified**: `analyzer/cost.py` now caches to `~/.claude/pricing_cache.json` (was repo root), matching `pricing.py`. A stray 1.1 MB orphan cache at repo root was removed.\n**Panel names go through i18n**: `panels/__init__.py` exposes an `i18n_key` per panel and i18n.json gains the missing keys across all 5 languages. The \"Switch Panel\" menu no longer mixes Chinese names into en / ja / ko UIs.\n**Status-file error messages go through i18n**: `usage_client.py`'s \"status file not found\" and \"no quota data yet\" hints now route through `_t()`, all 5 languages covered.\n**Analytics CLI read order matches the main app**: `adapters/rate_limits.py` previously only read `~/.claude/tt-status.json`; it now follows the same `usage-status.json` → `usag-status.json` → `tt-status.json` fallback chain as `usage_client.py`.\n**README documents the v0.11.0 update check + GitHub Releases as a network exception**: README.md / README.en.md both gain a new \"update check\" bullet and list the GitHub Releases API as the second of two network exceptions (the first remains the LiteLLM pricing table)."
           }
         ]
       }

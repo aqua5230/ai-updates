@@ -5,6 +5,35 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.24.11",
+      "raw": {
+        "version": "0.24.11",
+        "period": "2026-07-08",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**AI Tool Update Digest went blank after upgrading from 0.24.9 or earlier**: the new versions-array schema introduced in 0.24.10 caused `_normalize_payload` to return an empty list (not `None`) when reading a pre-0.24.10 cache file, which `load_ai_updates` then treated as a valid \"fresh\" empty result instead of refetching from GitHub — hiding the section for up to 24h (the cache TTL) on every machine that had used an older version. Legacy-schema caches now correctly trigger a refetch."
+        ]
+      },
+      "curated": {
+        "version": "0.24.11",
+        "period": "2026-07-08",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "工具更新快訊不再離奇消失，舊版快取也能順利更新",
+              "en": "AI Tool Update Digest stops disappearing on upgrades from older versions"
+            },
+            "body": {
+              "zh-TW": "你的「AI 工具更新快訊」不會再因為升級版本而莫名其妙變成一片空白了。以前當你從舊版本（0.24.9 以前）升級上來時，系統在讀取你電腦裡舊格式的暫存檔（cache）時會產生誤判，以為「空空的」就是最新鮮的資料，結果就是一整天（直到暫存過期）都不會去 GitHub 抓新資料，導致整個快訊區塊不見。現在系統學會了正確辨認這些舊格式的檔案，一看到就會立刻去網路抓一份新的回來。就像是你訂閱的早報改版了，以前送報生看到你信箱裡有舊版報紙的包裝袋，就以為你已經收過新報紙而直接跳過；現在他懂得分辨那只是舊袋子，會乖乖把今天熱騰騰的新報紙塞進去。",
+              "en": "Your AI Tool Update Digest will no longer turn entirely blank simply because you updated the app. Previously, when you upgraded from an older version (0.24.9 or earlier), the system misinterpreted your machine's old-format cache file, mistakenly believing that an \"empty\" result was fresh data. This caused it to refuse to fetch new updates from GitHub for up to 24 hours until the cache expired, completely hiding the digest section. The system now correctly recognizes these legacy cache schemas and immediately fetches fresh data. It's like your morning newspaper subscription redesigning its layout: previously, the delivery person saw an old-style plastic wrapper in your mailbox, mistakenly thought you already got today's paper, and walked past your house; now, they recognize the old bag for what it is and correctly slide a fresh, hot-off-the-press newspaper inside."
+            },
+            "original": "**AI Tool Update Digest went blank after upgrading from 0.24.9 or earlier**: the new versions-array schema introduced in 0.24.10 caused `_normalize_payload` to return an empty list (not `None`) when reading a pre-0.24.10 cache file, which `load_ai_updates` then treated as a valid \"fresh\" empty result instead of refetching from GitHub — hiding the section for up to 24h (the cache TTL) on every machine that had used an older version. Legacy-schema caches now correctly trigger a refetch."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.24.10",
       "raw": {
         "version": "0.24.10",
@@ -264,36 +293,6 @@
               "en": "When you resume a previous conversation, the \"what you were recently working on\" suggestions will no longer be overwhelmed by giant walls of tool documentation. Previously, the system blindly scooped up every transcript entry marked as a \"user\" message, failing to realize that some of these were actually long instructions injected by the system itself to expand skills (skill files that help execute specific tasks). This allowed noisy text to masquerade as your real work progress. Furthermore, because the system only checked for duplicates against the very last message, a single real request interrupted by one of these noise entries would get counted twice, wasting your precious three handoff slots. The system now correctly skips these system-injected metadata entries (`isMeta`) and checks for duplicates against the entire list. It's like asking an assistant to summarize yesterday's meeting: they used to copy down an entire 100-page manual you happened to read aloud as if it were a decision, and if you repeated a point twice they logged it as two separate tasks. Now, they know to extract only the actual action items and merge repeats into a single line."
             },
             "original": "**Session-resume handoff could surface skill-expansion noise and duplicate the same request**: `usage_session_resume.py`'s `_parse_session` collected every `type: \"user\"` transcript entry as a candidate \"recently working on\" request without checking Claude Code's `isMeta` flag, so skill/command expansions injected into the transcript (e.g. a full `SKILL.md` body) could show up as if they were a real request. Dedup also only compared against the immediately preceding request, so the same request separated by one of these injected entries counted twice, wasting handoff slots that are capped at 3. `isMeta: true` entries are now skipped, and dedup checks against every request seen so far, not just the last one. (Reported in #46 by @apple8409.)"
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.24.1",
-      "raw": {
-        "version": "0.24.1",
-        "period": "2026-07-05",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Menu bar could peg a full CPU core after launch on machines with unpriced models in their history**: `pricing.py`'s model-to-price lookup ran a full linear scan of the entire LiteLLM pricing table for every history entry whose model wasn't in it, with no caching of the \"not found\" result — so every refresh re-scanned the same unresolvable models (e.g. sessions logged by a non-Anthropic/OpenAI backend) from scratch, thousands of times per refresh on machines with a lot of that history. The lookup is now memoized per pricing-table generation, so a given unresolvable model is only scanned once.",
-          "**Claude Code history reparsed from scratch on every relaunch**: `history_loader.py`'s per-file JSONL parse cache only lived in memory, unlike the matching Codex-side cache added in 0.24.0, so every app restart — including auto-launch at login — paid the full history reparse again (measured 5+ seconds on a long-lived install). It now persists to disk the same way the Codex loader already does."
-        ]
-      },
-      "curated": {
-        "version": "0.24.1",
-        "period": "2026-07-05",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "修復 CPU 滿載過熱問題，程式啟動速度大幅提升",
-              "en": "Fixed full CPU core lockups and slow startup times caused by excessive scanning"
-            },
-            "body": {
-              "zh-TW": "電腦不會再被兩個效能問題拖慢了。首先，如果你曾經用過一些系統價目表上沒有的冷門 AI 模型，以前系統在每次更新數字時，都會為了找它的價格，把整張上千筆的價目表從頭到尾翻過一遍，而且找不到還不會記取教訓，下一秒又重新翻一次，這會把你的處理器（CPU）操到滿載；現在系統學會了，如果找不到，它就會把這個名字記在黑名單，下次直接跳過。其次，以前每次重新開啟應用程式，系統都會把你全部的 Claude 對話歷史重新讀取一遍（歷史越長要等越久，有時要等 5 秒以上），因為它把這份記憶放在會揮發的記憶體裡；現在它懂得把讀過的結果存進硬碟裡了。就像是結帳店員以前遇到刷不出條碼的商品，每次都要把整本兩千頁的商品目錄重翻一遍，現在他終於懂得把沒建檔的品項貼在收銀機旁直接略過；而且以前他每天上班都要把你過去十年的消費明細重看一次才能開始工作，現在他只看今天的帳本就好了。",
-              "en": "Your computer won't be bogged down by two performance bugs anymore. First, if you had history containing obscure AI models missing from the system's pricing sheet, the app would wildly scan the entire thousand-item price list from top to bottom on every single refresh trying to find them. Worse, it never remembered failing, so it repeated the scan immediately after, pinning your processor (CPU) at 100%; the system now smartly memoizes \"not found\" results and skips them next time. Second, every time you restarted the app (or when it auto-launched at login), it parsed your entire Claude chat history completely from scratch because its cache only lived in temporary memory, which could take over 5 seconds on older installs. It now safely persists that parsed cache to your disk. It's like a checkout clerk who used to flip through a massive 2,000-page catalog every single time they encountered an unbarcoded item; now they simply tape a \"not found\" note to the register and skip it. Plus, they no longer need to re-read your entire 10-year purchase history from page one every morning just to clock in."
-            },
-            "original": "**Menu bar could peg a full CPU core after launch on machines with unpriced models in their history**: `pricing.py`'s model-to-price lookup ran a full linear scan of the entire LiteLLM pricing table for every history entry whose model wasn't in it, with no caching of the \"not found\" result — so every refresh re-scanned the same unresolvable models (e.g. sessions logged by a non-Anthropic/OpenAI backend) from scratch, thousands of times per refresh on machines with a lot of that history. The lookup is now memoized per pricing-table generation, so a given unresolvable model is only scanned once.\n**Claude Code history reparsed from scratch on every relaunch**: `history_loader.py`'s per-file JSONL parse cache only lived in memory, unlike the matching Codex-side cache added in 0.24.0, so every app restart — including auto-launch at login — paid the full history reparse again (measured 5+ seconds on a long-lived install). It now persists to disk the same way the Codex loader already does."
           }
         ]
       }

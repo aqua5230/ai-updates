@@ -5,6 +5,22 @@
   "pages": 7,
   "versions": [
     {
+      "version": "1.3.0",
+      "raw": {
+        "version": "1.3.0",
+        "period": "2026-10-06",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-10-06",
+        "entries": [
+          "Changed the default `Verbosity` setting from `high` to `medium`, so the conversation view now groups related tool calls and thoughts into concise summaries while keeping commands and responses visible. This applies to everyone who never picked a verbosity, including anyone who selected `high` while it was still the default; set `Verbosity` back to `high` in `/config` to see every tool call, command, and thought in full again.",
+          "Changed `j` and `k` in the `/diff` file view to move the line cursor like the up and down arrow keys, matching the file list and Vim, instead of jumping to the next or previous file; use the left and right arrow keys to switch files.",
+          "Fixed trackpad and mouse-wheel scrolling in the conversation view jumping back and forth, most noticeably over SSH or inside tmux, by ignoring the sideways part of diagonal swipes and limiting how far a single fast scroll step can move; `Page Up` and `Page Down` still move a full page.",
+          "Fixed files and folders whose paths contain spaces, `#`, `%`, or other special characters, or that sit on a Windows drive, being mishandled across the CLI: `@` file mentions, `/codesearch` results, and file links in agent responses now open the right file, and workspace trust and project-scoped custom agents now recognize projects created in the Antigravity desktop app in such folders."
+        ]
+      },
+      "curated": null
+    },
+    {
       "version": "1.2.17",
       "raw": {
         "version": "1.2.17",
@@ -893,111 +909,6 @@
               "en": "Several UI details are now smoother when reviewing generated artifacts or browsing past conversation history in the terminal. When a wide diagram overflows the window width, the artifact viewer (an interface for browsing generated diagrams and documents) shows a Left/Right pan hint in the footer. Opening the /rewind panel displays relative timestamps for each step and automatically focuses on the most recent step when the panel opens. For command authorization, allow-listing suggestions now accurately recognize jj config and jj op subcommands when offering to always allow a command. The browser companion page title has also been corrected to the capitalized acronym Antigravity CLI. These interface and command recognition refinements make viewing diagrams and rewinding history much crisper."
             },
             "original": "Improved the artifact viewer to show a Left/Right pan hint in the footer when a wide diagram overflows the window\nImproved `/rewind` to show a relative timestamp for each step and to focus the most recent step when the panel opens\nImproved command allow-listing suggestions to recognize `jj config` and `jj op` subcommands when offering to always allow a command\nFixed the browser companion page title to read `Antigravity CLI` instead of `Antigravity Cli`"
-          }
-        ]
-      }
-    },
-    {
-      "version": "1.2.8",
-      "raw": {
-        "version": "1.2.8",
-        "period": "2026-09-22",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-09-22",
-        "entries": [
-          "Improved context compaction to spread its user-request budget across all captured prompts, so a long initial instruction is no longer truncated to a small fixed slice when the other prompts in the conversation are short",
-          "Improved context compaction to size summary and truncation budgets from the model's full context window instead of the compaction trigger threshold, so compacted summaries and background-task lists are no longer prematurely cut short",
-          "Fixed PDF and audio tool outputs and attachments failing with `unsupported mime type` errors on custom models configured in `settings.json`; custom models now accept PDFs by default and honor the `modelFeatures` media flags for images, video, PDF, and audio",
-          "Fixed pressing `Ctrl+G` to edit the prompt in a full-screen terminal editor such as `vim` hanging with `Vim: Warning: Output is not to a terminal`; external editors now run against a real terminal stdout",
-          "Fixed voice dictation sessions longer than 4 minutes failing with a deadline error and erasing the drafted transcription; recordings now automatically stop and finalize at 3 minutes 30 seconds",
-          "Fixed the startup banner displaying a Google Cloud Project ID for consumer (non-enterprise) sign-ins",
-          "Fixed a stack-overflow crash when loading or compacting conversations containing background-task, subagent-management, messaging, or scheduling steps",
-          "Fixed forked conversations inheriting step output data from steps after the fork point, which could collide with new steps produced in the fork",
-          "Fixed a background poller and timer leaking for every conversation session, slowly accumulating memory over long-running sessions",
-          "Fixed canceled conversation and workspace creation requests continuing to provision resources in the background; aborted requests now stop immediately",
-          "Fixed quitting the CLI taking around 5 extra seconds before the process exited; shutdown now cancels open streaming connections immediately instead of waiting for a forced timeout"
-        ]
-      },
-      "curated": {
-        "version": "1.2.8",
-        "period": "2026-09-22",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "長指令不再被截斷，上下文壓縮依全篇對話分攤預算",
-              "en": "Long prompts stay intact as context compaction shares budgets across turns"
-            },
-            "body": {
-              "zh-TW": "和 AI 來回聊上幾十輪之後，你最開始交代的那一大段需求，它還記得住嗎？以前上下文壓縮（context compaction，對話太長時自動濃縮歷史以省空間的機制）時，每段提問都只能分到固定的字數上限。就算後面幾句問答都很簡短，開頭落落長的初始提示詞（prompt）也會被削成一小截。現在改由所有提問彈性分攤預算，只要後續問題短，開頭的指令細節就能完整留下來。摘要與截斷預算也改照模型完整的上下文視窗（context window，模型一次能讀取的最大容量）計算，不再依較窄的壓縮觸發門檻計算，濃縮後的重點與背景任務清單就不會被提早切掉。⟦就像會議紀錄員依照整場會議的長度來分配紙張，以前每位發言人只能分到半頁，現在後面的人講得短，開頭主席的重要報告就能整段謄錄，結尾的待辦清單也不會被裁掉。⟧",
-              "en": "After dozens of back-and-forth turns, does the AI still remember the long brief you started with? Previously, compaction enforced a rigid length cap on every captured user prompt, lopping off details from a long initial prompt even when all subsequent follow-up turns were brief. The user-request budget is now shared flexibly across all captured prompts, preserving the full context of long instructions whenever later prompts are short. Summary and truncation budgets are also now calculated from the model's full context window rather than the narrower compaction trigger threshold, ensuring compacted summaries and background-task lists are never cut short prematurely. ⟦Like a meeting secretary who allocates notebook space across the whole session: each speaker used to get a fixed half-page, but now brief follow-ups leave plenty of room to record the chair's opening remarks in full without trimming the closing task list.⟧"
-            },
-            "original": "Improved context compaction to spread its user-request budget across all captured prompts, so a long initial instruction is no longer truncated to a small fixed slice when the other prompts in the conversation are short\nImproved context compaction to size summary and truncation budgets from the model's full context window instead of the compaction trigger threshold, so compacted summaries and background-task lists are no longer prematurely cut short"
-          },
-          {
-            "title": {
-              "zh-TW": "自訂模型支援 PDF，多媒體檔案不再報格式不支援",
-              "en": "Custom models support PDFs and stop throwing unsupported mime type errors"
-            },
-            "body": {
-              "zh-TW": "在 `settings.json` 裡掛了自訂模型，一傳 PDF 或音訊就跳 `unsupported mime type`？以前丟這類附件、或讓工具輸出音訊與文件，都會直接卡住。現在自訂模型預設直接支援 PDF，而且會確實讀取 `modelFeatures` 裡針對 images、video、PDF 與 audio 的媒體旗標，各類多媒體檔案都能依照設定正常送給模型處理。",
-              "en": "Added a custom model in `settings.json` and got `unsupported mime type` the moment you sent a PDF or audio? Previously, attaching these media files or having tools emit audio and document outputs would fail outright. Custom models now accept PDFs by default and strictly honor the `modelFeatures` media flags for images, video, PDF, and audio, allowing media files to pass to the model as configured."
-            },
-            "original": "Fixed PDF and audio tool outputs and attachments failing with `unsupported mime type` errors on custom models configured in `settings.json`; custom models now accept PDFs by default and honor the `modelFeatures` media flags for images, video, PDF, and audio"
-          },
-          {
-            "title": {
-              "zh-TW": "按 Ctrl+G 開啟 Vim 不再卡死，編輯提示詞直連終端機",
-              "en": "Pressing Ctrl+G to open Vim no longer hangs when editing prompts"
-            },
-            "body": {
-              "zh-TW": "想要在終端機裡好好寫提示詞，按下 `Ctrl+G` 就能跳進 `vim` 這類全螢幕編輯器慢慢改。以前按下快捷鍵時，編輯器常因為輸出沒接對終端機而卡死，畫面上還會跳出 `Vim: Warning: Output is not to a terminal` 警告，整個卡住不動。現在外部編輯器改在真實的終端機標準輸出（stdout）下執行，隨時按 `Ctrl+G` 都能直接打開編輯器，改完存檔離開就立刻回到對話。",
-              "en": "When you want to compose prompts comfortably in the terminal, pressing `Ctrl+G` jumps into a full-screen editor like `vim`. Previously, pressing this shortcut could freeze the editor with a `Vim: Warning: Output is not to a terminal` warning because its output was not connected to a real terminal. External editors now run against a real terminal stdout, so pressing `Ctrl+G` opens your editor immediately and returns you to the conversation as soon as you save and exit."
-            },
-            "original": "Fixed pressing `Ctrl+G` to edit the prompt in a full-screen terminal editor such as `vim` hanging with `Vim: Warning: Output is not to a terminal`; external editors now run against a real terminal stdout"
-          },
-          {
-            "title": {
-              "zh-TW": "語音聽寫超時草稿不再被清空，錄音滿三分半自動完成轉錄",
-              "en": "Voice dictation no longer erases drafts on timeout and auto-finalizes at 3.5 minutes"
-            },
-            "body": {
-              "zh-TW": "對著麥克風講了一大段需求，結果一個字都沒留下？以前錄音只要超過 4 分鐘，就會觸發時限錯誤直接宣告失敗，講了老半天的轉錄草稿也跟著全部消失。現在錄音只要滿 3 分 30 秒就會自動停止並完成轉錄，講完的內容會好好轉成文字，不再怕超時白講一場。",
-              "en": "Talked into the mic at length, only to end up with nothing? Previously, recordings exceeding 4 minutes triggered a deadline error and failed completely, discarding the entire drafted transcript. Recordings now automatically stop and finalize at 3 minutes 30 seconds, reliably converting your spoken words into text so you never lose your progress."
-            },
-            "original": "Fixed voice dictation sessions longer than 4 minutes failing with a deadline error and erasing the drafted transcription; recordings now automatically stop and finalize at 3 minutes 30 seconds"
-          },
-          {
-            "title": {
-              "zh-TW": "非企業帳號登入時不再看到 Google Cloud 的 Project ID",
-              "en": "Personal sign-ins no longer see a Google Cloud Project ID"
-            },
-            "body": {
-              "zh-TW": "只是用個人帳號登入，啟動畫面卻冒出一串看不懂的雲端專案代碼？以前非企業的個人帳號登入時，終端機頂端的啟動橫幅會誤印出 Google Cloud 專案代碼（Project ID）。現在修好了，個人帳號登入時不會再看到這串跟你無關的代碼。",
-              "en": "Signed in with a personal account and saw a cryptic cloud project ID on the startup screen? Previously, non-enterprise personal sign-ins mistakenly showed a Google Cloud Project ID in the startup banner at the top of the terminal. This is now fixed, so personal sign-ins no longer see an ID that has nothing to do with them."
-            },
-            "original": "Fixed the startup banner displaying a Google Cloud Project ID for consumer (non-enterprise) sign-ins"
-          },
-          {
-            "title": {
-              "zh-TW": "複雜步驟對話載入不再當機，分岔對話徹底隔離舊資料",
-              "en": "Complex conversation steps load without crashes and forked histories stay cleanly isolated"
-            },
-            "body": {
-              "zh-TW": "對話裡有子代理、排程這類步驟，重新打開時整個程式崩潰？以前對話裡只要有背景任務、子代理管理、訊息傳遞或排程步驟，重新載入或壓縮對話時就容易觸發堆疊溢位（stack-overflow，記憶體堆疊空間耗盡導致當機）而整台程式崩潰。另外，把對話分岔（fork，從既有對話的某個時間點複製出新分支）時，新分支以前會誤把分岔點之後的舊步驟輸出抄進來，跟分岔後產生的新步驟打架。現在這兩處都已修好，載入不再崩潰，分岔後的資料也乾淨隔開。⟦翻開厚厚的工作企劃夾，重讀多組交辦與排程紀錄時不會讓活頁夾散掉，從中途另存一份新企劃時，也不會把原本後半段的舊進度混進新計畫裡。⟧",
-              "en": "Did reopening a conversation with subagent or scheduling steps crash the whole program? Previously, reloading or compacting conversations containing background-task, subagent-management, messaging, or scheduling steps could trigger a stack-overflow crash that halted the program. In addition, when forking a conversation, the new branch mistakenly inherited step output data from steps after the fork point, clashing with freshly generated steps. Both issues are now resolved: loading no longer crashes and forked histories stay cleanly separated. ⟦Picture a thick project binder: reviewing multi-team handoffs and schedules no longer bursts the binder rings, and branching a new draft midway stops old downstream milestones from cluttering the new plan.⟧"
-            },
-            "original": "Fixed a stack-overflow crash when loading or compacting conversations containing background-task, subagent-management, messaging, or scheduling steps\nFixed forked conversations inheriting step output data from steps after the fork point, which could collide with new steps produced in the fork"
-          },
-          {
-            "title": {
-              "zh-TW": "修復背景資源洩漏，中途取消與結束程式都不再拖泥帶水",
-              "en": "Background leaks fixed, canceled requests abort instantly, and CLI quits without delay"
-            },
-            "body": {
-              "zh-TW": "命令列工具開了一整天，或是中途取消建立工作區，背景都不會再偷偷累積記憶體或霸佔資源。以前每個對話工作階段（session）都會漏掉背景輪詢器與計時器，開越久記憶體吃越多。要是你中途取消建立對話或工作區，背景還會傻傻繼續調度資源，現在只要取消就會立刻中止作業。想關掉工具離開時，以前也得乾等 5 秒強制逾時才能結束，現在關閉時會直接中斷未結的串流連線，按退出就能秒關。以前開久了電腦變慢、取消還佔資源、退出又得乾等的麻煩，現在一次全清乾淨了。",
-              "en": "Running the CLI all day or canceling workspace creation will no longer leak memory or hold onto orphaned resources in the background. Previously, every conversation session leaked a background poller and timer, steadily accumulating memory over long sessions. If you canceled a conversation or workspace creation, the background continued provisioning resources; aborted requests now halt immediately. Quitting the CLI also used to force an extra 5-second wait for a timeout, but shutdown now severs open streaming connections immediately to exit on the spot. Sluggish memory bloat, stuck background provisioning, and slow exits are all resolved."
-            },
-            "original": "Fixed a background poller and timer leaking for every conversation session, slowly accumulating memory over long-running sessions\nFixed canceled conversation and workspace creation requests continuing to provision resources in the background; aborted requests now stop immediately\nFixed quitting the CLI taking around 5 extra seconds before the process exited; shutdown now cancels open streaming connections immediately instead of waiting for a forced timeout"
           }
         ]
       }

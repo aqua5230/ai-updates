@@ -5,6 +5,35 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.14.1",
+      "raw": {
+        "version": "0.14.1",
+        "period": "2026-06-01",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Codex quota stuck on stale values**: `load_rate_limits()` returned as soon as SQLite (`logs_2.sqlite`) had any data, never comparing the newer `rate_limits` in `~/.codex/sessions/*.jsonl`, so the menu bar stayed pinned to the previous day's quota. It now reads both SQLite and JSONL and picks the newest valid entry by `updated_at`, keeping the prior SQLite-preferred behavior when timestamps are equal."
+        ]
+      },
+      "curated": {
+        "version": "0.14.1",
+        "period": "2026-06-01",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "選單列的額度不再卡住，及時反映最新用量",
+              "en": "The menu bar quota stops getting stuck and correctly reflects your latest usage"
+            },
+            "body": {
+              "zh-TW": "你在選單列看到的 Codex（另一款 AI 工具）剩餘額度，現在會準確更新了。以前系統在撈取你的使用進度時，只要在它的一個資料庫（SQLite，一種輕量級資料庫）裡找到舊資料就草草收工，根本不去比對另一邊文字檔裡其實已經有了更新的額度，導致你的選單列總是卡在前一天的進度動也不動。現在系統會同時比對這兩個地方，挑選時間標籤最新的一筆資料來顯示。就像你搬家後已經去郵局更新了通訊地址，但銀行還是一直把你上個月的舊地址印在對帳單上，因為他們只查了最舊的檔案櫃；現在銀行會把兩個櫃子都打開看，誰的日期新就用誰的。",
+              "en": "The remaining Codex (another AI tool) quota shown on your menu bar will now update accurately. Previously, when checking your usage, the system would call it a day the moment it found old data in its primary database (SQLite, a lightweight database format), completely ignoring the fact that fresher quota limits were sitting right there in your text logs. This caused your menu bar to stay stubbornly pinned to yesterday's numbers. The system now cross-references both storage locations and always displays the entry with the most recent timestamp. It's like moving to a new house and updating your address at the post office, but your bank keeps printing your old address on your statements because they only checked their oldest filing cabinet; now, the bank opens both cabinets and uses whichever paper has the newest date on it."
+            },
+            "original": "**Codex quota stuck on stale values**: `load_rate_limits()` returned as soon as SQLite (`logs_2.sqlite`) had any data, never comparing the newer `rate_limits` in `~/.codex/sessions/*.jsonl`, so the menu bar stayed pinned to the previous day's quota. It now reads both SQLite and JSONL and picks the newest valid entry by `updated_at`, keeping the prior SQLite-preferred behavior when timestamps are equal."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.14.0",
       "raw": {
         "version": "0.14.0",
@@ -341,50 +370,6 @@
               "en": "When you open the popover panel, you'll no longer see the Codex model name at the very bottom. This is because the label was actually showing the model used during \"your last recorded session\"—which could have been hours ago—leading people to mistakenly believe it was actively being used right that second. Since this out-of-context information was more confusing than helpful, we simply removed it to clean up the interface. It's like waiting at the bank: if the digital display kept showing the transaction type of the customer from three hours ago, you'd just be confused; now the board is wiped clean to avoid misunderstandings."
             },
             "original": "**Removed Codex model footer from popover**: the \"· model: gpt-5.5\" suffix added in v0.11.6 (`menubar.py:868-870`) misled users into thinking the model was being used *right now*, when in fact it reflects the model of the most recent Codex session with rate_limits data — possibly hours old. Without a timestamp context, this information is noise that can't be acted on. TUI model displays (`ui/tables.py:818,857`) are kept since they live inside different contexts (active session block / idle panel). The `model_label` i18n key and `CodexRateLimits.model` field are preserved; only the popover footer concatenation is removed."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.11.12",
-      "raw": {
-        "version": "0.11.12",
-        "period": "2026-05-27",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Hook self-heal: broken installs fix themselves, silently**: every startup now runs `setup_hook.self_heal()`, which silently repairs three clearly-safe scenarios: (1) first-run (`is_setup()==False` and no `statusLine` key in settings) → invokes `setup()`; (2) hook script version is out of date (`needs_update()==True`) → `update_hook()`; (3) settings points to a missing hook file with state `us-direct`/`us-forwarder` → re-runs `_copy_hook_script()` + `_copy_forwarder_script()`. When state is `external`/`legacy-tt`, all three skip (no silent override of third-party tools). Each action appends to `settings[\"usage\"][\"selfHealLog\"]` (FIFO, 20 entries). Failures are swallowed; stderr is printed only when `USAGE_DEBUG=1`.",
-          "**Coexistence prompt consolidated**: when an external statusLine tool is detected, usage shows a single NSAlert with two buttons (\"Enable Coexistence Mode\" / \"Keep Current Setup\"). Either button sets `settings[\"usage\"][\"forwarderModePromptDismissed\"]=True` and the prompt never appears again. Replaces the previous three-button repair dialog in `main.py:health_check()`; the \"remind me later (24h cooldown)\" path is removed. Users who previously chose \"Do Not Ask Again\" on the old dialog will be re-prompted once (one click resolves it).",
-          "**`--doctor` hidden CLI flag**: `python3 main.py --doctor` prints a plain-text diagnostic report (English-only for easier GitHub issue searches) covering hook state, version, script file status, status file mtime, external hook detection (recognizes `ccusage` / `lord-kali` keywords), forwarder prompt ack state, last 5 self-heal log entries, and Codex sessions scan count. Hidden from `--help` via `argparse.SUPPRESS` so it doesn't distract typical users. New `doctor.py` renderer module.",
-          "**Weekly burn warning no longer over-reacts to short bursts**: previously the weekly warning extrapolated from the most recent 10-minute sample window, so a single large prompt could trigger a scary \"8 hours until empty\" warning that vanished once the user took a break. The weekly warning now uses a 30-minute sample window with a 30-minute minimum span, requiring sustained high usage for at least half an hour before triggering. Session warnings keep the 10-minute window (session resets are frequent, can't be too strict). `burn_rate.ROLLING_WINDOW_SECONDS` was raised from 15 to 60 minutes so the longer window has enough history.",
-          "**Burn warning text now says \"at current pace\"**: all 5 languages' burn warning strings now explicitly include \"按目前速度 / At current pace / 現在のペース / 현재 속도\", making it clear that this is a momentary extrapolation rather than a stable prediction."
-        ]
-      },
-      "curated": {
-        "version": "0.11.12",
-        "period": "2026-05-27",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "系統學會自己修復連線，與其他工具和平共存不擾人",
-              "en": "The system repairs its own connections and peacefully coexists with other tools"
-            },
-            "body": {
-              "zh-TW": "以前如果 Claude 的連線程式（hook，負責把用量傳出來的小程式）不小心被刪掉或過期了，你得自己打指令重裝。現在每次開啟 usage，它都會默默幫你檢查；如果是單純的檔案不見或版本太舊，它會一秒內自己修好，你完全不會發現。如果你同時有安裝別人的連線工具，它也不會偷偷蓋掉別人的設定，只會跳一次簡單的視窗問你要不要「共存」，點過一次以後就永遠不會再煩你。就像家裡的水管工，以前管子稍微鬆了還要你打電話叫他來，現在他會定期巡邏默默鎖緊；如果看到有別的師傅在施工，他也會禮貌地問一聲要不要配合，而且只問一次。",
-              "en": "Previously, if Claude's connection hook (the small script that relays your usage data) was accidentally deleted or became outdated, you had to manually run setup commands to fix it. Now, every time usage starts, it quietly checks its own health; if it spots a missing file or an old version, it instantly repairs itself without you ever noticing. If you happen to be running third-party connection tools alongside it, it won't aggressively overwrite their settings. Instead, it asks exactly once if you want to enable \"coexistence\" mode, and then never bothers you about it again. It's like a plumber who used to require a phone call every time a pipe came loose, but now does silent maintenance rounds; and if he sees another contractor working, he politely asks how to coordinate—and only asks once."
-            },
-            "original": "**Hook self-heal: broken installs fix themselves, silently**: every startup now runs `setup_hook.self_heal()`, which silently repairs three clearly-safe scenarios: (1) first-run (`is_setup()==False` and no `statusLine` key in settings) → invokes `setup()`; (2) hook script version is out of date (`needs_update()==True`) → `update_hook()`; (3) settings points to a missing hook file with state `us-direct`/`us-forwarder` → re-runs `_copy_hook_script()` + `_copy_forwarder_script()`. When state is `external`/`legacy-tt`, all three skip (no silent override of third-party tools). Each action appends to `settings[\"usage\"][\"selfHealLog\"]` (FIFO, 20 entries). Failures are swallowed; stderr is printed only when `USAGE_DEBUG=1`.\n**Coexistence prompt consolidated**: when an external statusLine tool is detected, usage shows a single NSAlert with two buttons (\"Enable Coexistence Mode\" / \"Keep Current Setup\"). Either button sets `settings[\"usage\"][\"forwarderModePromptDismissed\"]=True` and the prompt never appears again. Replaces the previous three-button repair dialog in `main.py:health_check()`; the \"remind me later (24h cooldown)\" path is removed. Users who previously chose \"Do Not Ask Again\" on the old dialog will be re-prompted once (one click resolves it)."
-          },
-          {
-            "title": {
-              "zh-TW": "隱藏診斷指令上線，額度用盡警告不再一驚一乍",
-              "en": "Hidden doctor command available, and burn warnings stop crying wolf"
-            },
-            "body": {
-              "zh-TW": "現在如果遇到疑難雜症，你可以用一個隱藏的 `--doctor` 指令來印出英文診斷報告，方便上網抓藥。更棒的是，介面上的「每週額度燃燒警告」變穩重了。以前只要你連續十分鐘狂問問題，系統就會嚇得推算出「剩下 8 小時就會把整週額度用光」的誇張數字；現在它會觀察整整半小時，確定你真的是持續高用量才會發出警告，而且五種語言的警告文字都會明確加上「按目前速度」的免責聲明。就像車子的油表預測，以前你只是踩了一腳油門超車，它就警告你油只夠開三公里；現在它會看你這半小時的平均車速再來估計，還會老實告訴你「這是用你現在猛踩油門的速度算的」。",
-              "en": "If you ever run into tricky issues, you can now use a hidden `--doctor` command to print a full English diagnostic report, making it much easier to search for solutions online. Even better, the weekly burn-rate warning on your dashboard has stopped being so dramatic. Previously, if you blasted through prompts for just 10 minutes, the system would panic and project that you'd drain your entire week's quota in 8 hours. It now observes you for a full 30 minutes to confirm you're actually sustaining a high burn rate before sounding the alarm, and the warning text across all five languages now explicitly adds an \"at current pace\" disclaimer. It's like your car's range estimator: instead of flashing an empty tank warning just because you floored the gas pedal to pass a truck, it now watches your average speed over the last half hour, honestly noting \"this is based on how heavy your foot is right now.\""
-            },
-            "original": "**`--doctor` hidden CLI flag**: `python3 main.py --doctor` prints a plain-text diagnostic report (English-only for easier GitHub issue searches) covering hook state, version, script file status, status file mtime, external hook detection (recognizes `ccusage` / `lord-kali` keywords), forwarder prompt ack state, last 5 self-heal log entries, and Codex sessions scan count. Hidden from `--help` via `argparse.SUPPRESS` so it doesn't distract typical users. New `doctor.py` renderer module.\n**Weekly burn warning no longer over-reacts to short bursts**: previously the weekly warning extrapolated from the most recent 10-minute sample window, so a single large prompt could trigger a scary \"8 hours until empty\" warning that vanished once the user took a break. The weekly warning now uses a 30-minute sample window with a 30-minute minimum span, requiring sustained high usage for at least half an hour before triggering. Session warnings keep the 10-minute window (session resets are frequent, can't be too strict). `burn_rate.ROLLING_WINDOW_SECONDS` was raised from 15 to 60 minutes so the longer window has enough history.\n**Burn warning text now says \"at current pace\"**: all 5 languages' burn warning strings now explicitly include \"按目前速度 / At current pace / 現在のペース / 현재 속도\", making it clear that this is a momentary extrapolation rather than a stable prediction."
           }
         ]
       }

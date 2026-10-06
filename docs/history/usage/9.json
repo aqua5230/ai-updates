@@ -5,6 +5,47 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.28.17",
+      "raw": {
+        "version": "0.28.17",
+        "period": "2026-07-21",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-22",
+        "entries": [
+          "**Classic popover no longer clips the Claude card when the footer status wraps to two lines.** Long status warnings (e.g. hook broken/restart) push the footer status pill onto a second line, adding roughly 30px the fixed popover height never accounted for; flex then squeezed the overflow-hidden Claude card and clipped its weekly reset row.",
+          "**Auto-start 5-hour Session could silently skip a reset boundary.** The keeper's fixed 5-hour self-throttle was measured from the last ping's own timestamp, which could drift out of sync with the real quota reset boundary and occasionally skip a ping entirely — leaving the next window to start only once you talked to Claude yourself. It now dedupes by the actual reset boundary instead of elapsed time, so drift can no longer cause a miss."
+        ]
+      },
+      "curated": {
+        "version": "0.28.17",
+        "period": "2026-07-21",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "狀態警告變長，Claude 卡片不再被切掉",
+              "en": "Long status warnings no longer crop the Claude card"
+            },
+            "body": {
+              "zh-TW": "你打開 Classic popover（浮在畫面上的小面板）查看 Claude 用量時，底部跳出很長的警告也不怕最重要的一列消失。以前像 hook 壞掉（特定事件發生時會觸發的小程式）或需要重新啟動這類狀態訊息一變成兩行，面板固定的高度沒有多留約 30 像素，底部狀態提示就會擠壓 Claude 卡片；卡片又設定成超出範圍不顯示，於是每週重設日期被硬生生切掉。現在面板會替第二行警告留出空間。這像行李箱多塞了一件外套，從前拉鍊一拉就把裡面的行程表夾住；現在箱子會跟著撐開，該看的日期仍完整露在外面。",
+              "en": "When you open the Classic popover to check Claude, a long warning at the bottom will no longer hide the line you came for. Warnings such as a broken hook or a needed restart can wrap onto two lines. The popover's fixed height had not allowed for the extra roughly 30 pixels, so its footer squeezed the Claude card; because overflow was hidden, the weekly reset row got cropped. The panel now makes room for that second line. It is like packing one extra sweater into a suitcase: the old zipper caught the itinerary inside, while the new case expands and keeps the date visible."
+            },
+            "original": "**Classic popover no longer clips the Claude card when the footer status wraps to two lines.** Long status warnings (e.g. hook broken/restart) push the footer status pill onto a second line, adding roughly 30px the fixed popover height never accounted for; flex then squeezed the overflow-hidden Claude card and clipped its weekly reset row."
+          },
+          {
+            "title": {
+              "zh-TW": "5 小時自動工作階段不再錯過額度重設",
+              "en": "Five-hour auto sessions no longer miss a quota reset"
+            },
+            "body": {
+              "zh-TW": "你把 Auto-start 5-hour Session（每五小時自動維持一次連線的工作階段）交給它跑，現在不會因為時間慢慢飄掉而白白錯過新的額度。原本背後維持連線的 keeper，會用上一次 ping（定時送出的短訊號）的時間開始算五小時；但那個時間可能和真正的額度重設邊界不同步，偶爾便整次略過 ping，下一個使用時段得等你親自跟 Claude 說話才會啟動。現在它改以真正的重設邊界來判斷是否已送過訊號，而不是只看經過多久，所以時鐘漂移不會再漏掉一次。像是每班公車依站牌時刻發車，從前卻拿上一班乘客的下車時間重新計時；現在直接看站牌，下一班便能準時開出。",
+              "en": "If you let Auto-start 5-hour Session keep a session alive, it will no longer miss a fresh quota window because its timing slowly drifts. The keeper used to measure its five-hour throttle from the previous ping's timestamp. That timestamp could fall out of step with the real quota reset boundary, occasionally skipping a ping altogether; the next window then started only after you spoke to Claude yourself. It now deduplicates pings against the actual reset boundary, not simply elapsed time, so drift cannot cause a miss. Think of a bus that used to schedule its next departure from the last passenger's exit time; it now follows the timetable at the stop."
+            },
+            "original": "**Auto-start 5-hour Session could silently skip a reset boundary.** The keeper's fixed 5-hour self-throttle was measured from the last ping's own timestamp, which could drift out of sync with the real quota reset boundary and occasionally skip a ping entirely — leaving the next window to start only once you talked to Claude yourself. It now dedupes by the actual reset boundary instead of elapsed time, so drift can no longer cause a miss."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.28.16",
       "raw": {
         "version": "0.28.16",
@@ -263,36 +304,6 @@
               "en": "You can now see your most accurate AI quota right in the Windows tray, with history scans running completely lag-free. Previously, the tray could override a fresh statusLine payload with a stale `.claude.json` fallback cache if its timestamp seemed newer, displaying outdated or expired limits; the tray now always prioritizes complete live data and rejects malformed values. Additionally, history source scanning is now cached for 30 seconds instead of checking logs on every refresh tick, eliminating UI jank. It is like a bank screen that used to show yesterday's balance on a network glitch and froze because it re-read every transaction on every refresh; it now locks onto real-time balances and updates your statement list on a smart delay."
             },
             "original": "**The Windows tray no longer falls back to a stale quota cache when the hook already has live data**: a complete statusLine payload from the hook could still be overridden by the `.claude.json` fallback snapshot whenever its cached timestamp looked newer, even though that cache might describe a different or expired session; the tray now always prefers a complete hook payload, and the \"complete\" check itself is now stricter — malformed non-numeric percentages in the hook payload no longer count as complete, so a broken payload can't silently blank the quota by skipping the cache.\n**Windows tray history scanning no longer re-scans every Codex/Claude session log on each refresh tick**: `history_source_scan()` results are now cached for 30 seconds, removing the main source of UI jank in the tray."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.28.7",
-      "raw": {
-        "version": "0.28.7",
-        "period": "2026-07-17",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-17",
-        "entries": [
-          "**Claude quota now shows on Windows even when the statusLine hook never fires**: a Claude Code regression stops the hook from being invoked on some Windows setups, leaving the Claude quota card permanently blank. `usage_client.py` now falls back to reading `cachedUsageUtilization` straight out of Claude Code's own `~/.claude.json` when no `usage-status.json` exists, so the card still populates.",
-          "**Session hooks no longer break on non-ASCII (CJK) project paths on Windows**: the resume, terse-mode, and terse-reminder hook commands could point into the project or app-bundle source path, which failed to execute on Windows when that path contained Chinese/Japanese/Korean characters. Self-heal now normalizes these commands to their canonical `~/.claude/` targets, and the migration is idempotent — it no longer rewrites `settings.json` and appends a duplicate self-heal log entry on every restart once the command is already correct."
-        ]
-      },
-      "curated": {
-        "version": "0.28.7",
-        "period": "2026-07-17",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Windows 掛鉤與中日韓路徑修復，額度不留白、重啟不重複",
-              "en": "Windows hooks and CJK path fixes: quotas display correctly and restarts stay clean"
-            },
-            "body": {
-              "zh-TW": "現在你在 Windows 上使用中日韓字元路徑時，不用再擔心專案路徑會讓工具掛掉，或額度卡片一直顯示空白。以前有些 Windows 電腦會因為 statusLine（顯示在終端機最底下的狀態列）的 hook（掛鉤，特定事件發生時被觸發的小程式）沒有被正常叫起，導致額度卡片空白；現在當系統偵測不到狀態檔時，會自動採取備援（fallback）方案，直接讀取設定檔填補資訊。同時，如果你的工作階段（session）掛鉤路徑中含有中文等非英文字元，自我修復功能會自動將它們導向標準路徑，而且這個修正過程是冪等（idempotent）的，重複開機也不會多寫無用的紀錄。這就像是水管工人在裝水管時，不僅幫你把路徑上的石子清乾淨，還預備了第二條水管，就算主水管不通也能自動切換，而且水管鋪好一次就搞定，不會每次開水龍頭都重新拆裝一次。",
-              "en": "You can now use Chinese, Japanese, or Korean characters in your project paths on Windows without fearing that tool commands will crash, or that your quota card will stay stubbornly blank. Previously on some Windows setups, the statusLine hook would fail to fire, causing the usage quota card to remain blank; now the tool automatically falls back to reading the configurations directly to populate the info. At the same time, if CJK characters in your project paths caused session hooks to error out, the self-heal process now normalizes them to their standard directory targets, and this migration is idempotent so it won't repeatedly write redundant logs on restarts. It is like a plumber who not only clears out pebbles blocking your pipe but also routes a backup water line in case the main line clogs, ensuring the faucet works smoothly and the configuration is set once and for all."
-            },
-            "original": "**Claude quota now shows on Windows even when the statusLine hook never fires**: a Claude Code regression stops the hook from being invoked on some Windows setups, leaving the Claude quota card permanently blank. `usage_client.py` now falls back to reading `cachedUsageUtilization` straight out of Claude Code's own `~/.claude.json` when no `usage-status.json` exists, so the card still populates.\n**Session hooks no longer break on non-ASCII (CJK) project paths on Windows**: the resume, terse-mode, and terse-reminder hook commands could point into the project or app-bundle source path, which failed to execute on Windows when that path contained Chinese/Japanese/Korean characters. Self-heal now normalizes these commands to their canonical `~/.claude/` targets, and the migration is idempotent — it no longer rewrites `settings.json` and appends a duplicate self-heal log entry on every restart once the command is already correct."
           }
         ]
       }

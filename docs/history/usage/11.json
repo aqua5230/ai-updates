@@ -5,6 +5,35 @@
   "pages": 21,
   "versions": [
     {
+      "version": "0.27.2",
+      "raw": {
+        "version": "0.27.2",
+        "period": "2026-07-15",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-15",
+        "entries": [
+          "**Opening the popover no longer stutters**: clicking the menu bar icon used to kick off a data refresh whose UI apply raced the popover's first frame on the main thread, and every open re-injected the full state JSON into the panel even when nothing changed. The refresh now starts only after the popover is fully shown, and state injection is skipped when the payload is identical to the last one (still force-reinjected after a WebKit process reload, so recovery is unaffected)."
+        ]
+      },
+      "curated": {
+        "version": "0.27.2",
+        "period": "2026-07-15",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "點開選單不再卡頓，瞬間滑順展開且不做白工",
+              "en": "Popover stops stuttering when opened, expanding instantly and avoiding redundant work"
+            },
+            "body": {
+              "zh-TW": "現在點開 menu bar（螢幕最上方那排選單列）圖示時，popover（點按後彈出的懸浮面板）瞬間順滑展開，不再卡一下才出現。以前一按圖示就急著更新資料，跟面板畫出第一格畫面的工作在 main thread（主執行緒，畫面與操作都得排隊走的同一條通道）上撞車；而且就算內容沒變，每次打開都把整包 state JSON（記錄目前狀態的資料）重新注入面板，白做工。現在改成等面板完全顯示才開始更新，payload（要送進面板的那包資料）跟上次相同就跳過注入；只有 WebKit（負責畫出這個面板的網頁引擎）行程重載後才強制重注，出錯後的復原不受影響。就像去開門，以前手剛碰到門把，門房就急著塞一大包信給你卡住門；現在門房會等你完全推開門才遞上新信，除非他剛換班才會重新對一遍信件。",
+              "en": "Clicking the menu bar (the control row at the top of your screen) icon now opens the popover (the small floating window) instantly without stuttering. Previously, this kicked off a data refresh that collided with rendering the first frame on the main thread (the single processing lane for screen drawing). It also shoved the entire state JSON (the data package recording current status) into the panel every time, even if nothing changed. Now, the refresh waits until the popover is fully shown, and skips injecting data if the payload (the exact data bundle sent into the panel) is identical. If the underlying WebKit (the engine rendering web graphics) process reloads, it still forces a fresh injection to ensure error recovery. It's like a doorman who used to jam your door by shoving mail at you the millisecond you touched the knob; now, he waits until you fully open the door to hand you only new mail, unless he just changed shifts and must re-verify everything."
+            },
+            "original": "**Opening the popover no longer stutters**: clicking the menu bar icon used to kick off a data refresh whose UI apply raced the popover's first frame on the main thread, and every open re-injected the full state JSON into the panel even when nothing changed. The refresh now starts only after the popover is fully shown, and state injection is skipped when the payload is identical to the last one (still force-reinjected after a WebKit process reload, so recovery is unaffected)."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.27.1",
       "raw": {
         "version": "0.27.1",
@@ -300,35 +329,6 @@
               "en": "Your data report is now much more beautiful and easier to share. The entire visual experience has been redesigned: it now features a warm ink background with amber and jade glows, frosted-glass (glassmorphism) cards over a subtle noise texture, and an accent palette of gold, jade, and coral that replaces the old blue and purple. The typography has also been scaled up slightly for clearer hierarchy. For sharing, the dialog now includes a new button to save the report as a `.png` image, running entirely offline with no network connection required; if you toggle \"hide project names,\" the resulting screenshot automatically masks your confidential data. The dialog's wording is also more neutral now, no longer assuming you are sending it to a manager or colleague. Behind the scenes, the system also hardened various automated security checks (CI) to their latest versions. It's like taking a standard black-and-white bank statement and upgrading it into a gold-foil frosted-glass invitation—not only is it gorgeous to look at, but if you want to snap a photo to show a friend, a single click automatically blurs out your account numbers."
             },
             "original": "**Save the report as a .png image**: the share dialog gains a third button next to .html/.csv. It renders the report with a vendored html-to-image v1.11.13 (MIT) — fully offline, no network, and it honors the \"hide project names\" toggle so a masked screenshot is one click.\n**Report visual redesign (warm glassmorphism)**: warm ink background with amber/jade glows, frosted-glass cards over a subtle noise texture, and a gold/jade/coral accent palette replacing the old blue/purple. The contribution heatmap turns gold, the base type scale grows to 17.5px with a clearer size hierarchy, and headings/body adopt Grenette/Styrene font stacks (system-font fallbacks; no font files embedded or fetched).\n**Share dialog copy is audience-neutral**: the \"Send to a colleague / manager\" heading is now \"Share a copy\" across all five locales.\nCI hardening while closing out this cycle's supply-chain checklist: ClusterFuzzLite + Atheris fuzzing for the JSONL parsers (base image pinned by digest), CodeQL actions bumped to v4, and routine action bumps (setup-python 6.3.0, setup-uv 8.3.2) — all dependabot PRs merged and both OpenSSF Scorecard alerts triaged."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.24.11",
-      "raw": {
-        "version": "0.24.11",
-        "period": "2026-07-08",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**AI Tool Update Digest went blank after upgrading from 0.24.9 or earlier**: the new versions-array schema introduced in 0.24.10 caused `_normalize_payload` to return an empty list (not `None`) when reading a pre-0.24.10 cache file, which `load_ai_updates` then treated as a valid \"fresh\" empty result instead of refetching from GitHub — hiding the section for up to 24h (the cache TTL) on every machine that had used an older version. Legacy-schema caches now correctly trigger a refetch."
-        ]
-      },
-      "curated": {
-        "version": "0.24.11",
-        "period": "2026-07-08",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "工具更新快訊不再離奇消失，舊版快取也能順利更新",
-              "en": "AI Tool Update Digest stops disappearing on upgrades from older versions"
-            },
-            "body": {
-              "zh-TW": "你的「AI 工具更新快訊」不會再因為升級版本而莫名其妙變成一片空白了。以前當你從舊版本（0.24.9 以前）升級上來時，系統在讀取你電腦裡舊格式的暫存檔（cache）時會產生誤判，以為「空空的」就是最新鮮的資料，結果就是一整天（直到暫存過期）都不會去 GitHub 抓新資料，導致整個快訊區塊不見。現在系統學會了正確辨認這些舊格式的檔案，一看到就會立刻去網路抓一份新的回來。就像是你訂閱的早報改版了，以前送報生看到你信箱裡有舊版報紙的包裝袋，就以為你已經收過新報紙而直接跳過；現在他懂得分辨那只是舊袋子，會乖乖把今天熱騰騰的新報紙塞進去。",
-              "en": "Your AI Tool Update Digest will no longer turn entirely blank simply because you updated the app. Previously, when you upgraded from an older version (0.24.9 or earlier), the system misinterpreted your machine's old-format cache file, mistakenly believing that an \"empty\" result was fresh data. This caused it to refuse to fetch new updates from GitHub for up to 24 hours until the cache expired, completely hiding the digest section. The system now correctly recognizes these legacy cache schemas and immediately fetches fresh data. It's like your morning newspaper subscription redesigning its layout: previously, the delivery person saw an old-style plastic wrapper in your mailbox, mistakenly thought you already got today's paper, and walked past your house; now, they recognize the old bag for what it is and correctly slide a fresh, hot-off-the-press newspaper inside."
-            },
-            "original": "**AI Tool Update Digest went blank after upgrading from 0.24.9 or earlier**: the new versions-array schema introduced in 0.24.10 caused `_normalize_payload` to return an empty list (not `None`) when reading a pre-0.24.10 cache file, which `load_ai_updates` then treated as a valid \"fresh\" empty result instead of refetching from GitHub — hiding the section for up to 24h (the cache TTL) on every machine that had used an older version. Legacy-schema caches now correctly trigger a refetch."
           }
         ]
       }
