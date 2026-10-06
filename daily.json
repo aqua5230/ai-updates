@@ -10,13 +10,18 @@
           "period": "2026-10-06",
           "items": [
             {
-              "original": "Fixed a regression in 2.1.290 where cloud sessions could drop answers to permission prompts"
-            },
-            {
-              "original": "Fixed a regression in 2.1.288 where the last messages of a session could be lost when quitting"
+              "title": {
+                "zh-TW": "工作階段對話不再漏接，權限回覆與結束前的訊息完整保留",
+                "en": "Session conversations no longer drop inputs, fully preserving permission responses and pre-exit messages"
+              },
+              "body": {
+                "zh-TW": "當你在遠端伺服器上協同作業，或是在終端機處理完任務準備收工離開時，最怕中途確認的操作沒送出，或是最後幾則對話紀錄憑空消失。在先前版本中，雲端工作階段（在遠端主機上連線執行的操作環境）如果在執行途中跳出權限提示，要求你確認是否允許讀取或執行指令，你按下的允許或拒絕回覆有時會被意外漏掉。在結束並退出工作階段時，最後送出或接收到的幾則訊息，過去也可能在關閉當下沒有被寫入而遺失。現在這些在更新後出現的異常都已修復，權限回應與關閉前的紀錄都會確實送達並完整保存。⟦如同跟遠端秘書通話交辦事項，以前對詢問按確認時偶爾會斷訊漏聽，講完準備掛上電話時最後幾句交代也常沒存進紀錄；現在每項授權確認都會確實傳達，離線前留下的最後吩咐也能完整保存。⟧",
+                "en": "When collaborating on a remote server or wrapping up tasks in the terminal to leave, the worst issue is having mid-session confirmation actions fail to send or watching the last few conversation records vanish into thin air. In previous versions, if a cloud session (an operating environment running over a connection to a remote host) prompted for permissions mid-run to confirm whether reading files or executing commands was allowed, your submitted allow or deny responses were sometimes accidentally dropped. When ending and exiting a session, the last few messages sent or received in the past could also be lost without being written at shutdown. These anomalies that appeared after updates are now resolved, ensuring that permission responses and pre-shutdown records are reliably delivered and completely preserved. ⟦Picture assigning tasks over the phone to a remote assistant: previously, confirming an inquiry would occasionally drop out and get missed, and the final instructions before hanging up were often not saved in the record; now, every authorization confirmation is reliably delivered, and the last instructions left before disconnecting are fully preserved.⟧"
+              },
+              "original": "Fixed a regression in 2.1.290 where cloud sessions could drop answers to permission prompts\nFixed a regression in 2.1.288 where the last messages of a session could be lost when quitting"
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "2.1.290",
@@ -701,10 +706,18 @@
           "period": "2026-10-05",
           "items": [
             {
+              "title": {
+                "zh-TW": "遠端啟動 MCP 工具時保留 Windows 系統變數",
+                "en": "Preserve Windows System Variables When Launching MCP Tools Remotely"
+              },
+              "body": {
+                "zh-TW": "當你從 Unix 主機透過遠端連線指派任務給 Windows 端的執行環境，並為工具指定專屬參數時，底層不再丟失系統運作必備的關鍵設定。⟦猶如向外縣市的合作工廠調度遠端機台，以前若隨單附上自己的專案參數，容易把對方廠房原本運作必備的總電源與暫存料架設定覆蓋掉；現在指派自訂參數時，會完整保留廠房原有的運作環境。⟧現在透過遠端 stdio 通道啟動 MCP（讓 AI 連接外部工具的協定）伺服器時，即使明確指定了遠端環境變數，系統也會自動保留 Windows 執行端的 SYSTEMROOT、TEMP 與 TMP 等核心環境變數。Unix 主機因此能完整維持 Windows 執行端的原生啟動環境，確保工具不會因為找不到系統路徑或暫存目錄而啟動失敗。",
+                "en": "When dispatching tasks from a Unix host to a Windows runtime environment over a remote connection and specifying custom parameters for tools, the underlying system no longer loses critical settings essential for system operation. ⟦Picture dispatching remote machinery at an out-of-town partner factory: previously, attaching custom project parameters to an order risked overwriting the facility's essential main power and temporary storage shelf settings; now, assigning custom parameters fully preserves the factory's original operating environment.⟧ Now when launching an MCP (a protocol for connecting AI to external tools) server over remote stdio channels, the system automatically preserves core Windows environment variables such as SYSTEMROOT, TEMP, and TMP, even when remote environment variables are explicitly specified. Unix hosts can thus fully maintain the native launch environment of the Windows runtime, ensuring tools do not fail to start due to missing system paths or temporary directories."
+              },
               "original": "Preserve `SYSTEMROOT`, `TEMP`, and `TMP` when launching remote stdio MCP servers with explicitly configured remote environment variables, allowing Unix hosts to retain the Windows executor's startup environment."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "0.160.0",
@@ -830,19 +843,51 @@
           "period": "2026-10-06",
           "items": [
             {
+              "title": {
+                "zh-TW": "對話畫面預設精簡，思考與工具呼叫自動收攏",
+                "en": "Compact conversation view by default, collapsing thought processes and tool calls"
+              },
+              "body": {
+                "zh-TW": "當你打開終端機與 AI 對話時，眼前不再被連篇累牘的內部推導塞滿。系統將詳細程度（Verbosity，控制終端機顯示資訊多寡的選項）預設值從 high 改為 medium。現在對話檢視畫面會把相關的工具呼叫與思考過程收攏成精簡摘要，同時完整保留執行的指令與回覆內容。⟦好比翻閱會議紀錄，以前攤開來是滿紙的討論推導與喃喃自語，現在秘書預先將過程收整成條列摘要，只留下關鍵結論與執行動作，需要對帳時再翻開完整逐字稿。⟧這項調整適用於從未設定過詳細程度的人，以及過去在 high 還是預設值時選取過 high 的使用者。若你想重新看見完整的工具呼叫、指令與思考過程，隨時能在 `/config` 設定中把 Verbosity 切換回 high。",
+                "en": "When you open the terminal to chat with the AI, your screen is no longer flooded with endless internal reasoning. The system changes the default Verbosity from high to medium. The conversation view now collapses related tool calls and thought processes into compact summaries, while fully preserving executed commands and response content. ⟦Picture reading meeting minutes where, instead of pages of sprawling deliberations and stream-of-consciousness notes, an assistant has neatly condensed the discussion into bullet points, surfacing only key conclusions and action items while keeping the verbatim transcript available if you need to check details.⟧ This change applies to users who have never configured verbosity, as well as those who selected high when high was the default. If you want to see the full tool calls, commands, and thought processes again, you can switch Verbosity back to high at any time in `/config`."
+              },
               "original": "Changed the default `Verbosity` setting from `high` to `medium`, so the conversation view now groups related tool calls and thoughts into concise summaries while keeping commands and responses visible. This applies to everyone who never picked a verbosity, including anyone who selected `high` while it was still the default; set `Verbosity` back to `high` in `/config` to see every tool call, command, and thought in full again."
             },
             {
+              "title": {
+                "zh-TW": "版本比對按鍵調整，改用上下鍵與 jk 逐行瀏覽",
+                "en": "Diff view navigation update, using Up/Down and jk to browse line by line"
+              },
+              "body": {
+                "zh-TW": "你在終端機裡用 `/diff` 檢查程式碼更動時，鍵盤操作手感現在更加直覺統一。檔案檢視畫面中的 `j` 與 `k` 鍵改為移動行游標，操作方式如同鍵盤上的上下方向鍵。這樣能完全對齊檔案清單以及 Vim（常見的終端機文字編輯器）的操作習慣，不再按一下就直接跳到上一個或下一個檔案。⟦彷彿翻閱附有頁籤的活頁文件夾，以前按上下鍵會突然抽換整份文件，現在上下翻動只在當前頁面逐行游移，切換整份文件則改用左右撥動頁籤。⟧如果想在不同檔案之間切換，改用左右方向鍵即可平順跳轉。",
+                "en": "When inspecting code changes with `/diff` in the terminal, keyboard navigation is now more intuitive and consistent. The `j` and `k` keys in the file view now move the line cursor, behaving just like the up and down arrow keys. This aligns with the file list and standard Vim navigation habits, preventing accidental jumps to the previous or next file with a single keystroke. ⟦Think of browsing a tabbed binder where pressing the up and down keys previously swapped out the entire document, whereas now moving up and down simply navigates line by line within the current page, leaving document switching to flipping tabs left and right.⟧ To switch between different files, simply use the left and right arrow keys to jump smoothly."
+              },
               "original": "Changed `j` and `k` in the `/diff` file view to move the line cursor like the up and down arrow keys, matching the file list and Vim, instead of jumping to the next or previous file; use the left and right arrow keys to switch files."
             },
             {
+              "title": {
+                "zh-TW": "對話畫面捲動修復，遠端連線不再前後亂跳",
+                "en": "Conversation view scrolling fix, eliminating erratic jumps over remote connections"
+              },
+              "body": {
+                "zh-TW": "當你透過觸控板或滑鼠滾輪瀏覽長篇對話時，畫面滾動變得穩定滑順。以前在 SSH（遠端連線協定）或 tmux 終端環境下，斜向滑動容易造成畫面忽前忽後跳動。現在系統會忽略對角滑動時的水平分量，並限制單次快速滾動的最大距離，徹底解決畫面抖動問題；按 `Page Up` 與 `Page Down` 鍵則依舊維持移動一整頁。",
+                "en": "Scrolling long conversations with a trackpad or mouse wheel is now stable and smooth. Previously under SSH or tmux terminal environments, diagonal swipes could cause the screen to jump erratically back and forth. The system now ignores the horizontal component of diagonal swipes and caps the maximum distance of a single rapid scroll, completely resolving jitter issues; pressing `Page Up` and `Page Down` continues to scroll by a full page as before."
+              },
               "original": "Fixed trackpad and mouse-wheel scrolling in the conversation view jumping back and forth, most noticeably over SSH or inside tmux, by ignoring the sideways part of diagonal swipes and limiting how far a single fast scroll step can move; `Page Up` and `Page Down` still move a full page."
             },
             {
+              "title": {
+                "zh-TW": "特殊字元路徑修復，空格與特殊符號皆能正確開啟",
+                "en": "Special character path fixes, correctly opening files with spaces and symbols"
+              },
+              "body": {
+                "zh-TW": "當專案路徑包含空格、`#`、`%` 等特殊字元，或是存放在 Windows 磁碟機時，各項命令行功能現在都能正常運作。以前在此類路徑下，CLI（終端機介面）常會解析錯誤或找不到檔案。現在不管是 `@` 檔案標註、`/codesearch` 搜尋結果，還是代理回覆裡的檔案連結，都能準確開啟目標檔案；工作區信任機制與專案專屬自訂代理，也能正確辨識在這些資料夾中透過 Antigravity 桌面應用程式建立的專案。",
+                "en": "When project paths contain spaces, special characters such as `#` and `%`, or reside on Windows drives, all command-line features now function properly. Previously with such paths, the CLI often encountered parsing errors or failed to find files. Now, whether using `@` file mentions, `/codesearch` results, or file links in agent responses, target files open accurately; workspace trust mechanisms and project-specific custom agents also correctly recognize projects created in these folders via the Antigravity desktop application."
+              },
               "original": "Fixed files and folders whose paths contain spaces, `#`, `%`, or other special characters, or that sit on a Windows drive, being mishandled across the CLI: `@` file mentions, `/codesearch` results, and file links in agent responses now open the right file, and workspace trust and project-scoped custom agents now recognize projects created in the Antigravity desktop app in such folders."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "1.2.17",
@@ -1012,25 +1057,40 @@
           "period": "2026-10-06",
           "items": [
             {
-              "original": "**Status line:** for 10 minutes after Claude Code's prompt cache misses, the cache segment says why, for example `Cache:62% missed:tools changed`. It covers all 17 causes Claude Code reports (model, effort, fast mode, tools, system prompt, idle past the 5-minute or 1-hour TTL, likely server-side, and more) in all five languages; an unknown cause is left out. The reason is the first part dropped when the line is too narrow. Requires Claude Code 2.1.260 or newer. The status line hook version is now 1.9, so installed copies update on the next app launch."
+              "title": {
+                "zh-TW": "狀態列顯示快取失效原因，文件同步拿掉倒數說明",
+                "en": "Status bar displays cache invalidation reasons, documentation removes countdown details"
+              },
+              "body": {
+                "zh-TW": "你在終端機使用 Claude Code 時，想知道快取為什麼失效。現在狀態列會在 prompt cache（提示快取，把對話紀錄暫存起來加速回應的機制）失效後的 10 分鐘內顯示原因，例如「快取:62% 剛失效:工具換了」。它涵蓋換模型、思考強度、快速模式、工具或系統提示變更、閒置超時等全部 17 種原因並支援五種語言，遇到不明原因時就不顯示；視窗太窄時會優先隱藏原因。⟦如同在餐廳結帳，以前優惠失效只默默收原價，現在帳單會印出是換了餐點或超時，讓你一眼看懂。⟧此功能需 Claude Code 2.1.260 以上；狀態列掛鉤（hook，特定事件發生時被觸發的小程式）升至 1.9 版並會在下次啟動時自動更新。說明文件也同步拿掉已不顯示的過期倒數計時。",
+                "en": "When using Claude Code in the terminal, you might want to know why a cache was invalidated. Now, the status bar displays the reason within 10 minutes after a prompt cache invalidation, such as \"Cache: 62% Just invalidated: Tools changed\". It covers all 17 reasons—including model switches, thinking effort, fast mode, tool or system prompt changes, and idle timeouts—and supports five languages, hiding the reason when unknown; when the window is too narrow, the reason is prioritized for hiding. ⟦Picture paying at a restaurant: previously, an expired discount silently reverted to full price, but now the receipt prints whether items changed or time ran out, making the reason clear at a glance.⟧ This feature requires Claude Code 2.1.260 or higher. The status bar hook upgrades to version 1.9 and will automatically update on the next launch. Documentation also removes the obsolete countdown timers that are no longer displayed."
+              },
+              "original": "**Status line:** for 10 minutes after Claude Code's prompt cache misses, the cache segment says why, for example `Cache:62% missed:tools changed`. It covers all 17 causes Claude Code reports (model, effort, fast mode, tools, system prompt, idle past the 5-minute or 1-hour TTL, likely server-side, and more) in all five languages; an unknown cause is left out. The reason is the first part dropped when the line is too narrow. Requires Claude Code 2.1.260 or newer. The status line hook version is now 1.9, so installed copies update on the next app launch.\n**README:** the prompt cache description now matches the status line, which no longer shows an expiry countdown."
             },
             {
+              "title": {
+                "zh-TW": "發版前自動比對各工具格式，即時掌握上游結構變更",
+                "en": "Automatically compare tool formats before release to track upstream structure changes in real time"
+              },
+              "body": {
+                "zh-TW": "當各家 AI 工具頻繁更新時，讀取底層資料的解析程式常因官方改版而無聲失效。現在新增的 `scripts/check_upstream.py` 開發腳本，會在發布新版本前拿這台電腦上的真實檔案逐一驗證。檢查範圍涵蓋 Claude 狀態列與對話紀錄、Codex 工作階段與 `state_6.sqlite` 等新版資料庫、Grok 日誌以及監看的 Statuspage 元件。針對 Antigravity，它會確認對話資料庫與額度快取（把用量暫存於本機的記錄）是否正常。這套工具也會比對已安裝的掛鉤（hook，特定事件發生時被觸發的小程式）副本，檢查是否有原始檔修改卻漏改版號的狀況，每項檢查都會清晰回報 OK、NEW、BROKEN 或 NO_DATA。⟦跟工廠出貨前拿零件對齊模具一樣，以前只能等用戶回報規格壞了才補救，現在發版前就能自動揪出格式變更。⟧",
+                "en": "As AI tools update frequently, parsers reading underlying data often silently break due to official revisions. The newly added `scripts/check_upstream.py` development script now validates real files on this machine one by one before releasing a new version. The check covers Claude status lines and conversation logs, Codex sessions and new database versions like `state_6.sqlite`, Grok logs, and monitored Statuspage components. For Antigravity, it verifies whether conversation databases and quota caches are operating normally. This tool also compares installed hook copies to detect cases where source files were modified without bumping version numbers, clearly reporting OK, NEW, BROKEN, or NO_DATA for each check. ⟦Much like a factory aligning parts against molds before shipping, where developers previously waited for user bug reports after specs broke, format changes are now caught automatically prior to release.⟧"
+              },
               "original": "**Development:** `scripts/check_upstream.py` checks the formats usage depends on against the real files on this machine before a release: the Claude status line payload and transcripts, Codex sessions and SQLite files (including a newer-numbered file such as `state_6.sqlite`), the Antigravity conversation database and quota cache, the Grok log, installed hook copies (including a source edited without bumping its version), and the watched Statuspage components. Each check reports OK, NEW, BROKEN, or NO_DATA."
             },
             {
-              "original": "**Claude Code side pane:** each section's title and count now sit on the box's top border, saving one row per section. The title still collapses the section when clicked."
-            },
-            {
-              "original": "**README:** the prompt cache description now matches the status line, which no longer shows an expiry countdown."
-            },
-            {
-              "original": "**Claude Code side pane:** the background jobs box could hide one recently finished job when fewer than four jobs were listed."
-            },
-            {
-              "original": "**Claude Code side pane:** the pane's own tests pass again on Claude Code 2.1.289, and `claude plugin validate` no longer fails on its state contract."
+              "title": {
+                "zh-TW": "側邊面板外框更省空間，修正背景工作與外掛驗證",
+                "en": "Side panel borders save more vertical space, fixing background tasks and plugin validation"
+              },
+              "body": {
+                "zh-TW": "在小螢幕或分割視窗下查看 Claude Code 側邊面板時，每一行的垂直空間都格外珍貴。現在面板各區塊的標題與數字改移至外框上緣，每個區塊都能省下一行，點擊標題也依然能自由收合區塊。⟦彷彿收納盒把分類標籤從隔層內移到外框上緣，以前標籤自佔一整行空間，現在貼齊邊框就能讓有限的螢幕多看幾行資訊。⟧以前背景工作列出少於四筆時，可能會少顯示一筆剛完成的工作，現在清單會確實列出。面板本身的測試在 Claude Code 2.1.289 上也重新通過，執行 `claude plugin validate` 指令時不再因狀態合約宣告而報錯。",
+                "en": "When viewing the Claude Code side panel on small screens or split windows, every line of vertical space is precious. Section titles and counts are now moved to the top edge of each border, saving one line per section while still allowing sections to be collapsed by clicking their titles. ⟦Think of a storage box moving category labels from inside compartments to the top border: previously labels occupied an entire line, but aligning them with the border now lets limited screen space display more lines of information.⟧ When fewer than four background tasks were listed, a newly completed task was previously sometimes omitted, but the list now displays them reliably. The panel's own tests pass again on Claude Code 2.1.289, and running `claude plugin validate` no longer errors on state contract declarations."
+              },
+              "original": "**Claude Code side pane:** each section's title and count now sit on the box's top border, saving one row per section. The title still collapses the section when clicked.\n**Claude Code side pane:** the background jobs box could hide one recently finished job when fewer than four jobs were listed.\n**Claude Code side pane:** the pane's own tests pass again on Claude Code 2.1.289, and `claude plugin validate` no longer fails on its state contract."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "0.32.4",
