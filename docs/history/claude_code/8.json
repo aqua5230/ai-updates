@@ -5,6 +5,35 @@
   "pages": 9,
   "versions": [
     {
+      "version": "2.1.204",
+      "raw": {
+        "version": "2.1.204",
+        "period": "2026-07-08",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Fixed hook events not streaming during SessionStart hooks in headless sessions, which could cause remote workers to be idle-reaped mid-hook"
+        ]
+      },
+      "curated": {
+        "version": "2.1.204",
+        "period": "2026-07-08",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "遠端任務不再因為「看起來太閒」而被誤殺",
+              "en": "Remote tasks no longer get killed for \"looking idle\" during startup"
+            },
+            "body": {
+              "zh-TW": "當你在無頭模式（headless session，沒有畫面的純背景執行模式）跑 Claude 時，如果剛啟動就在跑鉤子（hook，讓你在特定時間點自動觸發的腳本），以前它可能因為沒把進度回報出來，讓遠端系統以為它閒置太久（idle-reaped）而直接把它砍掉。現在進度會正常串流回報，確保系統知道它還在努力工作。就像一個在倉庫理貨的員工，以前因為沒出聲被主管當成在偷懶而直接開除，現在他會邊做事邊回報，就不會再被誤殺了。",
+              "en": "When running Claude in a headless session (a purely background mode with no visible interface), if it was busy running startup hooks (scripts that automatically trigger at specific times) right after launching, the system used to sometimes fail to report its progress. This silence caused remote servers to assume it was idling (idle-reaped) and ruthlessly terminate it. Progress now streams correctly, proving it is still hard at work. It's like a warehouse worker who used to get fired for \"slacking\" because they were working quietly in the back; now they call out their progress as they go, avoiding wrongful termination."
+            },
+            "original": "Fixed hook events not streaming during SessionStart hooks in headless sessions, which could cause remote workers to be idle-reaped mid-hook"
+          }
+        ]
+      }
+    },
+    {
       "version": "2.1.203",
       "raw": {
         "version": "2.1.203",
@@ -774,71 +803,6 @@
               "en": "Several frustrating details surrounding controls and background tools have been ironed out. If you hate accidentally clicking things in fullscreen mode, you can now toggle a setting (`CLAUDE_CODE_DISABLE_MOUSE_CLICKS`) to completely disable clicks, drags, and hovers while still keeping the convenience of the scroll wheel. For plugins, if a tool's name contained a hyphen (like `code-reviewer`), the system used to lazily match parts of the name and load the wrong thing; it now strictly matches exact names. You can also successfully toggle a plugin on or off even if its internal code name differs from its storefront name. Furthermore, background jobs written by a newer version of Claude will no longer mysteriously vanish from your agent list, and if you reopen a crashed task, it instantly restarts instead of forcing you to stare at a blank white screen for 5 seconds. It's like customizing your workspace: your mouse can be locked to scrolling only so you never click by accident, your hired contractors (plugins) won't refuse to work just because of a typo in their name, and your to-do list won't magically erase itself just because you bought a newer pen."
             },
             "original": "Added `CLAUDE_CODE_DISABLE_MOUSE_CLICKS` to disable mouse click/drag/hover in fullscreen mode while keeping wheel scroll\nFixed hook matchers with hyphenated identifiers (e.g. `code-reviewer`, `mcp__brave-search`) accidentally substring-matching — they now exact-match. Use `mcp__brave-search__.*` to match all tools from a hyphenated MCP server.\nFixed external plugins enabled only by project `.claude/settings.json` not requiring explicit install consent on every loader path\nFixed `/plugin` Enable/Disable not working when a plugin's `plugin.json` `name` differs from its marketplace entry name\nFixed background jobs disappearing from `claude agents` or losing data when written by a newer Claude Code version\nFixed reopening a crashed background task showing a blank screen for up to 5 seconds instead of its restart\nFixed background agent daemons running unreachable when the control socket fails to start, blocking restarts\nImproved `claude agents` completed list to fill available vertical space; on short terminals the header compacts so live sessions stay visible\nImproved Remote session startup with a provisioning checklist while the container starts"
-          }
-        ]
-      }
-    },
-    {
-      "version": "2.1.193",
-      "raw": {
-        "version": "2.1.193",
-        "period": "2026-06-25",
-        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-        "fetched_at": "2026-07-13",
-        "entries": [
-          "Added `autoMode.classifyAllShell` setting to route all Bash/PowerShell commands through the auto-mode classifier instead of only arbitrary-code-execution patterns",
-          "Added auto-mode denial reasons to the transcript, the denial toast, and `/permissions` recent denials",
-          "Added `claude_code.assistant_response` OpenTelemetry log event containing the model's response text. Redacted unless `OTEL_LOG_ASSISTANT_RESPONSES=1`; when that var is unset it follows `OTEL_LOG_USER_PROMPTS`, so deployments that already log prompt content will start receiving response content on upgrade — set `OTEL_LOG_ASSISTANT_RESPONSES=0` to keep prompts-only.",
-          "Added live file path autocomplete to bash mode (`!`)",
-          "Added a startup notice when MCP servers need authentication, pointing at `/mcp`",
-          "Added automatic memory-pressure reaping for idle background shell commands (disable with `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1`)",
-          "Fixed `/model` and other client-data-gated UI showing stale/empty state immediately after `/login`",
-          "Fixed backgrounding (←←) spuriously cancelling with \"N background tasks would be abandoned\" when all running tasks carry over to the new session",
-          "Fixed pinned background agents being re-prompted to \"Continue from where you left off\" after every auto-update",
-          "Fixed backgrounding the main turn spawning a phantom \"general-purpose (resumed)\" subagent that re-ran the main conversation",
-          "Fixed agent panel hiding sibling agents when viewing a subagent",
-          "Improved background agents: the launch result no longer instructs Claude to \"end your response\" — it keeps working on other tasks while the agent runs",
-          "Improved MCP `headersHelper` auth: the helper now re-runs and reconnects automatically when a tool call returns 401/403",
-          "Improved plugin auto-rename: marketplace `renames` maps are now followed automatically, updating your settings to the new name",
-          "Improved `/add-dir` message when the directory is already a working directory"
-        ]
-      },
-      "curated": {
-        "version": "2.1.193",
-        "period": "2026-06-25",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "自動模式與背景任務大清倉，不再產生幽靈任務",
-              "en": "Auto mode and background agents cleaned up without ghost tasks"
-            },
-            "body": {
-              "zh-TW": "這次讓自動模式（auto mode）跟背景任務變得更聰明。現在自動模式拒絕你執行的動作時，會把「為什麼拒絕」的理由清楚寫在紀錄與權限面板裡；你也可以開啟新設定，讓所有指令都經過安全分類，而不只是針對特定程式碼。對於背景代理人，它現在學會了平行處理，不會再笨笨地為了啟動代理人而要求主對話中斷。系統也新增了自動記憶體清理機制（memory-pressure reaping），會把閒置的背景指令清掉以節省資源。此外，以前你切換到背景時，常會被假警報恐嚇說「任務會被放棄」，或是莫名其妙生出一個重複執行對話的幽靈任務；在更新過後，這些假警報、幽靈任務，以及代理人面板會把其他兄弟代理人藏起來的毛病，全都修好了。就像請了一個精明的管家，以前他拒絕你做事只會搖頭，而且每次分派任務就要你閉嘴等他；現在他會清楚告訴你原因，並且能一邊聽你說話一邊指揮傭人，還會自動把沒在用的房間燈關掉省電。",
-              "en": "Auto mode and background tasks just got a lot smarter. When auto mode denies an action, it now explicitly lists the reason in the transcript and permissions panel; you can also opt to route all terminal commands through the safety classifier instead of just specific code-execution patterns. For background agents, launching one no longer instructs the main AI to \"end your response\"—it can keep working on other things while the agent runs in parallel. We also added an automatic memory-pressure reaping system that sweeps up idle background shells to save resources. Moreover, several annoying bugs are squashed: sending tasks to the background no longer spooks you with false \"tasks would be abandoned\" warnings, nor does it spawn a phantom subagent that re-runs your entire conversation, and the agent panel won't erroneously hide sibling agents anymore. It's like hiring a savvy butler: previously, he just shook his head without explaining why you couldn't do something, and told you to stop talking while he dispatched chores; now he explains his logic, listens to you while delegating tasks, and remembers to turn off the lights in empty rooms to save power."
-            },
-            "original": "Added `autoMode.classifyAllShell` setting to route all Bash/PowerShell commands through the auto-mode classifier instead of only arbitrary-code-execution patterns\nAdded auto-mode denial reasons to the transcript, the denial toast, and `/permissions` recent denials\nImproved background agents: the launch result no longer instructs Claude to \"end your response\" — it keeps working on other tasks while the agent runs\nAdded automatic memory-pressure reaping for idle background shell commands (disable with `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1`)\nFixed backgrounding (←←) spuriously cancelling with \"N background tasks would be abandoned\" when all running tasks carry over to the new session\nFixed pinned background agents being re-prompted to \"Continue from where you left off\" after every auto-update\nFixed backgrounding the main turn spawning a phantom \"general-purpose (resumed)\" subagent that re-ran the main conversation\nFixed agent panel hiding sibling agents when viewing a subagent"
-          },
-          {
-            "title": {
-              "zh-TW": "MCP 與外掛設定更聰明，終端機輸入支援路徑補齊",
-              "en": "Smarter MCP and plugin settings, plus path autocomplete in bash"
-            },
-            "body": {
-              "zh-TW": "跟外部系統打交道變得更順暢了。現在你在終端機使用 bash 模式（打 `!` 開頭）時，系統會即時幫你自動補齊檔案路徑，不用再辛苦地一個字一個字打。如果你的 MCP（外部工具伺服器）需要登入認證，系統一啟動就會溫馨提示你去 `/mcp` 處理；而且當工具呼叫因為權限不足（401/403 錯誤）被擋下時，MCP 輔助程式現在會自動重新連線並重試，不會直接死給你看。此外，當外部套件（plugin）在市集上改名時，你的設定檔也會自動跟著更新名字。登入後查看模型選單時，也不會再看到過期或空白的假畫面了。就像你的專屬助理，現在打字會自動幫你接下去，去別的部門調資料遇到門禁會自己想辦法重新刷卡，別人改名了也懂得幫你更新通訊錄，而且名片本打開永遠是最新狀態。",
-              "en": "Interacting with external systems is significantly smoother. When using bash mode (starting with `!`), you now get live auto-complete for file paths so you don't have to manually type out long directories. If your MCP (external tool server) requires authentication, the app now clearly notifies you at startup to check `/mcp`; and if a tool call gets rejected with an auth error (401/403), the helper will now automatically reconnect and retry instead of immediately failing. Additionally, if a marketplace plugin changes its name, your settings will automatically update to follow suit. The `/model` menu and other data-gated UI elements will also no longer show stale or empty states right after you log in. It's like having a smart assistant who finishes your sentences, automatically swiping their badge again if the security door doesn't open the first time, keeping your address book updated when contacts change their names, and ensuring your rolodex is always perfectly current."
-            },
-            "original": "Added live file path autocomplete to bash mode (`!`)\nAdded a startup notice when MCP servers need authentication, pointing at `/mcp`\nImproved MCP `headersHelper` auth: the helper now re-runs and reconnects automatically when a tool call returns 401/403\nImproved plugin auto-rename: marketplace `renames` maps are now followed automatically, updating your settings to the new name\nImproved `/add-dir` message when the directory is already a working directory\nFixed `/model` and other client-data-gated UI showing stale/empty state immediately after `/login`"
-          },
-          {
-            "title": {
-              "zh-TW": "企業觀測日誌升級，可直接紀錄 AI 的回答內容",
-              "en": "Enterprise logs upgraded to record AI response content"
-            },
-            "body": {
-              "zh-TW": "企業管理員現在有了更透明的監控工具。系統在 OpenTelemetry（企業用來收集日誌的標準框架）中新增了專門記錄 Claude 回答內容的事件。只要你原本就有設定記錄使用者的提示詞，系統升級後預設就會連同 AI 的回答一起記錄下來，讓你一眼看穿 AI 到底產出了什麼。當然，如果你有資安考量，也可以手動設定變數（`OTEL_LOG_ASSISTANT_RESPONSES=0`）來關閉這個功能，讓日誌只保留使用者的指令。就像公司的監視器原本只錄得到員工對對講機講的話，現在連對講機另一頭的回應也能一併錄音存證，當然，你想把喇叭靜音也完全沒問題。",
-              "en": "Enterprise admins now have a more transparent monitoring tool. The system added a new OpenTelemetry (a standard logging framework) event that specifically captures Claude's response text. If your deployment was already configured to log user prompts, the upgrade will seamlessly start logging the AI's answers as well, giving you full visibility into what the AI actually produced. Naturally, if you have privacy or security concerns, you can explicitly set a variable (`OTEL_LOG_ASSISTANT_RESPONSES=0`) to disable this and keep the logs strictly prompts-only. It's like a company security camera that previously only recorded employees speaking into an intercom; now it records the voice coming back from the other side too, though you always have the switch to mute the speaker if needed."
-            },
-            "original": "Added `claude_code.assistant_response` OpenTelemetry log event containing the model's response text. Redacted unless `OTEL_LOG_ASSISTANT_RESPONSES=1`; when that var is unset it follows `OTEL_LOG_USER_PROMPTS`, so deployments that already log prompt content will start receiving response content on upgrade — set `OTEL_LOG_ASSISTANT_RESPONSES=0` to keep prompts-only."
           }
         ]
       }
