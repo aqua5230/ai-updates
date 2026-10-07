@@ -2,8 +2,37 @@
   "id": "usage",
   "name": "Usage",
   "page": 13,
-  "pages": 21,
+  "pages": 22,
   "versions": [
+    {
+      "version": "0.24.2",
+      "raw": {
+        "version": "0.24.2",
+        "period": "2026-07-05",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Session-resume handoff could surface skill-expansion noise and duplicate the same request**: `usage_session_resume.py`'s `_parse_session` collected every `type: \"user\"` transcript entry as a candidate \"recently working on\" request without checking Claude Code's `isMeta` flag, so skill/command expansions injected into the transcript (e.g. a full `SKILL.md` body) could show up as if they were a real request. Dedup also only compared against the immediately preceding request, so the same request separated by one of these injected entries counted twice, wasting handoff slots that are capped at 3. `isMeta: true` entries are now skipped, and dedup checks against every request seen so far, not just the last one. (Reported in #46 by @apple8409.)"
+        ]
+      },
+      "curated": {
+        "version": "0.24.2",
+        "period": "2026-07-05",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "恢復工作對話不再被指令碼洗版，也不會重複抓取任務",
+              "en": "Session handoffs filter out noisy tool injections and correctly deduplicate task history"
+            },
+            "body": {
+              "zh-TW": "當你接續之前的對話紀錄時，系統提議的「你最近在做什麼」清單，不再會被那些落落長的工具說明書洗版了。以前系統在整理你的對話紀錄時，只要看到是標示為「使用者發出」的內容就全抓進來，根本不管那是不是系統自己為了擴充技能（skill，輔助執行特定任務的指令檔）而偷塞的冗長說明，結果把這些雜訊也當成你的工作進度；而且因為它只跟上一句話比對，同一句話如果被這些雜訊隔開，就會被重複計算，白白浪費了最多只能顯示三筆的珍貴名額。現在系統學會了跳過這些標記為內部後設資料（isMeta）的雜訊，並且會跟整份清單比對來剔除重複。就像你請秘書整理昨天開會的重點，以前他會連你在會上念的一大本操作手冊都逐字抄進去當作討論結論，而且你重複講了兩次的話他還會當成兩件不同的事記下來；現在他懂得只挑出真正的行動方案，並且把重複講的話自動合併成一條。",
+              "en": "When you resume a previous conversation, the \"what you were recently working on\" suggestions will no longer be overwhelmed by giant walls of tool documentation. Previously, the system blindly scooped up every transcript entry marked as a \"user\" message, failing to realize that some of these were actually long instructions injected by the system itself to expand skills (skill files that help execute specific tasks). This allowed noisy text to masquerade as your real work progress. Furthermore, because the system only checked for duplicates against the very last message, a single real request interrupted by one of these noise entries would get counted twice, wasting your precious three handoff slots. The system now correctly skips these system-injected metadata entries (`isMeta`) and checks for duplicates against the entire list. It's like asking an assistant to summarize yesterday's meeting: they used to copy down an entire 100-page manual you happened to read aloud as if it were a decision, and if you repeated a point twice they logged it as two separate tasks. Now, they know to extract only the actual action items and merge repeats into a single line."
+            },
+            "original": "**Session-resume handoff could surface skill-expansion noise and duplicate the same request**: `usage_session_resume.py`'s `_parse_session` collected every `type: \"user\"` transcript entry as a candidate \"recently working on\" request without checking Claude Code's `isMeta` flag, so skill/command expansions injected into the transcript (e.g. a full `SKILL.md` body) could show up as if they were a real request. Dedup also only compared against the immediately preceding request, so the same request separated by one of these injected entries counted twice, wasting handoff slots that are capped at 3. `isMeta: true` entries are now skipped, and dedup checks against every request seen so far, not just the last one. (Reported in #46 by @apple8409.)"
+          }
+        ]
+      }
+    },
     {
       "version": "0.24.1",
       "raw": {
@@ -294,39 +323,6 @@
               "en": "The \"AI Tool Update Digest\" in your HTML report previously only offered Traditional Chinese and English, forcing readers of other languages to fall back to English. Now, it ships with full support for Simplified Chinese, Japanese, and Korean. Rather than being a stiff machine translation, each language carefully preserves the plain-language explanations of technical jargon and the relatable everyday metaphors at the end of each card. It's like an instruction manual that used to only come in English, but now arrives translated into five languages, with all the local idioms and jokes perfectly adapted for you to understand. Meanwhile, this edition's content has also been refreshed to cover the latest AI tool versions (including Claude Code 2.1.187, Codex 0.142.0, and Antigravity 1.0.11)."
             },
             "original": "**The AI tool updates bulletin now ships in five languages**: each bulletin item previously carried only Traditional Chinese and English, so Simplified Chinese, Japanese, and Korean readers fell back to English; every item now includes zh-CN/ja/ko translations that keep each technical term's plain-language gloss and everyday metaphor in the reader's own language. The bulletin content was also refreshed to Claude Code 2.1.187, Codex 0.142.0, and Antigravity 1.0.11."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.22.9",
-      "raw": {
-        "version": "0.22.9",
-        "period": "2026-06-24",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**World Cup panel: each team's squad size now reflects its usage**: a side using more of its session quota fields more players (5–8) and presses its formation toward midfield, sharing the same session-percent signal that already drives the ball drift.",
-          "**Models with no pricing data show \"—\" instead of a misleading $0.00**: the cost column rendered unknown models as $0.00, which reads as free rather than unknown; unavailable costs now render as \"—\" in both the HTML report and the CSV export.",
-          "**Codex quota rows are labelled by window length**: the free-plan 30-day window no longer shows as \"Session\" — each row's label now comes from the window length Codex reports (≈ Session / Weekly / Monthly).",
-          "**World Cup quota bars now fill their whole half**: the duel bars used auto-margins that bunched both fills against the centre line, leaving the outer ends blank so a 100% side never reached the track edge; each fill is now anchored to the centre and extended outward.",
-          "**Faster Codex log parsing**: unchanged session files are no longer re-read on every poll, and a versioned on-disk cache lets a fresh launch reuse prior parse results instead of re-scanning all history cold."
-        ]
-      },
-      "curated": {
-        "version": "0.22.9",
-        "period": "2026-06-24",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "世界盃面板更好看，查不到價格的模型不再假裝免費",
-              "en": "The World Cup panel looks better, and models with no price stop pretending to be free"
-            },
-            "body": {
-              "zh-TW": "許多小地方的顯示變精確了。在「世界盃」面板裡，現在哪邊用量高，哪邊場上的球員就會比較多，而且會壓著對方打；原本兩邊的進度條擠在中間填不滿，現在也能正常從中間往兩邊完整填滿。另外，當系統查不到某個 AI 模型的定價時，以前會顯示誤導人的「$0.00」（看起來像免費），現在會誠實地顯示「—」。而且，Codex 的額度列現在會乖乖照著 Session、每週、每月這種真實時間窗來標示，不再把 30 天的額度誤標成 Session 了。最後，Codex 解析速度變快了，冷啟動時不用再把舊紀錄全部重看一遍。就像你查某件商品的價格，以前查不到系統就直接標 0 元讓你白高興一場，現在會老實畫一條線告訴你它不知道。",
-              "en": "Several visual details have been sharpened up. In the \"World Cup\" panel, the side burning more usage will now field more players on the pitch and push their formation forward aggressively; also, the two duel bars that used to get stuck near the middle now properly fill all the way to the edges. Separately, when the system can't find pricing data for an AI model, it used to show a misleading \"$0.00\" (making it look free), but now it honestly displays a \"—\". Furthermore, Codex quota rows are now accurately labelled according to their true time window (Session, Weekly, Monthly), so a 30-day quota is no longer mistakenly labelled as a Session. Finally, parsing Codex logs is much faster now, so a fresh launch no longer has to sluggishly re-read your entire history. It's like checking the price tag on an item: the scanner used to ring up $0 and give you false hope when it couldn't find the barcode, but now it simply draws a dash to admit it doesn't know."
-            },
-            "original": "**World Cup panel: each team's squad size now reflects its usage**: a side using more of its session quota fields more players (5–8) and presses its formation toward midfield, sharing the same session-percent signal that already drives the ball drift.\n**Models with no pricing data show \"—\" instead of a misleading $0.00**: the cost column rendered unknown models as $0.00, which reads as free rather than unknown; unavailable costs now render as \"—\" in both the HTML report and the CSV export.\n**Codex quota rows are labelled by window length**: the free-plan 30-day window no longer shows as \"Session\" — each row's label now comes from the window length Codex reports (≈ Session / Weekly / Monthly).\n**World Cup quota bars now fill their whole half**: the duel bars used auto-margins that bunched both fills against the centre line, leaving the outer ends blank so a 100% side never reached the track edge; each fill is now anchored to the centre and extended outward.\n**Faster Codex log parsing**: unchanged session files are no longer re-read on every poll, and a versioned on-disk cache lets a fresh launch reuse prior parse results instead of re-scanning all history cold."
           }
         ]
       }

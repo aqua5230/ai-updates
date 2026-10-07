@@ -2,8 +2,37 @@
   "id": "usage",
   "name": "Usage",
   "page": 19,
-  "pages": 21,
+  "pages": 22,
   "versions": [
+    {
+      "version": "0.11.13",
+      "raw": {
+        "version": "0.11.13",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Removed Codex model footer from popover**: the \"· model: gpt-5.5\" suffix added in v0.11.6 (`menubar.py:868-870`) misled users into thinking the model was being used *right now*, when in fact it reflects the model of the most recent Codex session with rate_limits data — possibly hours old. Without a timestamp context, this information is noise that can't be acted on. TUI model displays (`ui/tables.py:818,857`) are kept since they live inside different contexts (active session block / idle panel). The `model_label` i18n key and `CodexRateLimits.model` field are preserved; only the popover footer concatenation is removed."
+        ]
+      },
+      "curated": {
+        "version": "0.11.13",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "拿掉底部容易誤導的模型標示，還給畫面清爽",
+              "en": "Removed misleading model labels from the footer to keep things clean"
+            },
+            "body": {
+              "zh-TW": "你打開面板時，最下面不再顯示 Codex 模型的名稱了。這是因為之前顯示的其實是「上次有留紀錄時」用的模型，可能是好幾個小時前的事了，卻很容易讓人誤以為「現在這一秒」正在用它。因為這個資訊看了也只會讓人混淆，我們決定把它拿掉，讓畫面更乾淨。就像你去銀行抽號碼牌，如果螢幕上一直掛著「上一位客人的辦理項目」，你只會覺得一頭霧水；現在直接把它擦掉，清清爽爽。",
+              "en": "When you open the popover panel, you'll no longer see the Codex model name at the very bottom. This is because the label was actually showing the model used during \"your last recorded session\"—which could have been hours ago—leading people to mistakenly believe it was actively being used right that second. Since this out-of-context information was more confusing than helpful, we simply removed it to clean up the interface. It's like waiting at the bank: if the digital display kept showing the transaction type of the customer from three hours ago, you'd just be confused; now the board is wiped clean to avoid misunderstandings."
+            },
+            "original": "**Removed Codex model footer from popover**: the \"· model: gpt-5.5\" suffix added in v0.11.6 (`menubar.py:868-870`) misled users into thinking the model was being used *right now*, when in fact it reflects the model of the most recent Codex session with rate_limits data — possibly hours old. Without a timestamp context, this information is noise that can't be acted on. TUI model displays (`ui/tables.py:818,857`) are kept since they live inside different contexts (active session block / idle panel). The `model_label` i18n key and `CodexRateLimits.model` field are preserved; only the popover footer concatenation is removed."
+          }
+        ]
+      }
+    },
     {
       "version": "0.11.12",
       "raw": {
@@ -326,40 +355,6 @@
               "en": "We've patched several quiet hazards in how the system operates under the hood. Previously, when you ran terminal commands like `usage report` that were supposed to simply read data, the system would aggressively overwrite your Claude or Codex config files behind your back, and if the app was killed mid-write, it could completely ruin your configuration file. The app now behaves itself: read-only commands absolutely will not touch your settings, and the actual installation flows now use \"atomic writes\" — guaranteeing the entire file is safely written before swapping it in, leaving no broken files even if it crashes mid-way. Additionally, for \"offline cold starts\" (when you have no internet and no cached price table), we fixed the built-in fallback prices where the cost of the newest Opus 4.6 model was drastically underestimated by 3×. Now your cost estimates are accurate even completely offline. It's like using a library catalog computer: it used to secretly reset your PIN just because you searched for a book, and a power outage could erase your card; now it sticks to reading only, and tells you exactly the right late fees even when the library's internet is down."
             },
             "original": "**Read-only CLI commands silently mutated user settings**: `usage daily` / `report` / `sessions` / `dashboard` and other read commands unconditionally called `setup()` or `update_hook()`, potentially writing to `~/.claude/settings.json` or `~/.codex/config.toml` on every invocation. Fix: only `setup` / `unsetup` mutate user settings; other commands now show a one-line \"Hook not installed. Run: usage setup\" hint when the hook isn't installed.\n**Opus 4.6 / 4.7 cost was underestimated 3× on offline cold start**: `pricing.py`'s fallback table listed Opus as `5e-6 / 25e-6` (input / output per token), but the published Anthropic rate is `15e-6 / 75e-6`. Affected scenario: no pricing cache *and* LiteLLM live fetch fails. Users with network access or a cached price table are unaffected.\n**`adapters/codex.py` sqlite connection leak**: `_load_thread_models()` wrapped the work in `try / except`, but `conn.close()` ran *after* `execute().fetchall()` — any exception in between left the connection dangling. Now uses `contextlib.closing()` to guarantee release.\n**Mid-write crash could leave `~/.codex/config.toml` truncated**: `setup_hook.py`'s `_setup_codex` / `_unsetup_codex` used plain `write_text()`, so a crash or kill during setup could corrupt Codex config. Now uses `mkstemp + os.replace` atomic write, sharing a single module-private helper with Claude settings.\n**`analyzer/cost.py` removed**: it was a weakened duplicate of `pricing.py` — bidirectional substring model matching (prone to misclassification), no cache TTL, and an SSL-cert-verification-disabled fallback when fetching the price table (a security concern for cost data). `analyzer/{aggregator,blocks,reporter}` now import `pricing.calculate_cost` directly; the latter accepts a `typing.Protocol` so both `history_loader.UsageEntry` and `adapters.types.UsageEntry` work. Net 76 lines of duplicate cost-calc code removed."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.11.2",
-      "raw": {
-        "version": "0.11.2",
-        "period": "2026-05-25",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**`usage_cli.py` crashed on every first run** (thanks @will30-blockchain — [#7](https://github.com/aqua5230/usage/pull/7)): `setup(auto=True)` passed a non-existent keyword argument to `setup_hook.setup()`, causing a `TypeError` on any fresh install or after `unsetup`. Users who already had the hook installed were unaffected. Fix: drop the stale `auto=True` kwarg.",
-          "**Incremental JSONL parsing**: `history_loader` and `codex_loader` now maintain module-level mtime+size caches and skip re-parsing files whose content hasn't changed, significantly reducing per-refresh disk I/O.",
-          "**Parallel hook forwarding**: `usage_statusline_forwarder` now dispatches all hooks concurrently via `ThreadPoolExecutor`; a single slow or timing-out hook no longer stalls the others. Worst-case latency drops from `n × 5s` to `5s`.",
-          "**Multi-session write protection**: `usage_statusline.py`'s `save()` now acquires `fcntl.LOCK_EX` before writing, preventing concurrent Claude Code sessions from clobbering each other's data.",
-          "**Python path resolution**: `setup_hook` now uses `_find_system_python()` when building hook commands — preferring the bundled `.app` Python, then `/usr/bin/python3`, avoiding the broken Xcode stub that `shutil.which(\"python3\")` can resolve to after an Xcode update.",
-          "**FSEvents-driven UI refresh**: `menubar` now uses a CoreServices `FSEventStream` (via ctypes) to watch `~/.claude/`. Changes to `usage-status.json` trigger `_refresh()` immediately, cutting update latency from up to 60 seconds to milliseconds. `NSTimer` is demoted to a 300-second fallback; silently degrades to timer-only mode if CoreServices is unavailable."
-        ]
-      },
-      "curated": {
-        "version": "0.11.2",
-        "period": "2026-05-25",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "選單列反應快如閃電，背後運作更省力",
-              "en": "Lightning-fast menu bar updates with drastically reduced disk work"
-            },
-            "body": {
-              "zh-TW": "這次更新讓選單列上的數字更新變得瞬間到位。以前系統是靠一個呆呆的計時器，每隔一分鐘才去查一次你的用量有沒有變，所以常常會慢半拍；現在它學會了直接監聽作業系統的檔案變動事件（FSEvents），你一燒掉額度，畫面在幾毫秒內就會立刻跳動。不僅反應變快，背後讀資料也變得更省力：現在它只會去解析真正有變動的歷史紀錄，不再每次都把沒變的舊檔案重讀一遍，大幅減輕你硬碟的負擔。另外，如果你同時開了好幾個終端機視窗在跑 Claude，現在存檔時會自動排隊鎖上檔案（檔案鎖），不會再發生兩邊同時寫入把用量互相覆蓋的慘劇。這就像是餐廳的出菜系統，以前服務生每隔一分鐘才慢吞吞地進廚房看菜好了沒，現在廚房一出菜就會按鈴，服務生馬上把菜端走，而且大家端菜時絕不會再撞在一起把盤子摔碎了。",
-              "en": "The numbers on your menu bar will now update instantaneously. Previously, the system relied on a dumb timer that polled your usage once a minute, often lagging far behind reality. Now, it directly listens to your operating system's file events (FSEvents), so the moment you burn through some quota, the on-screen numbers twitch in milliseconds. Not only is it faster, but reading data behind the scenes is much lighter too: it now incrementally parses only the history files that have actually changed, saving your hard drive from redundantly reading identical old files over and over. Additionally, if you run multiple Claude Code sessions in different terminal windows, the system now uses file locks to make them line up politely when saving data, completely preventing them from clobbering each other's usage totals. It's like a restaurant's kitchen flow: waiters used to slowly poke their heads into the kitchen every minute to check for food, but now the kitchen rings a bell the millisecond a dish is ready — and the waiters no longer crash into each other dropping plates on their way out."
-            },
-            "original": "**`usage_cli.py` crashed on every first run** (thanks @will30-blockchain — [#7](https://github.com/aqua5230/usage/pull/7)): `setup(auto=True)` passed a non-existent keyword argument to `setup_hook.setup()`, causing a `TypeError` on any fresh install or after `unsetup`. Users who already had the hook installed were unaffected. Fix: drop the stale `auto=True` kwarg.\n**Incremental JSONL parsing**: `history_loader` and `codex_loader` now maintain module-level mtime+size caches and skip re-parsing files whose content hasn't changed, significantly reducing per-refresh disk I/O.\n**Parallel hook forwarding**: `usage_statusline_forwarder` now dispatches all hooks concurrently via `ThreadPoolExecutor`; a single slow or timing-out hook no longer stalls the others. Worst-case latency drops from `n × 5s` to `5s`.\n**Multi-session write protection**: `usage_statusline.py`'s `save()` now acquires `fcntl.LOCK_EX` before writing, preventing concurrent Claude Code sessions from clobbering each other's data.\n**Python path resolution**: `setup_hook` now uses `_find_system_python()` when building hook commands — preferring the bundled `.app` Python, then `/usr/bin/python3`, avoiding the broken Xcode stub that `shutil.which(\"python3\")` can resolve to after an Xcode update.\n**FSEvents-driven UI refresh**: `menubar` now uses a CoreServices `FSEventStream` (via ctypes) to watch `~/.claude/`. Changes to `usage-status.json` trigger `_refresh()` immediately, cutting update latency from up to 60 seconds to milliseconds. `NSTimer` is demoted to a 300-second fallback; silently degrades to timer-only mode if CoreServices is unavailable."
           }
         ]
       }

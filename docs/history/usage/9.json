@@ -2,8 +2,37 @@
   "id": "usage",
   "name": "Usage",
   "page": 9,
-  "pages": 21,
+  "pages": 22,
   "versions": [
+    {
+      "version": "0.28.18",
+      "raw": {
+        "version": "0.28.18",
+        "period": "2026-07-22",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-23",
+        "entries": [
+          "**Antigravity quota showed a stuck, wrong percentage since the CLI's 1.1.5 update.** The Antigravity CLI moved its OAuth credential from a plain file on disk into the macOS Keychain (`security` service `gemini`, account `antigravity`, `go-keyring-base64:`-wrapped JSON) and switched its quota backend from `cloudcode-pa.googleapis.com` to `daily-cloudcode-pa.googleapis.com`. The card kept reading the now-abandoned token file, which silently refreshed against a stale grant and returned numbers that no longer matched the CLI's own `/quota` output. It now reads the Keychain entry first (falling back to the legacy file), and posts to the current backend."
+        ]
+      },
+      "curated": {
+        "version": "0.28.18",
+        "period": "2026-07-22",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Antigravity 額度卡不再卡在錯誤百分比",
+              "en": "Antigravity quota card no longer gets stuck on a wrong percentage"
+            },
+            "body": {
+              "zh-TW": "你在 usage 看 Antigravity 額度時，卡片終於會跟官方 CLI 的 `/quota` 顯示對上。Antigravity CLI 1.1.5 後把 OAuth 憑證（證明你已授權登入的通行證）從硬碟上的普通檔案，搬進 macOS Keychain（Mac 替應用程式保管密碼與登入資料的鑰匙圈）。同時查額度的後端（真正處理查詢的伺服器）也換了地址。卡片卻仍翻舊 token（授權令牌）的檔案；它雖會悄悄更新，拿到的卻是過期授權算出的數字，於是百分比卡住。現在它先讀 Keychain 中 `gemini`／`antigravity` 的資料，找不到才回頭讀舊檔，並改連新版後端。像銀行把帳本搬進保險庫又換了櫃台，舊看板仍對著廢櫃台抄數字；現在先到保險庫、再去正確櫃台，額度才會和 CLI 一致。",
+              "en": "When you check Antigravity quota in usage, its card should finally agree with the official CLI's `/quota` result. Since Antigravity CLI 1.1.5, the OAuth credential (proof that you authorized the sign-in) moved from an ordinary disk file into macOS Keychain, where Macs keep passwords and login data. Its quota backend—the server handling the lookup—also moved. The card kept reading the old token file; it could refresh that abandoned credential, but received numbers based on a stale grant, leaving the percentage stuck and wrong. It now checks the `gemini` / `antigravity` Keychain entry first, falls back to the legacy file only when needed, and calls the new backend. It is like a bank moving its ledger into a vault and changing counters while an old display board still copies figures from the closed counter; now it visits the vault and the right counter first."
+            },
+            "original": "**Antigravity quota showed a stuck, wrong percentage since the CLI's 1.1.5 update.** The Antigravity CLI moved its OAuth credential from a plain file on disk into the macOS Keychain (`security` service `gemini`, account `antigravity`, `go-keyring-base64:`-wrapped JSON) and switched its quota backend from `cloudcode-pa.googleapis.com` to `daily-cloudcode-pa.googleapis.com`. The card kept reading the now-abandoned token file, which silently refreshed against a stale grant and returned numbers that no longer matched the CLI's own `/quota` output. It now reads the Keychain entry first (falling back to the legacy file), and posts to the current backend."
+          }
+        ]
+      }
+    },
     {
       "version": "0.28.17",
       "raw": {
@@ -274,36 +303,6 @@
               "en": "On Windows, Claude Code's status line at the bottom of the terminal could fail somewhere along the way. This release fixes four links in that chain. Hooks (small programs triggered by particular events) now avoid Python paths containing non-ASCII characters, and `--setup` migrates older commands. All five hook scripts now read standard input as UTF-8, so a working-folder name like `GitHub專案` is no longer turned into mojibake and prevented from writing `usage-status.json`. If Windows has no `LANG`-style environment variable, the hooks now use the system UI language instead. Wide terminals also measure their actual width again, restoring the `(left)` reset-time suffix. It is like repairing the wiring, language setting, and ruler behind a train-information board so its timetable does not vanish mid-journey. Non-Windows behavior is unchanged."
             },
             "original": "**The Claude Code statusLine hook now works end-to-end on Windows**: four fixes land together. `setup_hook` now prefers an all-ASCII `python.exe` path (falling back to system PATH when the venv path isn't ASCII), since Claude Code on Windows fails to spawn statusLine commands whose path contains non-ASCII characters; `--setup` migrates existing non-ASCII commands. All five hook scripts now read stdin via `sys.stdin.buffer` and decode UTF-8 explicitly (and the forwarder pins `encoding=utf-8` on its subprocess fan-out), since Windows otherwise decodes the piped session JSON with the locale codepage, turning a cwd like `GitHub專案` into mojibake and silently breaking `usage-status.json` writes. Hooks now fall back to `GetUserDefaultUILanguage` when no `LANG`-style env var is set (the Windows norm), matching the tray's existing language detection. `get_width()` now probes the real console width via `CONOUT$` + `GetConsoleScreenBufferInfo` instead of always falling back to a fixed 116 columns, restoring the `(left)` reset-time suffix on wide terminals. Non-Windows behavior is unchanged."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.28.8",
-      "raw": {
-        "version": "0.28.8",
-        "period": "2026-07-17",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-17",
-        "entries": [
-          "**The Windows tray no longer falls back to a stale quota cache when the hook already has live data**: a complete statusLine payload from the hook could still be overridden by the `.claude.json` fallback snapshot whenever its cached timestamp looked newer, even though that cache might describe a different or expired session; the tray now always prefers a complete hook payload, and the \"complete\" check itself is now stricter — malformed non-numeric percentages in the hook payload no longer count as complete, so a broken payload can't silently blank the quota by skipping the cache.",
-          "**Windows tray history scanning no longer re-scans every Codex/Claude session log on each refresh tick**: `history_source_scan()` results are now cached for 30 seconds, removing the main source of UI jank in the tray."
-        ]
-      },
-      "curated": {
-        "version": "0.28.8",
-        "period": "2026-07-17",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "系統匣不被舊額度混淆，刷新歷史紀錄不再卡頓",
-              "en": "Windows tray stops showing stale quota and speeds up history scans"
-            },
-            "body": {
-              "zh-TW": "現在你可以在 Windows 系統匣中即時看到最準確的 AI 使用額度，而且檢視歷史紀錄時介面也變得滑順無比。以前當 hook（掛鉤，特定事件發生時被觸發的小程式）傳回全新的 statusLine（顯示在終端機最底下的狀態列）資料時，系統匣卻常被備援的舊 cache（快取，把算過或查過的結果暫存起來直接用）覆蓋，導致顯示過期或錯誤的額度；現在系統匣會優先採用最新的掛鉤資料，並嚴格把關防範錯誤格式。同時，系統匣掃描歷史工作階段的頻率也加上了 30 秒的暫存限制，免去每次重新掃描所導致的卡頓。就像看銀行的臨櫃螢幕，以前網路一抖就顯示昨天餘額，而且每次刷新都重讀交易明細害螢幕死當；現在能鎖定即時餘額，明細也改為定期刷新，省電又順暢。",
-              "en": "You can now see your most accurate AI quota right in the Windows tray, with history scans running completely lag-free. Previously, the tray could override a fresh statusLine payload with a stale `.claude.json` fallback cache if its timestamp seemed newer, displaying outdated or expired limits; the tray now always prioritizes complete live data and rejects malformed values. Additionally, history source scanning is now cached for 30 seconds instead of checking logs on every refresh tick, eliminating UI jank. It is like a bank screen that used to show yesterday's balance on a network glitch and froze because it re-read every transaction on every refresh; it now locks onto real-time balances and updates your statement list on a smart delay."
-            },
-            "original": "**The Windows tray no longer falls back to a stale quota cache when the hook already has live data**: a complete statusLine payload from the hook could still be overridden by the `.claude.json` fallback snapshot whenever its cached timestamp looked newer, even though that cache might describe a different or expired session; the tray now always prefers a complete hook payload, and the \"complete\" check itself is now stricter — malformed non-numeric percentages in the hook payload no longer count as complete, so a broken payload can't silently blank the quota by skipping the cache.\n**Windows tray history scanning no longer re-scans every Codex/Claude session log on each refresh tick**: `history_source_scan()` results are now cached for 30 seconds, removing the main source of UI jank in the tray."
           }
         ]
       }

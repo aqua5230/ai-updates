@@ -5,6 +5,127 @@
   "pages": 7,
   "versions": [
     {
+      "version": "1.1.28",
+      "raw": {
+        "version": "1.1.28",
+        "period": "2026-09-09",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-09-09",
+        "entries": [
+          "Improved resilience to transient model API errors: the agent now retries errors such as `503 Unavailable` for much longer with exponential backoff, so a brief service hiccup no longer aborts your session.",
+          "Improved sign-in and startup speed by reading your signed-in identity from the stored credential instead of making a network request on every launch and after browser consent; a failed identity lookup no longer prevents sign-in from completing, and the displayed plan tier no longer briefly disappears during startup.",
+          "Improved headless (`-p`) runs to exit promptly once the final answer is delivered: the CLI waits for running background tasks and scheduled timers to finish, bound by `--print-timeout`, and leaves daemon background tasks such as dev servers running instead of terminating them.",
+          "Improved failure reporting in headless (`-p`) runs: fatal errors now appear on stderr with a stable `error:` marker, a note is printed when the response may be truncated, and runs that previously ended silently with no output now explain why.",
+          "Improved headless (`-p`) turnaround by cutting up to 200 ms of idle latency per turn and skipping the model call that generated a conversation title no one would see.",
+          "Improved tool approval prompts to say exactly what you are approving — for example `Run this command?`, `Allow access to this URL?`, or `Allow calling this tool?` — with the command-editing shortcut offered only when a command is being approved, and a `Reason:` line explaining why approval is being requested when it is not obvious, such as a hook flagging the action or a file belonging to a different project.",
+          "Improved model selection auditability: the CLI log now records whenever a model name you specify resolves to a different model, such as alias resolution, `--effort` variant selection, or replacement of a deprecated saved model.",
+          "Changed what happens when `--print-timeout` expires mid-turn: the CLI now returns the partial output it has and exits successfully with a warning on stderr, instead of failing with a timeout error; interrupts such as Ctrl+C still exit non-zero.",
+          "Changed the default permission for fetching URLs from always allowed to asking first, so the agent now requests approval before reading a URL unless you have granted access.",
+          "Fixed plugin reinstalls keeping files that had been deleted from the source: installing a plugin now replaces its managed directory exactly, installing a plugin from its own installed directory is refused instead of corrupting it, and uninstalling a plugin no longer leaves its enabled/disabled entry behind in `config.json`.",
+          "Fixed MCP servers defined by plugins resolving relative or unset working directories against the wrong location; they now resolve against the plugin's own directory so plugin-bundled scripts run correctly.",
+          "Fixed a startup race where subagents could fail to find tools from MCP servers that were still initializing.",
+          "Fixed subagents sometimes appearing stuck in a running state after they had finished — especially in very large conversations — which also left queued when-idle messages undelivered until restart.",
+          "Fixed a memory leak where every finished terminal command kept internal state alive for the rest of the session; long sessions that run many commands now use significantly less memory.",
+          "Fixed headless (`-p`) runs stalling forever on implementation-plan approval that no one could give; non-interactive runs now proceed through plan review automatically.",
+          "Fixed sign-in failing with a project access error after switching from a business account with a selected project to a personal account; stale business project and license details are now fully cleared on personal sign-in."
+        ]
+      },
+      "curated": {
+        "version": "1.1.28",
+        "period": "2026-09-09",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "遇到 503 暫時錯誤自動長重試，工作階段不中斷",
+              "en": "Automatic extended retries on temporary 503 errors keep sessions uninterrupted"
+            },
+            "body": {
+              "zh-TW": "你正請 AI 執行冗長的多步驟任務，最怕遇到遠端模型伺服器短暫壅塞。⟦好似在熱門麵包店結帳時遇到刷卡機短暫斷線，店員不會立刻退回商品並將你請出店門，而是請你稍待片刻後再次感應，直到連線恢復。⟧ 以前只要碰上 `503 Unavailable` 這類短暫的模型介面錯誤，整個正在進行的工作階段（session，從啟動到結束的一整段對話歷程）就會被迫終止。現在代理人遇到這類暫時狀況，會透過指數退避（重試等待時間隨失敗次數拉長的做法）大幅延長重試期。即使服務發生短暫波動，也不會隨意中斷你的工作階段。",
+              "en": "When asking AI to perform long multi-step tasks, the biggest worry is hitting brief congestion on remote model servers. ⟦Much like a card reader briefly disconnecting at a busy bakery checkout, where the clerk does not immediately return your items and show you out the door, but asks you to wait a moment and tap again until the connection recovers.⟧ Previously, whenever encountering a transient model API error like `503 Unavailable`, the entire ongoing session was forced to terminate. Now, when encountering such temporary situations, the agent significantly extends the retry period using exponential backoff (waiting longer between retries as failed attempts increase). Even during brief service fluctuations, your session will no longer be casually interrupted."
+            },
+            "original": "Improved resilience to transient model API errors: the agent now retries errors such as `503 Unavailable` for much longer with exponential backoff, so a brief service hiccup no longer aborts your session."
+          },
+          {
+            "title": {
+              "zh-TW": "本機憑證快讀登入身分，切換帳號清空企業舊資料",
+              "en": "Local credentials speed up sign-in identity checks and account switching clears stale business data"
+            },
+            "body": {
+              "zh-TW": "每次啟動工具或切換帳號，現在都能迅速就緒。以前每次開啟命令列或在瀏覽器完成授權，都要先送出一趟網路請求確認身分；若是查詢遇到問題，整個登入程序就會卡住中斷，啟動時顯示的方案等級也常常閃爍消失。現在改為直接從儲存的憑證（存放在本機的登入身分證明）讀取資料，查詢失敗不再阻礙登入完成，畫面上的方案等級更維持穩定顯示。若是你剛從選定專案的企業帳號切換至個人帳號，舊的企業專案與授權細節現在會被徹底清除，不再因為殘留過期資料而跳出專案存取錯誤。⟦這好比拿出皮夾裡已蓋章的會員卡直接通關，驗票員不必每次都打電話回總部查驗，換成一般訪客卡時也會順手收回貴賓通行證，不再拿舊通行條擋住入口。⟧",
+              "en": "Launching the tool or switching accounts is now ready promptly every time. Previously, opening the CLI or completing browser authorization required sending a network request to verify your identity; if the lookup ran into issues, the entire sign-in process would freeze and halt, and the plan tier shown at startup often flickered and disappeared. Now, data is read directly from stored credentials (login identity proofs stored locally), so lookup failures no longer block sign-in completion, and the on-screen plan tier remains stably displayed. If you switch from a business account with a selected project to a personal account, old business project and license details are now thoroughly cleared, preventing project access errors caused by leftover stale data. ⟦This is like showing a stamped membership card directly from your wallet at the gate without ticket staff calling headquarters every time, and handing over a regular visitor pass while returning the VIP badge so outdated passes will not block the entrance.⟧"
+            },
+            "original": "Improved sign-in and startup speed by reading your signed-in identity from the stored credential instead of making a network request on every launch and after browser consent; a failed identity lookup no longer prevents sign-in from completing, and the displayed plan tier no longer briefly disappears during startup.\nFixed sign-in failing with a project access error after switching from a business account with a selected project to a personal account; stale business project and license details are now fully cleared on personal sign-in."
+          },
+          {
+            "title": {
+              "zh-TW": "無頭模式自動化更順暢，及時退出且日誌回報清晰",
+              "en": "Smoother headless automation with prompt exits and clear error reporting"
+            },
+            "body": {
+              "zh-TW": "將指令串進自動化排程時，最講求乾淨俐落與明確回報。⟦宛如快遞物流車隊的夜間集運，貨件裝車完畢就立即發車，沿途留下明確標籤與簽收單，不因無人簽名而原地乾等。⟧ 啟用無頭模式（headless，沒有終端機視窗的非互動執行模式）搭配 `-p` 旗標時，現在送達最終答案便會迅速退出。背景任務與排程計時器受 `--print-timeout` 限制等待結束，但開發伺服器等常駐守護工作會持續運行而不被強制中止。每輪執行省下多達 200 ms 閒置延遲，並跳過生成無人查看的對話標題。遇到無人互動的實作計畫審查時會自動通過。若 `--print-timeout` 中途逾時，會回傳既有輸出並在 stderr 附帶警告成功退出，手動按 Ctrl+C 中斷則維持非零退出碼。嚴重錯誤在 stderr 加上穩定的 `error:` 標記，提示潛在截斷並解釋先前靜默結束的原因。",
+              "en": "Chaining commands into automated workflows demands clean execution and explicit feedback. ⟦Much like a logistics delivery fleet consolidating cargo overnight, departing immediately once loading is complete and leaving clear labels and receipts along the way without idling on-site because no one is there to sign.⟧ When running in headless mode with the `-p` flag, the CLI now exits promptly once the final answer is delivered. Running background tasks and scheduled timers are waited on subject to `--print-timeout`, while persistent daemon tasks like development servers continue running without being forcefully terminated. Each turn cuts up to 200 ms of idle latency and skips generating conversation titles that nobody would see. Non-interactive implementation plan reviews now pass automatically. If `--print-timeout` expires mid-turn, it returns the partial output and exits successfully with a warning on stderr, while manual Ctrl+C interrupts still exit with a non-zero code. Fatal errors add a stable `error:` marker on stderr, noting potential truncation and explaining why previous runs ended silently."
+            },
+            "original": "Improved headless (`-p`) runs to exit promptly once the final answer is delivered: the CLI waits for running background tasks and scheduled timers to finish, bound by `--print-timeout`, and leaves daemon background tasks such as dev servers running instead of terminating them.\nImproved failure reporting in headless (`-p`) runs: fatal errors now appear on stderr with a stable `error:` marker, a note is printed when the response may be truncated, and runs that previously ended silently with no output now explain why.\nImproved headless (`-p`) turnaround by cutting up to 200 ms of idle latency per turn and skipping the model call that generated a conversation title no one would see.\nChanged what happens when `--print-timeout` expires mid-turn: the CLI now returns the partial output it has and exits successfully with a warning on stderr, instead of failing with a timeout error; interrupts such as Ctrl+C still exit non-zero.\nFixed headless (`-p`) runs stalling forever on implementation-plan approval that no one could give; non-interactive runs now proceed through plan review automatically."
+          },
+          {
+            "title": {
+              "zh-TW": "讀取網址改為預先詢問，工具審查提示說清緣由",
+              "en": "URL fetching asks for permission first and tool approval prompts explain reasons clearly"
+            },
+            "body": {
+              "zh-TW": "讓 AI 代勞查資料或動用本機工具時，安全把關更加清晰。抓取網址的預設權限從一律允許改為先問過你，除非預先授權，否則讀取網址前都會請求同意。工具審核提示也迎來翻新，明確點出審核項目——例如詢問 `Run this command?`、`Allow access to this URL?` 還是 `Allow calling this tool?`。編輯命令的快捷鍵僅在審核命令時提供，避免介面混淆。當審核原因不明顯時，下方會附上一行 `Reason:` 說明緣由，例如觸發了掛鉤（hook，在特定事件發生時觸發的攔截小程式）標記，或是涉及其他專案的檔案。⟦這彷彿在大門加裝智慧訪視對講機，外人想進門必須先按鈴通報，螢幕上清楚顯示對方的來意與身分，還會註記警衛攔檢的理由，不再讓人盲目按下開門鈕。⟧",
+              "en": "Security guardrails are much clearer when having AI fetch data or invoke local tools. The default permission for fetching URLs has changed from always allowed to asking first, requesting approval before reading a URL unless pre-authorized. Tool approval prompts have also been revamped to specify exactly what is being approved—such as asking `Run this command?`, `Allow access to this URL?`, or `Allow calling this tool?`. The shortcut for editing commands is only offered when approving a command, preventing interface confusion. When the reason for approval is not obvious, a `Reason:` line is attached below explaining why, such as a hook flagging the action or a file belonging to a different project. ⟦This is like installing a smart intercom at the front door: visitors must ring first, the screen clearly displays their identity and purpose, and notes any guard inspection reasons so you never press the door release blindly.⟧"
+            },
+            "original": "Improved tool approval prompts to say exactly what you are approving — for example `Run this command?`, `Allow access to this URL?`, or `Allow calling this tool?` — with the command-editing shortcut offered only when a command is being approved, and a `Reason:` line explaining why approval is being requested when it is not obvious, such as a hook flagging the action or a file belonging to a different project.\nChanged the default permission for fetching URLs from always allowed to asking first, so the agent now requests approval before reading a URL unless you have granted access."
+          },
+          {
+            "title": {
+              "zh-TW": "模型名稱轉換留存日誌，稽核軌跡隨時可查",
+              "en": "Model name resolutions are logged for traceable audit trails"
+            },
+            "body": {
+              "zh-TW": "在終端機指定模型名稱時，背後的實際流向現在一清二楚。⟦如同在藥局憑處方箋領藥，當藥劑師因原廠藥缺貨或劑型調整而替換成同成分學名藥時，收據與藥袋上都會清楚加註替換紀錄與變更原因。⟧ 命令列工具增強了模型選擇的稽核能力。當你輸入的模型名稱在後台被解析對應到另一款模型時，日誌都會詳實記錄具體轉換過程。無論是輸入別名對應到正式名稱、透過 `--effort` 旗標切換到不同推理程度的變體，或是先前儲存的舊模型因下架廢棄而被替換，日誌中都有跡可循。這讓你不必猜測背後到底跑的是哪一個版本，隨時都能追溯實際運行的模型。",
+              "en": "When specifying model names in the terminal, the actual underlying resolution is now crystal clear. ⟦Much like filling a prescription at a pharmacy where an out-of-stock brand-name drug is substituted with an equivalent generic, with the replacement record and rationale clearly noted on the receipt and label.⟧ The CLI tool has enhanced its auditability for model selection. Whenever a model name you specify resolves behind the scenes to a different model, the logs faithfully record the specific conversion process. Whether resolving an alias to an official name, switching to a different reasoning variant via the `--effort` flag, or replacing a deprecated saved model, everything leaves a clear trail in the logs. This removes any guesswork about which version is running behind the scenes, allowing you to trace the active model at any time."
+            },
+            "original": "Improved model selection auditability: the CLI log now records whenever a model name you specify resolves to a different model, such as alias resolution, `--effort` variant selection, or replacement of a deprecated saved model."
+          },
+          {
+            "title": {
+              "zh-TW": "外掛重裝乾淨覆蓋目錄，MCP 相對路徑基準修正",
+              "en": "Plugin reinstalls cleanly replace directories and MCP relative paths resolve accurately"
+            },
+            "body": {
+              "zh-TW": "管理擴充套件與隨附工具時，現在不再留下惱人的殘存檔案。過去重新安裝外掛時，來源端已經刪除的舊檔案仍會留在目錄裡；現在安裝會精確替換整個外掛管理目錄，且若嘗試從外掛自身的已安裝目錄再次執行安裝，會被直接拒絕以防目錄損壞。解除安裝外掛後，也不會在 `config.json` 中留下殘餘的啟用或停用項目。同時，外掛所定義的 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器若使用相對路徑或未指定工作目錄，先前會依錯誤位置解析；現在一律以該外掛本身的目錄為基準進行解析，確保隨附腳本正常運行。⟦恰似替相機更換擴充鏡頭套組，換上新套件時會徹底移走舊鏡片，拆除時順便清除控制選單裡的舊按鍵，套組內的專用濾鏡也一律以該鏡頭接環為基準精準卡位。⟧",
+              "en": "Managing plugins and bundled tools no longer leaves annoying leftover files behind. Previously, reinstalling a plugin left old files that were already deleted from the source inside the directory; now, installation replaces the managed plugin directory exactly, and attempting to install from the plugin's own installed directory is directly rejected to prevent corruption. Uninstalling a plugin also no longer leaves leftover enabled or disabled entries in `config.json`. Meanwhile, if MCP servers defined by plugins use relative paths or leave the working directory unset, they previously resolved against the wrong location; they now consistently resolve against the plugin's own directory, ensuring bundled scripts run properly. ⟦Just like swapping a camera lens kit: mounting a new set completely removes old glass, detaching it cleans up stale button mappings from the control menu, and dedicated kit filters align accurately against the lens mount.⟧"
+            },
+            "original": "Fixed plugin reinstalls keeping files that had been deleted from the source: installing a plugin now replaces its managed directory exactly, installing a plugin from its own installed directory is refused instead of corrupting it, and uninstalling a plugin no longer leaves its enabled/disabled entry behind in `config.json`.\nFixed MCP servers defined by plugins resolving relative or unset working directories against the wrong location; they now resolve against the plugin's own directory so plugin-bundled scripts run correctly."
+          },
+          {
+            "title": {
+              "zh-TW": "子代理啟動不再遺漏工具，任務結束即刻解鎖佇列",
+              "en": "Subagents reliably discover tools at startup and release queued messages upon completion"
+            },
+            "body": {
+              "zh-TW": "多工派發子代理處理複雜任務時，工具抓取與狀態切換更加可靠。先前在系統啟動時存在競爭問題，如果外部工具伺服器仍在初始化，子代理往往會撲空。現在 MCP（讓 AI 連接外部工具的協定）伺服器會確保初始化完成，讓子代理隨時能找到工具。此外，特別是在超長對話中，子代理在執行完畢後有時會卡在運行狀態；這不僅造成狀態誤判，還會讓原本排隊等候閒置時發送的訊息一路卡住，非得重啟程式才能送出。如今這兩項瑕疵都已修復，子代理在任務結束後會正確切換狀態並如期交付排隊訊息。⟦有如工廠調派實習助理進場作業，開工前一定等儀器暖機完畢才放行領取工具，任務交代完畢也會立即回報交班，不再假裝忙碌而讓後續排隊的派工單全部卡死在收發室。⟧",
+              "en": "Dispatching subagents for complex multi-tasking now offers more reliable tool discovery and state transitions. Previously, a startup race condition meant subagents could fail to find tools if external tool servers were still initializing. Now, MCP servers ensure initialization finishes so subagents can always find their tools. Additionally, especially in very large conversations, subagents sometimes appeared stuck in a running state after finishing; this caused incorrect status reporting and left messages queued for idle delivery stuck until restarting the application. Both issues are now resolved, so subagents properly transition their state and deliver queued messages on schedule once tasks finish. ⟦Like assigning an intern assistant on the factory floor: they are only sent to fetch tools after equipment warms up, and they report shift handovers immediately upon finishing tasks rather than pretending to stay busy and stalling dispatch orders in the mailroom.⟧"
+            },
+            "original": "Fixed a startup race where subagents could fail to find tools from MCP servers that were still initializing.\nFixed subagents sometimes appearing stuck in a running state after they had finished — especially in very large conversations — which also left queued when-idle messages undelivered until restart."
+          },
+          {
+            "title": {
+              "zh-TW": "終端機命令及時釋放內部狀態，長工作階段記憶體大降",
+              "en": "Terminal commands release internal state promptly to cut memory usage in long sessions"
+            },
+            "body": {
+              "zh-TW": "長時間在同一個工作階段中連續敲入指令，不再面臨記憶體越吃越腫的窘境。以前工具內部存在記憶體流失（程式結束運算後未及時釋放資源的現象）缺陷。只要在終端機中執行過任何命令，該命令的內部狀態就會被保留在記憶體中，直到整個工作階段（session，從啟動到關閉的完整使用過程）結束為止。這導致使用者若是開啟長期會話並執行大量指令，記憶體用量就會一路飆升。這次修復徹底清除了執行完畢後的殘留狀態，讓執行許多指令的長工作階段大幅降低記憶體消耗。⟦就像廚房料理台每做完一道菜就立即隨手擦拭乾淨，不再將用過的空盤與鍋具一路堆到打烊，就算連續出餐一整天，工作檯面也始終保持輕盈俐落。⟧",
+              "en": "Running continuous commands in the same session no longer leads to runaway memory bloat. Previously, the tool suffered from a memory leak where every executed terminal command retained its internal state in memory for the rest of the session. As a result, running many commands in extended sessions caused memory usage to surge continuously. This fix thoroughly clears residual state once commands finish, significantly reducing memory consumption in long sessions that run many commands. ⟦Much like wiping down a kitchen countertop immediately after each dish instead of piling up used plates and pots until closing time, keeping the workspace neat and uncluttered even during a full day of service.⟧"
+            },
+            "original": "Fixed a memory leak where every finished terminal command kept internal state alive for the rest of the session; long sessions that run many commands now use significantly less memory."
+          }
+        ]
+      }
+    },
+    {
       "version": "1.1.27",
       "raw": {
         "version": "1.1.27",
@@ -976,167 +1097,6 @@
               "en": "Antigravity's renderer (the part that draws text in the terminal) uses two optimizations. It first uses diffing optimization (comparing old and new content) to find changed areas, then uses dirty-rectangle optimization to redraw them. The latter redraws only changed areas. When terminal output does not look right and you want to check it without either optimization, set `AGY_CLI_DISABLE_ESCAPE_SEQUENCE_OPTIMIZATIONS`. This bypasses both for that launch. ⟦It is like restoring a mural by comparing the old and new sketches to find changed tiles, then repainting those tiles; this switch allows that restoration routine to be bypassed.⟧"
             },
             "original": "Added `AGY_CLI_DISABLE_ESCAPE_SEQUENCE_OPTIMIZATIONS` to bypass the renderer's dirty-rectangle and diffing optimizations."
-          }
-        ]
-      }
-    },
-    {
-      "version": "1.1.18",
-      "raw": {
-        "version": "1.1.18",
-        "period": "2026-08-22",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-08-22",
-        "entries": [
-          "Added support for passing a project name to `--project`, which previously accepted only a project ID and failed on anything else.",
-          "Added `item.rename` and `item.delete` keybindings for the conversation picker's rename and delete actions, so `f2` and `f4` can be rebound in `keybindings.json` on keyboards without function keys.",
-          "Improved `@` file path completion with a typo-tolerant fallback, so a query with a transposed or mistyped character still finds the file; typo matches never outrank exact ones.",
-          "Improved audio attachments by recognizing the standard formats Gemini models accept, including `wav`, `mp3`, `m4a`, `aac`, `flac` and `opus`, which were previously refused as unsupported.",
-          "Improved keystroke responsiveness on Windows by discarding the key-release events the console reports and nothing in the CLI reads, which were roughly doubling the rendering work per keystroke.",
-          "Improved the artifact viewer footer by moving the outline shortcut next to the scroll and page hints, so the three ways to move through a document read as one group.",
-          "Fixed print mode (`-p`) exiting successfully with an empty response when the agent state stream was dropped mid-run, which reported a failed turn as a clean success; it now surfaces the stream error and exits non-zero.",
-          "Fixed a valueless prompt flag swallowing the next flag as its prompt, so `--print --sandbox 'do the task'` no longer runs with the prompt `--sandbox` and the sandbox off; both that and a stray trailing argument are now errors.",
-          "Fixed an expanded `/btw` card pushing the footer hints and the prompt off-screen on a long answer, which is now clamped to the terminal height and scrollable with the arrow and page keys.",
-          "Fixed `/resume` opening below the fold instead of on the workspace you are working in, which happened whenever the CLI ran from a subdirectory of that workspace.",
-          "Fixed text losing its styling for the rest of a line after a file link, where the link's own reset also reset the surrounding prose.",
-          "Fixed a stray character appearing in the prompt every couple of seconds on terminals that print the CLI's periodic input-mode re-arming as literal text; the re-arm now happens only inside a terminal multiplexer, which is the only thing that resets those modes behind the CLI's back."
-        ]
-      },
-      "curated": {
-        "version": "1.1.18",
-        "period": "2026-08-22",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "--project 支援直接輸入專案名稱",
-              "en": "--project now accepts project names"
-            },
-            "body": {
-              "zh-TW": "現在啟動命令列時指定專案更加直覺，直接輸入專案名稱就能載入。以前 `--project` 參數只接受專案 ID，輸入其他值就會顯示錯誤；現在你可以直接輸入好記的專案名稱。例如輸入 `agy --project \"my-cool-app\"` 就能順利開啟，不用再特地去後台翻查並貼上冗長的專案 ID 代碼。⟦這好比在通訊錄找人，以前非得輸入整串電話號碼才能撥通，現在直接搜尋聯絡人姓名就能找到。⟧",
-              "en": "Specifying a workspace project from the command line is now much more straightforward, as you can pass a project name directly. Previously, the `--project` flag only accepted a project ID and failed with an error on anything else; it now accepts human-readable project names. For example, running `agy --project \"my-cool-app\"` works directly without having to look up and paste an obscure project ID. ⟦It is like looking up a contact in your address book: you used to have to dial the full numeric phone number, but now you can simply search for the person's name.⟧"
-            },
-            "original": "Added support for passing a project name to `--project`, which previously accepted only a project ID and failed on anything else."
-          },
-          {
-            "title": {
-              "zh-TW": "對話改名與刪除支援自訂快捷鍵",
-              "en": "Custom keybindings for renaming and deleting conversations"
-            },
-            "body": {
-              "zh-TW": "使用沒有功能鍵（F 鍵）的精簡鍵盤時，在對話挑選器裡想快速改名或刪除紀錄，以前常因按不到 F2 或 F4 而卡住。現在系統在 `keybindings.json` 設定檔中新增了 `item.rename` 與 `item.delete` 兩個快捷鍵綁定項目，讓你自由替換預設的 `f2` 與 `f4`。你只需在設定檔中加入以下內容，就能改用自訂按鍵：\n```json\n{\n  \"item.rename\": \"ctrl+r\",\n  \"item.delete\": \"ctrl+d\"\n}\n```\n⟦猶如精簡型遙控器缺少特定功能鍵時，廠商允許你把改名和刪除操作自訂到其他常用按鍵上一樣方便。⟧",
-              "en": "If you use a compact keyboard without physical function keys, renaming or deleting history in the conversation picker used to be frustrating without easy access to F2 or F4. The system now introduces `item.rename` and `item.delete` in `keybindings.json`, allowing you to rebind the default `f2` and `f4` shortcuts. You can map them to custom combinations by adding the following snippet to your configuration:\n```json\n{\n  \"item.rename\": \"ctrl+r\",\n  \"item.delete\": \"ctrl+d\"\n}\n```\n⟦It is like a compact TV remote lacking dedicated color keys, where the maker lets you map rename and delete actions to other everyday buttons instead.⟧"
-            },
-            "original": "Added `item.rename` and `item.delete` keybindings for the conversation picker's rename and delete actions, so `f2` and `f4` can be rebound in `keybindings.json` on keyboards without function keys."
-          },
-          {
-            "title": {
-              "zh-TW": "@ 檔案路徑補齊支援容錯搜尋",
-              "en": "@ file path completion adds typo tolerance"
-            },
-            "body": {
-              "zh-TW": "當你在提示列輸入 `@` 搜尋檔案路徑時，難免會手滑按錯相鄰字母或顛倒順序。⟦這像圖書館的智慧檢索機，就算讀者把書名漏打一個字母，機器也能幫忙找出正確藏書，同時把完全符合的書目排在最前面。⟧現在檔案補齊機制加入了容錯備援（fallback）功能。即便搜尋字串中有打錯或位置調換的字元，系統依然能找到你想引用的檔案。同時，容錯比對出的候選檔案排序永遠不會超越完全精準符合的結果，確保你精確輸入時不會被雜訊干擾。",
-              "en": "When typing `@` to complete a file path, it is easy to accidentally transpose characters or mistype an adjacent key. ⟦It is like a library catalog search: even if you mistype a letter in a book title, it still locates the right volume while keeping exact matches at the very top.⟧ The file path completion now includes a typo-tolerant fallback mechanism. Even if your query contains swapped or incorrect characters, it still retrieves the file you meant. Furthermore, typo-based matches will never outrank exact matches, ensuring accurate queries remain prioritized."
-            },
-            "original": "Improved `@` file path completion with a typo-tolerant fallback, so a query with a transposed or mistyped character still finds the file; typo matches never outrank exact ones."
-          },
-          {
-            "title": {
-              "zh-TW": "支援附加 WAV、MP3 等常見音訊格式",
-              "en": "Audio attachments now recognize WAV, MP3, and standard formats"
-            },
-            "body": {
-              "zh-TW": "現在你可以直接把各類常見的錄音檔案附加到對話中，交給模型分析。先前即使 Gemini 模型本身支援多種音訊，命令列工具卻會將常見格式誤判為不支援而拒絕附加；現在系統已能正確辨識這些標準音訊格式。包括 `wav`、`mp3`、`m4a`、`aac`、`flac` 與 `opus` 在內的六種檔案，現在都能順暢附加並送出。⟦這宛如廣播電台升級了全規格錄音座，不論記者遞交哪種標準錄音帶，機器都能直接播放與處理。⟧",
-              "en": "You can now attach everyday audio recordings directly to your conversations for model analysis. Previously, even though Gemini models natively accept multiple audio formats, the CLI would reject standard audio files as unsupported; the tool now properly recognizes these standard formats. Files in `wav`, `mp3`, `m4a`, `aac`, `flac`, and `opus` can now be attached without friction. ⟦It is like a broadcast studio upgrading to a universal deck that smoothly plays whatever standard tape format a reporter brings in.⟧"
-            },
-            "original": "Improved audio attachments by recognizing the standard formats Gemini models accept, including `wav`, `mp3`, `m4a`, `aac`, `flac` and `opus`, which were previously refused as unsupported."
-          },
-          {
-            "title": {
-              "zh-TW": "Windows 輸入反應加快，捨棄多餘放開按鍵事件",
-              "en": "Windows typing responsiveness boosted by dropping key-release events"
-            },
-            "body": {
-              "zh-TW": "⟦打字機只要在手指敲下印字頭時打印即可，若連按鍵彈回原位也觸發一次額外的畫面重繪，工作量便會平白翻倍。⟧在 Windows 系統上，主控台（console，負責處理文字輸入輸出的視窗元件）在使用者每次按鍵時，都會同時回報「按鍵按下」與「按鍵放開」兩筆事件。然而命令列工具根本不需要讀取按鍵放開的動作，導致過往每敲一個字元，背後幾乎都承受了兩倍的畫面渲染（rendering，把文字繪製到螢幕上的過程）工作量。現在系統會主動忽略這些無用的放開事件，大幅減輕負擔並讓打字反應更加靈敏。",
-              "en": "⟦A typewriter only needs to strike paper when a key goes down; if it also triggered an extra screen redraw every time the key bounced back up, the effort would double for nothing.⟧ On Windows, the console fires both key-down and key-release events for every keystroke. Because the CLI never reads key releases, this previously roughly doubled the rendering workload for every single letter typed. The system now discards these unused key-release events immediately, noticeably boosting typing responsiveness."
-            },
-            "original": "Improved keystroke responsiveness on Windows by discarding the key-release events the console reports and nothing in the CLI reads, which were roughly doubling the rendering work per keystroke."
-          },
-          {
-            "title": {
-              "zh-TW": "產物檢視器整合大綱與翻頁提示",
-              "en": "Artifact viewer clusters outline and paging shortcuts"
-            },
-            "body": {
-              "zh-TW": "當你在產物（artifact，對話產生的程式碼或文件檔案）檢視器中閱讀長篇文件時，底部的導航提示現在更加一目了然。先前大綱快捷鍵與其他移動提示分散在不同位置，查找時不夠直覺；現在系統把開啟大綱的按鍵移到了捲動與翻頁提示旁邊。如此一來，逐行捲動、整頁翻動以及依據大綱章節跳轉這三種移動方式，便整齊歸納在同一個操作群組中。⟦如同電子書閱讀器的導覽工具列，把章節目錄與翻頁按鈕集中放置，讓你一眼就能掌握所有瀏覽文件的途徑。⟧",
-              "en": "When reading long documents in the artifact viewer, the navigation hints at the bottom of the screen are now much easier to digest. Previously, the outline shortcut was separated from other movement controls; it has now been moved right next to the scroll and page hints. This groups the three navigation methods — scrolling line by line, paging, and jumping via document outline — into a single unified set. ⟦Like an e-reader toolbar that neatly clusters the table of contents button alongside page-turn arrows, letting you see all navigation options at a glance.⟧"
-            },
-            "original": "Improved the artifact viewer footer by moving the outline shortcut next to the scroll and page hints, so the three ways to move through a document read as one group."
-          },
-          {
-            "title": {
-              "zh-TW": "列印模式中斷時正確回報非零錯誤碼",
-              "en": "Print mode now surfaces stream drops and exits non-zero"
-            },
-            "body": {
-              "zh-TW": "使用列印模式（`-p`，直接把回答輸出到終端機而不進入互動畫面的無頭模式）自動化腳本時，最怕中途出錯卻被當成成功。先前若代理程式狀態串流在執行途中意外中斷，系統只會吐出空白內容，卻依然回報成功結束，導致外部自動化流程誤以為任務順利完成。現在系統修復了這個判定缺陷，發生串流中斷時會清楚印出具體的串流錯誤，並以非零狀態碼退出。⟦類似快遞送貨時若包裹在半路遺失，簽收系統會亮起異常紅燈而不是直接蓋上「已送達」印章。⟧",
-              "en": "When automating workflows in print mode (`-p`), having a broken run reported as a clean success can easily slip unnoticed into automated pipelines. Previously, if the agent state stream was dropped mid-run, the CLI printed an empty response and exited cleanly with success, masking the failure. It now surfaces the stream error directly to the terminal and exits with a non-zero status code. ⟦It is like a package delivery tracker flagging a shipment as disrupted rather than falsely marking an empty drop-off box as successfully delivered.⟧"
-            },
-            "original": "Fixed print mode (`-p`) exiting successfully with an empty response when the agent state stream was dropped mid-run, which reported a failed turn as a clean success; it now surfaces the stream error and exits non-zero."
-          },
-          {
-            "title": {
-              "zh-TW": "修正命令列旗標誤吞問題，防範沙盒未啟動",
-              "en": "CLI flags no longer swallow subsequent arguments"
-            },
-            "body": {
-              "zh-TW": "⟦掛接列車時若把隨後的控制車廂誤當成前一節的貨物標籤，整列車的防護機制便會全然失效。⟧在命令列中組合使用多個旗標時，若某個提示詞旗標未帶參數，過往解析器會錯誤地把下一個旗標吞進去當成提示詞內容。例如輸入 `--print --sandbox 'do the task'` 時，系統先前會把 `--sandbox` 當作提示詞送出，導致沙盒防護根本沒有開啟。現在系統修正了參數解析邏輯，不但不會再錯誤吞噬後續旗標，且遇到未接值的旗標或多餘的結尾引數時，都會直接顯示錯誤並阻止執行。",
-              "en": "⟦If a train coupler misidentifies the following engine car as merely a cargo tag on the current coach, the train's entire safety system fails to engage.⟧ When combining flags in the CLI, an empty prompt flag previously swallowed the subsequent flag as its prompt text. For instance, running `--print --sandbox 'do the task'` used to execute with `--sandbox` as the prompt while silently leaving the sandbox disabled. The CLI now corrects flag parsing: this mistake and stray trailing arguments now immediately halt with clear errors."
-            },
-            "original": "Fixed a valueless prompt flag swallowing the next flag as its prompt, so `--print --sandbox 'do the task'` no longer runs with the prompt `--sandbox` and the sandbox off; both that and a stray trailing argument are now errors."
-          },
-          {
-            "title": {
-              "zh-TW": "/btw 卡片限制畫面高度並支援鍵盤捲動",
-              "en": "/btw cards clamp to terminal height and support scrolling"
-            },
-            "body": {
-              "zh-TW": "在對話中開啟側邊提問的 `/btw` 卡片時，若 AI 給出落落長的回覆，展開的卡片以前會一路往下延伸，把底部的快捷鍵提示和輸入列硬生生擠出螢幕外。現在系統會將展開的卡片高度限制在終端機畫面高度之內。當回答內容過長時，你可以直接使用上下方向鍵或翻頁鍵（Page Up 與 Page Down）在卡片內捲動閱讀，不再破壞整個畫面的排版。⟦好比查詢公車動態時跳出的長條路線圖，彈出視窗會好好鎖定在手機螢幕裡並提供捲軸，而不是把底部的功能選單推到畫面外。⟧",
-              "en": "When opening a `/btw` side-question card during a conversation, an extensive response previously stretched the card downward endlessly, shoving the footer hints and the input prompt completely off-screen. The expanded card is now properly clamped to the height of your terminal. When an answer is long, you can scroll through it using the arrow keys and page keys (Page Up and Page Down) without disturbing the rest of the interface. ⟦It is like a transit map popup that stays bounded within your screen and adds a scrollbar, rather than pushing the navigation bar off into nowhere.⟧"
-            },
-            "original": "Fixed an expanded `/btw` card pushing the footer hints and the prompt off-screen on a long answer, which is now clamped to the terminal height and scrollable with the arrow and page keys."
-          },
-          {
-            "title": {
-              "zh-TW": "/resume 正確聚焦於子目錄所屬的工作區",
-              "en": "/resume focuses on active workspace from subdirectories"
-            },
-            "body": {
-              "zh-TW": "當你在專案子目錄中工作並輸入 `/resume` 想繼續先前的對話時，畫面焦點先前會莫名其妙跳到別處。⟦這像搭乘辦公大樓電梯時，螢幕應直接顯示你所在的部門樓層，而不是預設停在地下室讓你在清單裡翻找。⟧以前只要命令列是從工作區的子資料夾啟動，對話挑選清單就不會自動定位到當前專案，反而會滾動到折角下方看不見的位置；現在這項跳頁問題已經修復。系統會正確辨識你所屬的專案工作區，一打開就精準聚焦在當前的對話清單上。",
-              "en": "When working inside a subdirectory and running `/resume` to pick up a previous chat, the list view used to jump to an unexpected location. ⟦It is like entering an office elevator that should highlight your current department's floor, rather than defaulting to the basement and making you scroll up.⟧ Whenever the CLI was launched from a subfolder of your workspace, the conversation picker failed to land on your current workspace, scrolling down below the visible fold. This focusing issue is now fixed, immediately centering on the workspace you are currently in."
-            },
-            "original": "Fixed `/resume` opening below the fold instead of on the workspace you are working in, which happened whenever the CLI ran from a subdirectory of that workspace."
-          },
-          {
-            "title": {
-              "zh-TW": "檔案連結不再清除同一行後續文字樣式",
-              "en": "File links no longer strip styling from the rest of the line"
-            },
-            "body": {
-              "zh-TW": "⟦用螢光筆在書頁上標註特定詞彙時，若筆墨滲透把整行後續文字的顏色全洗成白紙，排版就會嚴重走樣。⟧在終端機輸出中，檔案名稱常會以可點擊的連結形式呈現。先前因為連結結尾的終端機重設指令範圍過大，在重設連結樣式的同時，把同一行後續文字的顏色與粗體等排版樣式也一併清空了；現在系統已修正此項樣式重設邏輯。檔案連結之後的文字現在能完整保留原有的樣式與色彩，不再莫名變回單調的純文字。",
-              "en": "⟦Highlighting a specific phrase on a page should never cause the ink to bleach the rest of the paragraph back to plain black-and-white.⟧ In terminal output, file paths are often formatted as clickable links. Previously, the ANSI reset sequence at the end of a link overreached, inadvertently wiping out the color, bolding, and other styles of all remaining text on that line. The link styling logic is now isolated: prose following a file link retains its intended formatting without dropping back to plain text."
-            },
-            "original": "Fixed text losing its styling for the rest of a line after a file link, where the link's own reset also reset the surrounding prose."
-          },
-          {
-            "title": {
-              "zh-TW": "消除提示列定期跳出的雜訊字元",
-              "en": "Eliminating stray characters appearing in the prompt"
-            },
-            "body": {
-              "zh-TW": "在某些終端機中打字時，輸入列每隔幾秒就會突然冒出一個多餘的雜訊字元，嚴重干擾打字節奏。這起因於系統過往會週期性送出指令來重新確認輸入模式，而部分終端機會把這些控制訊號當成一般文字印在畫面上。事實上，只有終端機多工器（terminal multiplexer，如 tmux 這種能在單一視窗中分割多個虛擬終端機的工具）才會在背後悄悄變更輸入模式。因此系統現在改為只在多工器環境下才發送重新確認指令，徹底消除了常規終端機上的跳字雜訊。⟦這有如會議室裡的對講機，只有在接上多路音訊切換器時才需要發送握手訊號，避免在普通喇叭上一直發出惱人的滴答雜音。⟧",
-              "en": "When typing in certain terminals, a stray ghost character used to pop up in the input prompt every couple of seconds, interrupting your flow. This occurred because the CLI periodically refreshed its terminal input mode, and some terminals echoed those escape sequences as literal text. In practice, only a terminal multiplexer (a tool like tmux that manages multiple virtual terminal sessions within one window) resets these modes behind the scenes. The CLI now restricts periodic re-arming exclusively to multiplexer environments, eliminating phantom characters on standard terminals. ⟦It is like a conference intercom that only broadcasts synchronization handshakes when hooked to a multi-channel mixer, keeping standard speakers free of annoying periodic clicks.⟧"
-            },
-            "original": "Fixed a stray character appearing in the prompt every couple of seconds on terminals that print the CLI's periodic input-mode re-arming as literal text; the re-arm now happens only inside a terminal multiplexer, which is the only thing that resets those modes behind the CLI's back."
           }
         ]
       }

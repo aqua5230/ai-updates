@@ -5,6 +5,107 @@
   "pages": 7,
   "versions": [
     {
+      "version": "1.0.14",
+      "raw": {
+        "version": "1.0.14",
+        "period": "2026-07-13",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Allowed image pasting from the clipboard in local tmux sessions.",
+          "Removed the max limit for the `/goal` command, allowing goals to run indefinitely until completed or cancelled.",
+          "Enabled \"always proceeds\" mode for subagents to auto approve artifacts, preventing them from hanging when the parent is blocked.",
+          "Fixed plugin import logic to copy the entire plugin directory, preventing it from stripping non-skill directories (like `shared/`).",
+          "Fixed an MCP configuration path mismatch in the CLI and permission manager to ensure reliable custom MCP server loading.",
+          "Fixed a TUI layout race condition caused by stale input state in the conversation model.",
+          "Fixed a bug where the inline viewport was not properly reset after a conversation rewind."
+        ]
+      },
+      "curated": {
+        "version": "1.0.14",
+        "period": "2026-06-25 ~ 06-30",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "在 tmux 終端機分頁裡也能直接貼上剪貼簿的圖片了",
+              "en": "Pasting clipboard images now works inside tmux panes too"
+            },
+            "body": {
+              "zh-TW": "tmux（一種能在終端機裡開多個分頁、背景常駐執行的工具）使用者以前在裡面用 Antigravity 時沒辦法直接貼上剪貼簿裡的圖片，得繞路用別的方式才能把截圖塞進對話。現在可以直接貼上了，跟在一般終端機裡操作一樣方便。",
+              "en": "Tmux (a tool that lets you run multiple panes inside a terminal session that keeps running in the background) users previously couldn't paste clipboard images directly while using Antigravity inside it, and had to work around it some other way to get a screenshot into the chat. Now you can just paste it, exactly as easily as in a regular terminal."
+            },
+            "original": "Allowed image pasting from the clipboard in local tmux sessions."
+          },
+          {
+            "title": {
+              "zh-TW": "`/goal` 長任務不再被強制中斷，AI 可以一路做到完成為止",
+              "en": "`/goal` no longer cuts long tasks short — the AI can run until it's actually done"
+            },
+            "body": {
+              "zh-TW": "`/goal`（設定一個長期目標、讓 AI 自己規劃步驟去達成的指令）以前有個跑多久就會被系統強制喊停的上限，就算任務還沒做完也得停下來。現在拿掉了這個上限，AI 會一直做下去，直到任務真正完成或你自己取消為止，不會被系統半路打斷。",
+              "en": "`/goal` (the command that sets a long-term objective and lets the AI plan its own steps to get there) used to be capped at a maximum runtime — the system would force it to stop even if the task wasn't done. That cap is now removed: the AI keeps working until the task is genuinely complete or you cancel it yourself, with no mid-task interruption from the system."
+            },
+            "original": "Removed the max limit for the `/goal` command, allowing goals to run indefinitely until completed or cancelled."
+          },
+          {
+            "title": {
+              "zh-TW": "自動完成選到技能指令後，現在真的會送出去執行，不會選了卻沒反應",
+              "en": "Picking a skill command from autocomplete now actually runs it, instead of doing nothing"
+            },
+            "body": {
+              "zh-TW": "技能（skill，預先包好的一組指令範本，輸入 `/` 開頭呼叫）指令以前如果你是從自動完成（autocomplete，打到一半系統幫你列出建議選項）的清單裡點選的，偶爾會發生輸入框被清空、但指令根本沒送出去執行的怪狀況，等於你選了等於沒選。現在修好了，從清單點選後會確實送出執行。",
+              "en": "Skill (skill, a pre-packaged set of command templates invoked with a leading `/`) commands used to occasionally clear the input box without actually submitting, when you picked them from the autocomplete (autocomplete, the suggestion list that pops up partway through typing) list — selecting it had no effect. Now it's fixed: picking from the list reliably submits and runs."
+            },
+            "original": "Resolved inconsistent behavior where selecting skill-derived slash commands from autocompletion suggestions cleared the input without executing. Autocompleted skill commands are now correctly submitted to the backend."
+          },
+          {
+            "title": {
+              "zh-TW": "「永遠允許」的指令規則預設改成「完全比對」，比較不會誤放行危險指令",
+              "en": "\"Always Approve\" rules now default to exact matching, far less likely to wave through a dangerous lookalike command"
+            },
+            "body": {
+              "zh-TW": "「永遠允許」（Always Approve，你設定好以後同類指令不用每次都跳出來問你同意）這種規則以前預設用比對範圍很寬的正規表示式（regex，一種可以模糊比對文字模式的寫法，但也容易不小心放行不該放行的東西）去判斷，現在預設改成「完全照字面比對」，比較不容易誤放行看起來像但其實不一樣的危險指令；如果你真的需要模糊比對的彈性，可以在規則前面加上 `regex:` 自己選擇開啟。這就像門禁系統以前刷「長得很像」的卡就放行，現在改成一定要刷一模一樣的卡才開門，除非你自己特別交代要放寬。",
+              "en": "'Always Approve' rules (Always Approve, settings that let matching commands skip asking for your consent every time) used to default to matching with loose regular expressions (regex, a pattern-matching syntax that's flexible but can accidentally let through things that look similar but aren't), which now default to strict literal matching instead — much less likely to wave through a dangerous command that merely resembles an approved one. If you really need the flexibility of fuzzy matching, you can opt in by prefixing a rule with `regex:`. It's like an access card reader that used to accept cards that 'looked close enough'; now it requires an exact match unless you specifically tell it to relax."
+            },
+            "original": "Improved command permission security by making \"Always Approve\" rule matching strict (non-regex) by default, while allowing users to explicitly opt-in to regex matching by prepending rules with `regex:`."
+          },
+          {
+            "title": {
+              "zh-TW": "把指令結果存成檔案這種安全動作，現在不會每次都被擋下來要你重新核准",
+              "en": "Safe output-redirection commands no longer get blocked for re-approval every single time"
+            },
+            "body": {
+              "zh-TW": "像 `tool > file`（把某個指令的輸出結果導向、存成一個檔案，> 符號叫做重新導向）這種其實很安全的常見寫法，以前因為系統比對規則太嚴格，常常被當成「跟之前核准過的指令不完全一樣」而要你重新核准一次。現在放寬了這類檢查，安全的輸出重新導向指令可以直接套用你之前設定好的允許規則，不用每次都被多問一次。",
+              "en": "Genuinely safe, common patterns like `tool > file` (redirecting a command's output into a file, where `>` is a redirection symbol) used to often get flagged as 'not quite the same' as a previously approved command, forcing you to re-approve every time, because the matching rules were too strict. These checks are now relaxed — safe output-redirection commands can apply your existing approval rules directly, without being asked again every time."
+            },
+            "original": "Improved command permission usability by relaxing redirection checks, allowing safe commands with output redirection (e.g., `tool > file`) to match without requiring strict full-command approval."
+          },
+          {
+            "title": {
+              "zh-TW": "終端機裡的連結變成可以直接點，看 diff 也能按 shift+n 往回翻",
+              "en": "Links in the terminal are now clickable, and you can press shift+n to step backward through a diff"
+            },
+            "body": {
+              "zh-TW": "支援的終端機現在能把網址顯示成真正可以點擊的連結（OSC8，一種讓終端機文字變成可點擊超連結的技術標準），舊版不支援的終端機則會自動退回成純文字、不會顯示亂碼。另外在統一差異檢視模式（diff review，比對程式碼修改前後差異的畫面）裡新增了 `shift+n` 快捷鍵，可以往回翻看上一段修改，不用只能往前翻。",
+              "en": "Terminals that support it can now render URLs as genuinely clickable links (OSC8, a technical standard for clickable hyperlinks inside terminal text), while older unsupported terminals automatically fall back to plain text instead of garbled output. Also, the unified diff review screen (diff review, the view that compares code before and after a change) now has a `shift+n` shortcut to cycle backward through changes, instead of only being able to move forward."
+            },
+            "original": "Added dynamic OSC8 terminal hyperlink support to render clickable links in supporting terminals, with automatic fallback stripping for backward compatibility. Introduced reverse diff cycling navigation mapped to `shift+n` in unified diff review mode to allow users to easily cycle backwards through diff blocks."
+          },
+          {
+            "title": {
+              "zh-TW": "程式碼區塊裡的 Makefile 語法不會再被誤判成數學公式、印出亂碼",
+              "en": "Makefile syntax inside code blocks no longer gets mistaken for math formulas and garbled"
+            },
+            "body": {
+              "zh-TW": "Antigravity 支援 LaTeX（一種專門用來排版數學公式的標記語法）數學公式渲染，但以前連程式碼區塊裡 Makefile（一種寫建置指令的設定檔語法）的 `$(call ...)` 這類寫法都會被誤判成數學公式語法去解析，結果印出一團亂碼。現在加了一道判斷機制，只在一般文字段落才會嘗試解析數學公式，程式碼區塊裡的內容不會被誤傷。",
+              "en": "Antigravity supports LaTeX (a markup syntax dedicated to typesetting math formulas) math rendering, but it used to misread Makefile (a config syntax for writing build instructions) patterns like `$(call ...)` inside code blocks as math formula syntax, garbling the output. A new state machine now restricts math-formula parsing to plain prose paragraphs only, so code block contents no longer get caught in the crossfire."
+            },
+            "original": "Fixed a rendering bug where Makefile syntax (like `$(call ...)`) inside code blocks was mistakenly parsed and mangled by LaTeX math expansion, by introducing a state machine that restricts expansion to prose segments."
+          }
+        ]
+      }
+    },
+    {
       "version": "1.0.13",
       "raw": {
         "version": "1.0.13",
@@ -509,67 +610,6 @@
               "en": "We've exorcised a few details where the devil was hiding. When opening /resume to browse your history, the list now filters out entirely empty conversations that used to clutter the view, loads details much faster, and even learned how to scan SQLite database files (.db and .db-wal) to give you a more comprehensive view. If you run the tool in text-only headless mode (-p), it now obediently writes its temporary cache data into the dedicated ~/.gemini/antigravity-cli/cache folder instead of treating your current working directory like a litter box. When configuring external MCP server tools, you can now connect directly by placing a URL in the config file, skipping unnecessary detours. Finally, if you manage custom tool directories, they can now properly be treated as functional workspace directories. Like buying a smarter vacuum cleaner: it used to collect empty wrappers while dumping the dust it sucked up all over your living room rug; now, it filters out the useless wrappers perfectly, plugs directly into your network pipe, and dumps the dirt precisely into its designated trash bin."
             },
             "original": "Fixed a bug that metadata was written in the current directory as opposed to `~/.gemini/antigravity-cli/cache` when running using `-p`.\nImproved `/resume` performance: optimized lazy loading of conversation details, filtered out empty conversations, and added support for scanning SQLite database files (`.db` and `.db-wal`).\nImproved customization support by allowing directories in the customization manager to be passed as workspace directories, enabling correct trajectory metadata population and `/add-dir` support.\nAdded support for `url` in `mcp_config.json` to configure MCP servers directly via a URL."
-          }
-        ]
-      }
-    },
-    {
-      "version": "1.0.4",
-      "raw": {
-        "version": "1.0.4",
-        "period": "2026-07-13",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-07-13",
-        "entries": [
-          "Added SQLite (.db) conversation support and will be CLI’s conversation format. Fixed a bug when importing SQLite conversation from Antigravity 2.0 to CLI.",
-          "Added LaTeX math rendering, enabling the CLI to display beautiful mathematical formulas directly in the terminal viewport. Set `AGY_CLI_DISABLE_LATEX` environment variable to turn off LaTeX rendering globally if desired.",
-          "Decoupled project discovery from local `.antigravitycli` workspace directories. The CLI now stores workspace-to-project mappings in a centralized `~/.gemini/antigravity-cli/cache/projects.json` file, eliminating repository clutter and speeding up project discovery to a single-map lookup.",
-          "Resolved sporadic and permanent UI hangs caused by a stateful callback streamer race condition during network drops or extremely fast agent steps.",
-          "Collapses all newlines and consecutive whitespaces in conversation previews and titles before rendering list items, preventing visual UI layout breaks in the picker rows.",
-          "Styled the separator space between the line number column and diff content to match the text blocks, ensuring background highlights stretch seamlessly across the viewport width in tool outputs and `/diff` details.",
-          "Resolved inconsistent behavior where selecting skill-derived slash commands from autocompletion suggestions cleared the input without executing. Autocompleted skill commands are now correctly submitted to the backend.",
-          "Aligned the interactive `/changelog` and `agy changelog` cache paths to both use `antigravity-cli`, and made the caching process synchronous to resolve a race condition where immediate process exit terminated the cache write.",
-          "Moved VCS detection out of the synchronous CLI startup path to prevent slow initialization.",
-          "Resolved an issue where exclusion rules and allowlists configured in rules.json were silently ignored, causing the discovery engine to load every .md rule file unconditionally at boot.",
-          "Parallelized the MCP server initialization sequence, preventing slow or hanging custom MCP servers from blocking independent, fast-starting servers (like local plugins) from loading on startup or configuration reloads."
-        ]
-      },
-      "curated": {
-        "version": "1.0.4",
-        "period": "2026-07-13",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "啟動神速不留垃圾，對話紀錄全面擁抱資料庫",
-              "en": "Fast startup with zero repository clutter and full SQLite database support"
-            },
-            "body": {
-              "zh-TW": "程式啟動速度變快了，而且也不會再亂製造垃圾檔案。以前系統會在你每個專案資料夾裡塞一個隱藏的 .antigravitycli 檔案來記住專案，不但礙眼還拖慢搜尋速度；現在它改把這些紀錄集中收在一個快取檔裡，專案資料夾終於乾淨了。同時，像「檢查 Git 版本控制」或「載入外部工具（MCP 伺服器）」這些本來很耗時的啟動步驟，現在都改到背景平行處理了，就算某個工具連線卡住，也不會害你連打字視窗都開不了。另外，終端機的對話紀錄正式改用 SQLite 資料庫格式（.db）儲存，如果你之前有從 Antigravity 2.0 匯入對話失敗的毛病，現在也都修好了。就像家裡的玄關，以前你要把所有鞋子擺出來慢慢挑才能出門，現在都收進隱藏的鞋櫃裡，而且警衛幫你開門跟司機發動車子是同時進行的，不再需要傻傻排隊等。",
-              "en": "Program startup is much faster now, and it no longer litters your projects with junk files. Previously, the system would drop a hidden .antigravitycli file in every project folder to remember it, which cluttered your repository and slowed down discovery; it now stores these mappings centrally in a single cache file, leaving your project folders perfectly clean. At the same time, time-consuming startup steps like checking Git (VCS) or loading external tools (MCP servers) have been moved to parallel background processes—so even if one custom tool hangs, it won't block you from opening the chat window to start typing. Additionally, terminal conversations now officially use the SQLite database format (.db), and the bug that previously failed to import your chats from Antigravity 2.0 has been fixed. Like your home's entryway: you used to have to leave all your shoes scattered out to find a pair before leaving, but now they're neatly organized in a hidden cabinet; plus, the guard opening the gate and the driver starting the car now happen simultaneously instead of waiting in line."
-            },
-            "original": "Added SQLite (.db) conversation support and will be CLI’s conversation format. Fixed a bug when importing SQLite conversation from Antigravity 2.0 to CLI.\nDecoupled project discovery from local `.antigravitycli` workspace directories. The CLI now stores workspace-to-project mappings in a centralized `~/.gemini/antigravity-cli/cache/projects.json` file, eliminating repository clutter and speeding up project discovery to a single-map lookup.\nMoved VCS detection out of the synchronous CLI startup path to prevent slow initialization.\nParallelized the MCP server initialization sequence, preventing slow or hanging custom MCP servers from blocking independent, fast-starting servers (like local plugins) from loading on startup or configuration reloads."
-          },
-          {
-            "title": {
-              "zh-TW": "數學公式漂漂亮亮，排版與反白更完美",
-              "en": "Beautiful LaTeX math rendering and flawless UI layouts"
-            },
-            "body": {
-              "zh-TW": "終端機現在看得懂也畫得出數學公式了。系統現在支援 LaTeX 數學語法渲染，不管是微積分還是複雜的矩陣公式，都能直接在終端機裡漂亮地印出來（如果你不喜歡，也可以用環境變數關掉它）。在看歷史對話清單時，如果對話標題裡面有奇怪的換行或一堆空白，系統現在會把它們壓平成一行，不會再把選單撐破。當你在看程式碼差異（/diff）時，以前行號跟程式碼中間會有一條尷尬的未上色縫隙，現在背景標示顏色會完美地橫跨整個畫面，不再有破綻。就像以前在終端機裡看數學公式只能看一堆看不懂的符號亂碼，現在就像在看排版精美的教科書；而且看螢光筆畫重點時，筆跡也不會在中途詭異地斷掉了。",
-              "en": "The terminal can now understand and draw math formulas. The system fully supports LaTeX math rendering, meaning everything from calculus to complex matrices will print beautifully right in your terminal viewport (you can also turn this off globally with an environment variable if you prefer). When viewing your conversation history, if a chat title contains awkward line breaks or a ton of consecutive whitespace, the system flattens it into a single line so it doesn't break the menu layout. When viewing code differences (/diff), there used to be an awkward uncolored gap between the line numbers and the code; the background highlight now stretches seamlessly across the entire width of the screen, leaving no visual flaws. Like trying to read math equations in the terminal: you used to stare at an unreadable mess of symbols, but now it looks like a beautifully typeset textbook; and when using a highlighter to mark important lines, the ink no longer randomly skips a spot in the middle."
-            },
-            "original": "Added LaTeX math rendering, enabling the CLI to display beautiful mathematical formulas directly in the terminal viewport. Set `AGY_CLI_DISABLE_LATEX` environment variable to turn off LaTeX rendering globally if desired.\nCollapses all newlines and consecutive whitespaces in conversation previews and titles before rendering list items, preventing visual UI layout breaks in the picker rows.\nStyled the separator space between the line number column and diff content to match the text blocks, ensuring background highlights stretch seamlessly across the viewport width in tool outputs and `/diff` details."
-          },
-          {
-            "title": {
-              "zh-TW": "解決卡死當機與規則不理人的問題",
-              "en": "Fixes UI hangs, autocomplete execution bugs, and ignored rules"
-            },
-            "body": {
-              "zh-TW": "網路不穩時介面不再卡死。以前網路不穩或代理跑太快時，畫面有時會直接卡死再也不動；現在修好了這個回呼（callback）的問題，不會再死當。如果你自己寫了快捷指令（skill），以前在選單裡按 Tab 鍵補齊後，它竟然會直接清空輸入框裝死不執行；現在補齊後終於會乖乖送出了。另外，以前你在 rules.json 裡設定了「哪些規則要忽略、哪些要白名單」，系統啟動時卻會當作沒看到，傻傻把所有規則都載入；現在它終於學會聽話照做了。還有 /changelog 指令寫入快取時因為太急著關閉程式而失敗的毛病也修好了。就像你去點餐，以前你照著菜單點隱藏菜色，店員卻直接把點菜單撕掉當沒聽到，或是你明文規定不吃的配菜廚師還是全加進去，現在這些荒唐的服務態度都已經糾正完畢了。",
-              "en": "We've eradicated several bugs that made you want to smash your keyboard. Previously, if your network dropped or an agent ran extremely fast, the UI could completely freeze due to a stateful callback race condition; this has been resolved so it won't permanently hang anymore. If you wrote a custom slash command (skill), selecting it via Tab autocomplete used to inexplicably clear your input box and do absolutely nothing; it now properly submits to the backend. Also, if you configured allowlists or exclusion rules in rules.json, the system used to blindly ignore them on startup and load every rule anyway; it has finally learned to follow your instructions. A bug where the /changelog cache failed to save because the program exited too quickly has also been fixed. Like ordering at a restaurant: you used to order a secret menu item, but the waiter would just rip up your ticket and play dumb, or the chef would toss in the exact ingredients you explicitly asked to exclude; these ridiculous service issues have finally been corrected."
-            },
-            "original": "Resolved sporadic and permanent UI hangs caused by a stateful callback streamer race condition during network drops or extremely fast agent steps.\nResolved inconsistent behavior where selecting skill-derived slash commands from autocompletion suggestions cleared the input without executing. Autocompleted skill commands are now correctly submitted to the backend.\nAligned the interactive `/changelog` and `agy changelog` cache paths to both use `antigravity-cli`, and made the caching process synchronous to resolve a race condition where immediate process exit terminated the cache write.\nResolved an issue where exclusion rules and allowlists configured in rules.json were silently ignored, causing the discovery engine to load every .md rule file unconditionally at boot."
           }
         ]
       }

@@ -2,8 +2,63 @@
   "id": "usage",
   "name": "Usage",
   "page": 6,
-  "pages": 21,
+  "pages": 22,
   "versions": [
+    {
+      "version": "0.29.26",
+      "raw": {
+        "version": "0.29.26",
+        "period": "2026-08-12",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-12",
+        "entries": [
+          "**Codex's status line now shows the Git branch and the session's token count.** The segment set usage writes into `~/.codex/config.toml` grew from five entries to seven, adding `git-branch` and `used-tokens`, so a session reads `usage · main · 5h 39% left · weekly 50% left · Context 95% left · 12.3K used · gpt-5.6-sol high`. Codex's status line accepts only its own built-in segments — there is no command hook like Claude Code's, which is why the wording, the colors and the ` · ` separator are Codex's own and why a progress bar or a reset countdown cannot be rendered on that side. The `5h` segment is omitted until Codex holds a rate-limit snapshot that actually contains a five-hour window.",
+          "**Upgrading the segments no longer files usage's own older set as your original status line.** `_setup_codex()` backed up whatever it found before overwriting, which was correct for a status line you configured yourself but wrong for one an earlier version of usage installed: changing the segment set would have written the previous usage-installed list into `~/.codex/usage-backup.json`, and a later removal would have \"restored\" that instead of your real configuration — silently overwriting the only copy of it. Segment sets that usage has shipped are now recognized as its own and upgraded in place, leaving any existing backup untouched.",
+          "**Removing the Codex status line works on installs still holding an older segment set.** The removal path required an exact match against the current segments, so anyone who had not re-run setup was told the status line was not usage's and nothing happened. Every set usage has shipped is now accepted; the restore sequence itself is unchanged, including writing the recovered configuration before deleting the backup.",
+          "**The new segments apply without pressing anything.** Startup self-healing upgrades a status line that still holds a set from an earlier version of usage. It only ever matches those sets — a status line you configured yourself, and one already on the current set, are both left alone.",
+          "**Tests can no longer reach the real `~/.codex/config.toml`.** The self-healing path above reads that file, and no test overrode the path constant, so a full test run on a developer's machine rewrote their own Codex configuration and made an unrelated assertion about the self-heal log depend on the state of that machine. An autouse fixture now points the Codex configuration and both backup paths at a temporary directory, matching how the log directory is already isolated."
+        ]
+      },
+      "curated": {
+        "version": "0.29.26",
+        "period": "2026-08-12",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Codex 狀態列看得到分支與已用 token",
+              "en": "Codex status line now shows branch and token use"
+            },
+            "body": {
+              "zh-TW": "你在終端機裡連續做了幾輪工作，想知道自己在哪個 Git 分支、這個工作階段（session，一次開啟到結束的工作過程）已用了多少 token（AI 處理文字的計量單位）？Codex 的狀態列（終端機最底下那行摘要）現在多了 `git-branch` 和 `used-tokens`，設定檔裡的區段也由五個增為七個。它像車上的儀表板：分支和已用 token 會同列顯示，但表板零件只能選 Codex 內建項目；不能接像 Claude Code 那樣的指令掛鉤，所以文字、顏色與 ` · ` 分隔符號都由 Codex 決定，也不能加進度條或重設倒數。`5h` 則要等 Codex 真的拿到含五小時視窗的限流快照才會出現。",
+              "en": "After several rounds in your terminal, you may want to know both your Git branch and how many tokens this session has used. Codex's status line now adds `git-branch` and `used-tokens`, taking the segment list in its config from five to seven. Think of it as a car dashboard: those readings can sit together, but only Codex's built-in gauges fit. Unlike Claude Code, it has no command hook, so Codex controls wording, colors, and the ` · ` separator; it cannot show a progress bar or reset countdown. The `5h` reading stays hidden until Codex has a rate-limit snapshot that contains a five-hour window."
+            },
+            "original": "**Codex's status line now shows the Git branch and the session's token count.** The segment set usage writes into `~/.codex/config.toml` grew from five entries to seven, adding `git-branch` and `used-tokens`, so a session reads `usage · main · 5h 39% left · weekly 50% left · Context 95% left · 12.3K used · gpt-5.6-sol high`. Codex's status line accepts only its own built-in segments — there is no command hook like Claude Code's, which is why the wording, the colors and the ` · ` separator are Codex's own and why a progress bar or a reset countdown cannot be rendered on that side. The `5h` segment is omitted until Codex holds a rate-limit snapshot that actually contains a five-hour window."
+          },
+          {
+            "title": {
+              "zh-TW": "更新或移除狀態列，不會誤蓋你的原始設定",
+              "en": "Status-line upgrades and removal preserve your original setup"
+            },
+            "body": {
+              "zh-TW": "你以前用 usage 裝過 Codex 狀態列，後來想換新版或移除它，原本自己設的狀態列不該被舊版 usage 的清單冒充。現在 usage 認得自己歷來發過的區段組合，遇到舊組合會原地升級，不會把它另存成你的原始設定，也不會碰既有備份。移除時同樣接受所有舊組合；回復設定仍是先寫回找回的內容，再刪備份。啟動時還會檢查舊組合並自動更新，但只比對 usage 發過的組合，使用者自訂狀態列與已是新版的設定都不動。像寄物櫃管理員看得懂哪張標籤是店家舊款，換新標籤時不會把舊標籤誤收成你的私人物品。",
+              "en": "If you installed a Codex status line with usage before, then upgrade or remove it, an older usage list should not masquerade as the status line you originally configured. Usage now recognizes every segment set it has shipped. It upgrades an older set in place instead of backing it up as yours, and leaves an existing backup alone. Removal accepts those older sets too; restoring still writes recovered settings before deleting the backup. At startup, usage also upgrades old sets automatically, but matches only sets it shipped, leaving both your custom line and a current set untouched. It is like a locker attendant who recognizes an old store label and replaces it without mistaking it for your personal property."
+            },
+            "original": "**Upgrading the segments no longer files usage's own older set as your original status line.** `_setup_codex()` backed up whatever it found before overwriting, which was correct for a status line you configured yourself but wrong for one an earlier version of usage installed: changing the segment set would have written the previous usage-installed list into `~/.codex/usage-backup.json`, and a later removal would have \"restored\" that instead of your real configuration — silently overwriting the only copy of it. Segment sets that usage has shipped are now recognized as its own and upgraded in place, leaving any existing backup untouched.\n**Removing the Codex status line works on installs still holding an older segment set.** The removal path required an exact match against the current segments, so anyone who had not re-run setup was told the status line was not usage's and nothing happened. Every set usage has shipped is now accepted; the restore sequence itself is unchanged, including writing the recovered configuration before deleting the backup.\n**The new segments apply without pressing anything.** Startup self-healing upgrades a status line that still holds a set from an earlier version of usage. It only ever matches those sets — a status line you configured yourself, and one already on the current set, are both left alone."
+          },
+          {
+            "title": {
+              "zh-TW": "測試不會再改到開發者真正的 Codex 設定",
+              "en": "Tests no longer touch a developer's real Codex settings"
+            },
+            "body": {
+              "zh-TW": "開發者跑完整套測試時，原本不該拿自己的 `~/.codex/config.toml` 當測試材料。先前啟動時的自我修復會讀這個真實設定檔，但測試沒有把路徑換掉；因此測試可能改寫開發者的 Codex 設定，連驗證自我修復日誌的結果也會隨那台電腦的狀態改變。現在自動套用的 fixture（每個測試先準備好的共用環境）會把 Codex 設定檔與兩個備份路徑全指向暫存資料夾，和原本已隔離的日誌資料夾一致。這像舞台彩排不再借用真實控制室的開關：演員怎麼測，都只影響臨時布景。",
+              "en": "When a developer runs the full test suite, their own `~/.codex/config.toml` should never become test material. Startup self-healing read that real file, but tests did not override its path. A test run could therefore rewrite a developer's Codex configuration, while an unrelated assertion about the self-heal log also depended on that machine's state. An autouse fixture (shared setup applied before every test) now points the Codex config and both backup paths to a temporary directory, matching the already-isolated log directory. It is like a stage rehearsal no longer borrowing switches from the real control room: every experiment affects only temporary scenery."
+            },
+            "original": "**Tests can no longer reach the real `~/.codex/config.toml`.** The self-healing path above reads that file, and no test overrode the path constant, so a full test run on a developer's machine rewrote their own Codex configuration and made an unrelated assertion about the self-heal log depend on the state of that machine. An autouse fixture now points the Codex configuration and both backup paths at a temporary directory, matching how the log directory is already isolated."
+          }
+        ]
+      }
+    },
     {
       "version": "0.29.25",
       "raw": {
@@ -435,72 +490,6 @@
               "en": "This is not a new button: your menu-bar refresh still looks the same, but its 203-line back-room job has moved. `menubar.py` had been split apart twice and then grown again, leaving only four lines below its size limit. Instead of raising that limit, the data work of the background refresh moved to `menubar_refresh.py`, divided into `load_sources()` and `build_result()`. The three `performSelectorOnMainThread` calls and every selector (a name used to locate a method to run) stay in the original file, because AppDelegate methods are bound by name and moving them would break that connection. The new module describes the App it needs through `typing.Protocol` and imports no PyObjC. It is like moving prep work from an overcrowded kitchen into a side room: the service window stays put and meals follow the same path. Six timing stages, fifteen degraded-path state assignments, and the guard against a failed refresh getting stuck were compared line by line."
             },
             "original": "**`_refresh_in_background` moved into `menubar_refresh.py`.** At 203 lines it was the largest method in `menubar.py`, which had four lines left under its ceiling — and a ceiling exists on that file precisely because it has been split apart and grown back twice. Only three lines of the method touch PyObjC, the three `performSelectorOnMainThread` calls, and those stay behind along with every selector: an AppDelegate method is bound by name, so relocating one breaks the binding. What moved is the data work between them, split into `load_sources()` and `build_result()`, with the app passed in behind a `typing.Protocol` so the new module imports no PyObjC at all — the same rule that keeps `menubar_state.py` clean. `menubar.py` goes from 2116 lines to 1934 and the ceiling was lowered to match rather than raised, since raising it to get CI green would dismantle the only thing stopping the file from growing back a third time. Behaviour is unchanged, and that was verified rather than assumed: the six `refresh_timing` stages, the fifteen state assignments on the degraded path, and the `submitted`/`finally` guard that keeps a failed refresh from wedging the app were each compared line by line against the original."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.29.16",
-      "raw": {
-        "version": "0.29.16",
-        "period": "2026-08-02",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-08-03",
-        "entries": [
-          "**The file log is bounded and rotates.** The only log on disk was whatever launchd redirected into `~/Library/Logs/usage/usage.log`, and a redirect has no size limit — for a menu bar app that stays open for months, that file only ever grows. Python now owns a log of its own beside it, capped at 2 MB with three archives kept. Building the handler is best-effort: if the directory cannot be created the app keeps its console output and starts normally, because a logging subsystem must never be the thing that stops the program from running. macOS keeps the `~/Library/Logs/usage/` convention; every other platform writes under `~/.usage/logs/` next to the disk caches, since `~/Library/Logs` means nothing on Windows and `_setup_logging()` runs before the platform branch.",
-          "**`USAGE_DEBUG` selects subsystems instead of switching everything on.** It was a boolean, so diagnosing one loader meant turning on all forty-odd debug sites and reading the result through the noise. It now takes a comma-separated list — `USAGE_DEBUG=codex_loader,pricing` raises only those two. Prefix matching comes free from Python's logger hierarchy rather than a hand-written comparison: setting `a.b` covers `a.b.c` because that is how logger inheritance already works. `1`, `all` and `*` keep the previous global behaviour.",
-          "**`--doctor --json` emits the report as data with stable codes.** The report was a block of text, so a user could only screenshot it and the reader had to scan by eye — nothing could compare two reports or decide programmatically which check failed. Each check now carries a fixed code (`hook_state`, `codex_sessions`, …) and one of three states, the process exits non-zero when any check is in error, and the human-readable output is unchanged to the character. Ambiguous cases resolve to `warn` rather than `error`: a false alarm that fails a health check costs more than a missed warning.",
-          "**The test suite wrote into the developer's real log file.** `tests/test_main.py` exercises `main()`, whose first action is `_setup_logging()` — so the run attached a rotating file handler pointed at the actual `~/Library/Logs/usage/usage-app.log`, and every warning logged by every later test landed in it. One full run deposited 8 KB containing pytest's temporary directory paths, which is worse than noise: it makes the log untrustworthy the day someone reads it for a real diagnosis. An autouse fixture now redirects the log directory to `tmp_path`, matching the existing rule for `cache_quarantine.QUARANTINE_DIR`. Curiously the same class of bug was fixed one version earlier in the Windows tray tests.",
-          "**`switchPanel_` builds its items through a helper.** A dozen menu entries each repeated the same five to seven lines — allocate the item, set the target, set the state, set the tooltip, add it — and `menubar.py` had two lines left under its ceiling. `menubar_menu.build_menu_item()` absorbs that shape. It lives in a new module rather than in `menubar_state.py`, which stays free of PyObjC. `switchPanel_` itself does not move: an AppDelegate method is bound by selector, and relocating one breaks the binding. The saving is smaller than it looks — 24 lines, not the 80 the line count suggested, because keyword arguments wrap across lines and give much of it back. The gain is the removed repetition, not the arithmetic. Moving the helper out also broke a test that patched `NSMenuItem` on the `menubar` module only; the fix was to patch the helper module too, never to add module-level indirection so the old patch keeps reaching."
-        ]
-      },
-      "curated": {
-        "version": "0.29.16",
-        "period": "2026-08-02",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "日誌會輪替，測試也不再污染真實紀錄",
-              "en": "Logs now rotate, and tests stop polluting the real record"
-            },
-            "body": {
-              "zh-TW": "電腦常駐幾個月時，日誌檔（log，記錄程式運作過程的文字檔）若只由 launchd 轉存，就會像永遠不換頁的筆記本，只增不減。這個選單列小程式原本由 launchd 轉存輸出到 `~/Library/Logs/usage/usage.log`，沒有大小限制。launchd（macOS 用來在背景啟動程式的服務）只負責轉送。現在 Usage 在旁邊自己管理日誌：每份最多 2 MB，保留三份舊檔；就算建立目錄失敗，也照常啟動並保留主控台輸出。macOS 寫進 `~/Library/Logs/usage/`，其他平台則寫 `~/.usage/logs/`。連測試也改把日誌導去暫存目錄，不會再把測試警告混進真正用來診斷的 `usage-app.log`；Windows 系統匣測試曾在前一版修過同類問題。",
-              "en": "When a computer stays on for months, a log file can become a notebook that never turns a page: it only grows. launchd, macOS's background service launcher, had been redirecting output to `~/Library/Logs/usage/usage.log` with no size limit. Usage now manages its own nearby log: each file is capped at 2 MB and three old copies are retained; even if it cannot create the directory, the app still starts and keeps console output. macOS uses `~/Library/Logs/usage/`; other platforms use `~/.usage/logs/`. Tests now write logs to a temporary directory too, so their warnings no longer mingle with the real `usage-app.log` used for diagnosis."
-            },
-            "original": "**The file log is bounded and rotates.** The only log on disk was whatever launchd redirected into `~/Library/Logs/usage/usage.log`, and a redirect has no size limit — for a menu bar app that stays open for months, that file only ever grows. Python now owns a log of its own beside it, capped at 2 MB with three archives kept. Building the handler is best-effort: if the directory cannot be created the app keeps its console output and starts normally, because a logging subsystem must never be the thing that stops the program from running. macOS keeps the `~/Library/Logs/usage/` convention; every other platform writes under `~/.usage/logs/` next to the disk caches, since `~/Library/Logs` means nothing on Windows and `_setup_logging()` runs before the platform branch.\n**The test suite wrote into the developer's real log file.** `tests/test_main.py` exercises `main()`, whose first action is `_setup_logging()` — so the run attached a rotating file handler pointed at the actual `~/Library/Logs/usage/usage-app.log`, and every warning logged by every later test landed in it. One full run deposited 8 KB containing pytest's temporary directory paths, which is worse than noise: it makes the log untrustworthy the day someone reads it for a real diagnosis. An autouse fixture now redirects the log directory to `tmp_path`, matching the existing rule for `cache_quarantine.QUARANTINE_DIR`. Curiously the same class of bug was fixed one version earlier in the Windows tray tests."
-          },
-          {
-            "title": {
-              "zh-TW": "除錯可只看指定區塊，不必淹沒所有訊息",
-              "en": "Debugging can now target selected parts instead of flooding everything"
-            },
-            "body": {
-              "zh-TW": "想查價格載入出了什麼事，卻被四十多處 debug 輸出淹沒嗎？USAGE_DEBUG（除錯開關，用來要求程式多印診斷訊息）不再只是全開或全關。在啟動前的環境變數（給程式的外部設定值）填 `USAGE_DEBUG=codex_loader,pricing`，就只看這兩個子系統；填 `1`、`all` 或 `*`，仍維持原本全部開啟。若填 `a.b`，它也會涵蓋 `a.b.c`，因為 Python 的 logger hierarchy（記錄器會由上層名稱管到下層名稱的結構）本來就這樣繼承。像開演唱會的控台，現在可只打亮兩位表演者，不必把整座舞台的燈全開。",
-              "en": "Trying to find out why pricing loaded oddly used to mean drowning in output from more than forty debug sites. `USAGE_DEBUG`, the switch that asks the program to print diagnostic messages, is no longer only all on or all off. Set the environment variable before launch to `USAGE_DEBUG=codex_loader,pricing` and only those two subsystems speak up; `1`, `all`, and `*` still enable everything. Setting `a.b` also covers `a.b.c`, because Python's logger hierarchy already passes settings from a parent name to its children. It is like a concert board that can light only two performers instead of every lamp on the stage."
-            },
-            "original": "**`USAGE_DEBUG` selects subsystems instead of switching everything on.** It was a boolean, so diagnosing one loader meant turning on all forty-odd debug sites and reading the result through the noise. It now takes a comma-separated list — `USAGE_DEBUG=codex_loader,pricing` raises only those two. Prefix matching comes free from Python's logger hierarchy rather than a hand-written comparison: setting `a.b` covers `a.b.c` because that is how logger inheritance already works. `1`, `all` and `*` keep the previous global behaviour."
-          },
-          {
-            "title": {
-              "zh-TW": "健康檢查可交給程式比對，不只剩截圖",
-              "en": "Health checks can now be compared by programs, not just screenshots"
-            },
-            "body": {
-              "zh-TW": "有人請你交出 Usage 的健康檢查結果時，`usage --doctor --json` 現在給的是可讀取的資料，而不只是一段得靠截圖保存的文字。每項檢查都有固定代碼（stable code，讓程式每次都能辨認同一項檢查的名稱），例如 `hook_state`、`codex_sessions`，並標成三種狀態；只要有 `error`，指令就用非零結束碼（告訴其他程式這次執行失敗的數字）結束，其他工具便能比較兩次結果或自動判斷哪項失敗。邊界不清時它選 `warn`，不誤報成 `error`。像健檢表換上固定欄位，電腦和人都能對照。",
-              "en": "When someone asks for Usage's health-check result, `usage --doctor --json` now returns data a program can read rather than a block of text that needs a screenshot. Each check has a stable code, such as `hook_state` or `codex_sessions`, and one of three states. If any check is an `error`, the command ends with a non-zero exit code, so other tools can compare two reports or determine which check failed automatically. When the boundary is unclear, it chooses `warn` instead of falsely calling it an `error`. It is like a medical form with fixed columns: people and computers can both line up the results."
-            },
-            "original": "**`--doctor --json` emits the report as data with stable codes.** The report was a block of text, so a user could only screenshot it and the reader had to scan by eye — nothing could compare two reports or decide programmatically which check failed. Each check now carries a fixed code (`hook_state`, `codex_sessions`, …) and one of three states, the process exits non-zero when any check is in error, and the human-readable output is unchanged to the character. Ambiguous cases resolve to `warn` rather than `error`: a false alarm that fails a health check costs more than a missed warning."
-          },
-          {
-            "title": {
-              "zh-TW": "選單項目集中組裝，綁定的方法仍留在原地",
-              "en": "Menu items are assembled in one place while the bound method stays put"
-            },
-            "body": {
-              "zh-TW": "維護 macOS 選單列時，麻煩的往往不是加新選項，而是十幾個選項都重複同一套組裝動作。`switchPanel_` 現在交給 `menubar_menu.build_menu_item()` 幫手函式（helper function，把重複步驟集中在一處的小函式）建立項目，建立項目、設定目標、狀態、提示，再加入選單的步驟只寫一次。`switchPanel_` 本身沒有搬家，因為 AppDelegate（macOS 應用程式的協調者）會用 selector 綁定它。selector（依方法名稱連接功能的機制）若失去原方法就會斷掉。這次省下的是 24 行重複內容，不是看起來像 80 行的數字遊戲；舊測試也改為在幫手模組補上 `NSMenuItem` 的替換，不再加模組層級轉接。像把十幾張便條收進同一本簿子，項目仍在原處，只有抄寫不再重複。",
-              "en": "When maintaining a macOS menu bar, the trouble is often not adding a new option but repeating the same assembly steps for a dozen of them. `switchPanel_` now uses `menubar_menu.build_menu_item()`, a helper function that gathers repeated steps in one place, to create the items; target, state, tooltip, and adding the item are written once. `switchPanel_` itself stays where it is because AppDelegate binds it through a selector, the mechanism that connects a feature by method name. Move the original method and that connection breaks. This removes 24 repeated lines, not the 80-line illusion suggested by the count. The old test now also replaces `NSMenuItem` in the helper module instead of adding module-level indirection. It is like gathering a dozen sticky notes into one notebook: the items stay put, but copying stops repeating."
-            },
-            "original": "**`switchPanel_` builds its items through a helper.** A dozen menu entries each repeated the same five to seven lines — allocate the item, set the target, set the state, set the tooltip, add it — and `menubar.py` had two lines left under its ceiling. `menubar_menu.build_menu_item()` absorbs that shape. It lives in a new module rather than in `menubar_state.py`, which stays free of PyObjC. `switchPanel_` itself does not move: an AppDelegate method is bound by selector, and relocating one breaks the binding. The saving is smaller than it looks — 24 lines, not the 80 the line count suggested, because keyword arguments wrap across lines and give much of it back. The gain is the removed repetition, not the arithmetic. Moving the helper out also broke a test that patched `NSMenuItem` on the `menubar` module only; the fix was to patch the helper module too, never to add module-level indirection so the old patch keeps reaching."
           }
         ]
       }

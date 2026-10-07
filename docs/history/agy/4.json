@@ -5,6 +5,167 @@
   "pages": 7,
   "versions": [
     {
+      "version": "1.1.18",
+      "raw": {
+        "version": "1.1.18",
+        "period": "2026-08-22",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-08-22",
+        "entries": [
+          "Added support for passing a project name to `--project`, which previously accepted only a project ID and failed on anything else.",
+          "Added `item.rename` and `item.delete` keybindings for the conversation picker's rename and delete actions, so `f2` and `f4` can be rebound in `keybindings.json` on keyboards without function keys.",
+          "Improved `@` file path completion with a typo-tolerant fallback, so a query with a transposed or mistyped character still finds the file; typo matches never outrank exact ones.",
+          "Improved audio attachments by recognizing the standard formats Gemini models accept, including `wav`, `mp3`, `m4a`, `aac`, `flac` and `opus`, which were previously refused as unsupported.",
+          "Improved keystroke responsiveness on Windows by discarding the key-release events the console reports and nothing in the CLI reads, which were roughly doubling the rendering work per keystroke.",
+          "Improved the artifact viewer footer by moving the outline shortcut next to the scroll and page hints, so the three ways to move through a document read as one group.",
+          "Fixed print mode (`-p`) exiting successfully with an empty response when the agent state stream was dropped mid-run, which reported a failed turn as a clean success; it now surfaces the stream error and exits non-zero.",
+          "Fixed a valueless prompt flag swallowing the next flag as its prompt, so `--print --sandbox 'do the task'` no longer runs with the prompt `--sandbox` and the sandbox off; both that and a stray trailing argument are now errors.",
+          "Fixed an expanded `/btw` card pushing the footer hints and the prompt off-screen on a long answer, which is now clamped to the terminal height and scrollable with the arrow and page keys.",
+          "Fixed `/resume` opening below the fold instead of on the workspace you are working in, which happened whenever the CLI ran from a subdirectory of that workspace.",
+          "Fixed text losing its styling for the rest of a line after a file link, where the link's own reset also reset the surrounding prose.",
+          "Fixed a stray character appearing in the prompt every couple of seconds on terminals that print the CLI's periodic input-mode re-arming as literal text; the re-arm now happens only inside a terminal multiplexer, which is the only thing that resets those modes behind the CLI's back."
+        ]
+      },
+      "curated": {
+        "version": "1.1.18",
+        "period": "2026-08-22",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "--project 支援直接輸入專案名稱",
+              "en": "--project now accepts project names"
+            },
+            "body": {
+              "zh-TW": "現在啟動命令列時指定專案更加直覺，直接輸入專案名稱就能載入。以前 `--project` 參數只接受專案 ID，輸入其他值就會顯示錯誤；現在你可以直接輸入好記的專案名稱。例如輸入 `agy --project \"my-cool-app\"` 就能順利開啟，不用再特地去後台翻查並貼上冗長的專案 ID 代碼。⟦這好比在通訊錄找人，以前非得輸入整串電話號碼才能撥通，現在直接搜尋聯絡人姓名就能找到。⟧",
+              "en": "Specifying a workspace project from the command line is now much more straightforward, as you can pass a project name directly. Previously, the `--project` flag only accepted a project ID and failed with an error on anything else; it now accepts human-readable project names. For example, running `agy --project \"my-cool-app\"` works directly without having to look up and paste an obscure project ID. ⟦It is like looking up a contact in your address book: you used to have to dial the full numeric phone number, but now you can simply search for the person's name.⟧"
+            },
+            "original": "Added support for passing a project name to `--project`, which previously accepted only a project ID and failed on anything else."
+          },
+          {
+            "title": {
+              "zh-TW": "對話改名與刪除支援自訂快捷鍵",
+              "en": "Custom keybindings for renaming and deleting conversations"
+            },
+            "body": {
+              "zh-TW": "使用沒有功能鍵（F 鍵）的精簡鍵盤時，在對話挑選器裡想快速改名或刪除紀錄，以前常因按不到 F2 或 F4 而卡住。現在系統在 `keybindings.json` 設定檔中新增了 `item.rename` 與 `item.delete` 兩個快捷鍵綁定項目，讓你自由替換預設的 `f2` 與 `f4`。你只需在設定檔中加入以下內容，就能改用自訂按鍵：\n```json\n{\n  \"item.rename\": \"ctrl+r\",\n  \"item.delete\": \"ctrl+d\"\n}\n```\n⟦猶如精簡型遙控器缺少特定功能鍵時，廠商允許你把改名和刪除操作自訂到其他常用按鍵上一樣方便。⟧",
+              "en": "If you use a compact keyboard without physical function keys, renaming or deleting history in the conversation picker used to be frustrating without easy access to F2 or F4. The system now introduces `item.rename` and `item.delete` in `keybindings.json`, allowing you to rebind the default `f2` and `f4` shortcuts. You can map them to custom combinations by adding the following snippet to your configuration:\n```json\n{\n  \"item.rename\": \"ctrl+r\",\n  \"item.delete\": \"ctrl+d\"\n}\n```\n⟦It is like a compact TV remote lacking dedicated color keys, where the maker lets you map rename and delete actions to other everyday buttons instead.⟧"
+            },
+            "original": "Added `item.rename` and `item.delete` keybindings for the conversation picker's rename and delete actions, so `f2` and `f4` can be rebound in `keybindings.json` on keyboards without function keys."
+          },
+          {
+            "title": {
+              "zh-TW": "@ 檔案路徑補齊支援容錯搜尋",
+              "en": "@ file path completion adds typo tolerance"
+            },
+            "body": {
+              "zh-TW": "當你在提示列輸入 `@` 搜尋檔案路徑時，難免會手滑按錯相鄰字母或顛倒順序。⟦這像圖書館的智慧檢索機，就算讀者把書名漏打一個字母，機器也能幫忙找出正確藏書，同時把完全符合的書目排在最前面。⟧現在檔案補齊機制加入了容錯備援（fallback）功能。即便搜尋字串中有打錯或位置調換的字元，系統依然能找到你想引用的檔案。同時，容錯比對出的候選檔案排序永遠不會超越完全精準符合的結果，確保你精確輸入時不會被雜訊干擾。",
+              "en": "When typing `@` to complete a file path, it is easy to accidentally transpose characters or mistype an adjacent key. ⟦It is like a library catalog search: even if you mistype a letter in a book title, it still locates the right volume while keeping exact matches at the very top.⟧ The file path completion now includes a typo-tolerant fallback mechanism. Even if your query contains swapped or incorrect characters, it still retrieves the file you meant. Furthermore, typo-based matches will never outrank exact matches, ensuring accurate queries remain prioritized."
+            },
+            "original": "Improved `@` file path completion with a typo-tolerant fallback, so a query with a transposed or mistyped character still finds the file; typo matches never outrank exact ones."
+          },
+          {
+            "title": {
+              "zh-TW": "支援附加 WAV、MP3 等常見音訊格式",
+              "en": "Audio attachments now recognize WAV, MP3, and standard formats"
+            },
+            "body": {
+              "zh-TW": "現在你可以直接把各類常見的錄音檔案附加到對話中，交給模型分析。先前即使 Gemini 模型本身支援多種音訊，命令列工具卻會將常見格式誤判為不支援而拒絕附加；現在系統已能正確辨識這些標準音訊格式。包括 `wav`、`mp3`、`m4a`、`aac`、`flac` 與 `opus` 在內的六種檔案，現在都能順暢附加並送出。⟦這宛如廣播電台升級了全規格錄音座，不論記者遞交哪種標準錄音帶，機器都能直接播放與處理。⟧",
+              "en": "You can now attach everyday audio recordings directly to your conversations for model analysis. Previously, even though Gemini models natively accept multiple audio formats, the CLI would reject standard audio files as unsupported; the tool now properly recognizes these standard formats. Files in `wav`, `mp3`, `m4a`, `aac`, `flac`, and `opus` can now be attached without friction. ⟦It is like a broadcast studio upgrading to a universal deck that smoothly plays whatever standard tape format a reporter brings in.⟧"
+            },
+            "original": "Improved audio attachments by recognizing the standard formats Gemini models accept, including `wav`, `mp3`, `m4a`, `aac`, `flac` and `opus`, which were previously refused as unsupported."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 輸入反應加快，捨棄多餘放開按鍵事件",
+              "en": "Windows typing responsiveness boosted by dropping key-release events"
+            },
+            "body": {
+              "zh-TW": "⟦打字機只要在手指敲下印字頭時打印即可，若連按鍵彈回原位也觸發一次額外的畫面重繪，工作量便會平白翻倍。⟧在 Windows 系統上，主控台（console，負責處理文字輸入輸出的視窗元件）在使用者每次按鍵時，都會同時回報「按鍵按下」與「按鍵放開」兩筆事件。然而命令列工具根本不需要讀取按鍵放開的動作，導致過往每敲一個字元，背後幾乎都承受了兩倍的畫面渲染（rendering，把文字繪製到螢幕上的過程）工作量。現在系統會主動忽略這些無用的放開事件，大幅減輕負擔並讓打字反應更加靈敏。",
+              "en": "⟦A typewriter only needs to strike paper when a key goes down; if it also triggered an extra screen redraw every time the key bounced back up, the effort would double for nothing.⟧ On Windows, the console fires both key-down and key-release events for every keystroke. Because the CLI never reads key releases, this previously roughly doubled the rendering workload for every single letter typed. The system now discards these unused key-release events immediately, noticeably boosting typing responsiveness."
+            },
+            "original": "Improved keystroke responsiveness on Windows by discarding the key-release events the console reports and nothing in the CLI reads, which were roughly doubling the rendering work per keystroke."
+          },
+          {
+            "title": {
+              "zh-TW": "產物檢視器整合大綱與翻頁提示",
+              "en": "Artifact viewer clusters outline and paging shortcuts"
+            },
+            "body": {
+              "zh-TW": "當你在產物（artifact，對話產生的程式碼或文件檔案）檢視器中閱讀長篇文件時，底部的導航提示現在更加一目了然。先前大綱快捷鍵與其他移動提示分散在不同位置，查找時不夠直覺；現在系統把開啟大綱的按鍵移到了捲動與翻頁提示旁邊。如此一來，逐行捲動、整頁翻動以及依據大綱章節跳轉這三種移動方式，便整齊歸納在同一個操作群組中。⟦如同電子書閱讀器的導覽工具列，把章節目錄與翻頁按鈕集中放置，讓你一眼就能掌握所有瀏覽文件的途徑。⟧",
+              "en": "When reading long documents in the artifact viewer, the navigation hints at the bottom of the screen are now much easier to digest. Previously, the outline shortcut was separated from other movement controls; it has now been moved right next to the scroll and page hints. This groups the three navigation methods — scrolling line by line, paging, and jumping via document outline — into a single unified set. ⟦Like an e-reader toolbar that neatly clusters the table of contents button alongside page-turn arrows, letting you see all navigation options at a glance.⟧"
+            },
+            "original": "Improved the artifact viewer footer by moving the outline shortcut next to the scroll and page hints, so the three ways to move through a document read as one group."
+          },
+          {
+            "title": {
+              "zh-TW": "列印模式中斷時正確回報非零錯誤碼",
+              "en": "Print mode now surfaces stream drops and exits non-zero"
+            },
+            "body": {
+              "zh-TW": "使用列印模式（`-p`，直接把回答輸出到終端機而不進入互動畫面的無頭模式）自動化腳本時，最怕中途出錯卻被當成成功。先前若代理程式狀態串流在執行途中意外中斷，系統只會吐出空白內容，卻依然回報成功結束，導致外部自動化流程誤以為任務順利完成。現在系統修復了這個判定缺陷，發生串流中斷時會清楚印出具體的串流錯誤，並以非零狀態碼退出。⟦類似快遞送貨時若包裹在半路遺失，簽收系統會亮起異常紅燈而不是直接蓋上「已送達」印章。⟧",
+              "en": "When automating workflows in print mode (`-p`), having a broken run reported as a clean success can easily slip unnoticed into automated pipelines. Previously, if the agent state stream was dropped mid-run, the CLI printed an empty response and exited cleanly with success, masking the failure. It now surfaces the stream error directly to the terminal and exits with a non-zero status code. ⟦It is like a package delivery tracker flagging a shipment as disrupted rather than falsely marking an empty drop-off box as successfully delivered.⟧"
+            },
+            "original": "Fixed print mode (`-p`) exiting successfully with an empty response when the agent state stream was dropped mid-run, which reported a failed turn as a clean success; it now surfaces the stream error and exits non-zero."
+          },
+          {
+            "title": {
+              "zh-TW": "修正命令列旗標誤吞問題，防範沙盒未啟動",
+              "en": "CLI flags no longer swallow subsequent arguments"
+            },
+            "body": {
+              "zh-TW": "⟦掛接列車時若把隨後的控制車廂誤當成前一節的貨物標籤，整列車的防護機制便會全然失效。⟧在命令列中組合使用多個旗標時，若某個提示詞旗標未帶參數，過往解析器會錯誤地把下一個旗標吞進去當成提示詞內容。例如輸入 `--print --sandbox 'do the task'` 時，系統先前會把 `--sandbox` 當作提示詞送出，導致沙盒防護根本沒有開啟。現在系統修正了參數解析邏輯，不但不會再錯誤吞噬後續旗標，且遇到未接值的旗標或多餘的結尾引數時，都會直接顯示錯誤並阻止執行。",
+              "en": "⟦If a train coupler misidentifies the following engine car as merely a cargo tag on the current coach, the train's entire safety system fails to engage.⟧ When combining flags in the CLI, an empty prompt flag previously swallowed the subsequent flag as its prompt text. For instance, running `--print --sandbox 'do the task'` used to execute with `--sandbox` as the prompt while silently leaving the sandbox disabled. The CLI now corrects flag parsing: this mistake and stray trailing arguments now immediately halt with clear errors."
+            },
+            "original": "Fixed a valueless prompt flag swallowing the next flag as its prompt, so `--print --sandbox 'do the task'` no longer runs with the prompt `--sandbox` and the sandbox off; both that and a stray trailing argument are now errors."
+          },
+          {
+            "title": {
+              "zh-TW": "/btw 卡片限制畫面高度並支援鍵盤捲動",
+              "en": "/btw cards clamp to terminal height and support scrolling"
+            },
+            "body": {
+              "zh-TW": "在對話中開啟側邊提問的 `/btw` 卡片時，若 AI 給出落落長的回覆，展開的卡片以前會一路往下延伸，把底部的快捷鍵提示和輸入列硬生生擠出螢幕外。現在系統會將展開的卡片高度限制在終端機畫面高度之內。當回答內容過長時，你可以直接使用上下方向鍵或翻頁鍵（Page Up 與 Page Down）在卡片內捲動閱讀，不再破壞整個畫面的排版。⟦好比查詢公車動態時跳出的長條路線圖，彈出視窗會好好鎖定在手機螢幕裡並提供捲軸，而不是把底部的功能選單推到畫面外。⟧",
+              "en": "When opening a `/btw` side-question card during a conversation, an extensive response previously stretched the card downward endlessly, shoving the footer hints and the input prompt completely off-screen. The expanded card is now properly clamped to the height of your terminal. When an answer is long, you can scroll through it using the arrow keys and page keys (Page Up and Page Down) without disturbing the rest of the interface. ⟦It is like a transit map popup that stays bounded within your screen and adds a scrollbar, rather than pushing the navigation bar off into nowhere.⟧"
+            },
+            "original": "Fixed an expanded `/btw` card pushing the footer hints and the prompt off-screen on a long answer, which is now clamped to the terminal height and scrollable with the arrow and page keys."
+          },
+          {
+            "title": {
+              "zh-TW": "/resume 正確聚焦於子目錄所屬的工作區",
+              "en": "/resume focuses on active workspace from subdirectories"
+            },
+            "body": {
+              "zh-TW": "當你在專案子目錄中工作並輸入 `/resume` 想繼續先前的對話時，畫面焦點先前會莫名其妙跳到別處。⟦這像搭乘辦公大樓電梯時，螢幕應直接顯示你所在的部門樓層，而不是預設停在地下室讓你在清單裡翻找。⟧以前只要命令列是從工作區的子資料夾啟動，對話挑選清單就不會自動定位到當前專案，反而會滾動到折角下方看不見的位置；現在這項跳頁問題已經修復。系統會正確辨識你所屬的專案工作區，一打開就精準聚焦在當前的對話清單上。",
+              "en": "When working inside a subdirectory and running `/resume` to pick up a previous chat, the list view used to jump to an unexpected location. ⟦It is like entering an office elevator that should highlight your current department's floor, rather than defaulting to the basement and making you scroll up.⟧ Whenever the CLI was launched from a subfolder of your workspace, the conversation picker failed to land on your current workspace, scrolling down below the visible fold. This focusing issue is now fixed, immediately centering on the workspace you are currently in."
+            },
+            "original": "Fixed `/resume` opening below the fold instead of on the workspace you are working in, which happened whenever the CLI ran from a subdirectory of that workspace."
+          },
+          {
+            "title": {
+              "zh-TW": "檔案連結不再清除同一行後續文字樣式",
+              "en": "File links no longer strip styling from the rest of the line"
+            },
+            "body": {
+              "zh-TW": "⟦用螢光筆在書頁上標註特定詞彙時，若筆墨滲透把整行後續文字的顏色全洗成白紙，排版就會嚴重走樣。⟧在終端機輸出中，檔案名稱常會以可點擊的連結形式呈現。先前因為連結結尾的終端機重設指令範圍過大，在重設連結樣式的同時，把同一行後續文字的顏色與粗體等排版樣式也一併清空了；現在系統已修正此項樣式重設邏輯。檔案連結之後的文字現在能完整保留原有的樣式與色彩，不再莫名變回單調的純文字。",
+              "en": "⟦Highlighting a specific phrase on a page should never cause the ink to bleach the rest of the paragraph back to plain black-and-white.⟧ In terminal output, file paths are often formatted as clickable links. Previously, the ANSI reset sequence at the end of a link overreached, inadvertently wiping out the color, bolding, and other styles of all remaining text on that line. The link styling logic is now isolated: prose following a file link retains its intended formatting without dropping back to plain text."
+            },
+            "original": "Fixed text losing its styling for the rest of a line after a file link, where the link's own reset also reset the surrounding prose."
+          },
+          {
+            "title": {
+              "zh-TW": "消除提示列定期跳出的雜訊字元",
+              "en": "Eliminating stray characters appearing in the prompt"
+            },
+            "body": {
+              "zh-TW": "在某些終端機中打字時，輸入列每隔幾秒就會突然冒出一個多餘的雜訊字元，嚴重干擾打字節奏。這起因於系統過往會週期性送出指令來重新確認輸入模式，而部分終端機會把這些控制訊號當成一般文字印在畫面上。事實上，只有終端機多工器（terminal multiplexer，如 tmux 這種能在單一視窗中分割多個虛擬終端機的工具）才會在背後悄悄變更輸入模式。因此系統現在改為只在多工器環境下才發送重新確認指令，徹底消除了常規終端機上的跳字雜訊。⟦這有如會議室裡的對講機，只有在接上多路音訊切換器時才需要發送握手訊號，避免在普通喇叭上一直發出惱人的滴答雜音。⟧",
+              "en": "When typing in certain terminals, a stray ghost character used to pop up in the input prompt every couple of seconds, interrupting your flow. This occurred because the CLI periodically refreshed its terminal input mode, and some terminals echoed those escape sequences as literal text. In practice, only a terminal multiplexer (a tool like tmux that manages multiple virtual terminal sessions within one window) resets these modes behind the scenes. The CLI now restricts periodic re-arming exclusively to multiplexer environments, eliminating phantom characters on standard terminals. ⟦It is like a conference intercom that only broadcasts synchronization handshakes when hooked to a multi-channel mixer, keeping standard speakers free of annoying periodic clicks.⟧"
+            },
+            "original": "Fixed a stray character appearing in the prompt every couple of seconds on terminals that print the CLI's periodic input-mode re-arming as literal text; the re-arm now happens only inside a terminal multiplexer, which is the only thing that resets those modes behind the CLI's back."
+          }
+        ]
+      }
+    },
+    {
       "version": "1.1.17",
       "raw": {
         "version": "1.1.17",
@@ -1243,63 +1404,6 @@
               "en": "When your program consumes `stream-json` output from a headless run (a format that sends the run as JSON lines), its opening `init` event now lists only tools that are truly available in your build. Before, it could advertise tools that could not be found when work began, leaving a receiver that planned from the list on empty ground. This changes the tool sign at the starting line; it does not add tools, it makes the announcement match the toolbox at hand. Like an event map that no longer lists booths already removed, so visitors do not queue up only to find nothing at the door."
             },
             "original": "Fixed the headless `stream-json` `init` event advertising tools that are not available in your build."
-          }
-        ]
-      }
-    },
-    {
-      "version": "1.1.8",
-      "raw": {
-        "version": "1.1.8",
-        "period": "2026-07-28",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-07-28",
-        "entries": [
-          "Print mode (`-p` / `--print`) now supports structured, machine-readable output via the `--output-format` flag (`text` (default), `json`, or `stream-json`), so headless runs in CI, eval harnesses, and scripts can consume the CLI's output programmatically; these flags are now discoverable in `--help`.",
-          "Added the `stream-json` output format: a strongly-typed NDJSON event stream that emits typed `init`, `step_update`, and terminal `result` events with a stable, closed-vocabulary `step_type` discriminator, so consumers receive progress incrementally instead of waiting for the whole run to finish.",
-          "Added the `--json-schema` flag to enforce a custom JSON schema on the structured output, accepting either an inline schema string or a path to a schema file; for `stream-json` the schema applies to the final `result` event.",
-          "Enriched the structured stream with a `tool_info` object for each tool call (canonical tool name, parameters, and output) and a `subagent_info` payload for delegated subagents (including `conversation_id` and `log_uri`) so consumers can correlate child trajectories.",
-          "The JSON usage object emitted by `json` and `stream-json` now reports token accounting including `cache_read_tokens`, so non-interactive consumers can attribute prompt-cache hits.",
-          "Added a `copyOnSelect` setting (default on, toggleable in `/settings`) that controls whether releasing a mouse text-selection auto-copies it to the system clipboard in the TUI's altscreen rendering mode; disable it to stop the automatic copy on release — useful when the auto-copy is unwanted or corrupts certain payloads.",
-          "Improved compound-command permissions so an exact chained command (such as `git fetch && git rebase`) can be saved as an allow-always rule and no longer re-prompts on the next identical run."
-        ]
-      },
-      "curated": {
-        "version": "1.1.8",
-        "period": "2026-07-28",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "命令列輸出能直接交給程式接手",
-              "en": "Command-line output is now ready for programs to consume"
-            },
-            "body": {
-              "zh-TW": "把命令列工具接進 CI（自動跑測試與部署的流程）時，最怕它只吐一大段人看得懂、程式卻接不住的文字。現在在 `-p` 後加 `--output-format json` 或 `--output-format stream-json`，就能拿到結構化輸出；`--help` 也找得到。選 `stream-json` 時，結果會像接力直播：一開始送出 `init`，每一步送 `step_update`，最後才送 `result`，不必等整趟工作結束。每個事件有固定的 `step_type`；工具呼叫才會附工具名稱、參數與輸出。如果有委派子代理，也帶上對話 ID 與紀錄位置。想固定答案格式，可加 `--json-schema`，給規格或檔案路徑。輸出的使用量也多了 `cache_read_tokens`，看得出有多少 token 命中快取（把先前結果暫存再利用）。",
-              "en": "When you connect a command-line tool to CI, a wall of text that only humans can read is a dead end. In print mode, add `--output-format json` or `--output-format stream-json` to hand structured output to a program; both flags now also appear in `--help`. `stream-json` works like a live relay: it sends `init`, then `step_update` events as work progresses, and ends with `result`, so nothing has to wait for the whole run. Each event has a fixed `step_type`; only tool calls include names, parameters, and output. Delegated subagents also provide a conversation ID and log location. Add `--json-schema` with either an inline schema or a schema-file path to require a particular final shape. Usage data now includes `cache_read_tokens`, showing how many tokens hit the prompt cache."
-            },
-            "original": "Print mode (`-p` / `--print`) now supports structured, machine-readable output via the `--output-format` flag (`text` (default), `json`, or `stream-json`), so headless runs in CI, eval harnesses, and scripts can consume the CLI's output programmatically; these flags are now discoverable in `--help`.\nAdded the `stream-json` output format: a strongly-typed NDJSON event stream that emits typed `init`, `step_update`, and terminal `result` events with a stable, closed-vocabulary `step_type` discriminator, so consumers receive progress incrementally instead of waiting for the whole run to finish.\nAdded the `--json-schema` flag to enforce a custom JSON schema on the structured output, accepting either an inline schema string or a path to a schema file; for `stream-json` the schema applies to the final `result` event.\nEnriched the structured stream with a `tool_info` object for each tool call (canonical tool name, parameters, and output) and a `subagent_info` payload for delegated subagents (including `conversation_id` and `log_uri`) so consumers can correlate child trajectories.\nThe JSON usage object emitted by `json` and `stream-json` now reports token accounting including `cache_read_tokens`, so non-interactive consumers can attribute prompt-cache hits."
-          },
-          {
-            "title": {
-              "zh-TW": "選取文字要不要自動複製，自己決定",
-              "en": "You decide whether selecting text copies it automatically"
-            },
-            "body": {
-              "zh-TW": "你在終端機裡拖曳選取一段結果，原本只是想看清楚，鬆開滑鼠卻可能把內容自動塞進剪貼簿，甚至弄壞特定資料。現在 TUI（終端機裡用文字畫出的互動介面）的 altscreen 呈現模式新增 `copyOnSelect`，預設開啟：選取後放開滑鼠便會複製。它像影印機自動送紙，省掉按複製，卻不適合每種紙張。若你貼上後發現內容怪掉，打開 `/settings`，把 `copyOnSelect` 關閉，就只保留選取、不再自動複製。",
-              "en": "You may drag across terminal text only to inspect it, then release the mouse and find that the selection has already landed in your clipboard — sometimes corrupting certain payloads. The TUI's altscreen renderer now has `copyOnSelect`, enabled by default: release a text selection and it copies automatically. It is like a copier that feeds every sheet the moment you touch it: handy when you want a copy, awkward when you do not. If pasted content comes out wrong, open `/settings` and turn `copyOnSelect` off. You can still select text, but releasing the mouse will no longer copy it."
-            },
-            "original": "Added a `copyOnSelect` setting (default on, toggleable in `/settings`) that controls whether releasing a mouse text-selection auto-copies it to the system clipboard in the TUI's altscreen rendering mode; disable it to stop the automatic copy on release — useful when the auto-copy is unwanted or corrupts certain payloads."
-          },
-          {
-            "title": {
-              "zh-TW": "常用串接指令核准一次就夠",
-              "en": "Approve a familiar chained command once, not every time"
-            },
-            "body": {
-              "zh-TW": "你每天都要更新專案，輸入 `git fetch && git rebase` 後又得重複核准，流程像同一張通行證每天重新蓋章。現在可以把這條完全相同的串接指令存成「永遠允許」規則。下次再跑同一條指令時，不必再等，權限確認不會重跳。它認的是整串命令，不是看到 `git` 就一概放行；因此常用流程少一步，其他不同命令仍各自檢查。",
-              "en": "When you update a project every day, approving `git fetch && git rebase` again and again feels like getting the same pass stamped from scratch. You can now save that exact chained command as an always-allow rule. The next time you run the identical command, the permission prompt stays away. The rule recognizes the whole chain, not every command that happens to begin with `git`; your routine loses a step while different commands still receive their own check."
-            },
-            "original": "Improved compound-command permissions so an exact chained command (such as `git fetch && git rebase`) can be saved as an allow-always rule and no longer re-prompts on the next identical run."
           }
         ]
       }
