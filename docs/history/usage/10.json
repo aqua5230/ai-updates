@@ -5,6 +5,64 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.28.10",
+      "raw": {
+        "version": "0.28.10",
+        "period": "2026-07-18",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-18",
+        "entries": [
+          "**Switching panels no longer stalls the UI with a beachball**: cold-rebuilding a panel view (evicted from the small LRU cache) reread and reassembled its HTML from disk every time — now the assembled markup is cached per panel and only built once. Selecting a panel no longer forces `NSUserDefaults.synchronize()` on the main thread. Unchanged panel state is no longer redundantly re-serialized and re-injected when a switch triggers two refresh passes back to back. Evicting an old cached panel view from the LRU cache is now deferred off the click's run-loop turn instead of running inline with the new panel's setup."
+        ]
+      },
+      "curated": {
+        "version": "0.28.10",
+        "period": "2026-07-18",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "切換面板不再轉彩球，畫面終於跟得上手",
+              "en": "Panel switching no longer leaves you waiting on a spinning beachball"
+            },
+            "body": {
+              "zh-TW": "你在面板間點來點去查用量時，畫面不該每次都像重新拆箱再組裝。之前若面板剛好被 LRU cache（快取，把算過的結果暫存起來直接用）擠出去，切回去得從磁碟重讀 HTML 並重組；現在每個面板組好的內容會留著，只建一次。切換時也不再讓主執行緒（專門處理你點擊與畫面的主要工作線）硬做設定同步，連著兩次刷新更不會重複打包同一份狀態。舊面板的清理改在點擊之後處理，就像店員先替你打開下一扇門，再慢慢收回前一間的展示架；換面板時終於不必盯著彩球等它回神。",
+              "en": "When you hop between panels to check usage, the app should not unpack and rebuild a room every time. If a panel had been pushed out of the small LRU cache, switching back used to reread its HTML from disk and assemble it again. Now each panel keeps its finished markup and builds it only once. Switching also stops forcing settings synchronization on the main thread, duplicate back-to-back refreshes no longer repackage unchanged state, and cleanup of an old panel happens after your click. Like a shop attendant opening your next door before tidying the last display, rather than making you wait in the aisle."
+            },
+            "original": "**Switching panels no longer stalls the UI with a beachball**: cold-rebuilding a panel view (evicted from the small LRU cache) reread and reassembled its HTML from disk every time — now the assembled markup is cached per panel and only built once. Selecting a panel no longer forces `NSUserDefaults.synchronize()` on the main thread. Unchanged panel state is no longer redundantly re-serialized and re-injected when a switch triggers two refresh passes back to back. Evicting an old cached panel view from the LRU cache is now deferred off the click's run-loop turn instead of running inline with the new panel's setup."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.28.9",
+      "raw": {
+        "version": "0.28.9",
+        "period": "2026-07-17",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-18",
+        "entries": [
+          "**The Claude Code statusLine hook now works end-to-end on Windows**: four fixes land together. `setup_hook` now prefers an all-ASCII `python.exe` path (falling back to system PATH when the venv path isn't ASCII), since Claude Code on Windows fails to spawn statusLine commands whose path contains non-ASCII characters; `--setup` migrates existing non-ASCII commands. All five hook scripts now read stdin via `sys.stdin.buffer` and decode UTF-8 explicitly (and the forwarder pins `encoding=utf-8` on its subprocess fan-out), since Windows otherwise decodes the piped session JSON with the locale codepage, turning a cwd like `GitHub專案` into mojibake and silently breaking `usage-status.json` writes. Hooks now fall back to `GetUserDefaultUILanguage` when no `LANG`-style env var is set (the Windows norm), matching the tray's existing language detection. `get_width()` now probes the real console width via `CONOUT$` + `GetConsoleScreenBufferInfo` instead of always falling back to a fixed 116 columns, restoring the `(left)` reset-time suffix on wide terminals. Non-Windows behavior is unchanged."
+        ]
+      },
+      "curated": {
+        "version": "0.28.9",
+        "period": "2026-07-17",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 的 Claude Code 狀態列終於正常運作",
+              "en": "Claude Code's status line finally works end-to-end on Windows"
+            },
+            "body": {
+              "zh-TW": "Windows 的 Claude Code 狀態列（statusLine，顯示在終端機最底下的狀態列）終於正常運作。這次修好四處：掛鉤（hook，特定事件發生時被觸發的小程式）優先用全 ASCII 的 Python 路徑；虛擬環境路徑不合就改用系統 PATH，`--setup` 也會遷移舊指令。五支掛鉤用 UTF-8 讀標準輸入（stdin，程式接收外來資料的入口），轉發器啟動子行程時也固定 UTF-8。Windows 不會再以系統語言的編碼頁誤解工作階段 JSON，將 `GitHub專案` 這類工作資料夾變成亂碼、寫壞 `usage-status.json`。沒有 `LANG` 類環境變數時，改查系統介面語言，和系統匣相同；主控台量實際寬度，寬終端機會重現 `(left)` 重設時間。像校正列車資訊牌的線路、語言和尺規，班次不再中途消失。非 Windows 不變。",
+              "en": "On Windows, Claude Code's status line at the bottom of the terminal could fail somewhere along the way. This release fixes four links in that chain. Hooks (small programs triggered by particular events) now avoid Python paths containing non-ASCII characters, and `--setup` migrates older commands. All five hook scripts now read standard input as UTF-8, so a working-folder name like `GitHub專案` is no longer turned into mojibake and prevented from writing `usage-status.json`. If Windows has no `LANG`-style environment variable, the hooks now use the system UI language instead. Wide terminals also measure their actual width again, restoring the `(left)` reset-time suffix. It is like repairing the wiring, language setting, and ruler behind a train-information board so its timetable does not vanish mid-journey. Non-Windows behavior is unchanged."
+            },
+            "original": "**The Claude Code statusLine hook now works end-to-end on Windows**: four fixes land together. `setup_hook` now prefers an all-ASCII `python.exe` path (falling back to system PATH when the venv path isn't ASCII), since Claude Code on Windows fails to spawn statusLine commands whose path contains non-ASCII characters; `--setup` migrates existing non-ASCII commands. All five hook scripts now read stdin via `sys.stdin.buffer` and decode UTF-8 explicitly (and the forwarder pins `encoding=utf-8` on its subprocess fan-out), since Windows otherwise decodes the piped session JSON with the locale codepage, turning a cwd like `GitHub專案` into mojibake and silently breaking `usage-status.json` writes. Hooks now fall back to `GetUserDefaultUILanguage` when no `LANG`-style env var is set (the Windows norm), matching the tray's existing language detection. `get_width()` now probes the real console width via `CONOUT$` + `GetConsoleScreenBufferInfo` instead of always falling back to a fixed 116 columns, restoring the `(left)` reset-time suffix on wide terminals. Non-Windows behavior is unchanged."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.28.8",
       "raw": {
         "version": "0.28.8",
@@ -306,68 +364,6 @@
               "en": "Project names and folder paths on Windows are no longer bizarrely misread by the app. Because Windows paths can be a bit messy, if your current working directory (cwd) was recorded using POSIX-style cwds (paths using forward slashes like `C:/...` typically seen on Mac or Linux) or if it used a dash-encoded name (a format that replaces slashes with hyphens to safely create filenames), the system stubbornly tried to split them strictly by Windows backslashes. This resulted in it keeping the entire long path string as the \"project name\" or completely failing to decode paths because a bare backslash lacks a drive letter. Now, it smartly normalizes all separators on Windows before splitting, and correctly anchors decoded paths to drive roots (like `C:\\`), restoring your actual project folder flawlessly. It's like a mail carrier who used to get utterly confused and fail to deliver your mail if your address was written with commas instead of standard line breaks; now they automatically clean up your address format in their head and drop the package at the correct house every time."
             },
             "original": "**Project names derive correctly from POSIX-style cwds on Windows**: `usage_session_resume._project_from_cwd` and `adapters.claude.project_from_cwd` split paths on `os.sep` only, so a transcript cwd recorded with forward slashes (or a `C:/...`-style path) kept the whole path as the \"project\" on Windows. Both now normalize separators on Windows before splitting; POSIX behavior is unchanged, since backslashes are legal in POSIX filenames.\n**Encoded project-path decoding now works on Windows**: `project_from_encoded_path` reconstructed a project's real directory from its dash-encoded name by searching from the filesystem root, but a bare Windows `\\` has no drive letter and never matches a real path, so decoding always fell back to the raw encoded string. It now anchors at the drive root (e.g. `C:\\`) when the encoded name starts with one; POSIX behavior is unchanged."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.28.0",
-      "raw": {
-        "version": "0.28.0",
-        "period": "2026-07-15",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-15",
-        "entries": [
-          "**Full Windows support**: `usage` now runs natively on Windows, including the TUI, Claude Code status-line hook, and Codex history parsing.",
-          "**Windows system tray UI**: a dynamic tray icon shows the Claude quota percentage; its tooltip summarizes Claude and Codex windows. Left-click opens the same 11 HTML theme panels used on macOS through WebView2, while the right-click menu offers panel switching, refresh, launch at login, update checks, and quit.",
-          "**Portable Windows release**: GitHub Releases now include `usage-windows.zip`, containing `usage.exe` for unzip-and-run use. It requires the Microsoft Edge WebView2 Runtime, which is normally already present on Windows 10 and 11.",
-          "Windows packaging and CI now use PyInstaller and `windows-latest` for both checks and release artifacts. The optional `windows` extra installs pystray, pywebview, and Pillow; macOS-only PyObjC dependencies are guarded by a Darwin platform marker.",
-          "Status-line hook file locking and generated hook-command quoting are platform-aware, so they work on Windows as well as macOS."
-        ]
-      },
-      "curated": {
-        "version": "0.28.0",
-        "period": "2026-07-15",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Windows 全面支援：免安裝直接跑，還有專屬系統匣",
-              "en": "Full Windows support: Native portable release with a dedicated system tray"
-            },
-            "body": {
-              "zh-TW": "Windows 使用者現在能獲得與 Mac 同等級的完整體驗，不用再經過繁瑣的設定就能直接查看 AI 的使用額度了。這次更新讓 `usage` 原生地支援 Windows 系統，包含 TUI（文字使用者介面，沒有滑鼠按鈕、純靠鍵盤在黑底白字命令列裡操作的畫面）、Claude Code 的 status-line hook（狀態列掛鉤，一種能把自己掛在命令列提示字元旁邊、隨時吐出剩餘額度的小程式），以及 Codex 歷史紀錄的解析。你可以在系統右下角看到一個動態的常駐圖示，隨時顯示 Claude 額度百分比，滑鼠懸停還能看見 Claude 與 Codex 兩者的視窗摘要。左鍵點擊會透過 Windows 內建的 WebView2（微軟內建用來在一般軟體裡顯示網頁的底層引擎）開啟那 11 款華麗的 HTML 報告面板；右鍵選單則能切換面板、重新整理、設定開機自動啟動、檢查更新以及結束程式。如果你不想自己安裝環境，GitHub Releases 現在直接提供打包好的 `usage-windows.zip`，解壓縮點開 `usage.exe` 就能用（需有 Windows 10/11 通常已內建的 Microsoft Edge WebView2 Runtime）。背後為了這件事，開發團隊的 CI（持續整合，每次開發者交程式碼時，在雲端自動幫忙測試並打包成軟體的機器人流水線）改用 PyInstaller（一種能把需要環境設定的 Python 程式碼，連同工具包全部壓成一個單一執行檔的打包軟體）來製作發布檔，並把原本 Mac 專用的依賴套件隔開。同時，狀態列掛鉤在讀寫檔案時的鎖定機制與指令引號寫法，也都針對跨平台做了調整，確保兩邊都不會卡死。這就像是原本只在蘋果生態系發行的限定版精裝日曆，現在不但為 Windows 使用者重新開模做了一份，還直接升級成插電即用的免安裝電子版，並且附贈了一個隨時能看的精巧小時鐘釘在你的桌面上。",
-              "en": "Windows users can now enjoy a fully native, first-class experience for tracking AI quotas without jumping through complicated setup hoops. The `usage` tool now runs natively on Windows, fully supporting the TUI (text user interface, a screen operated purely by keyboard in the black-and-white command line without mouse buttons), the Claude Code status-line hook (a small widget that hooks itself next to your command prompt to spit out remaining quotas), and Codex history parsing. You'll find a dynamic system tray icon resting in your lower-right taskbar, displaying your Claude quota percentage; hovering over it summarizes your active windows. A left-click uses WebView2 (Microsoft's built-in engine for rendering web pages inside regular software) to launch the same 11 gorgeous HTML theme panels available on Mac, while a right-click gives you a menu to switch panels, refresh, set it to launch at login, check for updates, or quit. For those who hate setting up environments, GitHub Releases now offers a portable `usage-windows.zip` — just extract and double-click `usage.exe`. Under the hood, the CI (Continuous Integration, a robot pipeline in the cloud that automatically tests and packages the software whenever developers submit code) now uses PyInstaller (a packaging software that squashes environment-dependent Python code and its toolkits into a single executable) to build the release, smartly walling off Mac-specific dependencies. Additionally, the file-locking mechanics and command-quoting for the status-line hook have been made platform-aware so they run flawlessly on both operating systems. It's like a premium designer calendar that used to be a Mac-exclusive product — it hasn't just been remolded for Windows, it's been delivered as a fully assembled, plug-and-play digital edition that comes with a handy little clock permanently pinned to your desk."
-            },
-            "original": "**Full Windows support**: `usage` now runs natively on Windows, including the TUI, Claude Code status-line hook, and Codex history parsing.\n**Windows system tray UI**: a dynamic tray icon shows the Claude quota percentage; its tooltip summarizes Claude and Codex windows. Left-click opens the same 11 HTML theme panels used on macOS through WebView2, while the right-click menu offers panel switching, refresh, launch at login, update checks, and quit.\n**Portable Windows release**: GitHub Releases now include `usage-windows.zip`, containing `usage.exe` for unzip-and-run use. It requires the Microsoft Edge WebView2 Runtime, which is normally already present on Windows 10 and 11.\nWindows packaging and CI now use PyInstaller and `windows-latest` for both checks and release artifacts. The optional `windows` extra installs pystray, pywebview, and Pillow; macOS-only PyObjC dependencies are guarded by a Darwin platform marker.\nStatus-line hook file locking and generated hook-command quoting are platform-aware, so they work on Windows as well as macOS."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.27.4",
-      "raw": {
-        "version": "0.27.4",
-        "period": "2026-07-15",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-15",
-        "entries": [
-          "**Codex card no longer leaves a blank gap (and clips the projects list) on four panels**: the \"Cloud Observation\", \"Aquarium\", \"Prism Arcade\", and \"Black Hole\" panels pinned every quota card at a fixed two-row height. When Codex reports weekly-only rate limits, the session row correctly hides but these four panels kept the card at its full height while the popover window itself had already shrunk by one row, leaving a blank band inside the Codex card and cutting off the projects card at the bottom. The card now collapses along with the missing row, matching the other five panels; the two-row layout is unchanged when both rows are present."
-        ]
-      },
-      "curated": {
-        "version": "0.27.4",
-        "period": "2026-07-15",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "額度卡片不再留難看空白，專案清單完整顯示",
-              "en": "Quota cards drop the ugly blank gaps and stop clipping project lists"
-            },
-            "body": {
-              "zh-TW": "當你在使用特定幾款介面面板時，底部的專案清單不會再被莫名其妙切掉一半，Codex 的額度卡（quota card，顯示剩餘使用次數的區塊）也不會再空出一塊難看的空白了。以前，「雲霧觀測」（Cloud Observation）、「午夜水族箱」（Aquarium）、「秒鏡街機」（Prism Arcade）與「黑洞視界」（Black Hole）這四款面板，把每張額度卡都死板地固定成兩列的高度。當 Codex 只回報每週的限額時，不需要的 Session（單次對話）那列雖然有正確隱藏起來，但這四款面板的卡片外框卻不肯跟著縮小。偏偏這時整個彈窗（popover，點按後彈出的懸浮視窗）的總高度已經自動扣掉了一列，這就導致 Codex 卡片內部留著一塊空白，而真正位在最底下的專案清單反而被擠到視窗外。現在，這四款面板的卡片會像另外五款面板一樣，懂得跟著消失的資料列一起彈性收合；當然，當兩列資料都齊全時，原本的雙列排版依然保持不變。這就像是使用一個硬殼的便當盒，以前就算裡面只裝了一顆白煮蛋，盒子還是佔據著兩層的高度，硬塞進提袋裡不但空蕩蕩的，還把底下的水果壓到提袋外；現在盒子換成了可以摺疊的矽膠保鮮盒，只裝一顆蛋時會自動壓扁一層不浪費空間，而裝滿兩層菜色時也依然堅挺。",
-              "en": "When using certain interface panels, your projects list at the bottom will no longer get mysteriously chopped off, and the Codex quota card (the section displaying your remaining usage limits) won't leave an ugly blank gap anymore. Previously, the \"Cloud Observation\", \"Aquarium\", \"Prism Arcade\", and \"Black Hole\" panels rigidly pinned every quota card to a fixed two-row height. Whenever Codex only reported weekly rate limits, the unneeded Session (single conversation) row correctly hid itself, but the outer frame of the card in these four panels stubbornly refused to shrink. Meanwhile, the overall popover (the small floating window that appears when clicked) had already automatically reduced its total height by one row. This mismatch left a blank band inside the Codex card while shoving the projects card at the very bottom right out of the window frame. Now, the cards in these four panels know how to flexibly collapse along with the missing row, matching the behavior of the other five panels; and naturally, the original two-row layout remains perfectly intact when both rows of data are present. It's like a rigid double-decker lunchbox — previously, even if it only held a single boiled egg, the box still took up two tiers of space, leaving a huge empty gap inside while pushing the fruit at the bottom out of your tote bag. Now, it's been replaced with a collapsible silicone container that automatically flattens down one tier to save space when holding less, while still standing tall when fully packed."
-            },
-            "original": "**Codex card no longer leaves a blank gap (and clips the projects list) on four panels**: the \"Cloud Observation\", \"Aquarium\", \"Prism Arcade\", and \"Black Hole\" panels pinned every quota card at a fixed two-row height. When Codex reports weekly-only rate limits, the session row correctly hides but these four panels kept the card at its full height while the popover window itself had already shrunk by one row, leaving a blank band inside the Codex card and cutting off the projects card at the bottom. The card now collapses along with the missing row, matching the other five panels; the two-row layout is unchanged when both rows are present."
           }
         ]
       }

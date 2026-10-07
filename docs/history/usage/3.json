@@ -5,6 +5,157 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.30.20",
+      "raw": {
+        "version": "0.30.20",
+        "period": "2026-09-23",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-09-23",
+        "entries": [
+          "**The menu bar app uses about half the memory and far less CPU per refresh.** Measured on one machine with 1.6 GB of Claude logs and 596 MB of Codex logs: the memory footprint went from 263 MB to about 130 MB, and each refresh from 1.2–1.65 s of CPU to 0.16–0.47 s. Grok's `updates.jsonl` lines are JSON-decoded only when they carry `costUsdTicks` (212 of 22,491 lines), and the whole Grok result is reused while none of its files change. The history cache drops lines repeated within one Claude log (57% of cached entries), shares repeated model, project and session strings, and skips entries whose source file was deleted; only the cache shards that changed are rewritten. Today's and yesterday's totals compare against local day boundaries instead of converting every entry's time zone, and the source scan groups paths by their parts. The first launch after upgrading re-reads the Claude logs once to rebuild the cache.",
+          "**Generating the HTML report again no longer re-reads every log.** The report's parsers capped their file cache at 512, below a real install's file count, so a sequential scan evicted every file; the cap is now 4096, as in the menu bar's loader. A second load went from 5.0 s to 0.1 s.",
+          "**Claude spending is no longer undercounted after the app restarts.** The on-disk cache dropped the count of 1-hour cache writes, so after a restart they were priced as 5-minute writes (1.25× input instead of 2×). `usage doctor`'s reconciliation against Claude Code's own cost went from 12% apart to 2%. The Claude cache schema was bumped, so existing caches rebuild with the right figures.",
+          "**Turning the status line off and on no longer loses the status line you had before installing usage.** The switch parked the live status line under `previousStatusLine`, the key that holds the pre-install backup, so a later uninstall had nothing to restore. It now uses its own key, and uninstalling while the switch is off restores the original too.",
+          "**Uninstalling restores the Antigravity status line.** `usage unsetup` restored Claude Code, Codex and Grok but left Antigravity pointing at usage's script.",
+          "**Several directories in `CLAUDE_CONFIG_DIR` no longer stop the menu bar from refreshing.** The history scan assumed exactly one Claude directory and crashed when a comma-separated list named more.",
+          "**A setting changed during an update check is no longer reverted.** The background update check saved the preferences it had read before its network request, overwriting anything changed meanwhile; on macOS and Windows it now re-reads them first.",
+          "**The terse-mode and session-resume hooks' built-in fallback text matches the translations.** The fallbacks, shown only when the translation sidecar is missing, had fallen behind `i18n.json`; the English terse reminder also gets back the verb in \"Drop filler … and pleasantries\". Both hook versions were bumped so installed copies are rewritten.",
+          "**CI checks formatting with `ruff format --check`.** The whole project was reformatted once, and that commit is listed in `.git-blame-ignore-revs`.",
+          "**The daylight-saving title test passes Windows' type check.** It calls `time.tzset` through `getattr`, since Windows has no `tzset`.",
+          "**Website on phones.** Chinese and Japanese paragraphs are no longer justified at 640px and below, the Homebrew command fits on one line in the install card, and Windows visitors see the Windows download button first."
+        ]
+      },
+      "curated": {
+        "version": "0.30.20",
+        "period": "2026-09-23",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "選單列記憶體減半且刷新變快，HTML 報表二次載入縮短至 0.1 秒",
+              "en": "Menu bar memory halved and refreshes faster, HTML report second load drops to 0.1 seconds"
+            },
+            "body": {
+              "zh-TW": "讓電腦整天掛著 usage 監控用量，現在吃掉的記憶體和 CPU 都少了很多。實測顯示選單列記憶體從 263 MB 降到約 130 MB，每次刷新從 1.2～1.65 秒 CPU 降至 0.16～0.47 秒。Grok 紀錄只在帶花費時才解 JSON（22,491 行裡只有 212 行），無變動時直接沿用。歷史快取（把查過的結果暫存起來直接用）略過來源檔已刪除的項目，並丟掉同一份 Claude 紀錄裡重複的行。這類重複行占快取項目的 57%；另外讓重複模型、專案與工作階段字串共用一份，並只重寫變動分片。今日與昨日合計改用本地日界線比較，升級後首次開啟會重讀紀錄重建快取。產生 HTML 報表時快取上限由 512 提高至 4096，第二次載入從 5.0 秒降至 0.1 秒。⟦會計師整理年度發票時，先把重複的抬頭合用同一個印章，沒變動的帳冊不再整本重抄，結算速度省下一大半時間。⟧",
+              "en": "Leaving usage running all day to monitor consumption now takes far less memory and CPU. Benchmarks show menu bar memory dropped from 263 MB to about 130 MB, and each refresh dropped from 1.2–1.65 seconds of CPU to 0.16–0.47 seconds. Grok logs decode JSON only when carrying costs (212 of 22,491 lines), and are reused directly when unchanged. The history cache drops lines repeated within one Claude log (57% of cached entries), skips entries whose source file was deleted, shares a single copy of repeated model, project, and session strings, and only rewrites changed shards. Today's and yesterday's totals now compare against local day boundaries, and the first launch after upgrading re-reads logs to rebuild the cache. When generating HTML reports, the cache cap was raised from 512 to 4096, cutting the second load from 5.0 seconds to 0.1 seconds. ⟦An accountant organizing annual invoices reuses one stamp for duplicate headers and avoids recopying unchanged ledgers, cutting settlement time by more than half.⟧"
+            },
+            "original": "**The menu bar app uses about half the memory and far less CPU per refresh.** Measured on one machine with 1.6 GB of Claude logs and 596 MB of Codex logs: the memory footprint went from 263 MB to about 130 MB, and each refresh from 1.2–1.65 s of CPU to 0.16–0.47 s. Grok's `updates.jsonl` lines are JSON-decoded only when they carry `costUsdTicks` (212 of 22,491 lines), and the whole Grok result is reused while none of its files change. The history cache drops lines repeated within one Claude log (57% of cached entries), shares repeated model, project and session strings, and skips entries whose source file was deleted; only the cache shards that changed are rewritten. Today's and yesterday's totals compare against local day boundaries instead of converting every entry's time zone, and the source scan groups paths by their parts. The first launch after upgrading re-reads the Claude logs once to rebuild the cache.\n**Generating the HTML report again no longer re-reads every log.** The report's parsers capped their file cache at 512, below a real install's file count, so a sequential scan evicted every file; the cap is now 4096, as in the menu bar's loader. A second load went from 5.0 s to 0.1 s."
+          },
+          {
+            "title": {
+              "zh-TW": "重新開啟 App 不再少算 Claude 花費，快取寫入計價回歸正確倍率",
+              "en": "Reopening app no longer undercounts Claude spending, cache write pricing returns to correct multiplier"
+            },
+            "body": {
+              "zh-TW": "重啟電腦或重新打開 usage 後，你看到的 Claude 花費不會再少算。以前程式將資料寫入硬碟快取（把查過的結果暫存起來直接用）時，漏掉了「1 小時快取寫入」的筆數。這導致 App 重開後，這批寫入被誤當成費率較低的 5 分鐘快取計價（以輸入價格的 1.25 倍而非正確的 2 倍計算），算出來的花費因而偏低。用 `usage doctor` 跟 Claude Code 自己算的花費對帳，差距從 12% 降到 2%。Claude 的快取結構已升級，現有快取會以正確的倍率重新計算。⟦就像飯店櫃台的電腦重開機後，以前會把住一晚的客人誤登成鐘點休息，帳因此少算一截；現在重開機也會照原本登記的方案收費。⟧",
+              "en": "After restarting your computer or reopening usage, the Claude spending you see is no longer undercounted. Previously, when writing data to disk cache, the program dropped the count of \"1-hour cache writes\". This caused the app, upon reopening, to mistakenly price these writes at the lower 5-minute cache rate (calculated at 1.25× the input price instead of the correct 2×), resulting in undercounted spending. Reconciling with `usage doctor` against Claude Code's own cost figures, the gap went from 12% to 2%. The Claude cache structure was upgraded, so existing caches recalculate with the correct multiplier. ⟦It is like a hotel front-desk system that, after a reboot, used to log overnight guests as short hourly stays and undercharge them; now it keeps charging the plan each guest actually booked.⟧"
+            },
+            "original": "**Claude spending is no longer undercounted after the app restarts.** The on-disk cache dropped the count of 1-hour cache writes, so after a restart they were priced as 5-minute writes (1.25× input instead of 2×). `usage doctor`'s reconciliation against Claude Code's own cost went from 12% apart to 2%. The Claude cache schema was bumped, so existing caches rebuild with the right figures."
+          },
+          {
+            "title": {
+              "zh-TW": "解除安裝完整還原原本的狀態列，開關切換不再覆寫原始備份",
+              "en": "Uninstalling fully restores the original status line, toggle switch no longer overwrites original backup"
+            },
+            "body": {
+              "zh-TW": "你在安裝 usage 之前自己設定的狀態列，現在不會再被弄丟。以前在設定中關閉再開啟狀態列，程式會把當前的狀態列暫存在專門保存安裝前備份的欄位 `previousStatusLine`，導致原本的舊設定被蓋掉，日後解除安裝時找不到最初的設定值。現在開關改用獨立欄位儲存，即使在狀態列關閉的狀態下解除安裝，也能順利找回原本的設定。執行 `usage unsetup` 解除安裝時，除了還原 Claude Code、Codex 與 Grok 之外，現在也會一併還原 Antigravity 的狀態列，不再將其遺留在 usage 的腳本捷徑上。⟦租車出遊換上自己的導航架，還車拆下時車行依舊把原廠螢幕接回，不會因為中途切換過模式就弄丟原本的配備。⟧",
+              "en": "The status line you set up before installing usage is no longer lost. Previously, toggling the status line off and on in settings caused the program to park the active status line under `previousStatusLine`, a field reserved for the pre-installation backup, which overwrote the original configuration and left uninstallation with nothing to restore. Toggling now stores state in an independent field, successfully restoring your original settings even if you uninstall while the status line is turned off. When running `usage unsetup` to uninstall, in addition to restoring Claude Code, Codex, and Grok, it now also restores Antigravity's status line instead of leaving it pointing at usage's script shortcut. ⟦Picture installing your own navigation mount in a rental car; when returning the car and taking it down, the agency still hooks the factory screen back up without losing the original gear just because you switched modes during the trip.⟧"
+            },
+            "original": "**Turning the status line off and on no longer loses the status line you had before installing usage.** The switch parked the live status line under `previousStatusLine`, the key that holds the pre-install backup, so a later uninstall had nothing to restore. It now uses its own key, and uninstalling while the switch is off restores the original too.\n**Uninstalling restores the Antigravity status line.** `usage unsetup` restored Claude Code, Codex and Grok but left Antigravity pointing at usage's script."
+          },
+          {
+            "title": {
+              "zh-TW": "支援多個 Claude 目錄掃描，修復背景更新覆寫設定與 Hook 備援文字",
+              "en": "Scanning multiple Claude directories supported, background update overwriting settings and hook fallback text fixed"
+            },
+            "body": {
+              "zh-TW": "如果你平時會在多個環境目錄切換，或習慣一邊檢查軟體更新一邊調整偏好，日常操作現在更加穩定順手。當你在環境變數 `CLAUDE_CONFIG_DIR` 中用逗號指定多個資料夾時，歷史紀錄掃描不再因預設單一路徑而當掉，選單列能持續正常刷新。背景檢查更新時，程式在連網結束後會先重新讀取最新的設定檔，解決 macOS 與 Windows 上剛改好的設定會被連網前的舊資料覆蓋回去的問題。精簡模式與接續工作階段的 hook（特定事件發生時被觸發的小程式）在遺失翻譯檔時顯示的內建備援文字，已同步至最新 `i18n.json` 內容。英文精簡提醒也補回「Drop filler … and pleasantries」的動詞。兩支 hook 均已升級版本並會自動重寫本機副本。多專案切換與自訂偏好設定的使用者，從此不必再擔心設定被莫名還原或畫面停止更新。",
+              "en": "If you frequently switch between multiple environment directories or adjust preferences while checking for software updates, daily workflows are now smoother and more reliable. When you specify multiple folders separated by commas in the `CLAUDE_CONFIG_DIR` environment variable, history scans no longer crash by assuming a single path, allowing the menu bar to refresh normally. During background update checks, the program now re-reads the latest preferences after the network request finishes, fixing an issue on macOS and Windows where freshly updated settings were overwritten by stale pre-network data. The built-in fallback text shown by terse-mode and session-resume hooks (small programs triggered when specific events occur) when translation files are missing has been synchronized with the latest `i18n.json`. The English terse reminder also restores the verb in \"Drop filler … and pleasantries\". Both hook versions were bumped and will automatically rewrite local copies. Users switching across projects and customizing preferences no longer need to worry about settings unexpectedly reverting or displays freezing."
+            },
+            "original": "**Several directories in `CLAUDE_CONFIG_DIR` no longer stop the menu bar from refreshing.** The history scan assumed exactly one Claude directory and crashed when a comma-separated list named more.\n**A setting changed during an update check is no longer reverted.** The background update check saved the preferences it had read before its network request, overwriting anything changed meanwhile; on macOS and Windows it now re-reads them first.\n**The terse-mode and session-resume hooks' built-in fallback text matches the translations.** The fallbacks, shown only when the translation sidecar is missing, had fallen behind `i18n.json`; the English terse reminder also gets back the verb in \"Drop filler … and pleasantries\". Both hook versions were bumped so installed copies are rewritten."
+          },
+          {
+            "title": {
+              "zh-TW": "官網手機版排版優化，CI 導入 Ruff 檢查並修復 Windows 測試",
+              "en": "Official website mobile layout polished, CI adopts Ruff formatting check and Windows tests fixed"
+            },
+            "body": {
+              "zh-TW": "用手機瀏覽 usage 官方網站，或是在不同作業系統參與專案開發時，閱讀與測試體驗都更為清爽。官網在 640px 以下的手機螢幕上，中日文段落取消了兩端對齊排版，讓窄螢幕閱讀更自然。安裝卡片內的 Homebrew 安裝指令現在能完整在一行內放下，而 Windows 訪客打開首頁時也會優先看到專屬的下載按鈕。在內部維護方面，持續整合（CI，自動驗證程式碼的機制）導入了 `ruff format --check` 檢查程式碼排版，全專案重排的紀錄也已收錄在 `.git-blame-ignore-revs` 中，讓 `git blame` 不會把每一行都算到這次重排頭上。夏令時間標題測試改用 `getattr` 呼叫 `time.tzset`，順利解決 Windows 系統因缺乏該函式而無法通過型別檢查的困擾。",
+              "en": "Whether browsing the official usage website on mobile or contributing across different operating systems, reading and testing experiences are now much cleaner. On mobile screens at 640px and below, the website removes justified text alignment for Chinese and Japanese paragraphs, making narrow-screen reading more natural. The Homebrew install command inside the install card now fits cleanly on a single line, and Windows visitors opening the homepage see the dedicated Windows download button first. For internal maintenance, continuous integration (CI, an automated mechanism for verifying code) introduced `ruff format --check` to verify code formatting, and the commit for reformatting the entire project is recorded in `.git-blame-ignore-revs` so `git blame` does not attribute every line to that reformat. The daylight-saving title test now calls `time.tzset` via `getattr`, resolving type-checking failures on Windows due to the missing function."
+            },
+            "original": "**CI checks formatting with `ruff format --check`.** The whole project was reformatted once, and that commit is listed in `.git-blame-ignore-revs`.\n**The daylight-saving title test passes Windows' type check.** It calls `time.tzset` through `getattr`, since Windows has no `tzset`.\n**Website on phones.** Chinese and Japanese paragraphs are no longer justified at 640px and below, the Homebrew command fits on one line in the install card, and Windows visitors see the Windows download button first."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.30.19",
+      "raw": {
+        "version": "0.30.19",
+        "period": "2026-09-23",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-09-22",
+        "entries": [
+          "**New app icon: a flat ink-wash cat.** Every icon is now generated from one set of SVG sources in `assets/brand/` (color, black, reversed, wordmark, app icon) by `scripts/make_app_icon.py`: the macOS and Windows app icons, the README avatar, the website favicon, apple-touch-icon and logo banner. The app icon follows Apple's grid as a rounded square, so macOS 26 and 27 no longer put it inside a gray frame.",
+          "**Opus 5.5 has an offline price and a short name.** Claude Code 2.1.280 made Opus 5.5 (`claude-opus-5-5`) the default Opus model, but the fallback price table had no entry for it, so whenever the price cache had expired its usage was costed at $0. The table now carries $4/$20 per Mtok with $5 cache writes and $0.20 cache reads, matching LiteLLM, and the usage table shows \"Opus 5.5\" instead of the raw model ID.",
+          "**Grok spending is recovered when `unified.jsonl` is missing.** A missing combined log returned an empty list, so the per-session `updates.jsonl` spending was dropped too. It is now handled like an empty combined log and recovered as before.",
+          "**Website: first-launch guide and live star count.** The install section explains what to do when macOS blocks the first launch (from macOS 15, right-click → Open no longer bypasses Gatekeeper; use System Settings → Privacy & Security → Open Anyway), linked from under the hero download button, and all five READMEs describe the same steps. The Star on GitHub button shows the live star count and hides it if the request fails. Titles mention Grok, theme screenshots are WebP (647KB → 95KB on the English page), and non-English pages carry their own URL, language and description in JSON-LD.",
+          "**Website: CJK typography follows W3C clreq.** Chinese, Japanese and Korean pages use zero heading letter-spacing, break Chinese headings only between words, keep em dashes off the start of a line, and use larger text and line height in the install cards. Justified paragraphs were reverted to normal line breaking after they opened wide gaps in the hero text. English pages are unchanged.",
+          "**Website: the logo's red circle animates.** In the header it draws in on load and shrinks as you read down the page, the copy button closes its small circle on success, a faint large circle turns behind the hero title, and a new 404 page switches among the five languages. All motion is off under `prefers-reduced-motion`.",
+          "**The header mark, social preview image and section tabs use the new icon and a cleaner layout.** The unused butler-cat `docs/avatar.png` was removed."
+        ]
+      },
+      "curated": {
+        "version": "0.30.19",
+        "period": "2026-09-23",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "App 圖示換成水墨貓，各平台標誌統一由腳本產出",
+              "en": "App icon switched to ink-wash cat, all platform logos generated by a script"
+            },
+            "body": {
+              "zh-TW": "在 Mac 或 Windows 桌面上啟動 usage，現在會看見俐落的扁平水墨貓圖示。以前在 macOS 26 與 27 上，圖示會被系統關進灰框；現在依 Apple 格線畫成圓角方塊，不再出現灰框。所有圖示改由 `assets/brand/` 內同一套向量原檔（彩色、全黑、反白、字標、App 圖示）經 `scripts/make_app_icon.py` 產出：涵蓋 Mac 與 Windows 的 App 圖示、README 頭像、官網 favicon、apple-touch-icon 與 logo 橫幅。頁首小圖、社群預覽圖與區段標籤也換上新圖示並簡化版面，未使用的管家貓 `docs/avatar.png` 則已刪除。⟦鑄幣廠用同一套母模壓製不同面額的硬幣與印記，各處標誌都維持一致神韻。⟧",
+              "en": "Launching usage on a Mac or Windows desktop now shows a clean, flat ink-wash cat icon. On macOS 26 and 27, the system previously trapped the icon inside a gray frame; it is now drawn as a rounded square following Apple's grid, eliminating the gray frame. All icons are now generated from the same set of vector source files in `assets/brand/` (color, black, reversed, wordmark, app icon) via `scripts/make_app_icon.py`: covering Mac and Windows app icons, the README avatar, website favicon, apple-touch-icon, and logo banner. The header mark, social preview image, and section tabs also adopt the new icon with a simplified layout, while the unused butler-cat `docs/avatar.png` has been removed. ⟦A mint presses coins and stamps of different denominations from a single master die, keeping the exact same character everywhere.⟧"
+            },
+            "original": "**New app icon: a flat ink-wash cat.** Every icon is now generated from one set of SVG sources in `assets/brand/` (color, black, reversed, wordmark, app icon) by `scripts/make_app_icon.py`: the macOS and Windows app icons, the README avatar, the website favicon, apple-touch-icon and logo banner. The app icon follows Apple's grid as a rounded square, so macOS 26 and 27 no longer put it inside a gray frame.\n**The header mark, social preview image and section tabs use the new icon and a cleaner layout.** The unused butler-cat `docs/avatar.png` was removed."
+          },
+          {
+            "title": {
+              "zh-TW": "Opus 5.5 補齊離線備援價格，用量表改標簡短名稱",
+              "en": "Opus 5.5 adds offline fallback pricing, usage table switches to short name"
+            },
+            "body": {
+              "zh-TW": "平時使用 Claude Code 呼叫最新的預設模型，現在離線也能算出正確花費。從 Claude Code 2.1.280 開始，Opus 5.5（`claude-opus-5-5`）已成為預設的 Opus 模型。然而先前的離線備援價目表遺漏了這筆資料，導致價格快取（把算過的結果暫存起來直接用）一旦過期，該模型的花費就會被錯誤算成 $0。現在價目表已補上每百萬 token（AI 處理與計費的文字單位）輸入 $4、輸出 $20、快取寫入 $5 與快取讀取 $0.20 的定價，標準與 LiteLLM 完全一致。用量報表中的欄位也改為直接顯示「Opus 5.5」，不再印出冗長的原始識別碼。⟦計程車跳表機預載了最新的夜間加成費率表，就算開進收不到訊號的地下道，也能照常按新費率精準計費。⟧",
+              "en": "Calling the latest default model in Claude Code now computes accurate costs even offline. Since Claude Code 2.1.280, Opus 5.5 (`claude-opus-5-5`) has been the default Opus model. However, the previous offline fallback price table omitted this entry, causing the model's cost to be wrongly calculated as $0 whenever the price cache expired. The price table now includes pricing of $4 input, $20 output, $5 cache writes, and $0.20 cache reads per million tokens, matching LiteLLM exactly. Columns in usage reports also directly display \"Opus 5.5\" instead of printing the lengthy raw identifier. ⟦Like a taxi meter preloaded with the latest night-surcharge rates, pricing remains accurate even when driving into an underpass with no signal.⟧"
+            },
+            "original": "**Opus 5.5 has an offline price and a short name.** Claude Code 2.1.280 made Opus 5.5 (`claude-opus-5-5`) the default Opus model, but the fallback price table had no entry for it, so whenever the price cache had expired its usage was costed at $0. The table now carries $4/$20 per Mtok with $5 cache writes and $0.20 cache reads, matching LiteLLM, and the usage table shows \"Opus 5.5\" instead of the raw model ID."
+          },
+          {
+            "title": {
+              "zh-TW": "Grok 缺少總紀錄檔時，各工作階段花費照常自動補回",
+              "en": "Grok per-session spending is recovered automatically when combined log is missing"
+            },
+            "body": {
+              "zh-TW": "查詢 Grok 的使用花費時，就算總紀錄檔尚未建立也不必擔心資料遺失。在先前的機制中，當總彙整檔 `unified.jsonl` 不存在時，系統會直接回傳空清單，導致個別工作階段在 `updates.jsonl` 裡記錄的花費跟著全部丟失。現在程式會將「檔案不存在」比照「檔案內容為空」來處理，照常從各工作階段的日誌中將花費完整補回，確保統計數據不會漏算。⟦抄表員發現社區總電表尚未安裝，便逐一抄下各分戶的獨立電表，依然能把整棟樓的用電度數完整拼湊回來。⟧",
+              "en": "Checking Grok spending no longer risks losing data even if the combined log has not been created yet. Under the previous mechanism, when the combined log file `unified.jsonl` did not exist, the system returned an empty list, causing all spending recorded by individual sessions in `updates.jsonl` to be lost. The program now treats a non-existent file the same as an empty file, fully recovering spending from individual session logs as usual and ensuring statistics are never undercounted. ⟦Picture a meter reader who discovers the building's master electric meter is not yet installed and reads each individual apartment meter instead, completely piecing together the power usage.⟧"
+            },
+            "original": "**Grok spending is recovered when `unified.jsonl` is missing.** A missing combined log returned an empty list, so the per-session `updates.jsonl` spending was dropped too. It is now handled like an empty combined log and recovered as before."
+          },
+          {
+            "title": {
+              "zh-TW": "官網新增首次安裝指引，校正中日韓文字排版與動態細節",
+              "en": "Website adds first-launch guide, CJK typography fixes, and animated details"
+            },
+            "body": {
+              "zh-TW": "造訪 usage 官網時，現在能看到更清晰的指引與細緻動態。安裝區說明 macOS 15 起無法以右鍵打開繞過 Gatekeeper，需至「系統設定」→「隱私權與安全性」點選「強制打開」，首頁下載鈕下方與五份 README 同步附上說明。GitHub 按鈕顯示即時星星數，抓取失敗時自動隱藏，標題補上 Grok。主題截圖改 WebP（英文頁 647KB 降至 95KB），非英文頁的 JSON-LD 帶入專屬網址、語言與描述。中日韓頁依 W3C clreq 校正：標題字距歸零、中文標題僅在詞間斷行、破折號不落行首，安裝卡文字與行距放大，首屏說明改回一般斷行以消除兩端對齊拉出的過大空隙，英文頁不變。頁首紅圈載入時一筆畫出並隨閱讀縮短，複製成功補滿小紅圈，首屏標題後方有淡紅圈旋轉，並新增五語 404 頁；`prefers-reduced-motion` 下所有動畫關閉。",
+              "en": "Visiting the usage website now presents clearer guidance and refined animations. The install section explains that from macOS 15 onward, right-click Open no longer bypasses Gatekeeper, requiring users to go to System Settings → Privacy & Security and click Open Anyway; these instructions are linked below the hero download button and across all five READMEs. The GitHub button shows a live star count and automatically hides if fetching fails, with Grok added to titles. Theme screenshots switch to WebP (dropping from 647KB to 95KB on the English page), and non-English pages populate their own URL, language, and description in JSON-LD. CJK pages follow W3C clreq corrections: heading letter-spacing is zeroed, Chinese headings break only between words, em dashes never start a line, install card text and line height are enlarged, and hero text reverts to standard line breaks to eliminate oversized gaps caused by justified alignment, leaving English pages unchanged. The header's red circle draws in on load and shrinks as you scroll down, the copy button fills in a small red circle on success, a faint red circle rotates behind the hero title, and new 404 pages cover five languages; all animations are disabled under `prefers-reduced-motion`."
+            },
+            "original": "**Website: first-launch guide and live star count.** The install section explains what to do when macOS blocks the first launch (from macOS 15, right-click → Open no longer bypasses Gatekeeper; use System Settings → Privacy & Security → Open Anyway), linked from under the hero download button, and all five READMEs describe the same steps. The Star on GitHub button shows the live star count and hides it if the request fails. Titles mention Grok, theme screenshots are WebP (647KB → 95KB on the English page), and non-English pages carry their own URL, language and description in JSON-LD.\n**Website: CJK typography follows W3C clreq.** Chinese, Japanese and Korean pages use zero heading letter-spacing, break Chinese headings only between words, keep em dashes off the start of a line, and use larger text and line height in the install cards. Justified paragraphs were reverted to normal line breaking after they opened wide gaps in the hero text. English pages are unchanged.\n**Website: the logo's red circle animates.** In the header it draws in on load and shrinks as you read down the page, the copy button closes its small circle on success, a faint large circle turns behind the hero title, and a new 404 page switches among the five languages. All motion is off under `prefers-reduced-motion`."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.30.18",
       "raw": {
         "version": "0.30.18",
@@ -518,199 +669,6 @@
               "en": "Comparing answers from different AI tools side by side is much faster when left to two terminal windows. The project officially removed the AI Council window. This feature previously ran multi-round discussions between Claude Code, Codex, and Antigravity in a separate window, providing upfront token estimates, consensus tallying during the process, and read-only folder access. It was the project's largest subsystem, accounting for roughly 3,600 lines of code across the `discussion/` directory. Yet the output it produced was merely two tools answering the same question side by side in a single pass, which opening two terminal windows already achieved faster. A usage monitor should not be used to run conversations; the quota it consumed was the exact quota it exists to protect. If a stripped-down version is ever needed in the future, the parts remain fully intact in git history. ⟦This contradiction is like a battery indicator screen on a power bank that stays lit day and night to show flashy animations, draining the very backup power you need to preserve most when away from home.⟧"
             },
             "original": "**AI Council.** A separate window ran a multi-round discussion between Claude Code, Codex and Antigravity, with a token estimate up front, consensus tallying, and read-only folder access. It was the largest subsystem in the project at roughly 3,600 lines across `discussion/`, and the thing it produced — the same question answered by two tools, side by side, ending in one pass — is something two terminal windows already do faster. A usage monitor is the wrong place to run conversations; the quota it spent was the quota it exists to protect. The parts are in git history if a stripped-down version is ever wanted."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.30.10",
-      "raw": {
-        "version": "0.30.10",
-        "period": "2026-09-07",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-09-07",
-        "entries": [
-          "**Grok now appears in the report and the interactive dashboard.** The menu bar has carried a Grok quota card for a while and `loaders/grok_loader.py` could already produce per-call token detail, but there was no `adapters/grok.py`, so both `usage report` and the dashboard were blind to it. The adapter was added along with the four lookup tables that have to agree: the registry's detector list, the `AGENT_LOADERS` maps in `usage_cli` and `reporter`, and `AGENT_SHORT` / `AGENT_LABEL` in `ui/tables`.",
-          "**The report breaks tokens into four kinds and shows each tool's cache hit rate.** The headline \"tokens burned\" was one number summing four different things; locally, 93.8% of a 2,565,454,499-token period was `cache_read` and only 0.7% was output the model actually generated, so the total said nothing. `UsageEntry` has always carried all four fields and `loaders/disk_cache_common.py` serialized all four — `reporter` was dropping them when it built the summary, so no cache and no schema version had to change. Cache hit rate is `cache_read / (input + cache_creation + cache_read)`; output is excluded because it is generated, not sent in. A high rate is the healthy end — old context reused at roughly a tenth of the price instead of re-sent at full rate — and the copy in all five languages is written to keep it from being read as \"most of my tokens are wasted repeats.\"",
-          "**\"One-pass rate\" is now a section of its own, third from the top.** Whether the AI finished without you stepping in is a measure with no pre-LLM equivalent; the data was already computed and already drawn, but it sat in a small card inside \"usage habits\" in section 11, where most people never scrolled. It is now a full section placed after Insights and before Tools, and the model rows use the report's existing rank-line layout sorted by pass rate rather than by turns — the question the section answers is which model needs the least going back over, not which one is used most. No new i18n keys were required.",
-          "**The AI roundtable can pick Codex's Astra model.** `gpt-6-astra` is Codex's new default, but the roundtable's model allowlist hard-coded the three 5.6 variants. Pricing and the report needed no change: LiteLLM's table already carries real prices in all four of its fields, and the report's color assignment matches on the `gpt` prefix.",
-          "**\"Cost burned\" is now \"API equivalent.\"** The label presented a figure multiplied out from list prices as money actually spent, which is misleading for subscription users whose marginal cost is zero. Renamed in all five languages; the Traditional Chinese-only NTD conversion went with it, since that ran an assumed figure through an exchange rate a second time. The number itself stays — API users still need it. The two headline cards never shared a denominator: \"tokens burned\" counts every agent, while \"API equivalent\" can only count models with a published price, so a subtitle now explains the gap, and only when unpriced tokens actually exist.",
-          "**Token composition is a ranked list instead of a stacked bar.** With one category at 93.8%, the other three collapsed into invisible slivers, the in-bar percentage labels piled up into `4.6% 0.1.93.7%` at the left edge, and the legend's swatches had no size styling at all. A stacked bar is the wrong chart once a single category passes ninety percent, and the four are not peers anyway — input, cache write and cache read are all context sent in, output is generated. Each category now gets its own row with its own columns, and the bar's 2% minimum width keeps a 0.7% share visible. Per-tool cache hit rates use the same layout, sorted by rate, so the weakest tool is the last row rather than something you have to hunt for.",
-          "**The report's data rows are filled bars, with columns that line up across every section.** Four separate problems: the two row systems (`.rank-line` and `.tool-row`) used different track widths and gaps, so numbers sat at different x positions in different sections; the share bar was a child of `.name` and capped by the name column, so it drew to about half the row and stopped; every section nested a section frame, a card frame and a row frame; and two sections used the shared layout with no column headers. The tools section had no bar element at all and now has one, with each tool's color keyed on its agent id rather than its sort position — `by_agent` is ordered by tokens, so a palette indexed by position would repaint every tool whenever two swapped places.",
-          "**The weekly burn section lost its daily line chart.** It had no scale and no values, did not match the \"weekly\" heading it sat under, and could not be read for anything actionable. The rows below it, carrying week number, value and week-over-week change, are unchanged.",
-          "**The top KPI row no longer repeats the one-pass rate.** Five cards laid out badly in a two-column grid, and the full section below already carries the per-model detail.",
-          "**The report says which span it is comparing against.** \"vs. last month\" and \"vs. last week\" became a single \"vs. previous period,\" and the annual block is now \"last 53 weeks\" with the week count supplied by `WrappedReportData.weeks` from `_YEAR_WEEKS`, so the copy follows the constant if it ever changes.",
-          "**The quota warning fits inside the panels.** The red \"running out\" line was `white-space: nowrap` and needed 320–470px, but the panels' text box is 304–320px and the cards are `overflow: hidden` — deliberate retro chrome, not removable — so the sentence was cut off. Measured across 13 panels × 5 languages: Japanese lost 81–150px, and only three panels' English fit. The wording is now shorter with the same meaning. The World Cup panel gets an even shorter variant that omits the reset time, since its head-to-head layout leaves each side only 151px.",
-          "**The year ledger is never silently discarded.** `_read_year_ledger()` had four paths that returned an empty ledger, the worst being a `schema_version` mismatch: anyone changing a ledger field and bumping the version would have quietly zeroed every user's accumulated history, with no backup to recover from. This file exists precisely so that history survives after the raw logs rotate away, so clearing it defeats the thing it is for. Measured during development: one version bump took the local heatmap from 119 days to 36. A mismatched version now logs a warning and parses day by day anyway — `_year_day_from_json` already tolerates missing fields — and only a genuinely unreadable or structurally wrong file is moved into `~/.usage/quarantine/` before returning empty, matching what the disk cache already does.",
-          "**A git worktree whose main repo is bare no longer splits one project into two.** `resolve_project_name()` resolved the worktree back to its main path and took the basename, so the project name carried a `.git` suffix. `adapters/claude.py` parses paths without calling git and reported `obsidian00`, while the other three loaders went through `project_resolver` and reported `obsidian00.git`; locally that was 5997 entries against 3732, and the report listed one project twice, at 21.70% and 10.80%. The same bug sat in three layers: the resolver now strips a trailing `.git`, Codex's shard cache went from schema 4 to 5 so the 28 shards holding the old name are re-parsed, and the year ledger — which cannot be invalidated by a version bump without losing the only copy of that history — folds `X.git` back into `X` at read time instead.",
-          "**Token units no longer skip a tier when they round up.** `_fmt_tokens` picked the tier from the raw value and rounded afterwards without re-checking, so 999,950 printed as `1000.0K` and 999,950,000 as `1000.0M`.",
-          "**A type error in the token composition tests.** `data[\"summary\"]` and the elements of `data[\"by_agent\"]` are TypedDicts, so mypy rejects a loop variable used as a key; the two assertions now go through an `Any` intermediate. The lines came from the composition work and were not caught earlier because that batch had not been pushed yet."
-        ]
-      },
-      "curated": {
-        "version": "0.30.10",
-        "period": "2026-09-07",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Grok 登上用量報表與互動儀表板，四張對照表同步補齊",
-              "en": "Grok arrives in usage reports and the interactive dashboard with four synchronized lookup tables"
-            },
-            "body": {
-              "zh-TW": "平時習慣呼叫 Grok 協作的開發者，現在執行 `usage report` 或切換至互動儀表板時，終於能將它的用量一併納入統計。⟦這好比商場服務台早早掛出新專櫃的會員卡，樓層指南與各收銀機名冊卻全漏記，消費者看全館總表時始終找不到它；把各處對照表補齊後才完整歸隊。⟧先前 macOS 選單列雖有 Grok 的額度卡，讀取器 `loaders/grok_loader.py` 也能吐出逐次呼叫的 token（AI 處理與計費的文字單位）明細，但轉接層缺少 `adapters/grok.py`，導致終端機報表與儀表板對它視而不見。這次除了補上轉接器，也同步了四張必須一致的對照表：註冊表的偵測清單、指令列與報表產生器的 `AGENT_LOADERS`，以及表格介面的 `AGENT_SHORT` 與 `AGENT_LABEL`。",
-              "en": "Developers who regularly collaborate with Grok can now finally include its usage in statistics when running `usage report` or switching to the interactive dashboard. ⟦This is like a mall information desk displaying membership cards for a new boutique while the floor directory and register rosters omit it entirely, leaving shoppers unable to find it on the mall-wide directory until lookup tables everywhere are completed.⟧ While the macOS menu bar previously had a Grok quota card and the loader `loaders/grok_loader.py` could produce per-call token details, the adapter layer lacked `adapters/grok.py`, leaving the terminal report and dashboard blind to it. In addition to adding the adapter, this update synchronizes the four lookup tables that must agree: the registry's detector list, `AGENT_LOADERS` in the CLI and report generator, and `AGENT_SHORT` and `AGENT_LABEL` in the table UI."
-            },
-            "original": "**Grok now appears in the report and the interactive dashboard.** The menu bar has carried a Grok quota card for a while and `loaders/grok_loader.py` could already produce per-call token detail, but there was no `adapters/grok.py`, so both `usage report` and the dashboard were blind to it. The adapter was added along with the four lookup tables that have to agree: the registry's detector list, the `AGENT_LOADERS` maps in `usage_cli` and `reporter`, and `AGENT_SHORT` / `AGENT_LABEL` in `ui/tables`."
-          },
-          {
-            "title": {
-              "zh-TW": "報表細分四類 token 並顯示快取命中率，釐清真實消耗",
-              "en": "Reports split tokens into four categories and display cache hit rates to clarify real consumption"
-            },
-            "body": {
-              "zh-TW": "想掌握 AI 的實際消耗，過去報表頂部的「燒掉 Tokens」只把四種不同性質的數字加總成單一數值，根本看不出關鍵細節。⟦這好比水電帳單只印出一筆總度數，卻把洗澡水、澆花水與管線循環水全混在一起，讓人無法判斷用水習慣是否健康。⟧本機測試某期 2,565,454,499 個 token（AI 處理與計費的文字單位）裡，高達 93.8% 是讀取快取的舊資料。快取就是把算過或查過的結果暫存起來直接取用；模型真正生成的輸出只佔 0.7%，單看總額毫無意義。現在報表正式拆分為輸入、快取寫入、快取讀取與輸出四類，並計算各工具的快取命中率。算式以快取讀取除以三種輸入脈絡總額，排除掉生成出的輸出。高命中率代表舊脈絡以約十分之一的單價重複取用，五種語言的文案也明確引導此數值象徵體質良好而非無效重複。底層一直都記錄著這四個欄位，先前僅是報表彙整時丟棄，因此不必清理快取或升級資料格式。",
-              "en": "To understand actual AI consumption, the headline \"tokens burned\" at the top of previous reports summed four distinct numbers into a single total, obscuring key details. ⟦This is like a water bill that only prints a single total usage while lumping shower water, garden water, and recirculated pipe water together, making it impossible to judge whether consumption habits are healthy.⟧ In local testing across a period of 2,565,454,499 tokens, as much as 93.8% was cache read while only 0.7% was output the model actually generated, rendering the raw total meaningless. The report now formally breaks down usage into input, cache write, cache read, and output, while calculating cache hit rates for each tool. The formula divides cache read by the sum of the three input contexts, excluding the generated output. A high hit rate indicates that old context is reused at roughly one-tenth the unit price, and the copy across all five languages explicitly frames this metric as a sign of healthy efficiency rather than wasteful repetition. The underlying layer has always recorded all four fields and previous versions merely discarded them during report aggregation, so no cache clearing or data format upgrade is required."
-            },
-            "original": "**The report breaks tokens into four kinds and shows each tool's cache hit rate.** The headline \"tokens burned\" was one number summing four different things; locally, 93.8% of a 2,565,454,499-token period was `cache_read` and only 0.7% was output the model actually generated, so the total said nothing. `UsageEntry` has always carried all four fields and `loaders/disk_cache_common.py` serialized all four — `reporter` was dropping them when it built the summary, so no cache and no schema version had to change. Cache hit rate is `cache_read / (input + cache_creation + cache_read)`; output is excluded because it is generated, not sent in. A high rate is the healthy end — old context reused at roughly a tenth of the price instead of re-sent at full rate — and the copy in all five languages is written to keep it from being read as \"most of my tokens are wasted repeats.\""
-          },
-          {
-            "title": {
-              "zh-TW": "一次過關率獨立成報表第三區，頂部 KPI 卡不再重複顯示",
-              "en": "One-pass rate becomes an independent third section in the report, removing duplicates from top KPI cards"
-            },
-            "body": {
-              "zh-TW": "你想知道哪款模型最省心、最不需要你回頭反覆插手修正，「一次過關率」現在被拉升成報表第三區的獨立大板塊。這項衡量 AI 能否一次搞定任務的指標早就算好，先前卻埋在第 11 區「使用習慣」的小卡裡，多數人根本捲不到。如今它改排在洞察之後、工具之前，各模型採用排行列版面依過關率由高至低排序，直接回答哪款模型最不用重修，而非單看誰的對話輪次多。頂部關鍵績效指標（KPI，衡量核心表現的量化卡片）也同步移除了重複的一次過關率，解決過去五張卡硬塞在雙欄網格中的難看排版，而且沒有新增任何多國語系文字鍵。⟦這就像餐廳評鑑把「廚師一試成菜率」從附錄角落拉到首頁專欄，依退菜次數由少到多排列，頂部總覽區便無須再塞入重複的概括數字。⟧",
-              "en": "For those wanting to know which model requires the least intervention and fewest follow-up fixes, \"one-pass rate\" has been promoted to a standalone third section in the report. This metric measuring whether AI completes tasks on the first attempt was already computed, but previously sat buried inside a small card under section 11 \"usage habits\" where most users never scrolled. It is now positioned after Insights and before Tools, with model rows using a ranked layout sorted by pass rate from highest to lowest to directly answer which model needs the fewest revisions rather than just looking at turn count. The top key performance indicator (KPI) cards also removed the duplicate one-pass rate, fixing an awkward layout where five cards were squeezed into a two-column grid without requiring any new i18n localization keys. ⟦This is like a restaurant guide moving the \"chef first-try dish success rate\" from an appendix corner to a front-page column sorted from fewest dishes sent back to most, eliminating the need to crowd redundant overview numbers into the header.⟧"
-            },
-            "original": "**\"One-pass rate\" is now a section of its own, third from the top.** Whether the AI finished without you stepping in is a measure with no pre-LLM equivalent; the data was already computed and already drawn, but it sat in a small card inside \"usage habits\" in section 11, where most people never scrolled. It is now a full section placed after Insights and before Tools, and the model rows use the report's existing rank-line layout sorted by pass rate rather than by turns — the question the section answers is which model needs the least going back over, not which one is used most. No new i18n keys were required.\n**The top KPI row no longer repeats the one-pass rate.** Five cards laid out badly in a two-column grid, and the full section below already carries the per-model detail."
-          },
-          {
-            "title": {
-              "zh-TW": "AI 圓桌納入 Codex 的 Astra 預設模型，名單不再寫死",
-              "en": "AI roundtable incorporates Codex's default Astra model as the allowlist is no longer hardcoded"
-            },
-            "body": {
-              "zh-TW": "召開 AI 圓桌讓多款模型共同商討問題時，你現在已能指派 Codex 最新的 Astra 模型加入對話。⟦這如同會議室名單原本寫死只邀三位資深代表，當新任首席代表上任時便被警衛攔在門外；把名冊放寬後，新代表就能直接入席開會。⟧`gpt-6-astra` 是 Codex 當前的新預設模型，但圓桌先前的模型白名單寫死了 5.6 版的三款舊變體，導致新旗艦無法登場。這次放行無須更動價目表與報表：LiteLLM 的價格表早已完整收錄該模型的四項實價，報表的顏色分配也只要命中 `gpt` 前綴就能自動對應，切換選擇毫無阻礙。",
-              "en": "When convening an AI roundtable to deliberate issues across multiple models, you can now assign Codex's latest Astra model to the discussion. ⟦This is like a conference room roster that rigidly invited only three senior delegates, causing security to turn away the newly appointed chief delegate at the door until the list was opened up so the new representative could take a seat.⟧ `gpt-6-astra` is Codex's current new default model, but the roundtable's previous model allowlist hardcoded three older 5.6 variants, preventing the new flagship from appearing. Enabling it required no changes to pricing tables or reports: LiteLLM's price list already covers the model's four actual prices, and report color assignments match automatically on the `gpt` prefix, so switching works without another change."
-            },
-            "original": "**The AI roundtable can pick Codex's Astra model.** `gpt-6-astra` is Codex's new default, but the roundtable's model allowlist hard-coded the three 5.6 variants. Pricing and the report needed no change: LiteLLM's table already carries real prices in all four of its fields, and the report's color assignment matches on the `gpt` prefix."
-          },
-          {
-            "title": {
-              "zh-TW": "「燒掉成本」更名為「API 等值」，移除新台幣換算並以副標說明差額",
-              "en": "\"Cost burned\" is renamed to \"API equivalent\", removing NTD conversion and clarifying gaps via subtitles"
-            },
-            "body": {
-              "zh-TW": "每次打開報表看到「燒掉成本」這個標籤，往往讓人誤以為自己真的刷卡付出了這筆費用。這項數值僅是依照官方牌價乘出來的假設數字，對於每個月繳固定月費、邊際成本為零的包月使用者來說相當容易引起誤解。現在五種語言統一改名為「API 等值」，先前繁體中文特有的新台幣換算也一併移除，避免將假設數字再乘上匯率二次失真。該數值本身依然保留，供按量計費的 API 使用者參考。另外，由於「燒掉 Tokens」統計了所有代理工具，而「API 等值」僅能計算具備公開牌價的模型，兩張頭條卡的分母並不相同；因此只有在確實出現無牌價用量時，卡片才會顯示副標題說明兩者的差額。⟦這有如健身房月費會員查看運動手環時，熱量消耗換算出的「外食便當等值金額」僅供參考，若標示成「你今天花掉的餐費」反而會讓人誤以為荷包失血。⟧",
-              "en": "Opening the report and seeing the \"Cost burned\" label often gave the mistaken impression that one had actually paid that amount out of pocket. Because this figure is merely a hypothetical number multiplied out from official list prices, it easily misled subscription users who pay a fixed monthly fee with zero marginal cost. The label is now unified across all five languages as \"API equivalent\", and the NTD conversion previously unique to Traditional Chinese has been removed to avoid distorting an assumed number a second time through exchange rates. The value itself remains available for pay-as-you-go API users who need it. Furthermore, because \"tokens burned\" counts all agents while \"API equivalent\" can only calculate models with published list prices, the two headline cards do not share the same denominator; a subtitle now explains the gap, but only when unpriced usage actually exists. ⟦This is like a monthly gym member looking at a fitness tracker where burned calories are converted into an \"equivalent dining-out cost\" for reference, which would falsely imply wasted money if labeled as \"money spent on meals today.\"⟧"
-            },
-            "original": "**\"Cost burned\" is now \"API equivalent.\"** The label presented a figure multiplied out from list prices as money actually spent, which is misleading for subscription users whose marginal cost is zero. Renamed in all five languages; the Traditional Chinese-only NTD conversion went with it, since that ran an assumed figure through an exchange rate a second time. The number itself stays — API users still need it. The two headline cards never shared a denominator: \"tokens burned\" counts every agent, while \"API equivalent\" can only count models with a published price, so a subtitle now explains the gap, and only when unpriced tokens actually exist."
-          },
-          {
-            "title": {
-              "zh-TW": "Token 組成與快取命中改採排行列，微小比例不再被壓扁",
-              "en": "Token composition and cache hit rates switch to ranked lists, preventing tiny shares from collapsing"
-            },
-            "body": {
-              "zh-TW": "當單一類別佔比超過九成時，傳統的堆疊長條圖就會變成一場排版災難。先前在快取讀取高達 93.8% 的情況下，其餘三種類別被壓成看不見的細縫，長條內的百分比文字甚至重疊成 `4.6% 0.1.93.7%` 擠在最左側，圖例色塊也缺乏尺寸樣式。輸入、快取寫入與快取讀取都屬於傳入的脈絡，而輸出是生成的文字，性質本不相同。現在改採排行列呈現，四種類別各自擁有獨立的一列與專屬欄位，且長條設有 2% 的最小寬度，讓僅佔 0.7% 的微小產出依然清晰可辨。各工具的快取命中率也套用同款版面依命中率排序，體質最差的工具直接落在最後一列。同時，測試中針對 TypedDict 型別以迴圈變數當鍵遭 mypy 拒絕的問題，也透過 `Any` 中介變數順利修復。⟦這好比大合照時體型差距懸殊、名牌全疊成一團，改成單人單列橫條後，每位成員的身形與名次才清晰可辨。⟧",
-              "en": "When a single category exceeds ninety percent, traditional stacked bar charts turn into a layout disaster. Previously, with cache reads reaching 93.8%, the other three categories collapsed into invisible slivers, in-bar percentage text overlapped into `4.6% 0.1.93.7%` at the far left edge, and legend color swatches lacked sizing styles entirely. Input, cache write, and cache read all represent incoming context while output consists of generated text, making them fundamentally distinct in nature. The presentation has now shifted to ranked lines where each of the four categories receives its own row and dedicated columns, with bars given a 2% minimum width to keep even a tiny 0.7% output clearly visible. Per-tool cache hit rates adopt the same layout sorted by hit rate, placing the worst-performing tool on the final row. Meanwhile, a test issue where mypy rejected loop variables used as keys on TypedDict types was resolved cleanly using an `Any` intermediate variable. ⟦This is like a group photo where huge differences in size cause name tags to pile on top of each other, until switching to individual single-row bars makes every member's stature and standing clear.⟧"
-            },
-            "original": "**Token composition is a ranked list instead of a stacked bar.** With one category at 93.8%, the other three collapsed into invisible slivers, the in-bar percentage labels piled up into `4.6% 0.1.93.7%` at the left edge, and the legend's swatches had no size styling at all. A stacked bar is the wrong chart once a single category passes ninety percent, and the four are not peers anyway — input, cache write and cache read are all context sent in, output is generated. Each category now gets its own row with its own columns, and the bar's 2% minimum width keeps a 0.7% share visible. Per-tool cache hit rates use the same layout, sorted by rate, so the weakest tool is the last row rather than something you have to hunt for.\n**A type error in the token composition tests.** `data[\"summary\"]` and the elements of `data[\"by_agent\"]` are TypedDicts, so mypy rejects a loop variable used as a key; the two assertions now go through an `Any` intermediate. The lines came from the composition work and were not caught earlier because that batch had not been pushed yet."
-          },
-          {
-            "title": {
-              "zh-TW": "報表資料列改為整列量條，跨區塊數值對齊同一基準線",
-              "en": "Report data rows become full-width bars, aligning values across sections to a shared baseline"
-            },
-            "body": {
-              "zh-TW": "檢視報表中不同區塊的數據時，數字與量條不再忽左忽右跳動。⟦這有如試算表裡多張工作表的直欄寬度各吹各的調，數字忽左忽右難以閱讀；重新劃定同一套格線並固定標籤顏色後，整份報表才整齊劃一。⟧過去排版存在四個獨立缺陷：兩套資料列樣式（`.rank-line` 與 `.tool-row`）因欄寬與間距相異，導致數值在各區塊落在不同的水平位置；佔比量條被限制在名稱欄內，只能畫到半列就硬生生中斷；每個區塊層層疊加了區塊、卡片與列框三層多餘邊界；更有兩處區塊缺少欄位表頭。現在資料列改為貫穿整列的進度條，工具區補上了量條元素，且工具的顏色直接綁定代理識別碼（agent id）而非排序位置，避免工具名次互換時發生整批重新塗色的混亂。",
-              "en": "When reviewing data across different report sections, numbers and bars no longer jitter unpredictably between left and right. ⟦This is like a spreadsheet where multiple sheets use mismatched column widths that scatter numbers everywhere, until establishing a unified grid and consistent label colors brings the entire report into clean alignment.⟧ The previous layout suffered from four separate defects: two row styles (`.rank-line` and `.tool-row`) used differing column widths and gaps that placed numbers at different horizontal positions across sections; share bars were trapped inside the name column and abruptly stopped halfway across the row; every section stacked three redundant borders of section, card, and row frames; and two sections lacked column headers entirely. Data rows are now full-width progress bars, the tools section adds bar elements, and tool colors are keyed directly to the agent ID rather than sort position to avoid repainting every tool whenever rankings shift."
-            },
-            "original": "**The report's data rows are filled bars, with columns that line up across every section.** Four separate problems: the two row systems (`.rank-line` and `.tool-row`) used different track widths and gaps, so numbers sat at different x positions in different sections; the share bar was a child of `.name` and capped by the name column, so it drew to about half the row and stopped; every section nested a section frame, a card frame and a row frame; and two sections used the shared layout with no column headers. The tools section had no bar element at all and now has one, with each tool's color keyed on its agent id rather than its sort position — `by_agent` is ordered by tokens, so a palette indexed by position would repaint every tool whenever two swapped places."
-          },
-          {
-            "title": {
-              "zh-TW": "報表時間週期與對比標記更明確，移除無刻度的每日折線",
-              "en": "Report timeframes and comparison markers gain clarity, removing scaleless daily line charts"
-            },
-            "body": {
-              "zh-TW": "追蹤長期消耗趨勢時，報表展示的時間跨度如今更加清晰嚴謹。每週燃燒趨勢區塊移除了原本夾帶的每日折線圖，因該折線既無刻度也無具體數值，不但對不上「每週」的標題，也無法提供任何可化為行動的有效資訊；底下的週次、數值與週增減橫條則維持不變。同時，報表明確講清楚了比較的基準期間，將「較上月」與「較上週」統合成「較前期」；年度統計區塊也正名為「近 53 週」，其週數由程式常數自動傳入，日後常數調整時文案會即時跟上。⟦這彷彿帳單收據拿掉了沒有刻度與單位的裝飾性波動圖，只保留清楚的每週明細與增減數值，並把對照週期寫得一清二楚。⟧",
-              "en": "When tracking long-term consumption trends, the report's timeframes are now clearer and more rigorous. The weekly burn trend section dropped its embedded daily line chart because it had no scale or values, failed to match the \"weekly\" heading, and provided no actionable information, while the week numbers, values, and week-over-week bars below remain unchanged. At the same time, the report clarifies its comparison baseline by unifying \"vs. last month\" and \"vs. last week\" into \"vs. previous period\", while the annual section is renamed \"last 53 weeks\" with the week count passed from program constants so the copy updates automatically if constants change. ⟦This is like a billing receipt stripping away decorative fluctuation charts lacking scales or units, keeping only clear weekly breakdowns with changes and explicitly stating the comparison period.⟧"
-            },
-            "original": "**The weekly burn section lost its daily line chart.** It had no scale and no values, did not match the \"weekly\" heading it sat under, and could not be read for anything actionable. The rows below it, carrying week number, value and week-over-week change, are unchanged.\n**The report says which span it is comparing against.** \"vs. last month\" and \"vs. last week\" became a single \"vs. previous period,\" and the annual block is now \"last 53 weeks\" with the week count supplied by `WrappedReportData.weeks` from `_YEAR_WEEKS`, so the copy follows the constant if it ever changes."
-          },
-          {
-            "title": {
-              "zh-TW": "配額警告文案精簡，完整塞入選單列面板不再被截斷",
-              "en": "Quota warning copy streamlined to fit inside menu bar panels without truncation"
-            },
-            "body": {
-              "zh-TW": "當你的模型額度即將用盡時，彈出的警告紅字現在能完整顯示於介面之中。先前那行寫死不換行的警語需要 320 到 470 像素寬度，但選單列面板（popover，點擊狀態列圖示展開的小視窗）的文字框僅有 304 至 320 像素，加上卡片外框設定了隱藏溢出內容以維持復古造型，整行紅字因此直接被切斷。實測 13 個面板在 5 種語言下的表現，日文最慘被削掉 81 至 150 像素，英文也只有三個面板能剛好裝下。現在文案在維持原意下全面縮短，左右對決的世界盃面板更提供省略重置時間的超短版本，完美適應每邊僅 151 像素的狹窄空間。⟦這如同行李吊牌框格尺寸固定，原本冗長的手寫警語硬塞進去只會被切掉後半截；換成精簡標語後，整行提示便完整呈現。⟧",
-              "en": "When your model quota is running low, the red warning text now displays fully within the interface. Previously, the hardcoded nowrap warning required 320 to 470 pixels of width, but the menu bar panel text box was only 304 to 320 pixels, and because card frames hid overflowing content to preserve a retro aesthetic, the red line was cut off directly. Across 13 panels in 5 languages, Japanese suffered the most by losing 81 to 150 pixels, and English fit in only three panels. The copy is now universally shortened while preserving its original meaning, and the head-to-head World Cup panel provides an ultra-short variant that omits the reset time, fitting neatly into the narrow 151 pixels on each side. ⟦This is like a fixed-size luggage tag where lengthy handwritten warnings get cut off at the edge, but switching to a concise message displays the full reminder cleanly.⟧"
-            },
-            "original": "**The quota warning fits inside the panels.** The red \"running out\" line was `white-space: nowrap` and needed 320–470px, but the panels' text box is 304–320px and the cards are `overflow: hidden` — deliberate retro chrome, not removable — so the sentence was cut off. Measured across 13 panels × 5 languages: Japanese lost 81–150px, and only three panels' English fit. The wording is now shorter with the same meaning. The World Cup panel gets an even shorter variant that omits the reset time, since its head-to-head layout leaves each side only 151px."
-          },
-          {
-            "title": {
-              "zh-TW": "年度帳本不再因版本不合無聲清空，歷史紀錄妥善防護",
-              "en": "Year ledger is no longer silently cleared on version mismatches, safeguarding historical records"
-            },
-            "body": {
-              "zh-TW": "累積整整一年的 AI 使用紀錄，往後再也不會因為程式升級而無聲無息被歸零蒸發。⟦這就像圖書館換了新的索書號編碼規則，不能因此把整櫃舊藏書當垃圾直接倒掉，而應先照常上架供人借閱，只有真正碎成紙屑的殘卷才移至隔離室留存。⟧年度帳本模組原本有四條路徑會直接回傳空帳本，其中最嚴重的便是資料規格版本不符；過去只要開發者微調欄位並調升版號，全球使用者累積的歷史便會靜靜歸零，且毫無備份可救。開發時實測更發現，一次升版就讓本機熱力圖從 119 天驟降至 36 天。現在版本不符時只會記錄警告，依舊逐日解析舊資料；只有在檔案完全無法讀取或結構徹底損毀時，才會先隔離備份至 `~/.usage/quarantine/` 資料夾，周全守護歷史紀錄。",
-              "en": "A full year of accumulated AI usage history will no longer vanish silently to zero due to software upgrades. ⟦This is like a library adopting new call number rules: it shouldn't discard entire shelves of older books as trash, but keep them on shelves for borrowing while reserving quarantine storage only for scrolls shredded beyond recognition.⟧ The year ledger module previously had four execution paths that returned an empty ledger, the most severe being schema version mismatches; whenever developers tweaked fields and bumped the version, users worldwide quietly lost their entire history with no backups to recover from. Testing during development revealed that a single version bump caused the local heatmap to plunge from 119 days to 36. Version mismatches now merely log a warning and continue parsing older data day by day, moving files into the `~/.usage/quarantine/` directory as isolated backups only when they are genuinely unreadable or structurally corrupted to protect historical records."
-            },
-            "original": "**The year ledger is never silently discarded.** `_read_year_ledger()` had four paths that returned an empty ledger, the worst being a `schema_version` mismatch: anyone changing a ledger field and bumping the version would have quietly zeroed every user's accumulated history, with no backup to recover from. This file exists precisely so that history survives after the raw logs rotate away, so clearing it defeats the thing it is for. Measured during development: one version bump took the local heatmap from 119 days to 36. A mismatched version now logs a warning and parses day by day anyway — `_year_day_from_json` already tolerates missing fields — and only a genuinely unreadable or structurally wrong file is moved into `~/.usage/quarantine/` before returning empty, matching what the disk cache already does."
-          },
-          {
-            "title": {
-              "zh-TW": "裸倉庫工作樹不再把同專案拆成兩筆，清理後綴並修復歷史",
-              "en": "Bare repo worktrees no longer split one project into two, cleaning suffixes and repairing history"
-            },
-            "body": {
-              "zh-TW": "在裸倉庫（沒有工作目錄的 Git 主儲存庫）中建立工作樹時，同一專案往後不再被報表拆成兩筆紀錄。先前專案名稱解析器將工作樹（Git 讓同一專案平行開多份副本的功能）路徑解回主目錄後直接取尾端名稱，讓專案名多帶了 `.git`。這使純路徑解析的 Claude 回報 `obsidian00`，其餘三組讀取器卻回報 `obsidian00.git`；本機實測達 5997 筆對 3732 筆，報表上同一專案被拆成 21.70% 與 10.80% 兩筆。三層架構已同步修復：解析器會去除結尾的 `.git`，Codex 分片快取升版以重新解析 28 個舊分片，年度帳本則在讀取時將 `.git` 摺疊併回原專案名。⟦這恰似同一家分公司只因招牌多印了副檔名，就被會計帳冊當成兩家企業分開記帳；統一歸併後數據才合而為一。⟧",
-              "en": "When creating a worktree from a bare repository, the same project will no longer be split into two separate entries in reports. Previously, the project name resolver resolved worktree paths back to the main directory and took the basename directly, leaving the project name with an unwanted `.git` suffix. This caused path-only Claude to report `obsidian00` while the other three loaders reported `obsidian00.git`; locally, this amounted to 5997 entries against 3732, splitting the same project in the report into 21.70% and 10.80%. All three architectural layers have been fixed: the resolver strips the trailing `.git`, the Codex shard cache was bumped to re-parse 28 old shards, and the year ledger folds `.git` back into the base project name at read time. ⟦This is just like a branch office being logged as two separate businesses in accounting ledgers simply because its sign had a file extension printed on it, until unified consolidation merges the figures back together.⟧"
-            },
-            "original": "**A git worktree whose main repo is bare no longer splits one project into two.** `resolve_project_name()` resolved the worktree back to its main path and took the basename, so the project name carried a `.git` suffix. `adapters/claude.py` parses paths without calling git and reported `obsidian00`, while the other three loaders went through `project_resolver` and reported `obsidian00.git`; locally that was 5997 entries against 3732, and the report listed one project twice, at 21.70% and 10.80%. The same bug sat in three layers: the resolver now strips a trailing `.git`, Codex's shard cache went from schema 4 to 5 so the 28 shards holding the old name are re-parsed, and the year ledger — which cannot be invalidated by a version bump without losing the only copy of that history — folds `X.git` back into `X` at read time instead."
-          },
-          {
-            "title": {
-              "zh-TW": "Token 單位進位不再跳級錯誤，四捨五入後自動重新校準",
-              "en": "Token units no longer miscalculate tiers on round-up, recalibrating automatically after rounding"
-            },
-            "body": {
-              "zh-TW": "當你的 token 消耗量剛好接近單位級距的邊緣時，報表上的數字與單位現在會正確跳級。⟦這就像電子磅秤在物體達九百九十九點九五公克時進位，數值跨入整數，單位標籤卻沒跟著切換而秀出「一千點零克」；重新校準級距後，便會準確切換成一公斤。⟧函式 `_fmt_tokens` 過去在格式化 token（AI 處理與計費的文字單位）數值時，先根據未縮放的原始值決定單位級距，完成縮放並執行四捨五入後，卻沒有再次檢查數字是否已經滿額進位。這導致 999,950 遭到四捨五入後被印成古怪的 `1000.0K`，而 999,950,000 也被印成 `1000.0M`。現在進位後會重新審查級距，確保單位如實躍升。",
-              "en": "When your token consumption nears the boundary of a unit tier, numbers and units on reports will now advance correctly. ⟦This is like a digital scale rounding up at 999.95 grams into a whole number but failing to switch unit labels and showing \"1000.0 grams\", until recalibrating the tier correctly flips the display to one kilogram.⟧ When formatting token values, the `_fmt_tokens` function previously selected unit tiers from unscaled raw values, but failed to re-check whether rounding pushed the number across the tier threshold after scaling. This caused 999,950 to be printed as an awkward `1000.0K` after rounding, and 999,950,000 as `1000.0M`. Unit tiers are now re-evaluated after rounding to ensure units advance properly."
-            },
-            "original": "**Token units no longer skip a tier when they round up.** `_fmt_tokens` picked the tier from the raw value and rounded afterwards without re-checking, so 999,950 printed as `1000.0K` and 999,950,000 as `1000.0M`."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.30.9",
-      "raw": {
-        "version": "0.30.9",
-        "period": "2026-09-05",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-09-05",
-        "entries": [
-          "**Antigravity usage now appears in the interactive dashboard with consistent labels.** The dashboard and `usage report` maintain separate agent-to-loader maps, and only the report map included `antigravity`, so a detected Antigravity installation opened a dashboard tab that rendered `No data` even though the report command could load its usage. The terminal tables also lacked Antigravity's short and display names, leaving their headings as the raw lowercase agent ID. The maps had no parity check, and the first regression test hard-coded the three known agents instead of comparing the two maps, so it could not keep their keys synchronized; it now asserts exact key equality. Reported and fixed by @ClarenceKuo in #126."
-        ]
-      },
-      "curated": {
-        "version": "0.30.9",
-        "period": "2026-09-05",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Antigravity 用量能顯示在互動儀表板了，表格名稱不再只留小寫代號",
-              "en": "Antigravity usage now appears in the interactive dashboard, and table headers no longer stay as raw lowercase IDs"
-            },
-            "body": {
-              "zh-TW": "你在 `usage` 查詢用量時，若裝有 Antigravity，過去切到互動儀表板只會看到 `No data` 的空白分頁。⟦這就像停車場管理處明明有登錄，出口繳費機卻自備名冊且漏記新車號，讓車主在螢幕上只查到「查無資料」，欄位也只印出底盤代號。⟧問題在於儀表板與 `usage report` 各自維護代理到載入器的對照表，先前只有報表納入 `antigravity`，即便報表指令能載入用量，偵測到安裝的儀表板分頁依然只渲染出 `No data`；終端機表格也缺少 Antigravity 的簡稱與顯示名稱，欄位標題只能留著原始小寫代理 ID。兩份對照表過去缺乏一致性檢查，最初的迴歸測試（防範舊功能被改壞的自動驗證）甚至直接寫死三款已知代理而未比對雙方清單，無法維持鍵值同步；現在測試已強制要求兩邊鍵值完全相等。",
-              "en": "When checking usage with `usage`, if Antigravity was installed, switching to the interactive dashboard previously only showed a blank tab with `No data`. ⟦This is like a parking office having a vehicle registered, but the exit payment machine keeps its own roster and misses the new plate number, leaving the driver seeing \"No data\" on screen while fields only print raw chassis codes.⟧ The problem was that the dashboard and `usage report` each maintained separate agent-to-loader mapping tables. Previously, only the report included `antigravity`, so even though the report command could load usage, the dashboard tab for a detected installation still rendered `No data`. Terminal tables also lacked Antigravity's short and display names, leaving column headers stuck with the raw lowercase agent ID. The two mapping tables previously lacked consistency checks, and the initial regression tests (automated checks preventing existing features from breaking) even hard-coded three known agents instead of comparing both lists, failing to keep keys synchronized; tests now enforce exact key equality across both sides."
-            },
-            "original": "**Antigravity usage now appears in the interactive dashboard with consistent labels.** The dashboard and `usage report` maintain separate agent-to-loader maps, and only the report map included `antigravity`, so a detected Antigravity installation opened a dashboard tab that rendered `No data` even though the report command could load its usage. The terminal tables also lacked Antigravity's short and display names, leaving their headings as the raw lowercase agent ID. The maps had no parity check, and the first regression test hard-coded the three known agents instead of comparing the two maps, so it could not keep their keys synchronized; it now asserts exact key equality. Reported and fixed by @ClarenceKuo in #126."
           }
         ]
       }

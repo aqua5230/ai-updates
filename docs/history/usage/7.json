@@ -5,6 +5,100 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.29.18",
+      "raw": {
+        "version": "0.29.18",
+        "period": "2026-08-06",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-06",
+        "entries": [
+          "**The panel window oscillated between two heights.** Opening it snapped the window once, and it kept flicking back and forth afterwards. A panel's height has two sources: `popover_dimensions()` estimates it in Python from a registered base plus per-card adjustments, and the page measures itself for real once it has been laid out and reports the number back. The measurement is meant to win — it is saved to `NSUserDefaults` and read back by `resolve_panel_size()` on the next pass. It never was. `NSUserDefaults.objectForKey_()` hands PyObjC an Objective-C `__NSDictionaryI`, and `isinstance(value, dict)` on that is `False`, so the guard rejected the saved `{classic: 974}` every single time and fell back to the 1004 estimate. The write path had the same guard and therefore discarded every other panel's saved height whenever one was stored. What made this hard to see is that saving worked while loading did not: `defaults read com.lollapalooza.usage` showed the correct 974 sitting on disk the whole time, so the data looked healthy from the outside. The 30-point gap between the two values happens to equal `status_wrap_extra_height`, which is a coincidence worth ignoring — the estimate being wrong is not what caused the loop; the measurement being rejected is. Both guards now accept `collections.abc.Mapping`. The estimate is still used, but only for panels that can never report a measurement — `ErrorPanelView` has no JavaScript bridge, so waiting for one would leave it at the wrong size forever. The regression test substitutes a `MappingProxyType`, which like `NSDictionary` is a `Mapping` that is not a `dict`; a test double built from a plain `dict` passes whether or not the bug is present.",
+          "**The Japanese and Korean locales shipped sixty-three blank labels each.** Flagged one version earlier and fixed here. Both locales carried all 489 keys, so `test_every_language_has_the_same_keys` compared key sets, found them identical, and passed — while `loading`, `no_data`, `session_title`, `col_time` and `model_breakdown` rendered as empty space for anyone running the app in either language. A present-but-empty value is invisible to a parity check by construction, which is the same blind spot that let fifty-two Simplified Chinese strings sit in the Traditional Chinese locale until last version. Two assertions now close it: no translated value may be blank, and every value's `{placeholder}` set must match English exactly. The second guards a failure the first cannot see — a translation that drops or renames a placeholder does not look wrong in the file, it raises at `format` time in front of the user. Rich markup (`[dim]`), format specs (`{m:02d}`) and command names were left in English."
+        ]
+      },
+      "curated": {
+        "version": "0.29.18",
+        "period": "2026-08-06",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "面板視窗不再忽高忽低",
+              "en": "Panel windows stop flickering between heights"
+            },
+            "body": {
+              "zh-TW": "從選單列打開面板（popover，浮在其他視窗上的小視窗）時，視窗先跳一下又在兩個高度間來回閃動的問題修好了。它原本像服飾店先按尺寸表猜衣服大小，網頁排好版後再量一次實際尺寸；量到的尺寸本該存下來，供下次優先採用，卻被程式誤認為不是可讀的對照資料而丟掉，於是每次又退回舊的預估值。現在讀寫都接受 Mapping（能用鍵查值的對照資料），已量到的高度會留下來；只有不能回報尺寸的錯誤面板，才繼續使用預估值。測試也改用不是一般 dict 的對照資料，確保這個判斷不會再退回舊路。",
+              "en": "Opening a panel window from the menu bar no longer makes it snap once and then flicker between two heights. Think of a tailor who first guesses from a size chart, then measures the actual garment after it is laid out. The real measurement should have been saved and used next time, but the app mistook that saved value for unreadable data and threw it away, so it kept falling back to the estimate. Reading and writing now accept a Mapping (key-value data, even when it is not a plain Python dict), preserving measured heights. Only the error panel, which cannot report a measurement, continues to use an estimate. The regression test now uses that non-dict kind of Mapping too."
+            },
+            "original": "**The panel window oscillated between two heights.** Opening it snapped the window once, and it kept flicking back and forth afterwards. A panel's height has two sources: `popover_dimensions()` estimates it in Python from a registered base plus per-card adjustments, and the page measures itself for real once it has been laid out and reports the number back. The measurement is meant to win — it is saved to `NSUserDefaults` and read back by `resolve_panel_size()` on the next pass. It never was. `NSUserDefaults.objectForKey_()` hands PyObjC an Objective-C `__NSDictionaryI`, and `isinstance(value, dict)` on that is `False`, so the guard rejected the saved `{classic: 974}` every single time and fell back to the 1004 estimate. The write path had the same guard and therefore discarded every other panel's saved height whenever one was stored. What made this hard to see is that saving worked while loading did not: `defaults read com.lollapalooza.usage` showed the correct 974 sitting on disk the whole time, so the data looked healthy from the outside. The 30-point gap between the two values happens to equal `status_wrap_extra_height`, which is a coincidence worth ignoring — the estimate being wrong is not what caused the loop; the measurement being rejected is. Both guards now accept `collections.abc.Mapping`. The estimate is still used, but only for panels that can never report a measurement — `ErrorPanelView` has no JavaScript bridge, so waiting for one would leave it at the wrong size forever. The regression test substitutes a `MappingProxyType`, which like `NSDictionary` is a `Mapping` that is not a `dict`; a test double built from a plain `dict` passes whether or not the bug is present."
+          },
+          {
+            "title": {
+              "zh-TW": "日韓語介面不再有空白標籤",
+              "en": "Japanese and Korean interfaces no longer show blank labels"
+            },
+            "body": {
+              "zh-TW": "日文與韓文介面先前各有 63 個標籤看起來像憑空消失，現在已補上翻譯。檢查原本只核對 489 個文字鍵是否都存在，像倉庫清點到每個紙箱卻沒打開看裡面有沒有東西；因此 `loading`、`no_data`、`session_title`、`col_time` 與 `model_breakdown` 雖有鍵名，畫面仍只留下空白。新檢查會拒絕空字串，也會比對 placeholder（顯示時才填入資料的位置）是否和英文一致；少掉或改名都可能在顯示時出錯。帶格式的標記、格式寫法與指令名稱則維持英文，不會被誤譯。",
+              "en": "Japanese and Korean users were each seeing 63 labels vanish into blank space; those translations are now filled in. The old check only confirmed that all 489 text keys existed, like counting every box in a warehouse without opening it to see whether it contains anything. That let `loading`, `no_data`, `session_title`, `col_time`, and `model_breakdown` exist as keys yet render blank. New checks reject empty translations and compare every placeholder (a slot filled with data at display time) with English. A missing or renamed placeholder can otherwise fail when the text is formatted. Rich markup, format specifications, and command names remain in English."
+            },
+            "original": "**The Japanese and Korean locales shipped sixty-three blank labels each.** Flagged one version earlier and fixed here. Both locales carried all 489 keys, so `test_every_language_has_the_same_keys` compared key sets, found them identical, and passed — while `loading`, `no_data`, `session_title`, `col_time` and `model_breakdown` rendered as empty space for anyone running the app in either language. A present-but-empty value is invisible to a parity check by construction, which is the same blind spot that let fifty-two Simplified Chinese strings sit in the Traditional Chinese locale until last version. Two assertions now close it: no translated value may be blank, and every value's `{placeholder}` set must match English exactly. The second guards a failure the first cannot see — a translation that drops or renames a placeholder does not look wrong in the file, it raises at `format` time in front of the user. Rich markup (`[dim]`), format specs (`{m:02d}`) and command names were left in English."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.17",
+      "raw": {
+        "version": "0.29.17",
+        "period": "2026-08-06",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-06",
+        "entries": [
+          "**The offline price table overcharged Opus 4.6 and 4.7 threefold, and valued Opus 5 at nothing.** `_fallback_pricing()` is what the cost estimate falls back on when the LiteLLM table cannot be downloaded or its cache has expired. It is written by hand and nothing ever reconciled it against the live table, so it drifted in silence: `claude-opus-4-6` and `claude-opus-4-7` still carried the Opus 4.1-era $15/$75 per Mtok long after Anthropic dropped Opus to $5/$25, `claude-haiku-4-5-20251001` was twenty percent low, and `claude-opus-5` was missing outright — and a missing key makes `calculate_cost()` return `0.0`, so Opus 5 usage was reported as costing nothing. The corrected figures come from reconciling against the cached LiteLLM table rather than from the changelog: Claude Code 2.1.219 announced Opus 5 at `$10/$50 per Mtok`, but that is the fast-mode price, not the standard one. What makes this class of bug worth naming is when it surfaces — only offline, which is exactly the moment nobody thinks to doubt the number on screen.",
+          "**Fifty-two keys in the Traditional Chinese locale contained Simplified Chinese.** The TUI and report strings had been copied across from `zh-CN` without conversion, so a Traditional Chinese user opening the TUI read `检测到`, `时间`, `来源`, `项目` and `消息`. A hand-written list of Simplified characters found only some of them — it missed `来` and `项` — so every value was instead run through OpenCC's `s2twp` and the differences reviewed one by one. Nine of those differences were the converter overreaching on text that was already correct (`發送`→`傳送`, `吹回`→`吹迴`, `連接詞`→`連線詞`) and were left alone. The golden HTML snapshot was patched for the two strings that actually changed rather than regenerated, because regenerating it would also replace the frozen timestamp and version the test asserts on. The same region of `ja` and `ko` holds sixty-three empty strings each; those are missing translations rather than wrong ones and are left for a separate change.",
+          "**`_refresh_in_background` moved into `menubar_refresh.py`.** At 203 lines it was the largest method in `menubar.py`, which had four lines left under its ceiling — and a ceiling exists on that file precisely because it has been split apart and grown back twice. Only three lines of the method touch PyObjC, the three `performSelectorOnMainThread` calls, and those stay behind along with every selector: an AppDelegate method is bound by name, so relocating one breaks the binding. What moved is the data work between them, split into `load_sources()` and `build_result()`, with the app passed in behind a `typing.Protocol` so the new module imports no PyObjC at all — the same rule that keeps `menubar_state.py` clean. `menubar.py` goes from 2116 lines to 1934 and the ceiling was lowered to match rather than raised, since raising it to get CI green would dismantle the only thing stopping the file from growing back a third time. Behaviour is unchanged, and that was verified rather than assumed: the six `refresh_timing` stages, the fifteen state assignments on the degraded path, and the `submitted`/`finally` guard that keeps a failed refresh from wedging the app were each compared line by line against the original."
+        ]
+      },
+      "curated": {
+        "version": "0.29.17",
+        "period": "2026-08-06",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "斷網時的費用估算，終於不再把價格算歪",
+              "en": "Cost estimates stay accurate when you're offline"
+            },
+            "body": {
+              "zh-TW": "出門沒網路卻想核對用量花多少錢，螢幕上的數字本該是你的依據，這回卻曾把 Opus 4.6、4.7 算成三倍，還把 Opus 5 算成零元。程式抓不到 LiteLLM 的價格表，或快取（把查過的結果暫存起來直接用）過期時，會改查手寫的備援價格表；它長期沒和目前表格比對，舊價格便一路留著。現在已按快取的 LiteLLM 表校正：4.6、4.7 的每百萬計費文字單位從舊的 $15/$75 改為 $5/$25，Haiku 4.5 也補回少算的兩成，原本缺席的 Opus 5 也不會再回傳 $0。像離線收銀機翻出過期價目表，現在換回正確版本；斷網時更該能信帳單。",
+              "en": "When you are away from the internet and checking what your usage cost, the number on screen needs to be dependable. It was not: Opus 4.6 and 4.7 were priced at three times their rate, while Opus 5 appeared to cost nothing. If LiteLLM's price table could not be downloaded, or its cache (saved lookup results kept for reuse) had expired, the app used a hand-maintained fallback table that had drifted from the current one. It is now reconciled with LiteLLM's cached table: 4.6 and 4.7 move from $15/$75 to $5/$25 per million billing units, Haiku 4.5 regains its missing twenty percent, and Opus 5 no longer returns $0. Think of an offline checkout pulling out an old price sheet; it now has the right sheet when you need it most."
+            },
+            "original": "**The offline price table overcharged Opus 4.6 and 4.7 threefold, and valued Opus 5 at nothing.** `_fallback_pricing()` is what the cost estimate falls back on when the LiteLLM table cannot be downloaded or its cache has expired. It is written by hand and nothing ever reconciled it against the live table, so it drifted in silence: `claude-opus-4-6` and `claude-opus-4-7` still carried the Opus 4.1-era $15/$75 per Mtok long after Anthropic dropped Opus to $5/$25, `claude-haiku-4-5-20251001` was twenty percent low, and `claude-opus-5` was missing outright — and a missing key makes `calculate_cost()` return `0.0`, so Opus 5 usage was reported as costing nothing. The corrected figures come from reconciling against the cached LiteLLM table rather than from the changelog: Claude Code 2.1.219 announced Opus 5 at `$10/$50 per Mtok`, but that is the fast-mode price, not the standard one. What makes this class of bug worth naming is when it surfaces — only offline, which is exactly the moment nobody thinks to doubt the number on screen."
+          },
+          {
+            "title": {
+              "zh-TW": "繁中介面混入 52 處簡體字，這次修正",
+              "en": "Traditional Chinese screens had 52 Simplified Chinese strings mixed in, now fixed"
+            },
+            "body": {
+              "zh-TW": "你選繁體中文開啟文字介面（TUI，用文字排成、在終端機操作的畫面）或報表，卻看到「检测到」「时间」這種簡體字，像一本校對到一半的書。問題出在 52 個字串直接從簡中 `zh-CN` 複製過來，沒有轉換。先前靠人工列簡體字清單，只抓到一部分，連「来」和「项」都漏了；這次把每個值交給 OpenCC 的 `s2twp` 逐一轉換，再逐項檢視差異。轉換器想把原本正確的「發送」改成「傳送」等九處，則沒有採用。實際改動的兩個 HTML 測試畫面也只補那兩句，免得連固定的時間與版本都被重生。日文、韓文各有 63 個空字串是尚未翻譯，這次沒有假裝修好它們。",
+              "en": "If you chose Traditional Chinese and opened the text interface (TUI, a screen operated in a terminal with text), you could meet Simplified Chinese such as `检测到` and `时间`—like opening a book only half proofread. Fifty-two strings had been copied from the Simplified Chinese `zh-CN` locale without conversion. A hand-written list of Simplified characters had caught only some of them, missing even `来` and `项`. Every value now went through OpenCC's `s2twp` conversion and each difference was reviewed. Nine suggested replacements, including `發送` to `傳送`, were left alone because the existing text was already correct. Only two changed strings in the HTML test snapshot were patched, preserving its fixed timestamp and version. Japanese and Korean each still have sixty-three empty strings; those are missing translations, not this bug, so they remain for later work."
+            },
+            "original": "**Fifty-two keys in the Traditional Chinese locale contained Simplified Chinese.** The TUI and report strings had been copied across from `zh-CN` without conversion, so a Traditional Chinese user opening the TUI read `检测到`, `时间`, `来源`, `项目` and `消息`. A hand-written list of Simplified characters found only some of them — it missed `来` and `项` — so every value was instead run through OpenCC's `s2twp` and the differences reviewed one by one. Nine of those differences were the converter overreaching on text that was already correct (`發送`→`傳送`, `吹回`→`吹迴`, `連接詞`→`連線詞`) and were left alone. The golden HTML snapshot was patched for the two strings that actually changed rather than regenerated, because regenerating it would also replace the frozen timestamp and version the test asserts on. The same region of `ja` and `ko` holds sixty-three empty strings each; those are missing translations rather than wrong ones and are left for a separate change."
+          },
+          {
+            "title": {
+              "zh-TW": "選單列更新工作搬家，畫面行為照舊",
+              "en": "Menu-bar refresh work moves house without changing behavior"
+            },
+            "body": {
+              "zh-TW": "你會看到選單列照常更新，只是背後那段 203 行的工作搬了家。`menubar.py` 已經拆過又長回來兩次，原先離檔案長度上限只差四行；與其把上限往上推，開發者把背景更新的資料處理拆到 `menubar_refresh.py`，分成 `load_sources()` 和 `build_result()`。畫面相關的三次 `performSelectorOnMainThread` 呼叫與所有 selector（靠名稱找到要執行方法的標記）留在原檔，因為 AppDelegate 的方法就是按名稱綁定，搬走會斷線。新檔透過 `typing.Protocol` 描述需要的 App 介面，完全不載入 PyObjC。像把塞爆的廚房分出備料間：接客的窗口不動，備料移到隔壁，送餐流程仍照原本走。六個更新計時階段、降級路徑的 15 次狀態寫入，以及失敗後避免卡死的保護，都逐行比對確認沒變。",
+              "en": "This is not a new button: your menu-bar refresh still looks the same, but its 203-line back-room job has moved. `menubar.py` had been split apart twice and then grown again, leaving only four lines below its size limit. Instead of raising that limit, the data work of the background refresh moved to `menubar_refresh.py`, divided into `load_sources()` and `build_result()`. The three `performSelectorOnMainThread` calls and every selector (a name used to locate a method to run) stay in the original file, because AppDelegate methods are bound by name and moving them would break that connection. The new module describes the App it needs through `typing.Protocol` and imports no PyObjC. It is like moving prep work from an overcrowded kitchen into a side room: the service window stays put and meals follow the same path. Six timing stages, fifteen degraded-path state assignments, and the guard against a failed refresh getting stuck were compared line by line."
+            },
+            "original": "**`_refresh_in_background` moved into `menubar_refresh.py`.** At 203 lines it was the largest method in `menubar.py`, which had four lines left under its ceiling — and a ceiling exists on that file precisely because it has been split apart and grown back twice. Only three lines of the method touch PyObjC, the three `performSelectorOnMainThread` calls, and those stay behind along with every selector: an AppDelegate method is bound by name, so relocating one breaks the binding. What moved is the data work between them, split into `load_sources()` and `build_result()`, with the app passed in behind a `typing.Protocol` so the new module imports no PyObjC at all — the same rule that keeps `menubar_state.py` clean. `menubar.py` goes from 2116 lines to 1934 and the ceiling was lowered to match rather than raised, since raising it to get CI green would dismantle the only thing stopping the file from growing back a third time. Behaviour is unchanged, and that was verified rather than assumed: the six `refresh_timing` stages, the fifteen state assignments on the degraded path, and the `submitted`/`finally` guard that keeps a failed refresh from wedging the app were each compared line by line against the original."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.29.16",
       "raw": {
         "version": "0.29.16",
@@ -396,64 +490,6 @@
               "en": "The awkward moment when opening the “Switch Panel” menu made the whole panel disappear is gone. Previously, the temporary popover was already finished once the menu took focus, but its cleanup treated the floating panel as something to dismiss too. So pressing Escape, clicking the panel, or clicking elsewhere hid both the menu and the panel. Now cleanup closes only the menu. The floating panel stays, like folding away the little menu beside a tool drawer without sweeping the papers off your desk."
             },
             "original": "**Dismissing the switch-panel menu no longer closes the panel**: opening \"Switch Panel\" and then clicking the panel itself, pressing Escape, or clicking away closed the whole panel. A transient popover was already gone by the time the menu took focus, so closing it was merely cleanup; the floating panel survives the menu, which turned the same cleanup into a mistouch that threw the panel away."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.29.8",
-      "raw": {
-        "version": "0.29.8",
-        "period": "2026-07-29",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-30",
-        "entries": [
-          "**The Windows panel no longer snaps back to the primary monitor on every panel switch**: dragging the popover onto a second display and then switching panel style (or theme) forced it right back onto the primary monitor. Windows' `SPI_GETWORKAREA` API only ever reports the *primary* monitor's work area, and the window was clamped against that single rectangle on every reposition regardless of which monitor it actually lived on — so a window dragged onto a secondary display got clamped straight back onto the primary one the next time the panel reloaded. Placement now looks up the work area of whichever monitor the window's current (or saved) position falls on via `MonitorFromPoint`/`GetMonitorInfoW`, so a window on a secondary display stays there across panel switches. A related issue on a single monitor is fixed alongside it: switching panels reset the remembered content height to `None`, so the window was briefly clamped against each panel's near-fullscreen placeholder height (`PANEL_HEIGHTS`) before its real height was measured, which could shove a dragged window toward the top of the screen; the previous panel's measured height is now kept as the transitional estimate instead."
-        ]
-      },
-      "curated": {
-        "version": "0.29.8",
-        "period": "2026-07-29",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "切換面板不再把視窗送回主螢幕",
-              "en": "Panel switching keeps your window on its monitor"
-            },
-            "body": {
-              "zh-TW": "你把 Usage 的面板（跳出的浮動小視窗）拖到第二台螢幕，換個面板樣式或主題後，它終於不會又跳回主螢幕。以前 Windows 只把主螢幕可用範圍交給程式，程式每次重新定位面板時便拿錯尺，硬把第二台螢幕上的視窗推回去；現在會依面板目前或記住的位置，找出它所在螢幕的可用範圍再定位，所以換樣式後仍留在原處。單螢幕也一併修好：面板切換時會暫留前一種樣式量到的高度，等真正高度測完，不再先用接近全螢幕的假高度把你拖好的位置往上擠。像搬家工人終於先看你住哪一棟，再把家具放回那一棟，而不是一律送回一樓。",
-              "en": "After you drag Usage's panel (a small floating pop-up) to a second monitor, switching its style or theme will finally leave it there. Windows had only handed the app the primary display's usable area, so each reposition used the wrong ruler and shoved the panel back onto the primary monitor. It now identifies the usable area for the display containing the panel's current or remembered position. On a single monitor, it also retains the previous style's measured height while the new one is measured, instead of briefly using a near-fullscreen placeholder that pushes your window upward. Like movers checking which building you live in before returning furniture, rather than always dumping it in the lobby."
-            },
-            "original": "**The Windows panel no longer snaps back to the primary monitor on every panel switch**: dragging the popover onto a second display and then switching panel style (or theme) forced it right back onto the primary monitor. Windows' `SPI_GETWORKAREA` API only ever reports the *primary* monitor's work area, and the window was clamped against that single rectangle on every reposition regardless of which monitor it actually lived on — so a window dragged onto a secondary display got clamped straight back onto the primary one the next time the panel reloaded. Placement now looks up the work area of whichever monitor the window's current (or saved) position falls on via `MonitorFromPoint`/`GetMonitorInfoW`, so a window on a secondary display stays there across panel switches. A related issue on a single monitor is fixed alongside it: switching panels reset the remembered content height to `None`, so the window was briefly clamped against each panel's near-fullscreen placeholder height (`PANEL_HEIGHTS`) before its real height was measured, which could shove a dragged window toward the top of the screen; the previous panel's measured height is now kept as the transitional estimate instead."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.29.7",
-      "raw": {
-        "version": "0.29.7",
-        "period": "2026-07-29",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-29",
-        "entries": [
-          "**The panel no longer leaves an empty strip at the bottom**: panel height came from a fixed per-panel constant, so any layout that rendered shorter than the registered value left dead space below the footer. The common trigger is Codex reporting only a weekly window with no 5-hour data, which drops a quota row from the card. The panel now measures its own natural height after each refresh and the window resizes to match, clamped to the usable screen area; the registered constants stay as the pre-measurement default and as the fallback when a measurement is unusable. A panel that deliberately leaves room for a full-window backdrop — World Cup's pitch is the only one — marks that region so it keeps its designed height instead of collapsing while the measurement releases the layout's height constraints."
-        ]
-      },
-      "curated": {
-        "version": "0.29.7",
-        "period": "2026-07-29",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "額度面板會自己收好高度，不留底部空白",
-              "en": "Quota panels now fit their content instead of leaving a blank strip"
-            },
-            "body": {
-              "zh-TW": "你打開 Usage 面板（跳出來顯示額度的小視窗）查看 Codex 的每週額度時，底部不會再莫名多出一條空白帶。以前畫面高度照每張面板預設的固定值算；若 Codex 只回報每週時段、沒有 5 小時資料，額度卡少了一列，底下就留下死白。現在每次更新後，面板會量自己的實際高度，視窗隨著內容縮放，且不會超出可用螢幕範圍；量不出來時仍用原本數值當備援。這像量身裁衣：少一行內容就收短一點。只有 World Cup 的球場主題刻意預留滿版背景，會標記那塊空間，保留原本設計高度。",
-              "en": "When you open the Usage panel to check Codex's weekly quota, an odd blank strip will no longer linger below it. The panel height used to come from a fixed preset. If Codex reported only a weekly window and no 5-hour data, the quota card lost one row but kept the extra height. Now, after each refresh, the panel measures its natural height and the window follows it without exceeding usable screen space; the old value remains a fallback if measuring fails. Think of a tailored hem: one less line of content, one less line of fabric. The World Cup pitch theme is the exception: it marks its intentional full-window backdrop so its designed height remains intact."
-            },
-            "original": "**The panel no longer leaves an empty strip at the bottom**: panel height came from a fixed per-panel constant, so any layout that rendered shorter than the registered value left dead space below the footer. The common trigger is Codex reporting only a weekly window with no 5-hour data, which drops a quota row from the card. The panel now measures its own natural height after each refresh and the window resizes to match, clamped to the usable screen area; the registered constants stay as the pre-measurement default and as the fallback when a measurement is unusable. A panel that deliberately leaves room for a full-window backdrop — World Cup's pitch is the only one — marks that region so it keeps its designed height instead of collapsing while the measurement releases the layout's height constraints."
           }
         ]
       }
