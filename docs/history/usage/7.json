@@ -5,6 +5,35 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.29.19",
+      "raw": {
+        "version": "0.29.19",
+        "period": "2026-08-06",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-07",
+        "entries": [
+          "**The app told Homebrew users to run a command that cannot work.** With no status file on disk, the popover footer said `Run python3 main.py --setup and open Claude Code once` — an instruction written for people who cloned the repo. Someone who installed the cask has no repo, so the natural next move is to look inside the bundle, and `main.py` really is in there: py2app copies it to `Contents/Resources/`. Running that copy with the system `python3` dies on `ImportError: cannot import name 'packaged_resource_path' from 'i18n'`, which points at the wrong thing entirely. The modules `main.py` imports are compiled into `lib/python313.zip`, and only the bundle's own interpreter has that on `sys.path`; with the real `i18n.py` unreachable, an unrelated PyPI package also named `i18n` in the user's site-packages answers the import instead. Both footer messages now name the \"Set Up Status Line\" button, which does the same job in one click and exists in every install regardless of how it was obtained. The bundled `main.py` additionally exits with an explanation when it is started without py2app's `RESOURCEPATH`, so the dead end says what it is instead of raising. (#92, reported by @kyang-06)"
+        ]
+      },
+      "curated": {
+        "version": "0.29.19",
+        "period": "2026-08-06",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Homebrew 安裝後，設定狀態列不再走錯路",
+              "en": "Homebrew installs now point you to the right status-line setup"
+            },
+            "body": {
+              "zh-TW": "你用 Homebrew 安裝 Usage，卻看到「跑 `python3 main.py --setup`」時，現在不會再被帶進死巷。Homebrew（macOS 的套件安裝工具）裝的是應用程式，沒有原始碼資料夾；以前畫面下方的提示仍叫你照原始碼使用者的方式跑指令。你若翻進應用程式包裡執行 `main.py`，還會撞上看似無關的 `ImportError`，因為它必須由 py2app（把 Python 程式包成 macOS App 的工具）隨附的解譯器啟動。現在兩種提示都改指向「Set Up Status Line」按鈕，按一下就能設定顯示在終端機最底下的狀態列；直接誤跑內附的 `main.py` 時，也會明說為何不能這樣開。像買了組裝好的咖啡機，說明書不再叫你拆機找零件，而是帶你按面板上的設定鍵。",
+              "en": "If you installed Usage through Homebrew and saw `python3 main.py --setup`, that instruction no longer sends you down a dead end. Homebrew installs an app, not a source-code folder, but the footer once gave cask users the directions meant for people who cloned the repository. Digging into the app bundle and running its `main.py` only produced a misleading `ImportError`, because it needs the interpreter packaged by py2app. Both messages now point to the “Set Up Status Line” button, which does the job in one click for every type of install. And if the bundled `main.py` is launched directly, it explains why it cannot run that way. It is like buying an assembled coffee machine: the manual now points to its setup button instead of telling you to open the casing and hunt for parts."
+            },
+            "original": "**The app told Homebrew users to run a command that cannot work.** With no status file on disk, the popover footer said `Run python3 main.py --setup and open Claude Code once` — an instruction written for people who cloned the repo. Someone who installed the cask has no repo, so the natural next move is to look inside the bundle, and `main.py` really is in there: py2app copies it to `Contents/Resources/`. Running that copy with the system `python3` dies on `ImportError: cannot import name 'packaged_resource_path' from 'i18n'`, which points at the wrong thing entirely. The modules `main.py` imports are compiled into `lib/python313.zip`, and only the bundle's own interpreter has that on `sys.path`; with the real `i18n.py` unreachable, an unrelated PyPI package also named `i18n` in the user's site-packages answers the import instead. Both footer messages now name the \"Set Up Status Line\" button, which does the same job in one click and exists in every install regardless of how it was obtained. The bundled `main.py` additionally exits with an explanation when it is started without py2app's `RESOURCEPATH`, so the dead end says what it is instead of raising. (#92, reported by @kyang-06)"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.29.18",
       "raw": {
         "version": "0.29.18",
@@ -437,59 +466,6 @@
               "en": "Nothing new appears in the menu bar in this release; the work is behind the wall. `menubar.py` had grown to 2,485 lines and crossed 2,000 for the third time. Icon and alert helpers now live in `menubar_chrome.py`, while state constructors moved to `menubar_state.py`, bringing the original file down to 2,230 lines. Only file-level functions moved: PyObjC, the bridge between Python and macOS Objective-C, connects controls through `AppDelegate` method names, so moving one would silently break its control. `_popover_size` was split into a calculation function with a three-line shell left behind, keeping `menubar_state.py` testable without the ObjC runtime. CI, the automatic check run on changes, now fails a build when a guarded file exceeds its limit; after a cut, lower the limit rather than raising it to pass. CLAUDE.md's module map also shrank from 24 rows to 12, keeping only warnings that are not obvious from opening each module. It is like reorganizing plumbing: no new fixture appears, but later repairs need not keep breaking through a larger wall."
             },
             "original": "**Nothing changes on screen in this release — it is housekeeping on the menu bar code.** `menubar.py` had reached 2485 lines, creeping past 2000 for the third time after being split apart twice. The icon and alert helpers moved into a new `menubar_chrome.py`, and the state constructors joined `menubar_state.py`, taking the file down to 2230. Only module-level functions moved: PyObjC binds `AppDelegate` methods by selector name, so relocating one would silently stop the matching control from working. `_popover_size` was split rather than moved, because it ends in `NSMakeSize` and `menubar_state.py` has to stay importable without the ObjC runtime for its projections to be unit-testable — the arithmetic moved as `popover_dimensions()` and a three-line shell stayed behind.\n**The growth policy behind that cleanup is now enforced by CI rather than by discipline.** `scripts/check_file_size.py` fails the build when a guarded file passes its ceiling. The rule had been written in CLAUDE.md all along; nothing checked it, and the file grew back twice. Lower a ceiling when a cut lands, never raise it to go green.\n**CLAUDE.md's module map lists only modules with a gotcha.** Half its rows restated what opening the file would tell you, and three separate rows repeated the same stdlib-only constraint. It went from 24 rows to 12."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.29.9",
-      "raw": {
-        "version": "0.29.9",
-        "period": "2026-07-29",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-30",
-        "entries": [
-          "**The panel can now be placed anywhere on screen**: it was an `NSPopover`, which AppKit anchors to the status item and dismisses the moment focus moves elsewhere, so where it sat was never yours to choose. It is now a borderless floating panel: drag it from any empty spot, and it reopens where you left it. It stays put when another app takes focus — a second click on the menu bar icon, or Escape, closes it. Rounded corners and the drop shadow came free with the popover and are now drawn by the window itself. Dragging travels over the existing JS bridge: an injected script reports a mousedown that landed outside any interactive or scrollable element, and the window hands the gesture to `performWindowDragWithEvent:` so the system drives it. Resizing pins the top-left corner, because a window's origin is its bottom-left and the panel would otherwise appear to jump every time its height tracked a fresh content measurement.",
-          "**The AI Talent Market panel no longer collapses into a squashed strip**: the panel intermittently opened at roughly the height of its own header, cutting off the team list. The dynamic content-height probe releases the layout's height constraints before measuring, and this panel builds its list as an absolutely positioned layer inside a `flex: 1` body — with the constraints released, that body collapsed to zero and the probe reported little more than the header, which the clamp then rounded up to the minimum panel height. Whether it happened came down to measurement timing, hence the intermittency. Panels now carry a switch for the probe, and this one — a fixed-height design that scrolls internally and never needed measuring — opts out.",
-          "**Dismissing the switch-panel menu no longer closes the panel**: opening \"Switch Panel\" and then clicking the panel itself, pressing Escape, or clicking away closed the whole panel. A transient popover was already gone by the time the menu took focus, so closing it was merely cleanup; the floating panel survives the menu, which turned the same cleanup into a mistouch that threw the panel away."
-        ]
-      },
-      "curated": {
-        "version": "0.29.9",
-        "period": "2026-07-29",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "面板能隨你擺放，切換視窗也不會消失",
-              "en": "Put the panel where you want, and keep it there"
-            },
-            "body": {
-              "zh-TW": "想把用量面板挪到螢幕邊角，現在直接拖曳空白處就行。它不再只能黏在選單列圖示旁、別的 app 取得焦點就收起，而是無邊框的浮動面板：放到哪裡，下次就從哪裡打開，圓角和陰影也照留著。檢查其他 app 時它仍待在原處；再按一次選單列圖示或按 Escape 才會關。拖曳不會搶走按鈕與捲動區的操作，內容高度變動時也固定左上角，因此不會像量尺從底端拉長般跳來跳去。",
-              "en": "Want the usage panel in a screen corner? Drag any empty spot on it. It is no longer a popover stuck to the menu-bar icon that vanishes when another app gets focus; it is a borderless floating panel that reopens where you left it, with its rounded corners and shadow intact. It stays put while you check another app, and closes only when you click the menu-bar icon again or press Escape. Dragging leaves buttons and scrollable areas alone, while resizing holds the top-left corner still so the panel does not jump like a ruler stretching from its bottom edge."
-            },
-            "original": "**The panel can now be placed anywhere on screen**: it was an `NSPopover`, which AppKit anchors to the status item and dismisses the moment focus moves elsewhere, so where it sat was never yours to choose. It is now a borderless floating panel: drag it from any empty spot, and it reopens where you left it. It stays put when another app takes focus — a second click on the menu bar icon, or Escape, closes it. Rounded corners and the drop shadow came free with the popover and are now drawn by the window itself. Dragging travels over the existing JS bridge: an injected script reports a mousedown that landed outside any interactive or scrollable element, and the window hands the gesture to `performWindowDragWithEvent:` so the system drives it. Resizing pins the top-left corner, because a window's origin is its bottom-left and the panel would otherwise appear to jump every time its height tracked a fresh content measurement."
-          },
-          {
-            "title": {
-              "zh-TW": "AI 人才市集面板不再縮成一條",
-              "en": "The AI Talent Market panel no longer squashes itself flat"
-            },
-            "body": {
-              "zh-TW": "AI 人才市集面板有時一打開只剩標題那一條，隊伍清單像被折進抽屜底部；現在不會了。問題不在資料消失，而是它量高度時暫時放開限制，內部採固定高度、自己捲動的清單剛好被量成零高；又因量測時間不同，才會時好時壞。新版讓各面板決定是否參加這個自動量測。人才市集本來就該固定高度、在裡面捲動，現在跳過自動量測，打開就能看到完整隊伍清單。",
-              "en": "The AI Talent Market panel sometimes opened as little more than its header, as if the team list had been folded into the bottom of a drawer. That list was not gone: while the app measured content height, it temporarily released layout constraints, and this fixed-height, internally scrolling list could collapse to zero. Timing made the failure intermittent. Panels can now opt out of that automatic measurement. AI Talent Market was always meant to keep a fixed height and scroll inside it, so it skips the measurement and opens with the full list visible."
-            },
-            "original": "**The AI Talent Market panel no longer collapses into a squashed strip**: the panel intermittently opened at roughly the height of its own header, cutting off the team list. The dynamic content-height probe releases the layout's height constraints before measuring, and this panel builds its list as an absolutely positioned layer inside a `flex: 1` body — with the constraints released, that body collapsed to zero and the probe reported little more than the header, which the clamp then rounded up to the minimum panel height. Whether it happened came down to measurement timing, hence the intermittency. Panels now carry a switch for the probe, and this one — a fixed-height design that scrolls internally and never needed measuring — opts out."
-          },
-          {
-            "title": {
-              "zh-TW": "切換面板選單收起時，不再連面板一起關",
-              "en": "Closing the Switch Panel menu no longer closes the panel too"
-            },
-            "body": {
-              "zh-TW": "點開「切換面板」選單後，想回去看面板卻把整張面板關掉的烏龍沒了。以前選單打開時，原本的彈出式選單已經消失；清理它的動作卻誤把浮動面板當成也該收掉的東西。因此你按 Escape、點面板或點到別處，選單消失的同時面板也消失。現在清理只會關選單，浮動面板仍會安穩地繼續留在原處，像收起工具抽屜旁的小選單，桌上的工作紙不會一起被掃走。",
-              "en": "The awkward moment when opening the “Switch Panel” menu made the whole panel disappear is gone. Previously, the temporary popover was already finished once the menu took focus, but its cleanup treated the floating panel as something to dismiss too. So pressing Escape, clicking the panel, or clicking elsewhere hid both the menu and the panel. Now cleanup closes only the menu. The floating panel stays, like folding away the little menu beside a tool drawer without sweeping the papers off your desk."
-            },
-            "original": "**Dismissing the switch-panel menu no longer closes the panel**: opening \"Switch Panel\" and then clicking the panel itself, pressing Escape, or clicking away closed the whole panel. A transient popover was already gone by the time the menu took focus, so closing it was merely cleanup; the floating panel survives the menu, which turned the same cleanup into a mistouch that threw the panel away."
           }
         ]
       }
