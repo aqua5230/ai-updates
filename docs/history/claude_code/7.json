@@ -2,8 +2,144 @@
   "id": "claude_code",
   "name": "Claude Code",
   "page": 7,
-  "pages": 9,
+  "pages": 10,
   "versions": [
+    {
+      "version": "2.1.217",
+      "raw": {
+        "version": "2.1.217",
+        "period": "2026-07-21",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-22",
+        "entries": [
+          "Added emoji shortcode autocomplete in the prompt input: type `:heart:` to insert ❤️, or `:hea` for suggestions — disable with the `emojiCompletionEnabled` setting",
+          "Added warnings when transcript writes are failing (e.g. disk full) or when session saving is off due to an inherited environment variable, instead of losing transcripts silently",
+          "Fixed a memory leak where truncated MCP tool outputs kept the full untruncated result in memory for the rest of the session",
+          "Fixed Windows auto-update failures that could leave `claude.exe` missing; failed updates now restore the preserved executable automatically",
+          "Fixed background session isolation not canonicalizing symlinked working directories, which could let sessions escape their workspace folder",
+          "Fixed auto-compact never triggering for Claude Opus 4.8 on Bedrock and `/compact` failing once over the limit",
+          "Fixed corporate mTLS, TLS-verify, OAuth scope, and proxy settings being ignored in Claude Desktop sessions",
+          "Fixed screen reader mode's startup announcement being cut off by the first prompt render, and the thinking status row re-rendering every few seconds to update elapsed time and token counts",
+          "Fixed managed settings that set `OTEL_EXPORTER_OTLP_ENDPOINT` not governing all signals — lower-scope signal-specific overrides no longer redirect telemetry away from the managed endpoint",
+          "Fixed `--resume`/`--continue` and `/resume` failing with a TypeError when a transcript has a malformed attachment entry",
+          "Fixed Remote Control sessions not showing a pending permission prompt or dialog to viewers that connected after it appeared",
+          "Fixed background shells sometimes becoming impossible to stop after a session is sent to the background (`/background` or `←`) or when the session exits on a heavily loaded machine, most visible on Windows",
+          "Fixed a `CLAUDE.md` or `SKILL.md` paths frontmatter value with many brace groups OOM-killing or stalling the CLI at startup — brace expansion is now budget-bounded",
+          "Fixed the transcript preview sitting flush against the input area when attaching to a starting background session; it now leaves the same one-line gap as the live layout, so the transcript no longer shifts when the session takes over",
+          "Improved footer PR badge links to be clickable hyperlinks even when terminal support can't be detected (e.g. over ssh/tmux); set `FORCE_HYPERLINK=0` to opt out",
+          "Changed the login-expiry warning to appear 3 days before expiry instead of 5",
+          "Capped the frontend-design plugin suggestion tip at 3 lifetime impressions instead of repeating indefinitely",
+          "Added a cap on concurrently-running subagents (default 20, override with `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`) so one message can't fan out unbounded background agents",
+          "Changed subagents to no longer spawn nested subagents by default; set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` to allow deeper nesting",
+          "Fixed `--max-budget-usd` not stopping background subagents: once the cap is reached, new spawns are denied and running background agents are halted"
+        ]
+      },
+      "curated": {
+        "version": "2.1.217",
+        "period": "2026-07-21",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "打幾個字母，表情符號就自己送上門",
+              "en": "Type a few letters and the emoji comes to you"
+            },
+            "body": {
+              "zh-TW": "你正在寫提示，想加一顆愛心時，不必停下來翻表情符號鍵盤。現在輸入完整的 `:heart:`，Claude Code 就會插入 ❤️；只打到 `:hea`，畫面也會列出候選。這項表情符號短碼（用冒號包住名稱來代表一個符號的簡寫）就像手機的預測輸入：先給幾個字母，它便把可能要用的圖案送到手邊，寫句子的節奏不會被打斷。若候選清單反而讓你分心，打開個人設定檔 `~/.claude/settings.json`，在最外層加入下面這一行即可關閉：\n\n```json\n{\"emojiCompletionEnabled\": false}\n```\n\n若檔案裡已有其他設定，只需在同一對大括號內加入 `\"emojiCompletionEnabled\": false`，並用逗號和前一項隔開。",
+              "en": "Want a heart in the prompt you are writing? You no longer need to stop and hunt through an emoji picker. Type the complete shortcode `:heart:` and Claude Code inserts ❤️; type only `:hea` and it shows suggestions. A shortcode is a symbol name wrapped in colons, and it works like predictive text on a phone: offer a few letters and the likely emoji comes to you without breaking your writing rhythm. If the suggestion list is distracting, open your personal settings file at `~/.claude/settings.json` and add this top-level setting:\n\n```json\n{\"emojiCompletionEnabled\": false}\n```\n\nIf that file already contains other settings, add `\"emojiCompletionEnabled\": false` inside the same outer braces and separate it from the previous entry with a comma."
+            },
+            "original": "Added emoji shortcode autocomplete in the prompt input: type `:heart:` to insert ❤️, or `:hea` for suggestions — disable with the `emojiCompletionEnabled` setting"
+          },
+          {
+            "title": {
+              "zh-TW": "對話紀錄出狀況，不再悄悄消失",
+              "en": "Transcript trouble no longer stays silent"
+            },
+            "body": {
+              "zh-TW": "辛苦聊完一段工作，最怕關掉才發現紀錄根本沒存。現在 transcript（對話逐字紀錄）因磁碟滿了寫不進去，或 session（一次持續工作的對話）因承接的環境變數而沒有儲存時，Claude Code 會先警告你。舊紀錄裡就算有格式壞掉的附件，`--resume`、`--continue` 與 `/resume` 也不會因此整個失敗；接回剛啟動的背景對話時，預覽和輸入框間會保留一行空隙，不會突然跳動。像收據夾終於會在紙快塞不下時提醒你，也不會因一張破收據讓整本帳都打不開。",
+              "en": "After a long working conversation, discovering that nothing was saved is miserable. Claude Code now warns you if a transcript cannot be written, such as when the disk is full, or if session saving is disabled by an inherited environment variable. A malformed attachment in an old transcript no longer breaks `--resume`, `--continue`, or `/resume`, and attaching to a starting background session no longer makes the preview jump against the input. Think of a receipt folder that warns when it is full and does not make the whole ledger unreadable because one receipt is torn."
+            },
+            "original": "Added warnings when transcript writes are failing (e.g. disk full) or when session saving is off due to an inherited environment variable, instead of losing transcripts silently\nFixed `--resume`/`--continue` and `/resume` failing with a TypeError when a transcript has a malformed attachment entry\nFixed the transcript preview sitting flush against the input area when attaching to a starting background session; it now leaves the same one-line gap as the live layout, so the transcript no longer shifts when the session takes over"
+          },
+          {
+            "title": {
+              "zh-TW": "長工作階段不再吃光記憶體、卡在整理關卡",
+              "en": "Long sessions stop hoarding memory and missing their cleanup"
+            },
+            "body": {
+              "zh-TW": "工具回傳很長的結果時，畫面雖只留摘要，記憶體卻曾偷偷抱著完整原文直到工作階段結束。這次修掉 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）工具輸出被截短後仍佔滿記憶體的問題。Claude Opus 4.8 在 Bedrock 上的自動壓縮也終於會觸發，超過上限時 `/compact` 不再失敗；而 `CLAUDE.md` 或 `SKILL.md` 的 paths 設定塞進太多大括號，也不會讓 CLI（命令列介面）啟動時耗盡記憶體或卡死。像收納員只留下需要看的摘要，不再把整車舊紙箱偷偷堆在後房。",
+              "en": "A tool can return a huge result while the screen shows only a shortened version; previously, the full result could still sit in memory until the session ended. This fixes that MCP (Model Context Protocol, the standard for connecting AI to external tools) memory leak. Auto-compact now fires for Claude Opus 4.8 on Bedrock, `/compact` works past the limit, and excessive brace groups in `CLAUDE.md` or `SKILL.md` paths no longer freeze or exhaust the CLI at startup. It is like a clerk keeping the summary you need instead of secretly piling the whole truckload of boxes in the back room."
+            },
+            "original": "Fixed a memory leak where truncated MCP tool outputs kept the full untruncated result in memory for the rest of the session\nFixed auto-compact never triggering for Claude Opus 4.8 on Bedrock and `/compact` failing once over the limit\nFixed a `CLAUDE.md` or `SKILL.md` paths frontmatter value with many brace groups OOM-killing or stalling the CLI at startup — brace expansion is now budget-bounded"
+          },
+          {
+            "title": {
+              "zh-TW": "更新失手會復原，背景命令也叫得停",
+              "en": "Failed updates recover, and background commands can be stopped"
+            },
+            "body": {
+              "zh-TW": "Windows 更新若半路失敗，最糟曾會把 `claude.exe` 一起弄丟；現在失敗時會自動放回保留的執行檔，Claude 不會憑空消失。另一個讓人無力的情況是把 session（一次持續工作的對話）送到背景後，背景 shell（執行命令的程式）有時再也停不下來，尤其 Windows 或電腦很忙時更明顯。這版把它修好，無論用 `/background`、左箭頭送進背景，或對話正結束，都能正常停止。這就像工廠換新機器時把舊機留在旁邊備援；若要停工，也終於能關掉仍在背景運轉的機器。",
+              "en": "A failed Windows update could once leave you without `claude.exe`; now it automatically restores the preserved executable instead of making Claude vanish. Another frustrating case was a background shell that sometimes could not be stopped after a session was sent to the background, especially on Windows or a heavily loaded computer. This is fixed whether you use `/background`, the left arrow, or the session is exiting. It is like replacing a factory machine while keeping the old one nearby as a backup, then being able to shut down the machine still running in the back room."
+            },
+            "original": "Fixed Windows auto-update failures that could leave `claude.exe` missing; failed updates now restore the preserved executable automatically\nFixed background shells sometimes becoming impossible to stop after a session is sent to the background (`/background` or `←`) or when the session exits on a heavily loaded machine, most visible on Windows"
+          },
+          {
+            "title": {
+              "zh-TW": "背景對話不會沿捷徑跑出工作區",
+              "en": "Background sessions cannot slip out through a shortcut"
+            },
+            "body": {
+              "zh-TW": "把背景 session（一次持續工作的對話）關在指定工作區，本來就該像把人留在同一間辦公室；但工作資料夾若經過 symlink（符號連結，指向另一個位置的捷徑檔），先前路徑沒有被認成真正位置，對話可能因此逃出 workspace folder（工作區資料夾）。現在背景隔離會先辨認捷徑最後通往哪裡，再套用邊界，避免工作跑到不該碰的資料夾。這是安全修復，不是新增限制：你照常從捷徑開工作，但門禁終於看得懂它通往哪一扇門。",
+              "en": "A background session should stay inside its assigned workspace, like a worker staying in the right office. But if its working directory was reached through a symlink (a shortcut file pointing elsewhere), the path was not converted to its real location and the session could escape its workspace folder. Background isolation now resolves that shortcut first, then applies the boundary. This is a security fix, not a new restriction: you can still open work through a shortcut, but the access gate now knows which door it actually reaches."
+            },
+            "original": "Fixed background session isolation not canonicalizing symlinked working directories, which could let sessions escape their workspace folder"
+          },
+          {
+            "title": {
+              "zh-TW": "公司網路設定終於真的跟著 Claude Desktop 走",
+              "en": "Corporate network rules finally reach Claude Desktop"
+            },
+            "body": {
+              "zh-TW": "在公司網路裡能開網頁，不代表 Claude Desktop 就連得出去：mTLS、TLS 驗證、OAuth 範圍與 proxy（代理伺服器，代替你轉送網路連線的中繼站）設定曾被它忽略。現在這些企業設定會在 Desktop session（一次持續工作的對話）生效。受管理的 `OTEL_EXPORTER_OTLP_ENDPOINT` 也能真正管住所有 telemetry（遙測資料，程式送出的運作紀錄）訊號，較低層級的個別設定不能再把資料改送到別處。像總公司替每輛車規劃好路線與回報站，現在所有車都會照著走，不會有一輛私自繞路。",
+              "en": "Being able to open a website on a corporate network did not always mean Claude Desktop could connect: it was ignoring mTLS, TLS verification, OAuth scopes, and proxy settings. Those corporate settings now apply to Desktop sessions. A managed `OTEL_EXPORTER_OTLP_ENDPOINT` also truly governs every telemetry signal, so lower-scope, signal-specific overrides cannot redirect data elsewhere. It is like headquarters setting the route and reporting depot for every vehicle; now every one follows it rather than one quietly taking a detour."
+            },
+            "original": "Fixed corporate mTLS, TLS-verify, OAuth scope, and proxy settings being ignored in Claude Desktop sessions\nFixed managed settings that set `OTEL_EXPORTER_OTLP_ENDPOINT` not governing all signals — lower-scope signal-specific overrides no longer redirect telemetry away from the managed endpoint"
+          },
+          {
+            "title": {
+              "zh-TW": "看得見、聽得清，也不會漏掉遠端的授權窗",
+              "en": "Accessible status and no missing remote permission prompt"
+            },
+            "body": {
+              "zh-TW": "使用螢幕閱讀器（把畫面文字念出來的輔助工具）時，啟動公告以前常被第一個提示畫面截斷；現在它會好好念完。思考狀態列也不再每幾秒為了更新經過時間與 token（AI 處理文字時使用的計數單位）數而重畫一次，少了反覆干擾。若有人在 Remote Control（遠端控制，讓他人連進同一工作階段）已出現授權提示後才加入，先前看不到那個待處理視窗，現在也能看見。就像會議室的廣播不再講到一半被蓋掉，晚進門的人也能看到桌上正等簽的文件。",
+              "en": "With a screen reader (an accessibility tool that reads on-screen text aloud), the startup announcement used to be cut off by the first prompt; now it can finish. The thinking status row also stops re-rendering every few seconds merely to refresh elapsed time and token counts. In Remote Control, people who join after a permission prompt appears can now see that pending dialog. It is like a meeting-room announcement that is no longer talked over halfway through, while late arrivals can still see the document waiting for a signature."
+            },
+            "original": "Fixed screen reader mode's startup announcement being cut off by the first prompt render, and the thinking status row re-rendering every few seconds to update elapsed time and token counts\nFixed Remote Control sessions not showing a pending permission prompt or dialog to viewers that connected after it appeared"
+          },
+          {
+            "title": {
+              "zh-TW": "終端機的小提醒少打擾，該點的連結更好點",
+              "en": "Fewer terminal nags, more reliable links"
+            },
+            "body": {
+              "zh-TW": "透過 ssh 或 tmux 使用終端機時，footer 的 PR badge（Pull Request 徽章，連到程式碼審查頁的標記）以前因偵測不到支援而不能點；現在仍會做成可點的超連結。若你的終端機真的不想要，設 `FORCE_HYPERLINK=0` 就能關掉。登入即將到期的提醒則從五天前改為三天前，少一點太早的催促；frontend-design plugin（前端設計外掛）的推薦提示一生最多三次，不會無限重播。像桌上便利貼改成真正需要時才出現，紙上的地址也終於能直接點開。",
+              "en": "When you use a terminal through ssh or tmux, the footer PR badge (a Pull Request marker linking to code review) could be unclickable because support could not be detected. It now stays a hyperlink; use `FORCE_HYPERLINK=0` if you truly want it off. The login-expiry warning moves from five days before expiry to three, and the frontend-design plugin suggestion appears at most three times in a lifetime instead of forever. It is like desk sticky notes appearing only when they matter, while the address written on them finally opens when clicked."
+            },
+            "original": "Improved footer PR badge links to be clickable hyperlinks even when terminal support can't be detected (e.g. over ssh/tmux); set `FORCE_HYPERLINK=0` to opt out\nChanged the login-expiry warning to appear 3 days before expiry instead of 5\nCapped the frontend-design plugin suggestion tip at 3 lifetime impressions instead of repeating indefinitely"
+          },
+          {
+            "title": {
+              "zh-TW": "子代理有上限，也不會自己無限開分身",
+              "en": "Subagents have a ceiling and cannot endlessly branch"
+            },
+            "body": {
+              "zh-TW": "一個指令若叫出太多 subagent（子代理，替主對話分頭做事的 AI 工作單位），電腦和預算都可能被拖垮。現在同時執行的子代理預設最多 20 個，可用 `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` 改上限；子代理預設也不能再繼續生子代理，真需要更深層協作才用 `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` 放寬。`--max-budget-usd` 到頂時，新的背景子代理會被拒絕，已在跑的也會停下來。這像專案經理先限制同時出勤人數、禁止員工無限找下包，預算用完更會立刻收工，而非繼續記帳。",
+              "en": "One request that launches too many subagents (AI workers that split work from the main conversation) can overwhelm both a computer and a budget. Concurrent subagents now default to a maximum of 20; change it with `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`. Subagents also no longer create nested subagents by default; use `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` only when deeper coordination is needed. When `--max-budget-usd` is reached, new background spawns are denied and existing ones stop. It is like a project manager limiting the crew, preventing endless subcontracting, and calling work off when the budget is spent."
+            },
+            "original": "Added a cap on concurrently-running subagents (default 20, override with `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`) so one message can't fan out unbounded background agents\nChanged subagents to no longer spawn nested subagents by default; set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` to allow deeper nesting\nFixed `--max-budget-usd` not stopping background subagents: once the cap is reached, new spawns are denied and running background agents are halted"
+          }
+        ]
+      }
+    },
     {
       "version": "2.1.216",
       "raw": {
@@ -1144,160 +1280,6 @@
               "en": "A few startling system behaviors have been smoothed out. If you accidentally pasted a timestamp while topping up your credits, the system used to blindly strip it down to digits and charge some random amount; it now halts with an error, and any amount over $1,000 requires you to explicitly type a confirmation to save your wallet from a catastrophic slip. If you customized the launcher script that opens Claude, the auto-updater will stop rudely overwriting it on every release. Also, totally normal internal system chat updates will no longer falsely trigger the \"prompt injection attack\" alarms. It's like going to an ATM: mashing the keypad won't randomly withdraw a weird amount of cash, the bank's software update won't erase the custom PIN shortcuts you set up, and the burglar alarm stops screaming every time a bank teller legitimately refills the money tray."
             },
             "original": "Fixed the auto-updater overwriting a custom launcher script or symlink at `~/.local/bin/claude` on every release; `/doctor` now reports an externally managed launcher\nFixed spurious prompt-injection warnings triggered by benign system-generated conversation updates\nFixed `/usage-credits` amount inputs silently stripping malformed values (e.g. a pasted timestamp) to digits; malformed amounts are now rejected with an error, and amounts over $1,000 require a typed confirmation (2.1.207)"
-          }
-        ]
-      }
-    },
-    {
-      "version": "2.1.206",
-      "raw": {
-        "version": "2.1.206",
-        "period": "2026-07-10",
-        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-        "fetched_at": "2026-07-13",
-        "entries": [
-          "Added directory path suggestions to `/cd`, matching `/add-dir` behavior",
-          "Added a `/doctor` check that proposes trimming checked-in `CLAUDE.md` files by cutting content Claude could derive from the codebase",
-          "`/commit-push-pr` now auto-allows `git push` to the repo's configured push remote (`remote.pushDefault`, or the sole remote when only one is configured) in addition to `origin`",
-          "Gateway: `/login` now supports Anthropic-operated public gateway endpoints",
-          "`EnterWorktree` now asks for confirmation before entering a git worktree outside the project's `.claude/worktrees/` directory",
-          "Background agents now upgrade to a new version in the background right after a Claude Code update, instead of paying a slow stale-session upgrade when you attach",
-          "Fixed an expired login failing every model with a misleading \"There's an issue with the selected model\" error instead of prompting to run `/login`",
-          "Fixed `claude --resume` and `--continue` not responding to keyboard input on startup",
-          "Fixed MCP servers configured via `--mcp-config` or `.mcp.json` ignoring a per-server `request_timeout_ms`, which caused long-running MCP tool calls to time out at the 60s default in fresh sessions",
-          "Fixed `CLAUDE_CODE_EXTRA_BODY` being silently ignored by `claude agents` / `--bg` background workers; the shell-exported override now follows the dispatching session",
-          "Fixed OAuth MCP servers requiring manual re-authentication after a single failed token refresh",
-          "Fixed `--permission-prompt-tool` pointing at an MCP server crashing with \"MCP tool not found\" on cold start before the server finishes connecting",
-          "Fixed `/model` picker rows printing a price for a different model than the row named, and stopped quoting first-party list prices on providers that don't bill them",
-          "Fixed server-provided model rows being misplaced in the `/model` picker when an entitlement or allowlist restriction drops the row they were positioned against",
-          "Fixed desktop sessions getting stuck showing \"running\" after a slash command was sent mid-turn",
-          "Fixed keyboard input being ignored in the agents view when a setup prompt appeared before a bare `claude --resume` on Windows",
-          "Fixed `claude rm` leaving the removed job in the daemon roster, causing the row to reappear in `claude agents`",
-          "Fixed `/remote-control` showing \"Unknown command\" when logged out — it now explains how to sign in",
-          "Fixed left arrow not stepping back out of a phase or agent in the workflow detail view",
-          "Fixed `/status` listing the same broken-install warning twice",
-          "Fixed false \"disused plugin\" tips and skewed disuse telemetry for LSP plugins",
-          "Fixed `/doctor`'s update check to compare Homebrew installs against their cask's channel instead of the settings channel",
-          "Fixed the fullscreen jump-to-bottom pill suggesting Ctrl+End on macOS, not showing rebound chords, and wrapping over the transcript",
-          "Bedrock: fixed a multi-minute startup hang when using an `awsCredentialExport` helper on networks with restricted egress",
-          "Improved `/code-review` findings quality on claude-opus-4-8 across all effort levels",
-          "Improved agents view: status column now uses full terminal width instead of truncating at 64 characters",
-          "Changed agents view: Ctrl+X now permanently removes a completed session, and sessions no longer render twice; deleted background jobs stay deleted"
-        ]
-      },
-      "curated": {
-        "version": "2.1.206",
-        "period": "2026-07-08 ~ 07-11",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "背景代理不再卡死、斷線、偷偷重跑",
-              "en": "Background agents no longer stall, hang, or silently restart"
-            },
-            "body": {
-              "zh-TW": "你把任務丟給背景代理（background agent，讓 Claude 在背景幫你跑活、你先去忙別的的功能）之後，現在可以放心走開了。以前它有一堆怪毛病：在 macOS 上開啟或切換要莫名卡 15 到 20 秒、內部通行證（session token，系統認人用的臨時憑證）過期後整隻永遠叫不醒、回到列表畫面還會偷偷把跑到一半的子任務砍掉從頭重來；這批毛病一次修完，斷線還會自己接回來。就像洗衣店以前偶爾弄丟衣服、或把洗到一半的整批重洗，現在每件衣服的進度都記得牢牢的，你隨時回來拿都對得上。",
-              "en": "Once you hand a job to a background agent (a feature that lets Claude keep working on a task while you go do something else), you can now actually walk away. It used to have a pile of quirks: opening or switching sessions on macOS could stall for 15–20 seconds, an expired internal session token (the temporary pass the system uses to recognize you) could leave a session permanently unresponsive, and returning to the list view could silently kill half-finished subagents and restart them from scratch. All of these are fixed, and dropped sessions now reconnect on their own. It's like a laundry service that used to occasionally lose your clothes or rewash a half-done load; now every item's progress is tracked, and whenever you come back, it all checks out."
-            },
-            "original": "Fixed opening or switching background agent sessions on macOS stalling for 15–20 seconds due to a false low-memory detection (regression in 2.1.196). Fixed background sessions becoming permanently unresponsive to attach, replies, and stop when the daemon's session token went stale — the session now recovers automatically. Fixed returning to `claude agents` silently stopping running subagents and re-running the prompt from scratch — their work now carries over. Fixed background agents crash-looping when their working directory was deleted, replaced by a file, or became an invalid path. Fixed a background daemon auto-upgrade failure silently killing all running background sessions. (2.1.203)"
-          },
-          {
-            "title": {
-              "zh-TW": "背景任務列表一眼看懂：彩色狀態＋一句話進度",
-              "en": "The agents list now shows colored status words and one-line summaries"
-            },
-            "body": {
-              "zh-TW": "打開 claude agents 的任務列表，現在一眼就知道每隻代理在幹嘛。以前每一列只顯示生硬的工具呼叫原文，看半天看不出進度；現在改成彩色的狀態字（例如「執行中」「等你回覆」）加上一句自動寫好的進度標題，欄位還會撐滿整個終端機寬度不再截斷，代理改過或推送過的 PR（pull request，請別人把你的修改合併進主程式的申請單）也會直接附上連結。就像貨運追蹤頁從一串看不懂的物流代碼，變成「包裹已到你家附近的營業所」這種人話。",
-              "en": "Open the claude agents task list and you can now tell at a glance what every agent is up to. Rows used to show raw tool-call text that told you nothing; now each shows a colored state word (like \"working\" or \"needs input\") plus an auto-written one-line headline, the status column stretches across the full terminal width instead of truncating, and any PR (pull request, the request form for merging your changes into the main code) an agent touched is linked right there. It's like a package-tracking page upgrading from cryptic logistics codes to \"your parcel has reached the local depot\" in plain words."
-            },
-            "original": "Improved agent view: rows now show a colored state word and a classifier-written headline instead of raw tool call text, and the peek opens with full status including the exact ask for blocked sessions. Improved agent view: sessions that edit, merge, comment on, or push to an existing PR now link it in `claude agents`. Improved agents view: status column now uses full terminal width instead of truncating at 64 characters. Changed agents view: Ctrl+X now permanently removes a completed session, and sessions no longer render twice. (2.1.205–2.1.206)"
-          },
-          {
-            "title": {
-              "zh-TW": "/doctor 升級成一站式健檢，還會幫你動手修",
-              "en": "/doctor is now a full checkup that can also fix what it finds"
-            },
-            "body": {
-              "zh-TW": "覺得 Claude Code 哪裡怪怪的，現在打一句 /doctor 就能做全身健檢，而且它不只診斷、還會動手修；順口的別名 /checkup 也通。健檢項目也變多：會建議你精簡塞太肥的 CLAUDE.md（專案說明檔，Claude 每次開工都要先讀的備忘錄）——凡是 Claude 自己看程式碼就推得出來的內容都可以刪掉省空間；用 Homebrew 裝的人，更新檢查也改成對正確的更新頻道。就像健檢中心從「只印報告」升級成「當場幫你拔智齒」。",
-              "en": "When Claude Code feels off, one /doctor now runs a full checkup — and it doesn't just diagnose, it can fix what it finds; /checkup works as an alias. The checkup also covers more ground: it can propose trimming an overweight CLAUDE.md (the project memo Claude reads before every work session) by cutting anything Claude could figure out from the code itself, and Homebrew installs now get their update check compared against the right release channel. It's like a health clinic upgrading from \"here's your report\" to \"let's pull that wisdom tooth right now.\""
-            },
-            "original": "`/doctor` is now a full setup checkup that can diagnose and fix issues; `/checkup` is its alias. (2.1.205) Added a `/doctor` check that proposes trimming checked-in `CLAUDE.md` files by cutting content Claude could derive from the codebase. Fixed `/doctor`'s update check to compare Homebrew installs against their cask's channel instead of the settings channel. Fixed `/status` listing the same broken-install warning twice. (2.1.206)"
-          },
-          {
-            "title": {
-              "zh-TW": "登入快過期會先提醒，過期也不再誤報成模型故障",
-              "en": "You get a heads-up before your login expires — and expired logins stop masquerading as model errors"
-            },
-            "body": {
-              "zh-TW": "登入快到期時，Claude Code 現在會提前警告你，讓你在背景任務被打斷前先重新登入。以前更糟的是登入真的過期後，畫面只會冒出「所選模型有問題」這種牛頭不對馬嘴的錯誤，害你以為是模型壞了；現在會老實告訴你「請執行 /login」。就像大樓門禁卡快失效時警衛先提醒你去換卡，而不是等你被鎖在門外還騙你「是門壞了」。",
-              "en": "Claude Code now warns you before your login expires, so you can re-authenticate before background sessions get cut off. Worse before: once the login actually expired, every request failed with a misleading \"There's an issue with the selected model\" error, sending you hunting for a model problem that didn't exist; now it plainly tells you to run /login. It's like a building guard reminding you to renew your keycard before it dies, instead of letting you get locked out and telling you \"the door is broken.\""
-            },
-            "original": "Added a warning when your login is about to expire, so you can re-authenticate before background sessions are interrupted. (2.1.203) Fixed an expired login failing every model with a misleading \"There's an issue with the selected model\" error instead of prompting to run `/login`. (2.1.206)"
-          },
-          {
-            "title": {
-              "zh-TW": "更順更省：長回覆不再整屏重繪，更新時少吃 400 MB 記憶體",
-              "en": "Faster and lighter: streaming stops redrawing the whole screen, updates use ~400 MB less memory"
-            },
-            "body": {
-              "zh-TW": "這一輪把幾個吃效能的老毛病一起減掉了。長回覆串流（streaming，答案一邊生成一邊逐字顯示）時不再整個畫面重繪，打字和捲動都變順；對話額度指標以前每講一輪就重新掃描整段對話、白吃記憶體和 CPU，現在不會了；程式本體瘦了約 7 MB、啟動時少吃約 7 MB 記憶體；自動更新下載改成邊下邊寫進磁碟，尖峰記憶體省下約 400 MB。就像家裡同一週換了省電燈泡、又修好漏水的水龍頭——每一項都不起眼，帳單加起來有感。",
-              "en": "This round trims several old performance drains at once. Long streaming responses (answers appearing word by word as they generate) no longer redraw the whole screen, so typing and scrolling stay smooth; the context-usage indicator used to re-scan the entire transcript after every single turn, burning memory and CPU for nothing — not anymore; the binary slimmed down by about 7 MB and uses about 7 MB less memory at startup; and auto-update downloads now stream to disk instead of piling up in memory, cutting peak usage by roughly 400 MB. It's like swapping in LED bulbs and fixing a dripping faucet in the same week — each change is small, but the bill notices."
-            },
-            "original": "Improved responsiveness while long responses stream: live-preview updates no longer re-render the whole screen. Reduced binary size by ~7 MB and startup memory by ~7 MB by loading a large bundled dependency lazily instead of inlining it. Fixed a memory and per-turn CPU regression in interactive sessions: the context-usage indicator no longer re-analyzes the entire transcript after every turn. (2.1.203) Auto-update binary downloads now stream to disk instead of buffering in memory, cutting the updater's peak memory usage by roughly 400 MB. (2.1.205)"
-          },
-          {
-            "title": {
-              "zh-TW": "自動模式加了三道保險，危險刪除會先停下來問你",
-              "en": "Auto mode gains three guardrails, including a pause before risky deletes"
-            },
-            "body": {
-              "zh-TW": "自動模式（auto mode，讓 Claude 不逐一問你就自己執行的模式）加了三道新保險。第一，禁止竄改對話紀錄檔，留底的證據動不得；第二，遇到 rm -rf 後面接一個看不出內容的變數（也就是刪除指令指向的位置不明）時，會先停下來問你再動手；第三，背景任務的通知現在會明講「過程中沒有任何人工核可」，避免有人在對話裡偽造一句「使用者已同意」就騙過系統。就像自動駕駛多了三個感測器：黑盒子上鎖、看不清路況先減速、儀表板不讓人貼假的綠燈。",
-              "en": "Auto mode (the mode where Claude acts without asking you step by step) gains three new guardrails. First, tampering with session transcript files is blocked — the paper trail stays untouchable. Second, before running rm -rf on a variable it can't resolve (a delete command whose target is unclear), it now stops and asks you. Third, background task notifications explicitly state that no human input has occurred, so a fabricated \"the user approved this\" line planted in a transcript can't trick the system. Like a self-driving car gaining three sensors: a locked black box, slowing down when the road is unclear, and a dashboard nobody can tape a fake green light onto."
-            },
-            "original": "Added an auto mode rule that blocks tampering with session transcript files. Improved auto mode to ask before running `rm -rf` on a variable it can't resolve from context. Background task notifications now explicitly state that no human input has occurred, preventing fabricated in-transcript approvals from being acted on. (2.1.205)"
-          },
-          {
-            "title": {
-              "zh-TW": "Windows 使用者注意：清理工作樹不會再誤刪外面的檔案",
-              "en": "Windows: removing a worktree can no longer delete files outside it"
-            },
-            "body": {
-              "zh-TW": "Windows 使用者這條要看：以前清理工作樹（worktree，讓同一個專案多開幾份平行工作副本的 git 功能）時，如果裡面藏著 NTFS 目錄捷徑（junction，Windows 上把一個資料夾指向另一個位置的分身），刪除會順著捷徑刪到工作樹外面的真檔案；現在修好了，刪除只動工作樹自己的東西。就像拆違建時以前會順著水管拆到隔壁鄰居家，現在確實只拆自己這一戶。",
-              "en": "Windows users, this one's for you: removing a worktree (a git feature that gives one project several parallel working copies) used to follow any NTFS junction or directory symlink (a Windows shortcut that points a folder at another location) hiding inside it and delete real files outside the worktree; that's fixed, and removal now touches only the worktree's own files. Like a demolition crew that used to follow the plumbing into the neighbor's house — now it strictly tears down only your unit."
-            },
-            "original": "Fixed Windows worktree removal deleting files outside the worktree when an NTFS junction or directory symlink existed inside it. (2.1.205)"
-          },
-          {
-            "title": {
-              "zh-TW": "MCP 外掛更耐用：逾時設定真的生效、斷一次線不用重登",
-              "en": "MCP servers got sturdier: timeouts are honored, one hiccup no longer forces re-login"
-            },
-            "body": {
-              "zh-TW": "有裝 MCP 伺服器（Model Context Protocol，讓 Claude 外接其他工具服務的插座標準）的人，這輪有兩個修復。一是你在設定裡寫的單一伺服器逾時秒數（request_timeout_ms）以前會被無視、新對話一律用預設 60 秒就砍線，跑比較久的工具老是被斷頭，現在真的照你設的來；二是走 OAuth 登入（把登入委託給原服務認證的機制）的伺服器，以前只要一次換證失敗就逼你手動重新登入，現在小失誤會自己重試接上。就像延長線以前標示耐重 10 公斤、實際 6 公斤就跳電，現在標多少就耐多少。",
-              "en": "If you run MCP servers (Model Context Protocol, the socket standard that lets Claude plug into outside tools), two fixes this round. First, the per-server timeout you set (request_timeout_ms) used to be ignored — fresh sessions cut every call off at the default 60 seconds, beheading long-running tools; it now honors your setting. Second, OAuth-based servers (which delegate sign-in to the original service) used to demand a full manual re-login after a single failed token refresh; small hiccups now retry and reconnect on their own. Like a power strip that claimed a 10 kg rating but tripped at 6 — now it holds exactly what the label says."
-            },
-            "original": "Fixed MCP servers configured via `--mcp-config` or `.mcp.json` ignoring a per-server `request_timeout_ms`, which caused long-running MCP tool calls to time out at the 60s default in fresh sessions. Fixed OAuth MCP servers requiring manual re-authentication after a single failed token refresh. (2.1.206)"
-          },
-          {
-            "title": {
-              "zh-TW": "/commit-push-pr 推送不再多問一次",
-              "en": "/commit-push-pr stops double-checking pushes to your configured remote"
-            },
-            "body": {
-              "zh-TW": "用 /commit-push-pr 一條龍提交時，推送（git push，把你的修改上傳到遠端儲存庫）這步不再多跳一次確認。以前只有推到 origin（預設遠端的慣用名字）會自動放行，推到你自己設定的推送遠端還是會被攔下來問；現在只要是 repo 設定裡指名的推送目的地，一樣直接放行。就像社區大門的車牌辨識，以前只認你的舊車牌，現在你登記過的車都直接開門。",
-              "en": "When you run the one-stop /commit-push-pr, the push step (git push, uploading your changes to the remote repository) no longer throws an extra confirmation. It used to auto-allow pushes only to origin (the customary name for the default remote), stopping to ask about the push remote you'd actually configured; now any destination named in your repo's config sails through too. Like a gated community's plate reader that only knew your old car — now every car you've registered opens the gate."
-            },
-            "original": "`/commit-push-pr` now auto-allows `git push` to the repo's configured push remote (`remote.pushDefault`, or the sole remote when only one is configured) in addition to `origin`. (2.1.206)"
-          },
-          {
-            "title": {
-              "zh-TW": "/model 選單的價格標籤不再張冠李戴",
-              "en": "The /model picker no longer shows the wrong model's price"
-            },
-            "body": {
-              "zh-TW": "打 /model 挑模型時，價格標籤不再張冠李戴。以前清單有時會把 A 模型的單價印在 B 模型那一列，害你以為換了個便宜的、其實更貴；順帶也不再對「根本不照官方定價收費」的第三方供應商硬印官方牌價。就像菜單以前會把牛排的價錢印在義大利麵旁邊，現在每道菜對準自己的標價，代售的菜也不再亂掛別家的價目。",
-              "en": "When you open /model to pick a model, price tags no longer land on the wrong row. The list could print one model's price next to another model's name, letting you \"switch to something cheaper\" that wasn't; it also stops quoting first-party list prices for third-party providers that don't bill by them at all. Like a menu that used to print the steak's price next to the pasta — every dish now wears its own tag, and consignment dishes stop borrowing another shop's price list."
-            },
-            "original": "Fixed `/model` picker rows printing a price for a different model than the row named, and stopped quoting first-party list prices on providers that don't bill them. Fixed server-provided model rows being misplaced in the `/model` picker when an entitlement or allowlist restriction drops the row they were positioned against. (2.1.206)"
           }
         ]
       }
