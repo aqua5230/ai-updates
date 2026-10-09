@@ -5,6 +5,35 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.15.3",
+      "raw": {
+        "version": "0.15.3",
+        "period": "2026-06-02",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Codex quota no longer blanks out on refresh errors (#25)**: follow-up to #24. When the later refresh stage (history parsing) failed, the error state reset the Codex session/weekly rows to blank, overwriting the quota that had already been loaded at the start of the refresh. The error path now preserves those already-loaded Codex rows, so they no longer flash empty."
+        ]
+      },
+      "curated": {
+        "version": "0.15.3",
+        "period": "2026-06-02",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "資料刷新偶爾出錯時，Codex 額度不再閃成空白",
+              "en": "Codex quota no longer flashes blank when background refreshes hiccup"
+            },
+            "body": {
+              "zh-TW": "你的 Codex 額度顯示現在更穩定了，不會再時不時消失一瞬間。以前如果系統在背景讀取歷史用量時剛好遇到錯誤，它會連帶把已經順利讀好的 Codex 額度清空，讓你看到畫面閃一下變成空白；現在它懂得在出錯時保留已經抓到的好資料。就像看電視遇到訊號稍微不穩，以前會直接切成黑畫面，現在它會先凍結在最後一個清楚的畫面，等你沒察覺時訊號就恢復了。",
+              "en": "Your Codex quota display is much steadier now and won't randomly disappear for a split second. Previously, if the system hit a bump while reading your historical usage in the background, it would mistakenly wipe out the Codex quota it had already successfully fetched, making those rows flash blank; it now knows to hold onto the good data it already has when an error occurs. Like watching a streaming video that encounters a slight network hiccup — it used to just cut to a black screen, but now it freezes on the last clear frame until the signal quietly catches up."
+            },
+            "original": "**Codex quota no longer blanks out on refresh errors (#25)**: follow-up to #24. When the later refresh stage (history parsing) failed, the error state reset the Codex session/weekly rows to blank, overwriting the quota that had already been loaded at the start of the refresh. The error path now preserves those already-loaded Codex rows, so they no longer flash empty."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.2",
       "raw": {
         "version": "0.15.2",
@@ -371,36 +400,6 @@
               "en": "Your reports now generate faster because the system dropped some silly internal calculation habits. When calculating your report costs, the system used to be deeply confused: it would sum up all the numbers once, and then redundantly re-calculate everything piece by piece inside a loop. If you had massive amounts of data, it was effectively doing double the work for nothing; it now smartly accumulates the total in a single pass, saving processing time. We also cleaned up the clipboard code for the \"copy command\" buttons in the report so it no longer relies on two duplicated chunks of logic, and we added a clear internal note to the hard-coded TWD exchange rate explaining it's just a static display estimate rather than a live network fetch. It's like a restaurant checkout counter: the cashier used to punch every single receipt into the calculator once, and then painstakingly re-add every itemized dish again while the line grew out the door; now they simply tally the total in one smooth motion. The cash register's software is much cleaner now, too, sporting a sticky note that reminds the new hires, \"The exchange rate here is just an estimate, don't try matching it against the morning news.\""
             },
             "original": "**Double-counted report cost**: `build_report_data` summed cost once over all entries and then recomputed it per entry inside the loop — effectively doubling the work on large datasets. Now accumulated once inside the loop.\n**Duplicated clipboard code in the report's \"copy command\" button**: the tip-copy button now reuses the shared `copyText()` helper instead of re-implementing the legacy-browser fallback.\n**Hard-coded TWD rate**: the USD→TWD estimate in the report is now a named `_USD_TO_TWD` constant with a note that it is a display estimate, not a live FX rate."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.11.19",
-      "raw": {
-        "version": "0.11.19",
-        "period": "2026-05-29",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**\"Hide Codex Section\" menu toggle**: the menubar gained a \"Hide Codex Section\" option that collapses the Codex card across all 9 HTML panels and shrinks popover height per-panel. The preference persists via `NSUserDefaults` so it survives restarts. i18n keys added for all 5 locales. (PR #19, thanks @RayCHWong for the first-time contribution)",
-          "**`HTMLPanel.codex_card_height` is now a required keyword-only argument with no default**: previously the parameter had a `192.0` default, so a new panel that forgot to set its height in `panels/__init__.py` would silently fall back to the default — the Codex card would render at a height that doesn't match the rest of the panel without raising any error. Now declared as `*, codex_card_height: float` (keyword-only, no default), so any missing call site raises `TypeError` at import. All 9 existing panels already pass it by keyword and are unaffected; added `test_html_panel_requires_explicit_codex_card_height` to lock the contract."
-        ]
-      },
-      "curated": {
-        "version": "0.11.19",
-        "period": "2026-05-29",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "新增「隱藏 Codex 區塊」開關，不用 Codex 也能讓面板保持清爽",
-              "en": "Hide the Codex section for a cleaner panel if you don't use it"
-            },
-            "body": {
-              "zh-TW": "你現在可以在選單列裡找到一個「隱藏 Codex 區塊」的新選項。如果你平常只用 Claude 而不用 Codex，只要打開這個選項，所有 9 款 HTML 面板裡的 Codex 卡片就會全部收起來，彈出視窗（popover）的高度也會自動跟著縮減，幫你省下寶貴的螢幕空間。這個設定會被系統記住，重新開機也不用重調。對於想要自己新增面板的開發者，我們也加強了防呆機制——現在在程式碼裡強制規定必須明確指定 Codex 卡片的高度，如果忘了寫，系統在載入時就會立刻報錯提醒，而不是像以前一樣默默套用預設高度而導致版面錯位。這就像是買便當不吃配菜可以勾選「不要配菜」來換取更小的餐盒；同時廚房的點餐系統也加了防呆，沒填包裝盒尺寸的訂單直接退回，再也不會出現大便當裝小菜的尷尬情況。",
-              "en": "You can now find a new \"Hide Codex Section\" toggle in the menubar. If you only use Claude and not Codex, checking this option will instantly collapse the Codex cards across all 9 HTML panels and automatically shrink the popover windows to match, saving you valuable screen real estate. This preference is saved automatically, so it stays exactly as you left it even after a restart. For developers building new custom panels, we've also added a strict safeguard—the codebase now explicitly requires you to specify the Codex card height. If you forget, it will immediately throw an error at load time instead of silently falling back to a default height that misaligns your layout. It's like ordering a bento box and ticking \"no side dishes\" so they give you a more compact box; meanwhile, the kitchen's ordering system was upgraded to reject tickets with missing box sizes, preventing tiny sides from awkwardly floating in a massive container."
-            },
-            "original": "**\"Hide Codex Section\" menu toggle**: the menubar gained a \"Hide Codex Section\" option that collapses the Codex card across all 9 HTML panels and shrinks popover height per-panel. The preference persists via `NSUserDefaults` so it survives restarts. i18n keys added for all 5 locales. (PR #19, thanks @RayCHWong for the first-time contribution)\n**`HTMLPanel.codex_card_height` is now a required keyword-only argument with no default**: previously the parameter had a `192.0` default, so a new panel that forgot to set its height in `panels/__init__.py` would silently fall back to the default — the Codex card would render at a height that doesn't match the rest of the panel without raising any error. Now declared as `*, codex_card_height: float` (keyword-only, no default), so any missing call site raises `TypeError` at import. All 9 existing panels already pass it by keyword and are unaffected; added `test_html_panel_requires_explicit_codex_card_height` to lock the contract."
           }
         ]
       }

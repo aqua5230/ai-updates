@@ -5,6 +5,36 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.15.13",
+      "raw": {
+        "version": "0.15.13",
+        "period": "2026-06-06",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Estimated cost now recomputes after a pricing update**: a cost computed with fallback prices was written back and cached onto usage entries, so it was never recomputed once real prices loaded — leaving cost figures persistently off (mainly for entries without a source cost, e.g. Codex). The estimate is no longer written back, so it reflects updated prices immediately.",
+          "**Web panel no longer reloads endlessly when injection keeps failing**: if state injection failed repeatedly the panel would loop reloading; reloads per payload are now capped (WebContent-process crash recovery is unaffected)."
+        ]
+      },
+      "curated": {
+        "version": "0.15.13",
+        "period": "2026-06-06",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "成本估算在價格更新後自動校正，網頁面板不再無限重新整理",
+              "en": "Cost estimates correctly recalculate when prices update, and web panels avoid infinite reload loops"
+            },
+            "body": {
+              "zh-TW": "現在成本估算會自動追蹤最新價格，面板也不會再卡死在無限重整裡了。以前當系統剛啟動還沒抓到最新價格表時，會先用本機的預設價格幫你估算成本，但算完就把這個暫時的數字「寫死」在紀錄上，導致後來真正最新的價格表抓回來了，它也不會重算（這對 Codex 等不自帶價格的紀錄影響特別大）；現在它學會不寫死數字了，一拿到新價格就會立刻校正。另外，網頁面板在更新資料（state injection，也就是把最新數據塞進畫面的過程）時如果一直失敗，以前會陷入「失敗、重整、又失敗」的無限迴圈卡死；現在它知道同一個資料重試幾次後就該放棄，不會再死心眼地一直重整（但如果是負責畫面的程序真的死掉，它還是會幫你重新啟動）。就像你點菜時菜單還沒印好，店員先用口頭報價並直接寫死在帳單上，後來發現降價了也不改；現在他只會先用鉛筆寫，拿到最新菜單就馬上幫你重算。而且遇到打不開的抽屜，他也不會再傻傻地一直狂拉到天黑了。",
+              "en": "Cost estimates now automatically track live prices, and the web panels will no longer trap themselves in infinite reload loops. Previously, if the system estimated your cost using fallback prices before the live pricelist could be fetched, it would hard-code that temporary estimate into your local usage item. Even after the real prices downloaded, it refused to recalculate, causing chronically inaccurate cost estimates (especially for sources that don't embed their own costs, like Codex); it now smartly leaves the item alone, recalculating immediately whenever fresh prices arrive. Also, if the web panel repeatedly failed to update its data (state injection, the process of feeding fresh data into the UI), it used to trap itself in an infinite reload loop; it now gives up gracefully after a few tries with the same dataset (though it still auto-recovers if the actual rendering process crashes). It's like a waiter who jotted down an estimated price in pen while waiting for the new menu to be printed, and refused to adjust your bill when the actual prices came in lower; now they use a pencil and update it instantly. And when they face a jammed drawer, they no longer yank at it endlessly until the restaurant closes."
+            },
+            "original": "**Estimated cost now recomputes after a pricing update**: a cost computed with fallback prices was written back and cached onto usage entries, so it was never recomputed once real prices loaded — leaving cost figures persistently off (mainly for entries without a source cost, e.g. Codex). The estimate is no longer written back, so it reflects updated prices immediately.\n**Web panel no longer reloads endlessly when injection keeps failing**: if state injection failed repeatedly the panel would loop reloading; reloads per payload are now capped (WebContent-process crash recovery is unaffected)."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.12",
       "raw": {
         "version": "0.15.12",
@@ -288,35 +318,6 @@
               "en": "If the embedded web panel inside the popover (the small window showing your stats) fails to load, it no longer just silently freezes or leaves a blank grey window with no explanation. Now it shows a native error view listing the actual error detail, plus a GitHub link you can jump straight to for reporting the issue; if you separately set the USAGE_DEBUG=1 environment variable (an advanced debug switch), navigation failures and render timeouts also get logged for easier diagnosis. It's like going to the bank: if the ticket machine breaks, instead of just going dark and leaving you standing there confused, it now displays \"Machine error, code E-42\" on screen, complete with a pre-filled feedback slip you can hand straight to the technician."
             },
             "original": "**Panel load failures no longer degrade to a silent grey window**: when the popover's embedded web panel fails to load, it previously fell back to a blank dark window with no explanation. It now shows a native error view with the error detail and a GitHub report link, and logs navigation failures / render timeouts under `USAGE_DEBUG=1` for easier diagnosis."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.15.3",
-      "raw": {
-        "version": "0.15.3",
-        "period": "2026-06-02",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Codex quota no longer blanks out on refresh errors (#25)**: follow-up to #24. When the later refresh stage (history parsing) failed, the error state reset the Codex session/weekly rows to blank, overwriting the quota that had already been loaded at the start of the refresh. The error path now preserves those already-loaded Codex rows, so they no longer flash empty."
-        ]
-      },
-      "curated": {
-        "version": "0.15.3",
-        "period": "2026-06-02",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "資料刷新偶爾出錯時，Codex 額度不再閃成空白",
-              "en": "Codex quota no longer flashes blank when background refreshes hiccup"
-            },
-            "body": {
-              "zh-TW": "你的 Codex 額度顯示現在更穩定了，不會再時不時消失一瞬間。以前如果系統在背景讀取歷史用量時剛好遇到錯誤，它會連帶把已經順利讀好的 Codex 額度清空，讓你看到畫面閃一下變成空白；現在它懂得在出錯時保留已經抓到的好資料。就像看電視遇到訊號稍微不穩，以前會直接切成黑畫面，現在它會先凍結在最後一個清楚的畫面，等你沒察覺時訊號就恢復了。",
-              "en": "Your Codex quota display is much steadier now and won't randomly disappear for a split second. Previously, if the system hit a bump while reading your historical usage in the background, it would mistakenly wipe out the Codex quota it had already successfully fetched, making those rows flash blank; it now knows to hold onto the good data it already has when an error occurs. Like watching a streaming video that encounters a slight network hiccup — it used to just cut to a black screen, but now it freezes on the last clear frame until the signal quietly catches up."
-            },
-            "original": "**Codex quota no longer blanks out on refresh errors (#25)**: follow-up to #24. When the later refresh stage (history parsing) failed, the error state reset the Codex session/weekly rows to blank, overwriting the quota that had already been loaded at the start of the refresh. The error path now preserves those already-loaded Codex rows, so they no longer flash empty."
           }
         ]
       }

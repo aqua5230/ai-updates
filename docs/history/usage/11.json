@@ -5,6 +5,36 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.28.2",
+      "raw": {
+        "version": "0.28.2",
+        "period": "2026-07-15",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-16",
+        "entries": [
+          "**Switching panels on Windows no longer risks a blank white window**: the panel-switch action reloaded the document synchronously from inside the pywebview JS-API callback, which could destroy the in-flight JavaScript Promise callback for that call and leave Edge WebView blank. The reload is now deferred until the bridge call has returned to JavaScript, with a pending-switch guard so rapid double-clicks recompute the target panel instead of reusing a stale one. The Windows PyInstaller bundle also now includes the status-line and session-hook source files that the setup and self-heal paths copy at runtime, which it previously omitted.",
+          "**The Windows tray window no longer flashes white regardless of theme**: pywebview's window background defaults to white, which bled through the frameless window's rounded corners (and any unpainted first frame) even when the active panel's CSS was rendering its dark variant. The window background now reads the system's light/dark theme setting and matches the panel's background color."
+        ]
+      },
+      "curated": {
+        "version": "0.28.2",
+        "period": "2026-07-15",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 視窗切換不留白，也不再亮瞎眼",
+              "en": "Windows panel switching avoids blank screens and white flashes"
+            },
+            "body": {
+              "zh-TW": "在 Windows 上快速切換面板時，畫面不會再莫名其妙留白，也不會再閃現刺眼的白光了。以前在切換面板時，系統會在 pywebview（讓桌面程式內嵌顯示網頁畫面的套件）的 JS-API 回呼函式（callback，工作做完後系統自動呼叫回來的那段程式碼）還沒跑完前就急著重新載入畫面，這會把用來等候結果的 Promise（JavaScript 裡用來處理未來才會完成的工作的排隊號碼牌）給摧毀掉，導致 Edge WebView（在桌面程式裡嵌入網頁畫面的瀏覽器元件）卡在一片空白。而且，原本 pywebview 視窗的預設背景色死板地設為白色，就算你開了深色模式，在載入瞬間或圓角邊緣還是會閃瞎你的眼睛。現在它懂等橋樑溝通完畢才載入，還加上了防禦機制，就算你急躁地連點兩下，系統也會重新算出你最後想切去的那個目標面板，不會傻傻沿用已經過期的舊面板；同時視窗背景也會自動讀取你的系統深淺色主題。此外，Windows 的打包檔（PyInstaller bundle，把 Python 程式連同工具包壓成單一執行檔的打包方式）現在也補齊了先前遺漏的 status-line 與 session-hook 原始檔，讓安裝與自我修復流程在執行期能順利複製這些檔案。就像電視換台，以前轉台太快會卡在沒有訊號的白畫面，或者看恐怖片看到一半切台被突然閃現的白光亮瞎；現在不管你怎麼瘋狂轉台，畫面都順滑無比，並且保持在不刺眼的電影院模式。",
+              "en": "Switching panels rapidly on Windows won't leave you stranded on a blank white screen anymore, and the jarring white flashes are gone. Previously, a panel-switch action rudely reloaded the document before pywebview (a package that embeds web content within desktop apps) finished its JS-API callback (code automatically executed after a task completes), completely destroying the in-flight Promise (a JavaScript placeholder for a task that will finish in the future) and leaving the Edge WebView (the browser component embedded inside the desktop app) entirely blank. Furthermore, pywebview's default window background was hardcoded to white, bleeding blinding flashes through rounded corners or the first frame even if you were using a dark theme. Now, the reload patiently waits until the communication bridge has safely returned, with an extra pending-switch guard so rapid double-clicks correctly recalculate the final target panel instead of reusing an outdated locked one; additionally, the window properly reads your system's light/dark theme. Furthermore, the Windows package (PyInstaller bundle, a way to compress the Python program and tools into a single executable file) now includes the previously omitted status-line and session-hook source files, allowing the setup and self-heal paths to copy them correctly at runtime. It's like flipping channels on a TV—it used to get stuck on blinding static if you mashed the remote, or flash a bright white light before switching to your dark movie; now it changes channels buttery smooth and stays comfortably in dark theater mode."
+            },
+            "original": "**Switching panels on Windows no longer risks a blank white window**: the panel-switch action reloaded the document synchronously from inside the pywebview JS-API callback, which could destroy the in-flight JavaScript Promise callback for that call and leave Edge WebView blank. The reload is now deferred until the bridge call has returned to JavaScript, with a pending-switch guard so rapid double-clicks recompute the target panel instead of reusing a stale one. The Windows PyInstaller bundle also now includes the status-line and session-hook source files that the setup and self-heal paths copy at runtime, which it previously omitted.\n**The Windows tray window no longer flashes white regardless of theme**: pywebview's window background defaults to white, which bled through the frameless window's rounded corners (and any unpainted first frame) even when the active panel's CSS was rendering its dark variant. The window background now reads the system's light/dark theme setting and matches the panel's background color."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.28.1",
       "raw": {
         "version": "0.28.1",
@@ -325,37 +355,6 @@
               "en": "You can now click and drag the Claude, Codex, and Antigravity quota cards to arrange them however you like. Your custom order is saved, shared across all themes, and survives app restarts. Furthermore, the quota probe won't hang anymore if the Antigravity CLI throws up a workspace-trust prompt, and the tooltip explaining stale data is now perfectly accurate. The project's README manual has also been cleaned up and translated into five languages (English, Traditional Chinese, Simplified Chinese, Japanese, Korean). It's like being able to slide your ID and credit cards into whichever slots you prefer in your wallet, and that arrangement stays exactly the same even if you buy a different colored wallet of the same brand; plus, the wallet now comes with an instruction booklet everyone can read."
             },
             "original": "**Drag to reorder quota cards**: press and drag the Claude / Codex / Antigravity cards in any panel to swap their order. The arrangement is validated, persisted, shared across all themes, and survives restarts.\n**Antigravity quota probe hardening**: the probe no longer hangs on Antigravity CLI 1.1.1's new workspace-trust prompt, and the stale-data tooltip now describes the probe behavior accurately.\nFuzz harness imports are static so PyInstaller bundles the parser modules (CI fuzzing only; no user-facing impact).\nREADME now ships in five languages (English, Traditional Chinese, Simplified Chinese, Japanese, Korean) with a cleaned-up presentation.\nAI Tool Update Digest refreshed (Claude Code 2.1.206 / Codex 0.144.1 / Antigravity 1.1.1)."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.25.4",
-      "raw": {
-        "version": "0.25.4",
-        "period": "2026-07-11",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**AI Talent Market: full role-library refresh** — all 69 role prompts are restructured (XML-tagged sections, explicit tool guidance, contrastive good/bad examples) for noticeably more reliable in-conversation behavior, across the now 22 packs / 69 roles. The library ships inside the .app bundle, so this update is the way to get it.",
-          "**The menu bar polls less when you're not looking**: the fallback refresh timer stretches from 60s to 300s while the popover is closed, and snaps back (with an immediate refresh) the moment it opens. File-change-driven updates are untouched, so the pinned numbers stay just as live — this only cuts idle CPU wakeups.",
-          "**HTML report density polish**: tighter stat tiles, table rows, and trend rows."
-        ]
-      },
-      "curated": {
-        "version": "0.25.4",
-        "period": "2026-07-11",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "AI 角色全面升級，選單更新更省電",
-              "en": "AI roles fully upgraded, and the menu bar saves battery when hidden"
-            },
-            "body": {
-              "zh-TW": "AI 人才市場裡的 69 個角色設定全部翻新了。現在這些提示詞都加上了清楚的 XML 標籤分類、明確的工具使用指南，還附上「該做什麼、不該做什麼」的對照範例，讓這些 AI 助手在對話時表現得更穩定、更聰明。由於角色庫是包在應用程式裡的，更新這個版本就能直接獲得升級。另外，當你沒打開選單列時，它在背景偷偷重新整理的間隔時間會從 60 秒拉長到 300 秒，等你一打開就會立刻刷新，這能大幅減少電腦閒置時被喚醒的耗電；不過不用擔心，只要檔案有變動，數字還是會即時跳動。就像是一間百貨公司把 69 位員工全部送去接受了最高級的服務特訓，而且百貨公司的冷氣在你沒逛的時候會自動轉小，一踏進去又瞬間冷房，既環保又不影響體驗。",
-              "en": "All 69 roles in the AI Talent Market have been completely overhauled. Their underlying prompts are now tightly structured with XML tags, clear tool-usage guidelines, and contrastive \"good vs. bad\" examples, making the agents noticeably more reliable in conversation. Because the role library is bundled directly inside the app, updating to this version instantly gives you the upgrades. Also, the menu bar now polls much less frequently when you aren't looking at it: the background refresh stretches from 60 seconds to 300 seconds when the popover is closed, instantly snapping back and refreshing the moment you open it. This significantly cuts down idle CPU wakeups to save battery, but file-driven updates are untouched, so your pinned numbers stay just as live. It's like a department store sending all 69 of its clerks to premium service training, and turning down the AC when no one is shopping but blasting it instantly the moment you walk in—saving energy without sacrificing the experience."
-            },
-            "original": "**AI Talent Market: full role-library refresh** — all 69 role prompts are restructured (XML-tagged sections, explicit tool guidance, contrastive good/bad examples) for noticeably more reliable in-conversation behavior, across the now 22 packs / 69 roles. The library ships inside the .app bundle, so this update is the way to get it.\n**The menu bar polls less when you're not looking**: the fallback refresh timer stretches from 60s to 300s while the popover is closed, and snaps back (with an immediate refresh) the moment it opens. File-change-driven updates are untouched, so the pinned numbers stay just as live — this only cuts idle CPU wakeups.\n**HTML report density polish**: tighter stat tiles, table rows, and trend rows."
           }
         ]
       }

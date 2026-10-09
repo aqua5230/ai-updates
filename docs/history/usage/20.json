@@ -5,6 +5,49 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.11.6",
+      "raw": {
+        "version": "0.11.6",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Codex model shown in the popover footer**: the footer now displays the currently detected Codex model; when no model data is available it falls back to `unknown` instead of leaving the state blank.",
+          "**Analysis report period follows the Project Usage range**: the Report button now switches output periods with the current project range, mapping 1d to today, 7d to week, and 30d to month. No new UI was added; it uses the existing range control.",
+          "**Japanese / Korean Codex model labels completed**: added the missing ja / ko `model_label` translations so footer model information no longer renders blank in Japanese and Korean UIs.",
+          "**Codex today / week / month reports now use tail scanning**: users with many sessions no longer wait for a full history scan when opening reports. Today reports drop from roughly 7 seconds to the 0.03-second range, with week / month benefiting from the same path."
+        ]
+      },
+      "curated": {
+        "version": "0.11.6",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "底部清楚標示 Codex 模型，日韓介面也不會一片空白",
+              "en": "The popover footer clearly displays the Codex model, and Japanese/Korean UIs are no longer blank"
+            },
+            "body": {
+              "zh-TW": "你現在可以直接在介面底部看到目前正在使用的 Codex 模型。以前如果剛好沒有模型資料，畫面會空一塊讓你以為壞掉了，現在它會老實印出「unknown」。同時，日文與韓文介面的模型標籤也補齊了，切換語系一樣看得到。就像去餐廳點無菜單料理，以前主廚不說話你會以為沒菜了，現在菜單底部會確實寫上今日食材或是「主廚特製」，而且各國語言的菜單都印得清清楚楚。",
+              "en": "You can now see exactly which Codex model is currently active right at the bottom of the interface. Previously, if no model data was available, the space was left completely blank, making you wonder if the app broke; it now honestly prints \"unknown\". Additionally, the missing Japanese and Korean model labels have been filled in, so you get the same clear info regardless of language. Like a mysterious chef's tasting menu—instead of leaving the dish name blank and making you guess if the kitchen closed, the menu now explicitly says \"Chef's Secret\" or prints the actual ingredients, fully translated for every guest."
+            },
+            "original": "**Codex model shown in the popover footer**: the footer now displays the currently detected Codex model; when no model data is available it falls back to `unknown` instead of leaving the state blank.\n**Japanese / Korean Codex model labels completed**: added the missing ja / ko `model_label` translations so footer model information no longer renders blank in Japanese and Korean UIs."
+          },
+          {
+            "title": {
+              "zh-TW": "分析報告時間範圍跟著專案走，累積再多對話也秒開",
+              "en": "Analysis reports sync with your project range and open instantly regardless of history size"
+            },
+            "body": {
+              "zh-TW": "你現在按出分析報告時，它的時間區間會自動對齊你正在看的專案範圍（Project Usage），切換 1d 就看今天、7d 就看本週，不用另外找按鈕設定。對於重度使用者來說，現在按出今日報告的時間從 7 秒大幅縮短到只要 0.03 秒。因為系統學會了「從尾巴往前掃描」，不再傻傻從盤古開天闢地第一筆對話開始讀。就像去圖書館查昨天的報紙，以前館員會從十年前的舊報紙一路翻到今天，現在他直接從最新的一疊拿給你，而且你說要找體育版，他拿出來的就直接是體育版。",
+              "en": "When you generate an analysis report, its time period now automatically matches the project range (Project Usage) you're currently viewing—selecting 1d shows today, 7d shows this week, without needing a separate toggle. For heavy users, generating today's report has plummeted from a sluggish 7 seconds down to lightning-fast 0.03 seconds. The system now smartly scans backwards from the newest entries instead of mindlessly reading your entire history from the dawn of time. Like asking a librarian for yesterday's newspaper—instead of flipping through a decade of archives from page one, they now grab right from the top of the freshest pile, already opened to the section you requested."
+            },
+            "original": "**Analysis report period follows the Project Usage range**: the Report button now switches output periods with the current project range, mapping 1d to today, 7d to week, and 30d to month. No new UI was added; it uses the existing range control.\n**Codex today / week / month reports now use tail scanning**: users with many sessions no longer wait for a full history scan when opening reports. Today reports drop from roughly 7 seconds to the 0.03-second range, with week / month benefiting from the same path."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.5",
       "raw": {
         "version": "0.11.5",
@@ -329,35 +372,6 @@
               "en": "Previously, when viewing your usage in the terminal, a buggy programming loop (which accidentally skipped the update step) caused the screen to freeze permanently at the exact second you opened it, never automatically refreshing again. This loop is now fixed, and the screen faithfully updates on time. Simultaneously, we've optimized the underlying file scans: before, every time the screen refreshed, the system foolishly read the exact same history file 4 times to calculate numbers for different time ranges; it's now smart enough to read the longest range once and pass the data down, drastically cutting down on wasted hard drive reads. Additionally, legacy environment variables and stale internal names have been unified. It's like a security guard who used to forget to check his watch and never changed shifts, while also climbing up and down the same floor four times during a patrol — now he hands over exactly on time and knows it's easiest to just patrol from the top floor down once."
             },
             "original": "**TUI polling never updated after first fetch**: a `continue` in `poll_usage` caused every timeout to jump back to the loop head, leaving the UI frozen at the initial state. Changed to `pass` so the polling path is actually reached.\n**Inconsistent env var name**: `USAG_FORCE_GROUP` (v0.1.x legacy prefix) renamed to `USAGE_FORCE_GROUP` to match all other env vars in the project.\n**Redundant filesystem scans per refresh**: `_refresh_in_background` was calling `history_loader.load_entries` four times per cycle (24h × 2, 168h × 1, 720h × 1). Now loads the 720h superset once and passes it down, eliminating the duplicate I/O.\n`pricing.py` User-Agent updated from the stale `usage/0.2` to `usage/0.9`.\n`--setup` no longer prints a \"no migration needed\" message on clean installs."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.9.0",
-      "raw": {
-        "version": "0.9.0",
-        "period": "2026-05-22",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**New \"World Cup 2026\" panel**: FIFA broadcast HUD style. Top-down green pitch with grass stripes, white field markings (halfway line, centre circle, penalty boxes, corner arcs), dark broadcast scoreboard showing Claude / Codex Session percentages as large numerals (38 px), bidirectional duel bar (Claude ← centre line → Codex) replacing the standard progress bar. Canvas animation: a pentagon-pattern football rolling in the lower pitch area, 12 stick-figure players (6 per team) roaming their zones — the nearest player chases the ball at 0.8 px/frame and kicks it on contact (60-frame cooldown per team), directing it toward the opponent's goal. Bottom section shows a MATCH STATS standings board. Triggers a golden GOAL! celebration overlay when either side's usage hits ≥ 85 %."
-        ]
-      },
-      "curated": {
-        "version": "0.9.0",
-        "period": "2026-05-22",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "用量對決變成一場足球轉播，世界盃面板登場",
-              "en": "The usage duel becomes a football broadcast — the World Cup panel is here"
-            },
-            "body": {
-              "zh-TW": "你可以把用量監控畫面換成一場足球賽。新加的「世界盃 2026」面板把 Claude 和 Codex（兩套 AI 工具）的用量對決，做成 FIFA 電視轉播的樣子——綠色球場俯視圖配白色場線、深色計分板用大數字秀出兩邊各用了多少 session（一段對話的額度單位）百分比，中間一條雙向對戰條取代原本單向的進度條。畫面上還有一顆五邊形足球在下半場滾、兩隊各 6 個棒人球員在自己的區域跑位，離球最近的球員會追上去、碰到就踢，把球往對方的球門送（各隊踢完有 60 格的冷卻時間）。底部有積分榜；當任一邊用量衝到 85% 以上，還會跳出黃金「進球！」彩蛋慶祝。就像把原本枯燥的用量電表，換成一場會自己播的足球轉播，看著兩邊你來我往，快爆量的時候直接給你一記進球慶祝。",
-              "en": "You can swap the usage monitor for a football match. The new \"World Cup 2026\" panel turns the usage duel between Claude and Codex (two AI tools) into a FIFA-style TV broadcast — a top-down green pitch with white field lines, a dark scoreboard showing each side's session (a quota unit measured per conversation) percentage in big numerals, and a bidirectional duel bar replacing the old one-way progress bar. A pentagon-pattern football rolls across the lower pitch while twelve stick-figure players (six per team) roam their zones; the nearest player chases the ball and kicks it toward the opponent's goal (each team has a 60-frame cooldown after a kick). A MATCH STATS standings board sits at the bottom, and when either side's usage hits 85% or more, a golden GOAL! celebration overlay pops up. It's like swapping a boring electricity meter for a sports channel that plays its own match, with back-and-forth action and a goal celebration right when you're about to max out."
-            },
-            "original": "**New \"World Cup 2026\" panel**: FIFA broadcast HUD style. Top-down green pitch with grass stripes, white field markings (halfway line, centre circle, penalty boxes, corner arcs), dark broadcast scoreboard showing Claude / Codex Session percentages as large numerals (38 px), bidirectional duel bar (Claude ← centre line → Codex) replacing the standard progress bar. Canvas animation: a pentagon-pattern football rolling in the lower pitch area, 12 stick-figure players (6 per team) roaming their zones — the nearest player chases the ball at 0.8 px/frame and kicks it on contact (60-frame cooldown per team), directing it toward the opponent's goal. Bottom section shows a MATCH STATS standings board. Triggers a golden GOAL! celebration overlay when either side's usage hits ≥ 85 %."
           }
         ]
       }
