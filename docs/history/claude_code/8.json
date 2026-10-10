@@ -5,6 +5,135 @@
   "pages": 10,
   "versions": [
     {
+      "version": "2.1.207",
+      "raw": {
+        "version": "2.1.207",
+        "period": "2026-07-11",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Auto mode is now available without `CLAUDE_CODE_ENABLE_AUTO_MODE` opt-in on Bedrock, Vertex AI, and Foundry; disable via `disableAutoMode` in settings",
+          "Fixed the terminal freezing and keystrokes lagging while streaming responses containing very long lists, tables, paragraphs, or code blocks",
+          "Fixed remote managed settings from a non-interactive run (`claude -p`, the SDK) being permanently recorded as consented without ever showing the security consent dialog",
+          "Fixed spurious prompt-injection warnings triggered by benign system-generated conversation updates",
+          "Fixed the auto-updater overwriting a custom launcher script or symlink at `~/.local/bin/claude` on every release; `/doctor` now reports an externally managed launcher",
+          "Fixed compound commands with `cd` prompting for permission when the only output redirect was to `/dev/null`",
+          "Fixed the transcript jumping above the start of the answer when a response finishes streaming",
+          "Fixed `extensions.worktreeConfig` being left in the repo's `.git/config` (breaking go-git tools like `tea`) after the last `worktree.sparsePaths` worktree was removed",
+          "Fixed malformed bracket patterns in rules globs, skill paths, `.ignore`, and `.worktreeinclude` breaking file reads, file suggestions, and worktree creation",
+          "Fixed a crash loop in agent teams where a malformed teammate mailbox message caused repeated errors every second until the mailbox file was manually deleted",
+          "Fixed background sessions auto-named by accepting a plan not showing that name on their agent-view row",
+          "Fixed background sessions that entered a git worktree resuming blank after a cold reopen from the agent list",
+          "Fixed Remote Control task status updates being lost when the connection recovered from a network interruption or credential refresh",
+          "Fixed Remote Control sessions hosted by the desktop app not showing background agent and workflow progress on mobile and web",
+          "Fixed Deep research runs labeling every Fetch-phase agent \"unknown\" — chips now show the source hostname",
+          "Fixed Bedrock repeatedly requesting fresh AWS SSO credentials from IAM Identity Center on every API request",
+          "Improved agent view: pasting the same text again now expands the collapsed `[Pasted text #N]` placeholder instead of adding a second one",
+          "Improved agent view: blocked session peeks now lead with the question and show a worded staleness clock (`waiting 3m`) instead of the same timestamp twice",
+          "Changed Bedrock, Vertex, and Claude Platform on AWS to default to Claude Opus 4.8",
+          "Changed auto mode to no longer read `autoMode` from `.claude/settings.local.json` (repo-resident); use `~/.claude/settings.json` instead",
+          "Fixed an indefinite hang on Windows when AWS credential resolution stalls (e.g. a stuck `credential_process`): the 60-second stall guard now fires instead of waiting forever.",
+          "Plugin hooks/monitors/MCP headersHelper: `${user_config.*}` in shell-form commands is now rejected (shell-injection fix). Hooks: use exec form (`args` array) or `$CLAUDE_PLUGIN_OPTION_<KEY>`; monitors and headersHelper: read the value inside the script (config file or the server's `env` block).",
+          "Plugin option values (`pluginConfigs`) are no longer read from project-level `.claude/settings.json`; only user, `--settings`, and managed settings are honored",
+          "Fixed `/usage-credits` amount inputs silently stripping malformed values (e.g. a pasted timestamp) to digits; malformed amounts are now rejected with an error, and amounts over $1,000 require a typed confirmation"
+        ]
+      },
+      "curated": {
+        "version": "2.1.207",
+        "period": "2026-07-11",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "終端機不再卡頓，長回覆畫面不亂跳",
+              "en": "Terminal stops lagging and transcripts stop jumping on long responses"
+            },
+            "body": {
+              "zh-TW": "現在你看 Claude 吐出落落長的表格或程式碼時，打字和捲動都會滑順無比。以前只要遇到超長的清單或段落串流（streaming，答案一邊生成一邊逐字顯示），終端機畫面就會卡住，而且等它講完還會莫名其妙往上跳回開頭；現在這些顯示問題都修好了。就像看新聞台底下的跑馬燈，以前字太多會卡住甚至整條重播，現在不管塞多少字都順順跑過。",
+              "en": "When Claude spits out massive tables or code blocks, typing and scrolling will now stay buttery smooth. Previously, streaming (responses appearing word by word as they generate) very long lists or paragraphs would freeze the terminal, and when the answer finished, the screen would inexplicably jump back to the top; these display glitches are now fixed. Like a news ticker at the bottom of a TV screen — it used to stutter or reset when the headline was too long, but now it scrolls steadily no matter how much text you feed it."
+            },
+            "original": "Fixed the terminal freezing and keystrokes lagging while streaming responses containing very long lists, tables, paragraphs, or code blocks\nFixed the transcript jumping above the start of the answer when a response finishes streaming (2.1.207)"
+          },
+          {
+            "title": {
+              "zh-TW": "自動模式全面開放，設定不再跟著專案跑",
+              "en": "Auto mode is open to all platforms, and its settings no longer roam with the project"
+            },
+            "body": {
+              "zh-TW": "想放手讓系統自己做事，自動模式（auto mode，讓 Claude 不逐一問你就自己執行的模式）本來就有，但現在於 Bedrock、Vertex AI 與 Foundry（企業透過 AWS 或 Google Cloud 等雲端服務租用 Claude 的通道）上預設就能用了。以前你要先手動設定環境變數（開程式之前預先塞給它的隱藏開關，一般使用者看不到）才會開放。同時，這項開關現在只讀跟著你這個人、每個專案都適用的全域設定檔，不再去讀跟著資料夾走、別人給你的專案裡可能藏著一份的專案內設定，避免你換個專案就不小心被打開。就像巡邏機器人本來就會巡邏，只是現在出廠預設就打開這功能，而且它只聽你手上的總遙控器，不會因為走到不同倉庫就自己切換模式。",
+              "en": "Auto mode (the mode where Claude acts without asking you step by step) has always been there, but now it's available by default on Bedrock, Vertex AI, and Foundry (channels where enterprises rent Claude through cloud services like AWS or Google Cloud). Previously, you had to manually set an environment variable (a hidden switch stuffed into the program before it opens, which regular users never see) to enable it. Meanwhile, this toggle now only reads from the global settings file that follows you across all projects, and no longer reads from project-level settings that follow the folder (where someone else's project might hide a copy), ensuring the mode doesn't accidentally turn on just because you switched repositories. It's like a security robot that always knew how to patrol, but now comes with the feature enabled out of the box, and takes orders solely from your master remote, refusing to change behaviors just because it walked into a different warehouse."
+            },
+            "original": "Auto mode is now available without `CLAUDE_CODE_ENABLE_AUTO_MODE` opt-in on Bedrock, Vertex AI, and Foundry; disable via `disableAutoMode` in settings\nChanged auto mode to no longer read `autoMode` from `.claude/settings.local.json` (repo-resident); use `~/.claude/settings.json` instead (2.1.207)"
+          },
+          {
+            "title": {
+              "zh-TW": "AWS 平台連線變快、升級模型，Windows 不再死當",
+              "en": "AWS connections speed up, models upgrade, and Windows stops hanging forever"
+            },
+            "body": {
+              "zh-TW": "用 Bedrock、Vertex 或 AWS 上 Claude 平台的人，系統現在預設會幫你掛上最新的 Opus 4.8 模型，而且也不會像以前那樣，每講一句話就跑去向 IAM Identity Center 要一次新憑證（credentials，證明你是合法使用者的金鑰），速度快多了。對 Windows 使用者來說，如果 AWS 憑證卡住（例如背後處理程序當掉），系統現在最多等你 60 秒就會自己中斷，不會整個程式死當在那裡。就像進遊樂園玩，以前每玩一項設施都要重新查驗一次身分證，而且驗票機當機你只能站著枯等；現在買一次票就能玩到底，驗票機卡住一分鐘就會有人來放行。",
+              "en": "For people using Bedrock, Vertex, or the Claude Platform on AWS, the system now defaults to the latest Opus 4.8 model, and it no longer frantically begs IAM Identity Center for fresh credentials (the keys proving you're a valid user) on every single API request, speeding things up significantly. For Windows users, if AWS credential fetching stalls (like a stuck background process), the app now bails out after 60 seconds instead of hanging indefinitely. It's like visiting a theme park: you used to have to show your ID at every single ride, and if the scanner broke, you just stood there forever; now one ticket covers the whole park, and if a scanner hangs for a minute, a worker waves you through."
+            },
+            "original": "Fixed Bedrock repeatedly requesting fresh AWS SSO credentials from IAM Identity Center on every API request\nChanged Bedrock, Vertex, and Claude Platform on AWS to default to Claude Opus 4.8\nFixed an indefinite hang on Windows when AWS credential resolution stalls (e.g. a stuck `credential_process`): the 60-second stall guard now fires instead of waiting forever. (2.1.207)"
+          },
+          {
+            "title": {
+              "zh-TW": "任務列表與深研功能更好讀，不卡畫面也不忘記名字",
+              "en": "Agent views and Deep Research are much more readable, skipping blank screens and forgotten names"
+            },
+            "body": {
+              "zh-TW": "查看代理的任務清單時，介面變得聰明很多。現在你重複貼上同一段文字，它只會把原本摺疊的佔位符展開，不會刷兩筆紀錄佔空間；卡住等你的任務，會直接秀出卡在哪個問題跟「等了 3 分鐘」，不會只印兩次死板的時間戳。深研（Deep research，讓 Claude 大量爬網找資料的功能）也會明確印出它正在查哪個網站的網域，不再一律顯示「未知」。還有，背景任務不會再忘記自己因為計畫而取的名字，重開進過工作樹（worktree，讓同一個專案多開幾份平行工作副本的 Git 功能）的任務也不會一片空白了。就像醫院的掛號看板，不再只顯示冰冷的「未知病人」與時間代碼，而是會告訴你「王大明，在 3 號房，已等候 5 分鐘」，清楚明瞭。",
+              "en": "The agent task list is a lot smarter about what it shows you. Pasting the exact same text a second time now just expands the existing folded placeholder instead of printing a redundant duplicate; tasks blocked waiting for you now prioritize the question holding them up and display a friendly \"waiting 3m\" clock instead of two robotic timestamps. Deep research (the feature where Claude heavily crawls the web for information) also now explicitly badges which website hostname it is reading, instead of tagging everything \"unknown\". Furthermore, background sessions won't forget the name they got from a plan, and reopening sessions that entered a git worktree (a Git feature that gives one project several parallel working copies) will no longer pop up completely blank. Like a hospital waiting room display upgrading from cryptic \"Patient Unknown, 14:00\" codes to \"John Doe, Room 3, waiting 5 mins,\" making everything instantly readable."
+            },
+            "original": "Fixed background sessions auto-named by accepting a plan not showing that name on their agent-view row\nFixed background sessions that entered a git worktree resuming blank after a cold reopen from the agent list\nFixed Deep research runs labeling every Fetch-phase agent \"unknown\" — chips now show the source hostname\nImproved agent view: pasting the same text again now expands the collapsed `[Pasted text #N]` placeholder instead of adding a second one\nImproved agent view: blocked session peeks now lead with the question and show a worded staleness clock (`waiting 3m`) instead of the same timestamp twice (2.1.207)"
+          },
+          {
+            "title": {
+              "zh-TW": "遠端遙控更穩固，代理團隊不怕收到毒信件",
+              "en": "Remote Control stays solid, and agent teams survive toxic messages"
+            },
+            "body": {
+              "zh-TW": "讓多隻 Claude 互相合作的代理團隊現在更強韌了。以前只要團隊信箱（mailbox，代理們互相傳話的檔案）裡混進一則格式錯誤的壞訊息，整個團隊就會陷入無限崩潰的迴圈，每秒報錯直到你手動刪檔；現在它們懂得出錯時直接忽略並繼續工作。而針對遠端遙控，網路斷線或是憑證（證明你是合法使用者的金鑰）更新重連後不再漏接任務進度，你在手機跟網頁版上也能正常看見桌機版 App 跑的背景任務與工作流進度了。就像一間辦公室，以前收到一封亂碼傳真全公司就停擺，現在會把它扔進垃圾桶繼續辦公；出差在外的主管，也能順暢看到辦公室裡的進度白板。",
+              "en": "Agent teams that collaborate on tasks are much more robust. Previously, a single malformed message ending up in a teammate's mailbox (the file agents use to pass notes to each other) would throw the entire team into a catastrophic crash loop, tossing an error every second until you manually deleted the file; they now know how to shrug it off and keep working. For Remote Control users, task status updates no longer drop into the void when your network hiccups or your credentials (the keys proving you're a valid user) refresh, and mobile/web clients now correctly mirror the background agent and workflow progress hosted on your desktop app. It's like a bustling office that used to freeze completely if it received a single unreadable fax — now they just toss it in the bin and keep working, while the boss traveling abroad can still perfectly see the progress whiteboard back at headquarters."
+            },
+            "original": "Fixed a crash loop in agent teams where a malformed teammate mailbox message caused repeated errors every second until the mailbox file was manually deleted\nFixed Remote Control task status updates being lost when the connection recovered from a network interruption or credential refresh\nFixed Remote Control sessions hosted by the desktop app not showing background agent and workflow progress on mobile and web (2.1.207)"
+          },
+          {
+            "title": {
+              "zh-TW": "補上外掛設定的破口，防範惡意指令偷塞",
+              "en": "Plugin settings are battened down to stop sneaky injections and auto-consents"
+            },
+            "body": {
+              "zh-TW": "這次收緊了外掛（plugin，擴充 Claude 功能的附加元件）的安全鎖。以前外掛設定如果放在專案資料夾裡，心懷不軌的專案就能利用環境變數的寫法，偷偷把惡意指令混進你的終端機裡（這叫 shell injection 攻擊）；現在直接禁掉這種寫法，並且不再讀取專案層級的外掛設定，只讀取個人設定、`--settings` 參數以及 managed settings。此外，在非互動模式（non-interactive run，像 SDK 那樣不跳提示直接跑的模式）下，也不會再跳過安全授權對話框，把你偷偷標記成「已同意」。就像公司的門禁系統，以前會不小心讀到訪客自己印的假識別證，或者讓走後門的人免簽名就混進來；現在只認總公司發的卡，而且所有人一律得過警衛這關。",
+              "en": "We've battened down the security hatches for plugins (add-ons that extend Claude's capabilities). Previously, if plugin configs lived in a project folder, a malicious repository could use variable syntax to sneak nasty commands straight into your terminal (a shell injection attack); this syntax is now completely rejected, and plugin settings are no longer read from project-level files at all, only user, `--settings`, and managed settings are honored. Furthermore, non-interactive runs (like SDKs that run without prompting the user) will no longer silently record you as \"consented\" to security policies without actually showing you the dialog. Like a corporate security gate that used to occasionally accept a visitor's home-printed badge or let back-door VIPs bypass the sign-in sheet; now it strictly honors only HQ-issued cards, and everyone signs the book."
+            },
+            "original": "Fixed remote managed settings from a non-interactive run (`claude -p`, the SDK) being permanently recorded as consented without ever showing the security consent dialog\nPlugin hooks/monitors/MCP headersHelper: `${user_config.*}` in shell-form commands is now rejected (shell-injection fix). Hooks: use exec form (`args` array) or `$CLAUDE_PLUGIN_OPTION_<KEY>`; monitors and headersHelper: read the value inside the script (config file or the server's `env` block).\nPlugin option values (`pluginConfigs`) are no longer read from project-level `.claude/settings.json`; only user, `--settings`, and managed settings are honored (2.1.207)"
+          },
+          {
+            "title": {
+              "zh-TW": "清除 Git 殘留垃圾，指令權限不再大驚小怪",
+              "en": "Clearing out Git residue and stopping oversensitive command prompts"
+            },
+            "body": {
+              "zh-TW": "你混用其他 Git 工具時，不會再被 Claude Code 留下的殘留設定卡住了。以前當你把工作樹（worktree，讓同一個專案多開幾份平行工作副本的 Git 功能）全砍光時，Git 設定檔裡會殘留一行設定，導致其他第三方 Git 工具讀不懂而卡死；現在它懂事後會順手清乾淨。另外，在讀取忽略檔（告訴系統別管哪些檔案的名單）或路徑規則時遇到括號打錯，或者只是要把多餘的輸出丟進虛無的 `/dev/null`，系統以前會嚇得停止運作或是大動作問你權限，現在它變聰明了，能正確分辨這些無害的動作。就像搬家公司以前撤走後會在牆上留下殘膠害下一個房客裝潢失敗，或者看到你把垃圾丟進垃圾桶還要跳出來問「確定要丟嗎」，現在他們搬得一塵不染，也不會管你怎麼丟垃圾。",
+              "en": "Your other Git tools and everyday commands no longer trip over a setting Claude Code left behind. When you completely removed your last worktree (a Git feature that gives one project several parallel working copies), a stray line of configuration used to be left behind in your Git config, breaking other third-party Git tools; it now sweeps up after itself. Also, when parsing malformed brackets in ignore files (lists telling the system which files to skip) or path rules, or dealing with commands that just harmlessly piped output into the `/dev/null` void, the system used to panic, break file reads, or stop everything to ask for permission. Now it accurately assesses these safe scenarios. Like a moving crew that used to leave glue residue on the walls ruining the next tenant's paint job, or a security guard who jumped out to ask for ID just because you tossed a crumpled napkin into the trash can — they now leave the place spotless and let you throw away garbage in peace."
+            },
+            "original": "Fixed compound commands with `cd` prompting for permission when the only output redirect was to `/dev/null`\nFixed `extensions.worktreeConfig` being left in the repo's `.git/config` (breaking go-git tools like `tea`) after the last `worktree.sparsePaths` worktree was removed\nFixed malformed bracket patterns in rules globs, skill paths, `.ignore`, and `.worktreeinclude` breaking file reads, file suggestions, and worktree creation (2.1.207)"
+          },
+          {
+            "title": {
+              "zh-TW": "儲值不怕輸錯錢，更新也不再覆蓋你的自訂捷徑",
+              "en": "Safe top-ups, preserved custom launchers, and no more false alarms"
+            },
+            "body": {
+              "zh-TW": "這次修復了幾個常讓你嚇一跳的系統行為。儲值額度時如果手滑貼上時間戳（timestamp，像 2026-07-13 這種日期時間字串），系統以前會不聲不響剝掉非數字的部分、把剩下的數字整串黏成金額——貼個日期可能瞬間變成兩千多萬的天價；現在會直接報錯擋下，而且一次買超過一千美金會要求你多打字確認，避免荷包大失血。如果你為了方便自己改過啟動 Claude 的捷徑檔，自動更新也不會再粗暴地把它蓋掉。同時，系統內部正常的更新對話，不會再被防火牆誤判為你在進行 prompt injection（提示詞注入攻擊，把惡意指令藏進對話騙 AI 亂做事的手法）了。就像你去提款機，亂按密碼不會再隨便吐錢出來，而且銀行升級軟體時不再把你自訂的快速鍵洗掉，防盜警鈴也不會因為銀行員自己補鈔票而亂響。",
+              "en": "A few startling system behaviors have been smoothed out. If you accidentally pasted a timestamp while topping up your credits, the system used to blindly strip it down to digits and charge some random amount; it now halts with an error, and any amount over $1,000 requires you to explicitly type a confirmation to save your wallet from a catastrophic slip. If you customized the launcher script that opens Claude, the auto-updater will stop rudely overwriting it on every release. Also, totally normal internal system chat updates will no longer falsely trigger the \"prompt injection attack\" alarms. It's like going to an ATM: mashing the keypad won't randomly withdraw a weird amount of cash, the bank's software update won't erase the custom PIN shortcuts you set up, and the burglar alarm stops screaming every time a bank teller legitimately refills the money tray."
+            },
+            "original": "Fixed the auto-updater overwriting a custom launcher script or symlink at `~/.local/bin/claude` on every release; `/doctor` now reports an externally managed launcher\nFixed spurious prompt-injection warnings triggered by benign system-generated conversation updates\nFixed `/usage-credits` amount inputs silently stripping malformed values (e.g. a pasted timestamp) to digits; malformed amounts are now rejected with an error, and amounts over $1,000 require a typed confirmation (2.1.207)"
+          }
+        ]
+      }
+    },
+    {
       "version": "2.1.206",
       "raw": {
         "version": "2.1.206",
@@ -774,134 +903,6 @@
               "en": "When designing charts or dashboards, you can now use `/dataviz` for guidance and color checking. It comes complete with a runnable color-palette validator to ensure your color choices don't blend into an unreadable mess. Meanwhile, the old `/agents` wizard (the step-by-step setup tool) has been retired. From now on, if you want to create or manage subagents, simply ask Claude to do it for you, or edit the files in the `.claude/agents/` directory directly. It's like your company finally abolishing those tedious multi-page paper request forms; now, whether you need a fresh chart or want to hire a new assistant, you just tell your secretary what you want and it's done—and you get an expert color designer thrown in for free."
             },
             "original": "Added `/dataviz` skill for chart and dashboard design guidance with a runnable color-palette validator\nRemoved the `/agents` wizard; ask Claude to create or manage subagents, or edit `.claude/agents/` directly"
-          }
-        ]
-      }
-    },
-    {
-      "version": "2.1.197",
-      "raw": {
-        "version": "2.1.197",
-        "period": "2026-06-30",
-        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-        "fetched_at": "2026-07-13",
-        "entries": [
-          "Introducing Claude Sonnet 5: now the default model in Claude Code, with a native 1M-token context window and promotional pricing of $2/$10 per Mtok through August 31. Update to version 2.1.197 for access. https://www.anthropic.com/news/claude-sonnet-5"
-        ]
-      },
-      "curated": {
-        "version": "2.1.197",
-        "period": "2026-06-25 ~ 06-30",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "預設模型升級成 Sonnet 5，記憶容量暴增到一百萬字，價格還打折",
-              "en": "Default model upgraded to Sonnet 5 — memory jumps to a million words, and it's cheaper too"
-            },
-            "body": {
-              "zh-TW": "你打開 Claude Code 現在預設用的就是 Sonnet 5，原生支援一百萬 token（AI 讀寫文字時切出來的最小單位，大約等於零點幾個字）的記憶視窗（context window，AI 一次能記住多少對話內容的容量），等於同一個對話能塞進更多的程式碼或文件還不會忘記前面講過什麼。即日起到 8 月 31 日，每百萬 token 只要 2 到 10 美元的促銷價。",
-              "en": "Claude Code now defaults to Sonnet 5, with a native 1-million-token context window (context window, how much of the conversation the AI can remember at once; a token is the small chunk of text the AI reads and writes in) — meaning one conversation can now hold more code or documents without the AI forgetting what came before. From now through August 31, pricing is a promotional $2-$10 per million tokens."
-            },
-            "original": "Introducing Claude Sonnet 5: now the default model in Claude Code, with a native 1M-token context window and promotional pricing of $2/$10 per Mtok through August 31."
-          },
-          {
-            "title": {
-              "zh-TW": "對話裡的檔案附件可以直接點開，不用自己去資料夾裡翻",
-              "en": "File attachments in chat are now clickable — no more digging through folders yourself"
-            },
-            "body": {
-              "zh-TW": "以前 AI 在對話裡提到或附上一個檔案，你想看實體檔案在哪還得自己切到 Finder（macOS 的檔案總管）裡找。現在按住 Cmd（Mac）或 Ctrl（Windows/Linux）點一下附件，就會直接在檔案總管裡跳出來、選好給你看。像收到包裹不用自己去倉庫翻箱子，按一下貨單就直接帶你走到那一格架子前面。",
-              "en": "When the AI mentions or attaches a file in chat, you used to have to switch to Finder or Explorer yourself and hunt for it. Now Cmd-click (Mac) or Ctrl-click (Windows/Linux) on the attachment jumps straight to that file, already selected, in your file manager. It's like a delivery slip that walks you straight to the right shelf instead of making you dig through the warehouse yourself."
-            },
-            "original": "Added clickable file attachments in chat — Cmd/Ctrl-click reveals the file in Finder/Explorer."
-          },
-          {
-            "title": {
-              "zh-TW": "查看 MCP 外掛清單不會再偷偷啟動陌生專案裡藏的伺服器",
-              "en": "Listing MCP plugins no longer secretly starts servers hidden in untrusted projects"
-            },
-            "body": {
-              "zh-TW": "MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器以前只要你下 `claude mcp list` 或 `get` 這種「查清單」的指令，就算是還沒被你信任的專案，只要它的設定檔（.claude/settings.json）裡自己寫好「已核准」，也會被默默啟動執行。現在不會了：不信任的工作目錄會老實顯示「⏸ 等待核准」，光是查清單不會觸發任何程式執行。這就像你以前只是「看」陌生人的名片夾，結果名片自己跳出來打電話；現在光看不會打電話，要你親自按下確認才行。",
-              "en": "MCP servers (Model Context Protocol, the standard that lets the AI talk to external tools) used to spin up just from running the read-only `claude mcp list`/`get` commands, even in a project you hadn't trusted yet, as long as its own settings file (.claude/settings.json) had self-approved itself. Not anymore — an untrusted workspace now honestly shows '⏸ Pending approval', and merely listing servers no longer triggers anything to run. It's like flipping through a stranger's business cards used to dial their number by itself; now looking doesn't dial — you have to press confirm yourself."
-            },
-            "original": "Security: `claude mcp list`/`get` no longer spawn `.mcp.json` servers that a repo self-approved via a committed `.claude/settings.json`; untrusted workspaces show `⏸ Pending approval`."
-          },
-          {
-            "title": {
-              "zh-TW": "喚醒背景工作不會再把整段對話紀錄誤刪、逼你重講一次",
-              "en": "Waking a background job no longer wipes its entire conversation and forces a redo"
-            },
-            "body": {
-              "zh-TW": "背景工作（background job，丟給 AI 在背後默默跑、你可以先去忙別的事的任務）以前偶爾會因為系統誤判對話紀錄檔案壞掉，喚醒時就把整段紀錄永久刪掉，還自動把你原本的指令重跑一次——等於白做工還搞丟記錄。現在系統改成「先把可疑檔案移到旁邊」，絕對不會直接刪除，你的對話紀錄保住了。像以前醫院弄丟病歷會直接燒掉重建檔案，現在改成先封存在另一個櫃子，至少東西還在。",
-              "en": "Background jobs (tasks you hand off to the AI to run quietly while you do something else) used to occasionally have their entire conversation permanently deleted on waking, whenever the system misread the transcript as corrupted — and then it would auto-rerun your original prompt from scratch, wasting work and losing history. Now the suspect file just gets set aside instead of deleted, so your transcript survives. It's like a hospital that used to burn a medical record it thought was damaged and start a new one from scratch; now it just files the old one in another drawer instead — at least it's still there."
-            },
-            "original": "Fixed waking a background job permanently deleting its conversation and re-running the original prompt when the transcript probe misread a real transcript; the file is now set aside, never deleted."
-          },
-          {
-            "title": {
-              "zh-TW": "開「跳過所有權限確認」模式時，現在會老實告訴你風險，不會默默改成別的模式",
-              "en": "The \"skip all permission checks\" flag now honestly warns you of the risk instead of quietly switching modes"
-            },
-            "body": {
-              "zh-TW": "`--dangerously-skip-permissions`（危險跳過權限確認，讓 AI 不問你同意就直接執行所有動作的開關）這個參數以前有個 bug：你明明開了它，系統卻偷偷把它降級成「自動模式」（auto mode，仍會在風險動作前問你），子代理（被主任務分派出去做事的小 AI 助手）也沒真的套用跳過權限的設定，而且不會跳出風險警告告訴你發生了什麼。現在修好了：你開這個開關，系統就老實顯示風險聲明、子代理也會確實套用同樣的跳過權限設定。這就像你按下「跳過安檢」的按鈕，警衛卻偷偷還是把你攔下來檢查、也不告訴你為什麼——現在按下去就真的跳過，而且會先提醒你「這樣做有風險喔」。",
-              "en": "`--dangerously-skip-permissions` (a flag that lets the AI act without asking your permission first) had a bug: turning it on used to silently downgrade it to 'auto mode' instead (which still asks before risky actions), without showing the risk disclaimer, and subagents (helper AIs spawned to do part of the work) didn't actually inherit the bypass either. Now it's fixed — flipping the switch shows the real risk warning, and subagents genuinely inherit the same bypass. It's like pressing a 'skip security check' button that secretly still stopped and searched you anyway, without telling you why — now pressing it really does skip the check, after first warning you it's risky."
-            },
-            "original": "Fixed `claude agents --dangerously-skip-permissions` silently falling back to auto mode instead of showing the bypass disclaimer and applying bypass mode to spawned agents."
-          },
-          {
-            "title": {
-              "zh-TW": "程式碼審查指令變更省，同樣品質但少燒四分之一額度",
-              "en": "Code review got leaner — same quality, a quarter less quota burned"
-            },
-            "body": {
-              "zh-TW": "`/code-review`（叫 AI 幫你審查程式碼找問題的指令）背後原本拆成五個各自獨立的「抓問題小幫手」分別跑一輪，現在合併成一個一起跑，審查品質不變，但消耗的 token（AI 讀寫文字計費的最小單位，你的用量額度就是用這個算的）少了大約四分之一。這就像原本派五個保全分頭巡邏五次，現在改成一個熟練的保全一次巡完全部範圍，一樣巡得到、但人事費省了四分之一。",
-              "en": "`/code-review` (the command that has the AI review your code for problems) used to run five separate 'issue-finder' passes behind the scenes. Now they're merged into one pass — same review quality, but token usage (token, the unit the AI's reading/writing is metered in, which is also what your usage quota counts) drops by roughly a quarter. It's like replacing five separate security guards each patrolling once with one experienced guard who covers the whole route in a single pass — same coverage, a quarter less payroll."
-            },
-            "original": "Improved `/code-review` workflow: merged five cleanup finders into one, cutting token usage by roughly 25%."
-          },
-          {
-            "title": {
-              "zh-TW": "在終端機模式打指令時，檔案路徑會即時跳出來讓你選，不用自己一個字一個字拼",
-              "en": "Typing commands in terminal mode now auto-suggests file paths as you go, no more spelling them out yourself"
-            },
-            "body": {
-              "zh-TW": "在 Claude Code 裡按 `!` 切換到 bash 模式（直接打終端機指令、不經過 AI 對話的模式）打字時，現在輸入檔案路徑會即時跳出自動完成（autocomplete，打到一半就幫你列出可能的選項讓你選）建議清單，不用自己記清楚資料夾名稱再一個字一個字打對。就像你在搜尋引擎打字，還沒打完它就先幫你列出你可能要找的東西。",
-              "en": "When you press `!` in Claude Code to drop into bash mode (typing raw terminal commands directly, bypassing the AI), typing a file path now triggers live autocomplete (autocomplete, a suggestion list that pops up partway through typing) — no need to remember and spell out exact folder names yourself. It's like a search engine that starts suggesting what you're looking for before you've finished typing."
-            },
-            "original": "Added live file path autocomplete to bash mode (`!`)."
-          },
-          {
-            "title": {
-              "zh-TW": "`/clear` 清空對話後，`/rewind` 現在可以把清空前的內容拉回來",
-              "en": "After `/clear` wipes the conversation, `/rewind` can now bring back what came before it"
-            },
-            "body": {
-              "zh-TW": "`/clear`（清空目前對話、讓 AI 忘記前面講過什麼的指令）以前一旦按下去，前面的對話就真的回不去了。現在 `/rewind`（倒帶，把對話拉回之前某個時間點的指令）支援連 `/clear` 之前的內容都能拉回來，等於多了一次反悔的機會。像你以前按下碎紙機就真的沒救了，現在碎紙機旁多了一台還原機，可以把紙條重新拼回去。",
-              "en": "Once you ran `/clear` (the command that wipes the current conversation so the AI forgets everything before it), there used to be no going back. Now `/rewind` (the command that rolls the conversation back to an earlier point) can reach back to before a `/clear`, giving you a second chance. It's like a paper shredder that used to be final — now there's a reconstruction machine next to it that can piece the strips back together."
-            },
-            "original": "Added `/rewind` support for resuming a conversation from before `/clear` was run."
-          },
-          {
-            "title": {
-              "zh-TW": "從任務面板停掉的背景代理人，這次是真的停了，不會自己又活過來",
-              "en": "Stopping a background agent from the tasks panel now actually stays stopped — no more resurrections"
-            },
-            "body": {
-              "zh-TW": "背景代理人（background agent，被分派出去獨立工作的子 AI）以前你在任務面板按下「停止」，結果它過一陣子又自己悄悄醒過來繼續跑，等於你的停止指令沒被真正遵守。現在修好了：按下停止就是永久停止，不會詐屍。就像你以前拔掉吸塵器插頭，它過幾分鐘又自己插回去運轉；現在拔掉就是真的關機。",
-              "en": "Background agents (helper AIs spawned to work independently) used to occasionally wake themselves back up and keep running a while after you'd hit 'stop' in the tasks panel — your stop command wasn't really being honored. Now it's fixed: stopping an agent is permanent, no resurrections. It's like a vacuum cleaner that used to plug itself back in and start running again a few minutes after you unplugged it; now unplugging it actually means it stays off."
-            },
-            "original": "Fixed background agents resurrecting after being stopped — stopping an agent from the tasks panel is now permanent."
-          },
-          {
-            "title": {
-              "zh-TW": "AI 一個字一個字吐出回答時，現在不會再把你的電腦風扇逼到狂轉",
-              "en": "While the AI streams its answer word by word, your computer's fan no longer has to work overtime"
-            },
-            "body": {
-              "zh-TW": "AI 用串流（streaming，AI 一邊想一邊把文字逐字吐出來、不用等全部想完才顯示的方式）方式輸出回答時，系統以前是每收到一點新文字就立刻重新畫一次畫面，很耗電腦資源。現在改成把文字更新合併、每 100 毫秒（千分之一秒）統一刷新一次，CPU（處理器，電腦的大腦，負責執行運算）使用量降低了大約三分之一強。這就像以前服務生每端一口菜就跑一趟廚房，現在改成湊滿一輪菜再一起端出來，跑的趟數少了，人也不會那麼喘。",
-              "en": "When the AI streams its answer (streaming, writing text out token by token instead of waiting until it's fully done), the system used to redraw the screen every single time a little new text arrived, which was hard on your machine. Now text updates are batched and redrawn once every 100 milliseconds (a thousandth of a second), cutting CPU usage (CPU, your computer's 'brain' that does the actual computing) by roughly a third. It's like a waiter who used to run to the kitchen for every single bite of food, now waiting to carry out a full round of dishes at once — fewer trips, less out of breath."
-            },
-            "original": "Reduced CPU usage during streaming responses by ~37% by coalescing text updates to 100ms."
           }
         ]
       }
