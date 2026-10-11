@@ -1,0 +1,105 @@
+{
+  "version": "1.3.3",
+  "period": "2026-10-10",
+  "items": [
+    {
+      "title": {
+        "zh-TW": "回看長對話提示詞常駐置頂，點擊即跳回提問處",
+        "en": "Sticky Prompt Keeps Context Visible During Deep Scrollbacks, Clicking Jumps to Origin"
+      },
+      "body": {
+        "zh-TW": "在長篇對話裡向上捲動翻查舊紀錄，很容易讀著讀著就忘記眼前這段回答最初是在回應哪一道問題。現在處於無閃爍模式時，產生你正在閱讀的這則回覆的提示詞，會直接常駐在視窗頂部。⟦如同大型會議室白板最上方的題目標籤，以前往下滑動紀錄就看不見當初的問題，現在不管對話拉得多長，那道提問始終固定在視窗頂端，想對照時點一下就能瞬間回到原處。⟧翻閱冗長的分析報告時更能隨時掌握脈絡，點擊該標頭還能立刻跳轉回最初提問的位置。",
+        "en": "When scrolling up through long conversations to review past messages, it is easy to lose track of which prompt initiated the answer you are reading. In flicker-free mode, the prompt that generated the reply you are currently viewing now remains pinned to the top of the window. ⟦Like a topic banner fixed to the top of a conference whiteboard, where scrolling down previously hid the original question, the prompt now stays anchored at the top of the screen no matter how far the thread stretches, letting you jump back instantly with a single click.⟧ This preserves context when skimming lengthy analysis reports, and clicking the header takes you straight back to the original question."
+      },
+      "original": "Added a pinned prompt header in no flickering mode while you scroll back through a long conversation: the prompt that produced the response you're reading stays at the top of the transcript, and clicking it jumps back to that prompt."
+    },
+    {
+      "title": {
+        "zh-TW": "外接工具支援常駐載入，免去隨需探索的等待",
+        "en": "Always-Loaded Tools Eliminate On-Demand Discovery Latency"
+      },
+      "body": {
+        "zh-TW": "串接大量常用工具後，若每次發問都得等 AI 重新檢視清單才能上工，對話節奏難免被打斷。⟦好比木匠把最常用的捲尺直接插在工作圍裙口袋，以前每接一項委託都要跑回工具庫翻找盤點，現在一開工就能直接抽出使用。⟧現在 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器能將高頻率使用的工具標記為常駐載入。只要在 `tools/list` 回覆的工具資料裡加入以下設定：\n```json\n{\"_meta\": {\"antigravity/alwaysLoad\": true}}\n```\n代理就能直接取得該項工具，不再需要於執行過程中臨時隨需探索。",
+        "en": "After connecting many frequently used tools, waiting for the AI to re-inspect the catalog before every query breaks the conversational flow. ⟦Think of a carpenter who keeps a tape measure right in an apron pocket, reaching for it instantly instead of walking back to rummage through the tool chest for every assignment.⟧ MCP servers can now mark high-frequency tools to be loaded permanently. By adding the following metadata to the tool payload in `tools/list` responses:\n```json\n{\"_meta\": {\"antigravity/alwaysLoad\": true}}\n```\nThe agent receives the tool immediately, eliminating runtime on-demand discovery."
+      },
+      "original": "Added support for MCP servers to mark a tool as always loaded by setting `_meta: {\"antigravity/alwaysLoad\": true}` on it in their `tools/list` response, so the agent gets that tool directly instead of discovering it on demand."
+    },
+    {
+      "title": {
+        "zh-TW": "macOS 沙盒預設鎖定應用程式支援目錄，杜絕密鑰外洩",
+        "en": "macOS Sandbox Blocks Application Support Directory by Default to Prevent Key Leaks"
+      },
+      "body": {
+        "zh-TW": "放手讓自動化指令在沙盒裡執行，許多人最在意的就是其他應用程式儲存的私密憑證會不會被看光。⟦彷彿給到府清潔工限制活動區域，以前對方能隨意翻動臥室梳妝台上的皮夾，現在預設只能在客廳打掃，不再碰得到你收在抽屜裡的私密證件。⟧macOS 上的桌面應用程式習慣將登入憑證與工作階段 token（授權令牌）存放在 `~/Library/Application Support` 目錄下。以前沙盒內的指令預設可以直接讀取該路徑，現在預設直接阻擋這項權限。如果你的特定腳本確實需要取用裡面的設定檔，依然可以在沙盒規則中明確手動放行。",
+        "en": "When allowing automated commands to run inside a sandbox, a primary concern is whether private credentials stored by other applications might be exposed. ⟦Picture restricting a home cleaner to specific rooms, cleaning only the living room by default rather than looking through a wallet left on the bedroom dresser, keeping private identification tucked away in drawers out of reach.⟧ Desktop applications on macOS typically store login credentials and session tokens in `~/Library/Application Support`. Sandboxed commands previously had read access to that path by default, but this access is now blocked. If a specific script genuinely requires access to configuration files in that path, you can still grant permission explicitly in sandbox rules."
+      },
+      "original": "Changed the macOS terminal sandbox to block sandboxed commands from reading `~/Library/Application Support` by default, since desktop apps keep credentials and session tokens there; previously it was readable, and you can still allow it explicitly in your sandbox rules."
+    },
+    {
+      "title": {
+        "zh-TW": "外掛支援宣告子代理，管理介面搜尋與驗證更順手",
+        "en": "Plugins Support Declaring Subagents, Management Interface Improves Search and Validation"
+      },
+      "body": {
+        "zh-TW": "為團隊量身製作外掛時，往往需要同時打包專屬的子代理、技能設定與運作規則。現在外掛根目錄支援建立 `agents.json`，讓作者能像以往用 `skills.json` 和 `rules.json` 宣告技能與規則那樣，直接宣告專屬的子代理。在 `/plugin` 指令的「已安裝」分頁中，搜尋體驗也更加順手。你現在能在搜尋關鍵字裡輸入空格，按下 `Enter` 結束搜尋後，用 `Space` 空白鍵即可切換啟用選取的外掛，按 `Enter` 展開查看詳細資訊，直接再次打字便能繼續搜尋。執行 `agy plugin validate` 驗證與瀏覽清單時，以前容易漏掉在 `plugin.json` 裡透過 `skills` 欄位宣告的技能，或者忽略了 `skills.json` 的排除項目；現在這些顯示已與實際載入的技能完全一致，同時修復了匯入外掛時可能遺失結果的競爭問題。",
+        "en": "Tailoring a plugin for a team often requires packaging dedicated subagents, skills, and operational rules together. Plugins now support an `agents.json` file in their root directory, enabling authors to declare subagents directly, just as they declare skills and rules via `skills.json` and `rules.json`. In the Installed tab of the `/plugin` command, searching is also more intuitive. You can now include spaces in search queries, press `Enter` to finish searching, toggle the selected plugin with `Space`, press `Enter` to expand details, or type again to continue searching. When running `agy plugin validate` to verify and inspect the list, skills declared through the `skills` field in `plugin.json` or excluded in `skills.json` were previously sometimes overlooked; the validation display now matches loaded skills, and a race condition that could drop imported plugin results has been fixed."
+      },
+      "original": "Added support for a root-level `agents.json` in plugins, so a plugin can declare its subagents the same way it declares skills and rules with `skills.json` and `rules.json`.\nImproved search in the `/plugin` Installed tab: you can now type spaces in a search query, press `Enter` to finish searching, then use `Space` to toggle the selected plugin and `Enter` to expand its details; start typing again to resume the search.\nFixed `agy plugin validate` and plugin listings missing skills declared through the `skills` field in `plugin.json` or ignoring `skills.json` exclusions, so they now match the skills that actually load, and fixed a race that could drop results when importing plugins."
+    },
+    {
+      "title": {
+        "zh-TW": "子代理工作區落實獨立隔離，停止時即刻清理待審批",
+        "en": "Subagent Workspaces Enforce Full Isolation, Stopping Clears Pending Approvals Promptly"
+      },
+      "body": {
+        "zh-TW": "背景子代理在多個專案同時動工，一旦動到你目前正在編輯的原始檔案，後續排查將會苦不堪言。⟦正如把工程圖紙影印給外包助理各自標記，以前助理可能直接在你的原稿上塗改，現在每組人都拿到獨立的工作影本，各自施工互不干擾。⟧在包含多個版本庫的工作區中，以往用 `branch` 或 `share` 工作區模式啟動的子代理，會在背後悄悄動用你的真實簽出目錄；現在這項問題已經修正，每個版本庫都會獲得專屬的隔離複本。當你手動停止子代理時，以前若對方還有未完成的審批請求，該代理會一直留在活躍清單裡；現在只要一下令停止，所有等待審批的事項都會立即清空，代理名單也不再殘留。",
+        "en": "When background subagents operate across multiple projects, modifying files you are currently editing makes troubleshooting difficult. ⟦A team lead hands distinct photocopies of blueprints to contractor assistants, ensuring each team marks up an independent working copy without altering the master drawing.⟧ In workspaces with multiple repositories, subagents launched in `branch` or `share` workspace mode previously operated against your actual checkout directories behind the scenes; this is now fixed, giving each repository its own isolated copy. When you stop a subagent manually, unresolved approval requests previously kept it lingering in the active list; issuing a stop command now clears all pending approvals immediately, cleanly removing the subagent."
+      },
+      "original": "Fixed subagents started with a `branch` or `share` workspace in a multi-repository workspace silently working in your real checkout; each repository now gets its own isolated copy.\nFixed a stopped subagent staying in the active agents list while it still had an approval pending; stopping it now clears its pending approvals right away."
+    },
+    {
+      "title": {
+        "zh-TW": "斜線指令異常回報精準化，順口提問不再觸發掛鉤",
+        "en": "Slash Commands Sharpen Error Reporting, Incidental Queries Avoid Triggering Hooks"
+      },
+      "body": {
+        "zh-TW": "敲下斜線指令卻敲錯目錄路徑，如果工具悶不吭聲假裝成功，很容易讓人誤判環境現況。執行 `/add-dir` 加入目錄時，以前就算輸入了根本不存在的路徑或一般檔案，工具依然會宣稱新增成功；現在它會老實回報 `directory not found` 或 `not a directory`。利用 `/btw` 順口插話詢問旁支問題時，以前會誤跑你的使用者與工作區 hook（掛鉤，特定事件發生時被觸發的小程式），導致停止掛鉤陷入迴圈或讓簡單提問多出額外步驟，這項問題如今已被修正。輸入 `/keybindings` 查看快捷鍵時，若找不到設定的編輯器，不再毫無反應地靜默跳過，而是會主動顯示錯誤。當 `/diff` 備援（fallback）的 `git diff` 也執行失敗時，現在會顯示索引損壞等真實肇因，不再誤報成 `git diff HEAD` 的錯誤訊息。",
+        "en": "When entering a slash command with an invalid directory path, a silent mock success can lead to incorrect assumptions about the environment. When running `/add-dir`, entering a nonexistent path or a regular file previously reported success anyway; it now explicitly returns `directory not found` or `not a directory`. Asking side questions with `/btw` previously triggered user and workspace hooks, causing stop hooks to loop or adding unnecessary overhead to simple inquiries, an issue that is now resolved. Running `/keybindings` to view keyboard shortcuts now displays an error if the configured editor cannot be located instead of failing silently. When the `git diff` fallback for `/diff` fails, it now displays the actual underlying cause, such as index corruption, instead of misreporting an error with `git diff HEAD`."
+      },
+      "original": "Fixed `/add-dir` claiming it added a path that doesn't exist or isn't a directory; it now reports `directory not found` or `not a directory`.\nFixed `/btw` side questions running your user and workspace hooks, which could make hooks such as stop hooks loop or add extra steps to a quick question.\nFixed `/keybindings` silently doing nothing when the configured editor can't be found; it now shows an error.\nFixed `/diff` showing the error from `git diff HEAD` instead of the real cause, such as a corrupt index, when the fallback `git diff` also fails."
+    },
+    {
+      "title": {
+        "zh-TW": "連線與認證錯誤顯示更明確，用盡額度不再盲目重試",
+        "en": "Connection and Authentication Errors Surface Clearer Details, Exhausted Quotas Halt Retries"
+      },
+      "body": {
+        "zh-TW": "遇到企業代理伺服器阻擋時，主控台若被整段 HTML 原始碼淹沒，很難第一時間掌握原因。現在遇到這類錯誤頁面只會顯示網頁標題，其他過長的非 JSON 錯誤內容也會在 500 個位元組處截斷。個人配額（quota，使用額度）用盡時會立刻回報，不再反覆重試。工作階段中若登入憑證過期或被撤銷，現在會明確提示 `Authentication expired. Please log back in.`，且背景中正在傳輸的權杖更新也不會還原失效憑證。使用 `AGY_ADC_AUTH` 應用程式預設憑證登入時，因遠端控制尚未支援，加上 `--remote-control` 參數會清楚退出並說明原因，選單中的 `/remote-control` 指令也會自動隱藏。",
+        "en": "When an enterprise proxy blocks requests, drowning the console in raw HTML makes identifying the cause difficult. Error pages now display only the page title, and other excessively long non-JSON error bodies are truncated at 500 bytes. When personal quota is exhausted, the system reports it immediately instead of retrying repeatedly. If login credentials expire or are revoked during a session, the system now provides an explicit `Authentication expired. Please log back in.` notice, and background token refresh transmissions will not restore invalid credentials. Because remote control is not supported when authenticating with `AGY_ADC_AUTH` application default credentials, passing `--remote-control` now exits cleanly with an explanation, and `/remote-control` is automatically hidden from menus."
+      },
+      "original": "Improved error messages: a request that fails with an HTML error page, for example from a corporate proxy, now shows the page title instead of the raw HTML, other long non-JSON error bodies are cut off after 500 bytes, and reaching your individual quota is reported right away instead of being retried.\nFixed an expired or revoked sign-in showing an unclear error mid-session; the agent now says `Authentication expired. Please log back in.`, and a token refresh that was already in flight no longer restores the expired credentials.\nFixed `--remote-control` failing when you sign in with Application Default Credentials (`AGY_ADC_AUTH`); Remote Control doesn't support ADC yet, so the flag now exits with a clear error and the `/remote-control` command is hidden."
+    },
+    {
+      "title": {
+        "zh-TW": "終端機分頁卡死問題修復，快捷鍵與跨系統執行更穩定",
+        "en": "Terminal Pager Hangs Resolved, Shortcut Keys and Cross-Platform Runs Gain Stability"
+      },
+      "body": {
+        "zh-TW": "在終端機裡執行版本控制或自訂按鍵，跨平台環境的細微落差常會導致畫面莫名卡死。代理執行 Jujutsu 的 `jj diff` 或 `jj log` 等指令時，以往容易卡在互動式分頁器；現在指令會自動帶上 `JJ_PAGER=cat`，與既有的 `PAGER` 和 `GIT_PAGER` 並列輸出。在 macOS 的 Terminal.app 或 VS Code 終端機裡，因系統未將 Option 視為 Meta 鍵而導致 `alt+s` 等自訂快捷鍵失效的問題現已修正。在 Windows 上若從微軟商店安裝 PowerShell 7，沙盒指令過去會跳出 `Access is denied.`，現在會自動備援切回 Windows PowerShell 順利執行。",
+        "en": "Running version control commands or custom key combinations in the terminal can freeze unexpectedly due to subtle cross-platform differences. When the agent ran Jujutsu commands like `jj diff` or `jj log`, it often hung on interactive pagers; commands now pass `JJ_PAGER=cat` automatically, matching existing handling for `PAGER` and `GIT_PAGER`. In macOS Terminal.app and VS Code terminals, custom shortcuts such as `alt+s` failing because the system did not treat Option as a Meta key have been resolved. On Windows, sandboxed commands executed with PowerShell 7 installed from the Microsoft Store previously encountered `Access is denied.`; execution now automatically falls back to Windows PowerShell."
+      },
+      "original": "Fixed Jujutsu (`jj`) commands run by the agent, such as `jj diff` or `jj log`, hanging in an interactive pager; agent commands now set `JJ_PAGER=cat` alongside `PAGER` and `GIT_PAGER`.\nFixed custom `alt` keybindings such as `alt+s` not working with the macOS Option key in terminals that don't treat Option as Meta, such as Terminal.app and VS Code-based terminals.\nFixed sandboxed commands failing with `Access is denied.` on Windows when PowerShell 7 was installed from the Microsoft Store; the agent now falls back to Windows PowerShell in that case."
+    },
+    {
+      "title": {
+        "zh-TW": "終端機連結跳轉更精準，步驟與程式碼搜尋計數不再失真",
+        "en": "Terminal Links Jump Accurately, Step and Code Search Counts Correct Singular Forms"
+      },
+      "body": {
+        "zh-TW": "對話記錄裡的檔案路徑若能精確對應程式碼行號，點擊除錯的過程就會省下許多來回對照的功夫。回覆文字中的檔案連結如果帶有百分比編碼的行號錨點，例如 `file.go%23L795`，以前標籤常顯示不正常。現在標籤會清楚顯示行號，點擊後也能精準開啟並跳至指定行數。在支援可點擊連結的終端機裡，若畫面上有多個指向相同網址的獨立連結，以往滑鼠懸停在其中一個上面時會導致全部連結一起被突顯反白，如今各個連結已能獨立反應。工具執行步驟與 `/codesearch` 面板上的英文單數計數也完成了校正，單一項目會正確顯示為 Found 1 result、1 match、1 file 與 Wrote 1 line，不再出現複數結尾的贅字，同時修正了建立檔案步驟中行數多報一行的問題。",
+        "en": "When file paths in conversation transcripts point accurately to code line numbers, clicking to debug saves considerable manual cross-referencing. In response text, file links with percent-encoded line number anchors, such as `file.go%23L795`, previously failed to render their labels correctly. Labels now display line numbers clearly, and clicking them opens and navigates directly to the specified line. In terminals that support clickable links, hovering over one of several independent links pointing to the same URL previously highlighted all of them; links now react independently. Tool execution steps and the `/codesearch` panel have also corrected English singular counts, properly showing Found 1 result, 1 match, 1 file, and Wrote 1 line without plural suffixes, while fixing an issue where file creation steps overreported line counts by one."
+      },
+      "original": "Fixed file links in agent responses whose line anchor was percent-encoded, such as `file.go%23L795`; the label now shows the line number and the link opens the correct line.\nFixed separate links to the same URL highlighting together when you hover over one of them in terminals that support clickable links.\nFixed counts in tool steps and the `/codesearch` panel, which now read \"Found 1 result\", \"1 match\", \"1 file\", and \"Wrote 1 line\" instead of \"1 results\", and the file-creation step reporting one line too many."
+    }
+  ]
+}
