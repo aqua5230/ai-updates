@@ -1,0 +1,127 @@
+{
+  "version": "1.0.51",
+  "period": "2026-10-09",
+  "items": [
+    {
+      "title": {
+        "zh-TW": "背景工作流程支援即時控管，修訂意見核准不遺漏",
+        "en": "Background workflows gain real-time control, preserving revision comments upon plan approval"
+      },
+      "body": {
+        "zh-TW": "當你指派耗時較長的自動化任務時，現在可以直接掌握背景作業的即時動態。\n\n⟦像在工廠產線增設了專屬控制台，以前放行的作業只能等它自己跑完，現在每條輸送帶都能隨時按鈕暫停，中途貼上的便箋也會老實留到驗收。⟧\n\n輸入 `/workflow` 即可列出、停止或恢復背景工作流程（依序執行的自動化任務清單），任務面板中也會同步出現這些項目與停止按鈕。執行 `/workflow stop` 或 `/workflow resume` 時，指令會精確對準目前運作中的工作流程。\n\n在計畫修訂執行期間留下的評論，核准計畫時會完整保留並送出。若背景執行的命令發現工作目錄不存在，會立刻回報失敗，不會因為後續傳來殘留輸出而重新切換回執行狀態。",
+        "en": "When assigning long-running automated tasks, you can now directly track real-time activity for background operations.\n\n⟦Picture a dedicated control console added to a factory floor: tasks once dispatched no longer just run unmonitored to completion, as every conveyor belt can be paused at the press of a button, and notes attached midway stay preserved until final inspection.⟧\n\nTyping `/workflow` lists, stops, or resumes background workflows (ordered sequences of automated tasks), which also appear synchronously alongside stop buttons in the task panel. Running `/workflow stop` or `/workflow resume` accurately targets the currently active workflow.\n\nComments left during plan revision runs are fully preserved and submitted when approving the plan. If a background command discovers its working directory is missing, it immediately reports failure without flipping back to a running state due to lingering subsequent output."
+      },
+      "original": "`/workflow` lists, stops, and resumes background workflow runs, and those runs appear in the tasks pane with a stop button\nPlan comments added while a revision runs are preserved and sent when the plan is approved\n`/workflow stop` and `/workflow resume` target the live run\nBackground shell commands fail immediately when the working directory does not exist, and no longer flip back to running when late output arrives"
+    },
+    {
+      "title": {
+        "zh-TW": "無頭模式完整等待目標結果，背景任務暫停與重開更穩定",
+        "en": "Headless mode reliably waits for goal outcomes, stabilizing background task pauses and resumes"
+      },
+      "body": {
+        "zh-TW": "想用腳本在背景批次跑完專案目標時，你不再需要盲目猜測任務究竟有沒有順利收尾。\n\n⟦走進投幣式洗衣店洗衣服，以前按下開關後你不知道衣服洗好了沒，現在螢幕會確實等到脫水完成才跳出收據；按下暫停鍵會止水，中途打開機門重新關上也能繼續運轉。⟧\n\n在 headless（無頭模式，沒有終端機視窗的執行模式）下執行 `grok -p` 時，程式會等待背景目標徹底完成並回報最終成果。若加上 `--background-wait-timeout` 參數，超過時限就會主動中止目標，結束時也不會再誤印多餘的暫停訊息。\n\n針對執行中的目標按下 `Ctrl+C` 即可暫停，重新開啟對話時能直接延續目標進度。若設定中關閉了目標功能，無頭模式會把輸入的 `/goal` 指令當成一般文字提問處理。",
+        "en": "When running scripts to batch-process project goals in the background, you no longer have to guess whether tasks completed cleanly.\n\n⟦Stepping into a laundromat, you no longer have to wonder if laundry finished after pressing start, because the screen now waits until spin-drying completes before issuing a receipt; pressing pause halts the water, and opening the door mid-cycle allows washing to resume once closed.⟧\n\nWhen running `grok -p` in headless mode (execution without a terminal window), the process waits for background goals to fully finish and reports the final outcome. Supplying the `--background-wait-timeout` flag automatically terminates the goal when the deadline expires, without printing extraneous pause notices upon completion.\n\nPressing `Ctrl+C` pauses an active goal, allowing you to resume its progress directly when reopening the conversation. If goal features are disabled in settings, headless mode treats an entered `/goal` command as a standard text query."
+      },
+      "original": "Headless `grok -p` waits for background goals to finish and reports their outcome\n`--background-wait-timeout` also stops an active headless goal after the timeout\n`Ctrl+C` on a goal pauses the goal\nReopening a chat with an active goal continues the goal\nHeadless goal runs no longer print a spurious \"Goal paused\" after completion\nWith goals disabled, a headless `/goal` line is treated as a normal prompt"
+    },
+    {
+      "title": {
+        "zh-TW": "工作樹支援新版本庫格式，特殊檔案與目錄遺失不再卡死",
+        "en": "Worktrees support Jujutsu repositories, avoiding stalls on special files and missing directories"
+      },
+      "body": {
+        "zh-TW": "當你在複雜專案下切換分支時，各項副本操作現在能避開路徑陷阱。\n\n⟦就像植株分盆，以前泥土夾帶石塊或標籤偏移就會停工，現在換到新型花盆或找不到原土，幼苗依然能穩固扎根。⟧\n\n`grok worktree`（工作樹，讓專案平行開多份副本的功能）支援 Jujutsu 版本庫。建立副本時就算內含具名管道或通訊端，也不再卡死。\n\n`GROK_HOME` 設為符號連結（指向另一個位置的捷徑檔）時，用 `-w` 建立的副本仍維持追蹤。若原啟動資料夾已刪，`grok -w` 會附提示退回根目錄。\n\n`grok -p --output-format json` 會回報所用目錄，名稱衝突也清楚。`grok sessions list` 與 `/resume` 會顯示同子目錄啟動的工作階段，並隱藏相鄰子模組紀錄。",
+        "en": "When switching branches across complex projects, managing separate copies now avoids path pitfalls.\n\n⟦Repotting a plant no longer stalls when soil carries stones or labels drift out of place, allowing seedlings to take firm root even when moved to a new style of pot or when original soil is missing.⟧\n\n`grok worktree` (a feature enabling parallel copies of a project) supports Jujutsu repositories. Creating a copy no longer hangs even when named pipes or sockets are present.\n\nWhen `GROK_HOME` is set to a symlink (a shortcut file pointing to another location), copies created with `-w` maintain active tracking. If the original launch folder was deleted, `grok -w` falls back to the root directory with a helpful notice.\n\nRunning `grok -p --output-format json` reports the directory used, clarifying name collisions. Both `grok sessions list` and `/resume` display sessions started from the same subdirectory while hiding adjacent submodule records."
+      },
+      "original": "`grok -p --output-format json` reports the worktree folder used, including after `-w` name collisions\n`grok sessions list` and `/resume` show worktree sessions started from the same subfolder, and hide sessions from a sibling submodule\n`grok worktree` works inside Jujutsu repositories\nWorktree creation no longer hangs when the repo contains named pipes or sockets\n`grok -w` opens at the worktree root, with a note, when the original launch folder is missing\nWorktrees created with `-w` stay tracked when `GROK_HOME` is a symlink"
+    },
+    {
+      "title": {
+        "zh-TW": "工作樹清理命令安全防誤刪，大量副本啟動更迅速",
+        "en": "Worktree cleanup protects against accidental deletion, accelerating launches with many copies"
+      },
+      "body": {
+        "zh-TW": "當你整理不再使用的平行開發副本時，指令防呆與掃描效率都有了實質提升。\n\n⟦猶如倉儲管理員盤點退租置物櫃，以前手動搬走貨物或連線不穩就會搞丟名冊，現在能自動除名，遇櫃內殘留空紙箱也能乾脆清理，庫房盤點也快上許多。⟧\n\n執行 `grok worktree rm` 或 `gc`（資源回收，清理廢棄副本資料的維護指令）時，即使手動刪除資料夾或重建資料庫，也能正確清理與還原登記名稱。若未追蹤內容只剩空資料夾則直接放行刪除；沒帶 `-f` 參數時，未儲存修改檢查失敗或逾時會保留副本以防遺失。\n\n`grok worktree list` 現在會列出中途遭中斷而未完成的殘留副本。所有 `grok worktree` 指令啟動時跳過模型目錄載入。在擁有大量副本時，開啟 `/resume` 挑選器也更為流暢。",
+        "en": "When cleaning up retired parallel development copies, safeguards and scanning efficiency both see tangible improvements.\n\n⟦Like a warehouse clerk auditing vacated lockers, automated deregistration prevents losing track of inventory after manual removals or unstable connections, while residual empty boxes are cleared out cleanly and inventory checks run much faster.⟧\n\nRunning `grok worktree rm` or `gc` (a maintenance command that cleans up discarded copies) cleans up properly and restores registered names even after manually deleting folders or rebuilding the database. Untracked content that consists only of empty folders is permitted for deletion. Without the `-f` flag, the copy is preserved if checks for unsaved changes fail or time out.\n\nRunning `grok worktree list` now displays unfinished copies left behind by interruptions. All `grok worktree` commands skip loading model directories at startup. Opening the `/resume` picker is also noticeably smoother when managing large numbers of copies."
+      },
+      "original": "`grok worktree rm` and `gc` clean up names after a folder is deleted by hand, and restore names after a db rebuild\n`grok worktree list` shows unfinished copies left by an interrupted create\n`grok worktree rm` without `-f` keeps worktrees when the unsaved-work check fails or times out\n`grok worktree rm` and `gc` remove worktrees whose only untracked content is empty folders\nOpening the resume picker is faster on machines with many worktrees\n`grok worktree` commands start faster by skipping model catalog work at boot"
+    },
+    {
+      "title": {
+        "zh-TW": "斜線指令與 Skill 補齊更即時，輸入游標與隱藏命令不被干擾",
+        "en": "Slash command and skill completion update promptly, protecting input cursors and hidden commands"
+      },
+      "body": {
+        "zh-TW": "在對話框快速鍵入指令或引述檔案時，自動推薦清單不再會突然打斷你的打字節奏。\n\n⟦彷彿老練的點餐服務生站在桌邊，以前你隨口提到菜名就急著下單、甚至拿舊菜單擋住菜單本，現在只有開口第一句指名才記單，修改訂單時也不會擋住你正在寫的字。⟧\n\n現在只有位在訊息最開頭的斜線指令才會觸發 skill（擴充技能，賦予模型特定操作能力的功能模組）。如果手動輸入 `/cd` 等未公開的隱藏指令，系統會確實執行該指令，不會被名稱相近的擴充技能攔截。\n\n當專案中的技能有所異動時，斜線指令的自動補齊選單會即時更新，並正確顯示 `commands/` 目錄下的檔案名稱，在巢狀專案中也會掛上正確的專案標籤。彈出的補齊建議不再遮蔽游標後方的文字；快速輸入檔名時，`@` 檔案補齊也不會再錯誤套用前一次搜尋的舊結果。",
+        "en": "When quickly typing commands or referencing files in the prompt box, automatic suggestions no longer disrupt your typing flow.\n\n⟦Think of an attentive restaurant server by your table: rather than placing orders whenever dishes are mentioned in passing or blocking the menu with an outdated bill, requests are jotted down only when addressed in the opening sentence, and order revisions never obscure words you are currently writing.⟧\n\nOnly slash commands positioned at the very beginning of a message now trigger a skill (a functional module granting specific capabilities to the model). Entering undocumented commands like `/cd` manually executes the intended command instead of getting intercepted by similarly named skills.\n\nWhen project skills change, the autocomplete menu for slash commands updates instantly, accurately displaying filenames under the `commands/` directory and applying proper project tags in nested projects. Completion popups no longer hide characters trailing the cursor. When rapidly entering filenames, `@` file completion no longer mistakenly applies stale results from previous searches."
+      },
+      "original": "Slash command completion updates live when skills change, and shows the correct name for files under `commands/`\nSlash command suggestions no longer hide the text after the cursor\nTyping a hidden command such as `/cd` runs it instead of a near-match skill\n`@`-file completion no longer accepts a match from an earlier query when you type quickly\nOnly slash commands at the start of a message trigger skills\nProject skills are labeled correctly for nested projects"
+    },
+    {
+      "title": {
+        "zh-TW": "審核確認卡標示觸發來源，權限詢問防按鍵誤觸",
+        "en": "Review cards identify trigger sources, preventing accidental keystrokes on permission prompts"
+      },
+      "body": {
+        "zh-TW": "當工具要求刪檔、搜尋或改寫時，確認面板現在會交代每道檢查的來歷。\n\n⟦換成在銀行臨櫃轉帳，以前確認單沒寫明哪條內規在審查，現在每張單據都印著單位章戳，核章時手肘碰歪印泥也不會被當成同意付款。⟧\n\nhook（掛鉤，特定事件發生時被觸發的小程式）要求確認聯網搜尋或刪檔時，審核卡會顯示名稱。MCP（Model Context Protocol，讓 AI 連接外部工具的協定）工具呼叫也同樣會具名提示。\n\n檔案寫入審核卡會展示即將被覆蓋的舊內容。跳出權限詢問、提問或 MCP 卡時，打字、方向鍵、Enter 或 `Ctrl+Enter` 不再會誤選。\n\n未與設定檔同目錄的自訂指令如 `my-guard`，會自動從 PATH 搜尋執行。`/hooks` 清單中的載入錯誤也能直接展開查看。",
+        "en": "When tools request file deletion, web searches, or rewrites, confirmation panels now clearly identify the origin of each check.\n\n⟦At a bank teller counter, receipts now carry official department stamps instead of leaving internal review rules unnamed, and bumping an ink pad with an elbow during stamping is never mistaken for payment approval.⟧\n\nWhen a hook (a script triggered by specific events) requests confirmation for web searches or file deletions, the review card displays its name. Tool calls from MCP (Model Context Protocol, an interface connecting AI to external tools) also prompt with explicit names.\n\nFile write review cards display the existing content about to be overwritten. When permission prompts, questions, or MCP cards appear, keystrokes from typing, arrow keys, Enter, or `Ctrl+Enter` will no longer trigger unintended selections.\n\nCustom commands located outside the configuration directory, such as `my-guard`, are automatically located and executed from PATH. Loading errors in the `/hooks` list can also be expanded and inspected directly."
+      },
+      "original": "Bare hook commands such as `my-guard` run from PATH when they are not next to the hook file\nHooks that ask about web searches or file deletes show the hook name on the approval card\nHook load errors in `/hooks` can be expanded\nTyping, arrows, Enter, or send-now (`Ctrl+Enter`) no longer answers a permission, question, or MCP prompt card\nWrite approval cards show the existing file contents that will be replaced\nMCP tool calls show hook permission prompts, and cards name the hook"
+    },
+    {
+      "title": {
+        "zh-TW": "大容量提示詞自動轉存檔案，圖片拖曳與長貼上不中斷",
+        "en": "Oversized prompts automatically offload to files, keeping image drags and long pastes uninterrupted"
+      },
+      "body": {
+        "zh-TW": "當你需要貼入大量程式碼或截圖發問時，輸入通道不再會因為資料過載而卡住畫面。\n\n⟦宛若郵局寄送超大包裹，以前信箱塞不下厚重包裹就會整封退件甚至卡住投遞口，現在超重郵件會自動分流裝箱轉交貨運，貼上易碎品貼紙時也不再弄破袋子。⟧\n\n貼上極長的問題與提示詞時，系統會自動轉存為獨立檔案傳送，不再擠在對話字串中發送。在未支援括號貼上標記的終端機環境中，長文字也不會再卡在約 1 KB 的長度，而是能完整讀取。\n\n你現在可以直接從檔案管理員把圖片拖曳進終端機視窗作為附件。若隨同 `/pr-workflow` 等擴充技能指令貼上圖片，圖片會如實送給模型處理；來自外部工具的圖片也會先完成格式驗證，即使拿到損毀檔案也不會導致對話中斷，且寫入大型檔案或截取多張畫面時，工作階段都能維持正常運作。",
+        "en": "When pasting massive code blocks or screenshots into prompts, input channels no longer freeze the interface from data overload.\n\n⟦Much like shipping an oversized parcel through the post office, overweight mail is automatically boxed and diverted to freight instead of bouncing or jamming mail slots, and attaching fragile stickers no longer tears packages.⟧\n\nWhen pasting exceptionally long questions or prompts, the system offloads them into separate files for delivery instead of cramming them into conversation strings. In terminal environments lacking bracketed paste support, long text no longer stalls around 1 KB and reads through completely.\n\nYou can now drag and drop images directly from file managers into terminal windows as attachments. Pasting images alongside skill commands like `/pr-workflow` delivers the images faithfully to the model. Images from external tools undergo format verification so corrupted files do not crash the session, which continues running smoothly even when writing large files or capturing multiple screenshots."
+      },
+      "original": "Images pasted with skill commands such as `/pr-workflow` are sent to the model\nVery large pasted prompts are offloaded to a file instead of being sent inline\nImages from tools are validated so a bad file no longer breaks the turn\nDragging images from a file manager onto a terminal attaches them\nLong pastes without bracketed-paste markers are read in full instead of stalling after about 1 KB\nLarge file writes or many screenshots no longer end the session"
+    },
+    {
+      "title": {
+        "zh-TW": "終端機快捷鍵與對話框翻新，搜尋捲動與多選操作更順手",
+        "en": "Terminal shortcuts and dialogs get refreshed, streamlining search scrolling and multi-select choices"
+      },
+      "body": {
+        "zh-TW": "在空間有限的終端機視窗操作選單時，按鍵反應與畫面排版更加靈巧。\n\n⟦有如在狹窄工作室操作折疊工具箱，以前掀開托盤常卡到天花板，現在收納盒會隨高度縮放，抽屜首尾能直接拉到，拉下電閘也能立刻斷電。⟧\n\n在啟用擴充按鍵的 tmux（終端機多工器，可在單一視窗切割面板的工具）中，`Shift+Enter`、`Ctrl+.`、`Ctrl+/` 與 `Ctrl+[` / `]` 已能辨識。瀏覽 `/feedback` 草稿時，按 `G`、`Home` 或 `End` 即可跳到首筆或末筆。\n\n面對多選題提問，送出前可用數字鍵切換多個選項。`/find` 搜尋在串流輸出時依然精確計算比對次數，並捲動到含結果的折行處。\n\n對話框開啟時按 `Ctrl+C` 依然能取消回合。在高度較窄的終端機中，`/feedback` 等對話框能維持可讀性，傳送失敗狀態也會在對話框內折行。",
+        "en": "When navigating menus inside cramped terminal windows, key responsiveness and screen layout become significantly smoother.\n\n⟦Operating a folding toolbox in a cramped workshop feels much smoother when organizers scale to fit overhead clearance, top and bottom drawers can be reached directly, and pulling the power switch instantly cuts electricity.⟧\n\nIn tmux (a terminal multiplexer that splits windows into panes) with extended keys enabled, `Shift+Enter`, `Ctrl+.`, `Ctrl+/`, and `Ctrl+[` / `]` are now recognized. When browsing `/feedback` drafts, pressing `G`, `Home`, or `End` jumps directly to the first or last entry.\n\nFor multi-select questions, number keys toggle multiple choices before submitting. Running `/find` continues counting matches accurately during streaming output and scrolls directly to wrapped lines containing results.\n\nPressing `Ctrl+C` while dialogs are open still cancels the turn. In terminals with limited vertical height, dialogs such as `/feedback` preserve readability, and delivery failure states wrap cleanly within the dialog box."
+      },
+      "original": "`/feedback` Drafts supports `G` / `Home` and `End` to jump to the first or last draft\n`Shift+Enter`, `Ctrl+.`, `Ctrl+/`, and `Ctrl+[` / `]` work inside tmux when extended-keys are enabled\n`/find` keeps match counts accurate while output streams, and scrolls to the wrapped row that contains the match\n`Ctrl+C` during a turn cancels the turn even when a modal is open\nMulti-select questions let you toggle several answers with number keys before submitting\nDialogs such as `/feedback` stay readable on a short terminal, and failed send status wraps inside the dialog"
+    },
+    {
+      "title": {
+        "zh-TW": "儀表板工作階段釘選持久保留，路徑支援引號與刪除防呆",
+        "en": "Dashboard session pins persist across restarts, supporting quoted paths and safe deletions"
+      },
+      "body": {
+        "zh-TW": "當你在多個專案工作階段之間頻繁檢視切換時，面板清單的排列與操作防呆更加穩當。\n\n⟦恰似辦公室牆上的磁吸公告板，以前下班關燈後標籤順序容易被打亂、撤下的舊單子還黏在角落，現在釘選的常用便箋重開機後依然整齊歸位，撕下作廢單據也不會留下殘膠。⟧\n\n在 dashboard（儀表板，統一管理所有對話任務的總覽面板）中釘選的工作階段，現在會嚴格維持當初釘選的順序，即使重開程式也不會跑掉。關閉工作階段後，該項目會確實清除，不再殘留在未啟用清單中。\n\n在詳細資訊檢視中輸入 `/exit`，只會單獨關閉當前檢視的工作階段。使用 Peek 快速預覽時，透過上下鍵移動焦點後再按數字鍵，不會再錯誤指派到非預期的代理程式。\n\n執行 `/cd` 或使用位置選擇器時，現在允許路徑包含引號或跳脫字元。輸入 `/delete` 指令時若後方接有多餘字串，會直接回報錯誤，不再誤將目前的工作階段直接刪除。",
+        "en": "When frequently inspecting and switching between multiple project sessions, panel ordering and operational safeguards are far more dependable.\n\n⟦Imagine a magnetic bulletin board on an office wall: pinned routine notices return neatly to their original spots after rebooting instead of scrambling when lights go out, and discarded slips leave no sticky residue behind when torn away.⟧\n\nPinned sessions in the dashboard (an overview panel managing all conversation tasks) now strictly preserve their original pinning order even after restarting. Closing a session clears the item completely instead of leaving it stranded in the inactive list.\n\nEntering `/exit` from the detail view closes only the currently viewed session. During Peek previews, moving focus with arrow keys before pressing number keys no longer assigns tasks to unintended agents.\n\nExecuting `/cd` or using the location picker now permits paths containing quotes or escaped characters. Entering `/delete` with trailing characters returns an immediate error instead of accidentally deleting the active session."
+      },
+      "original": "Pinned dashboard sessions stay in the order you pinned them, and survive restarts\n`/exit` in a dashboard details view closes only that session\n`/cd` and the location picker accept quoted or escaped folder paths\n`/delete` with extra text shows an error instead of deleting the current session\nNumber-key picks in the dashboard peek no longer go to the wrong agent after Up/Down\nClosing a session in the dashboard no longer leaves it listed under Inactive"
+    },
+    {
+      "title": {
+        "zh-TW": "編輯重送不再還原工作區，登入指引明確且登出即停輪次",
+        "en": "Resending edited messages preserves workspace files, clarifying login steps and halting turns on logout"
+      },
+      "body": {
+        "zh-TW": "在長時間對話中反覆修改需求時，程式碼檔案與帳號狀態能獲得更周全的保護。\n\n⟦正像在建築事務所修改設計圖，以前重寫上一道草稿，桌面上做好的模型就會被推倒重來，現在重新遞交只更新圖紙，砌好的磚牆完好無損。⟧\n\n在長工作階段中取消並重新編輯送出訊息時，不再會錯誤還原工作區的檔案。登出時會立即中斷本機工作階段正在執行的輪次。\n\n登入失敗時會提供清楚的下一步指引，不再直接丟出原始錯誤。若 `grok -p` 尚未儲存登入憑證，會自動執行設定的認證命令（`auth_provider_command`）。\n\n開啟工作階段時若未能取得模型清單，會自動切換為 Auto 模型。對空白工作階段執行 `/compact`（壓縮對話紀錄以騰出容量的指令）時，也不再重設回報的上下文視窗數值。",
+        "en": "When repeatedly refining requirements throughout long conversations, code files and account states receive more comprehensive protection.\n\n⟦Revising blueprints at an architectural firm no longer knocks over finished models on the desk when rewriting an earlier draft, because resubmissions update only the drawings while freshly laid brick walls remain intact.⟧\n\nCanceling and re-editing submitted messages during long sessions no longer mistakenly reverts files in the workspace. Logging out immediately halts active turns in local sessions.\n\nLogin failures provide clear next steps instead of dumping raw errors. If `grok -p` has no saved login credentials, it automatically executes the configured authentication command (`auth_provider_command`).\n\nOpening a session falls back to the Auto model when failing to retrieve the model list. Running `/compact` (a command condensing conversation history to free space) on an empty session also no longer resets reported context window values."
+      },
+      "original": "Cancel and edit-resend on long sessions no longer revert workspace files\n`grok -p` runs `auth_provider_command` when no login is stored\nSessions that open without a model list use Auto\nSign-in failures show a clear next step instead of a raw error\nLogging out stops running turns on local sessions\n`/compact` on an empty session no longer resets the reported context window"
+    },
+    {
+      "title": {
+        "zh-TW": "工具權限參數對齊模型名稱，記憶簡化為開關並新增密度控制",
+        "en": "Tool Permission Flags Align with Model Names, Memory Simplifies to a Toggle, and Density Controls Are Added"
+      },
+      "body": {
+        "zh-TW": "透過命令列微調模型時，設定項目與工具授權更加直觀。\n\n⟦正如調音台旋鈕對齊螢幕名稱，開關回歸單純啟閉。⟧\n\n`--disallowed-tools` 可直接填入模型看到的名稱（如 `run_terminal_command` 或 `spawn_subagent`）。無頭模式新增 `--allowed-tools` 作為 `--allow` 別名。\n\n`/density` 與 Tool call density 設定可控制工具呼叫的細節多寡。`--system-prompt` 會自動附加 `--append-system-prompt` 的規則。\n\n記憶簡化為單純開關，設定檔僅需 `[memory]` 的 `enabled` 鍵。命令列已移除 `/share` 指令與工作階段分享功能。",
+        "en": "When fine-tuning models from the command line, configuration options and tool permissions become more intuitive.\n\n⟦A mixing console aligns its knobs with screen labels, while switches return to simple on-off toggles.⟧\n\n`--disallowed-tools` accepts the exact names seen by the model (such as `run_terminal_command` or `spawn_subagent`). Headless mode adds `--allowed-tools` as an alias for `--allow`.\n\n`/density` and the Tool call density setting control the level of detail in tool calls. `--system-prompt` automatically appends rules from `--append-system-prompt`.\n\nMemory is simplified into a straightforward toggle, requiring only the `enabled` key under `[memory]` in configuration files. The command line removes the `/share` command and session sharing features."
+      },
+      "original": "Memory is only an on or off switch (`[memory] enabled`)\nThe `/share` command and session sharing are removed from the CLI\n`/density` and the Tool call density setting control how much detail tool calls show\n`--allowed-tools` is accepted as an alias for `--allow` in headless mode\n`--disallowed-tools` accepts the names shown to the model, such as `run_terminal_command` and `spawn_subagent`\n`--system-prompt` appends rules from `--append-system-prompt`"
+    }
+  ]
+}
