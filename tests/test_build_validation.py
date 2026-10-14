@@ -242,3 +242,8 @@ def test_build_uses_period_end_date_for_static_metadata(
     assert '"datePublished": "2026-07-11"' in page
     assert "<lastmod>2026-07-11</lastmod>" in sitemap
     assert "發布日期：2026-07-08 ~ 07-11" in page
+
+
+def test_badge_treats_reverted_lines_as_fixes() -> None:
+    original = "Fixed a crash\nReverted the 2.1.281 denial message change"
+    assert build_script._badge_for(original, "提示訊息回歸既有設計")[0] == "fix"

@@ -561,7 +561,7 @@ def _classify_entry(line: str) -> str:
     prefix = re.match(r"^(feat|fix|perf|chore|docs|refactor|build|ci|test|style)(\([^)]*\))?!?:", text)
     if prefix:
         return {"fix": "fix", "perf": "perf", "feat": "new"}.get(prefix.group(1), "?")
-    if re.match(r"^(fixed|fixes|fix)\b", text):
+    if re.match(r"^(fixed|fixes|fix|reverted|reverts|revert)\b", text):
         return "fix"
     if re.match(r"^(added|add|adds|introduced|introduces|new)\b", text):
         return "new"
