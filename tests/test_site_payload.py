@@ -185,6 +185,9 @@ def test_enterprise_card_threshold_and_site_numbers(
         {"original": "Enterprise\nplain\nplain\nplain\nGateway"}
     )
     assert not build_script._is_enterprise_card({"original": "Hide for non-enterprise accounts"})
+    assert build_script._is_enterprise_card(
+        {"original": "Fixed self-hosted runner errors\nFixed managed-settings hooks"}
+    )
     assert not build_script._is_enterprise_card({"original": ""})
     assert not build_script._is_enterprise_card({"original": "  \n\t"})
     assert build_script._is_enterprise_card({"original": "\n[Claude Tag] settings\n"})

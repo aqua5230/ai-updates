@@ -57,7 +57,7 @@ GOATCOUNTER_SCRIPT = (
 LANGUAGES = ("zh-TW", "en")
 HISTORY_PAGE_SIZE = 10
 ENTERPRISE_CARD_RE = re.compile(
-    r"managed settings|managed polic|gateway|(?<!non-)enterprise|organization|"
+    r"managed[- ]settings|managed polic|self-hosted|gateway|(?<!non-)enterprise|organization|"
     r"\badmin|identity provider|\bSSO\b|OTLP|^\[Claude Tag\]",
     re.IGNORECASE,
 )
