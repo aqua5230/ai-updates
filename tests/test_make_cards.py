@@ -92,7 +92,7 @@ def test_html_escapes_all_text_and_omits_analogy():
     assert "工具 &lt; &amp; &quot;" in html
     assert '<div class="ana">' not in html
     assert "2026-10-01" in html
-    assert (cards.ROOT / "docs/fonts/inter-latin.woff2").as_uri() in html
+    assert (cards.ROOT / "docs/fonts/plus-jakarta-sans-latin.woff2").as_uri() in html
     value["curated"]["items"].append(record(body="⟦A < B & `C`⟧")["items"][0])
     assert '<div class="ana"><b>白話比喻</b>A &lt; B &amp; C。</div>' in cards.card_html(value, 48)
 

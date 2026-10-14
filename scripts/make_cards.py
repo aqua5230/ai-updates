@@ -35,25 +35,25 @@ except ImportError:
     )
 
 HTML = Template('''<!doctype html><meta charset="utf-8"><style>
-@font-face{font-family:'Inter';font-weight:300 700;src:url($font_url) format("woff2")}
+@font-face{font-family:'Plus Jakarta Sans';font-weight:200 800;src:url($font_url) format("woff2")}
 *{box-sizing:border-box}html,body{margin:0;width:1200px;height:630px;overflow:hidden}
-body{font-family:"Inter","PingFang TC","Noto Sans TC",sans-serif}
-.card{width:1200px;height:630px;position:relative;overflow:hidden;background:#fff;
-background-image:radial-gradient(ellipse 560px 380px at 95% 0%,
-rgb(37 99 235 / .14),transparent 70%),radial-gradient(ellipse 420px 300px at 70% 0%,
-rgb(21 117 162 / .10),transparent 70%);padding:64px 88px;color:#425466}
+body{font-family:"Plus Jakarta Sans","PingFang TC","Noto Sans TC",sans-serif}
+.card{width:1200px;height:630px;position:relative;overflow:hidden;background:#F3F6FA;
+background-image:radial-gradient(ellipse 760px 300px at 50% 0%,
+rgb(29 78 216 / .10),transparent 72%);padding:64px 88px;color:#334155}
 .eyebrow{display:flex;align-items:center;gap:14px;font-size:26px;
-font-weight:700;color:#061b31}
-.eyebrow::before{content:"";width:14px;height:14px;border-radius:50%;background:#3b82f6}
+font-weight:700;color:#091526}
+.eyebrow::before{content:"";width:14px;height:14px;border-radius:50%;background:#1D4ED8}
 .chip{margin-top:44px;display:inline-flex;gap:14px;align-items:baseline;padding:10px 22px;
-border-radius:14px;background:#eff6ff;color:#2563eb;font-size:28px;font-weight:700}
-.chip span{color:#586a82;font-weight:500;font-size:22px}
-.title{margin-top:34px;font-size:${title_size}px;line-height:1.25;color:#061b31;
+border-radius:8px;background:#E8EEF6;color:#1D4ED8;font-size:28px;font-weight:700}
+.chip span{color:#4E6078;font-weight:500;font-size:22px}
+.title{margin-top:34px;font-size:${title_size}px;line-height:1.25;color:#091526;
 font-weight:700;max-width:1000px;text-wrap:balance}
 .ana{position:absolute;left:88px;right:88px;bottom:118px;font-size:28px;line-height:1.5;
-color:#586a82;border-top:1.5px solid #d8e3ee;padding-top:18px}
-.ana b{color:#2563eb;font-size:20px;letter-spacing:.08em;margin-right:12px}
-.url{position:absolute;right:88px;bottom:60px;font-size:20px;color:#586a82}
+color:#4E6078;border-left:4px solid #D97706;border-radius:0 10px 10px 0;padding:14px 22px;
+background:linear-gradient(90deg,rgb(217 119 6 / .08),transparent)}
+.ana b{color:#B45309;font-size:20px;margin-right:12px}
+.url{position:absolute;right:88px;bottom:60px;font-size:20px;color:#4E6078}
 </style><div class="card"><div class="eyebrow">AI Updates</div>
 <div class="chip">$tool $version<span>$date</span></div>
 <div class="title">$title</div>$analogy_block
@@ -117,7 +117,7 @@ def card_html(card: dict[str, Any], title_size: int) -> str:
     analogy = card_analogy(card)
     block = f'<div class="ana"><b>白話比喻</b>{escape(analogy)}</div>' if analogy else ""
     return HTML.substitute(
-        font_url=escape((ROOT / "docs/fonts/inter-latin.woff2").as_uri()),
+        font_url=escape((ROOT / "docs/fonts/plus-jakarta-sans-latin.woff2").as_uri()),
         tool=escape(card["name"]), version=escape(card["version"]),
         date=escape(_period_end_date(card["curated"]["period"])),
         title=title_markup(card_title(card)), title_size=escape(str(title_size)),
