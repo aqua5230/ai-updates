@@ -5,6 +5,48 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.29.11",
+      "raw": {
+        "version": "0.29.11",
+        "period": "2026-08-01",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-02",
+        "entries": [
+          "**The report and the terminal's session list now show what each conversation was about.** Claude Code names every conversation and writes that name into its transcript. `usage` had been parsing those names all along and carrying them into the report payload, where the renderer ignored them — the snapshot fixture still read `\"Ignore in current renderer\"`. The HTML report gained a \"What you worked on\" section under the contribution heatmap, and the TUI's recent-session table gained a column, so three rows from the same project are no longer indistinguishable. Titles carry `data-mask`, so the existing project-name masking covers them before a report is shared. Sessions without a title stay blank rather than falling back to the project name, which would read as a title that isn't one.",
+          "**A rate-limited Antigravity quota probe now waits as long as the server asked, instead of retrying every five minutes.** That probe is the only external API call in the project. It and the token refresh both folded `HTTPError` into the same `except` clause as connection failures, so a 429 reached the caller as a bare `None` — the status code and the `Retry-After` header were discarded together, and the next cache expiry sent another request at a server that had already said to wait. Each now catches `HTTPError` separately, reads `Retry-After` in either the seconds or the HTTP-date form, and holds off until it elapses. A missing or unparseable header falls back to sixty seconds, and the delay is capped at an hour so an oversized value cannot strand the card.",
+          "**The last minute before a quota resets no longer reads \"0m\".** Under sixty seconds the countdown's minute arithmetic rounds to zero, and the already-expired case printed the same string, so one line meant both \"forty seconds left\" and \"the window has already turned\". The card now reads \"Reset imminent\", in all five languages. The fix sits at the call site rather than in the shared duration formatter, which also renders the \"will run out in\" half of the burn warning — changing it there would have produced \"will run out in reset imminent\"."
+        ]
+      },
+      "curated": {
+        "version": "0.29.11",
+        "period": "2026-08-01",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "報表與終端機看得出每段對話在忙什麼",
+              "en": "Reports and terminal lists now reveal what each conversation was about"
+            },
+            "body": {
+              "zh-TW": "同一個專案連開三段 Claude Code 對話，回頭看用量時，過去只能見到三列一模一樣的紀錄。現在 HTML 報表（網頁格式的報表）在貢獻熱圖下新增「你做了什麼」區塊，終端機的近期工作階段（session，一次開啟到結束的工作紀錄）清單也多了標題欄，能看出每段對話談過什麼。這些標題原本已由 Claude Code 寫進對話紀錄，usage 也讀到了，只有畫面沒顯示。分享報表前，標題會沿用既有的專案名稱遮罩；沒標題的工作階段維持空白，不會拿專案名冒充標題。像整理相簿時，原本三張都只寫「旅行」，現在終於有「登山」「吃飯」「回程」可辨。",
+              "en": "Three Claude Code conversations from the same project used to look identical when you checked usage later. The HTML report now adds a \"What you worked on\" section beneath the contribution heatmap, while the terminal's recent-session list gains a title column, so you can tell what each conversation covered. Claude Code had already named conversations and written those titles into transcripts; usage had carried them into report data, but the renderer left them hidden. Titles use the existing project-name masking before a report is shared. Untitled sessions remain blank instead of borrowing the project name and pretending it is a title. It is like sorting photos once labelled only \"trip\" and seeing \"hike,\" \"meal,\" and \"ride home.\""
+            },
+            "original": "**The report and the terminal's session list now show what each conversation was about.** Claude Code names every conversation and writes that name into its transcript. `usage` had been parsing those names all along and carrying them into the report payload, where the renderer ignored them — the snapshot fixture still read `\"Ignore in current renderer\"`. The HTML report gained a \"What you worked on\" section under the contribution heatmap, and the TUI's recent-session table gained a column, so three rows from the same project are no longer indistinguishable. Titles carry `data-mask`, so the existing project-name masking covers them before a report is shared. Sessions without a title stay blank rather than falling back to the project name, which would read as a title that isn't one."
+          },
+          {
+            "title": {
+              "zh-TW": "額度檢查會照要求等待，重設前一分鐘不再寫 0m",
+              "en": "Quota checks wait as requested, and the last minute no longer says 0m"
+            },
+            "body": {
+              "zh-TW": "Antigravity 的額度（可使用量上限）被伺服器要求晚點再查時，usage 現在會照指定時間等待。以前收到 429（請求太多）後，程式把狀態碼和 Retry-After（可再次嘗試前的等待時間）一起丟掉，快取（暫存查詢結果）一到期又每五分鐘重試。現在額度探測和 token（登入驗證用的令牌）更新都會另行處理 HTTPError（HTTP 回應錯誤），能讀秒數或 HTTP 日期格式的等待時間；缺值或無法解析時才等 60 秒，過大的值最多等一小時。倒數少於一分鐘不再寫「0m」，五種語言都改為「即將重設」，也不會污染「將在……耗盡」的另一種提示。像診所叫號，護士交代十分鐘後再來，就不會每五分鐘又跑去敲門；門快開時則會明講「快輪到了」。",
+              "en": "When the server tells usage to check an Antigravity quota later, it now waits for the time requested. Previously, a 429 response meant both the status code and Retry-After header were discarded, so an expired cache triggered another attempt every five minutes. The quota probe and token refresh now handle HTTPError (an HTTP response error) separately and can read a wait time written in seconds or as an HTTP date; a missing or unparseable value falls back to 60 seconds, and an oversized value is capped at one hour. The final minute before reset no longer says \"0m\" in the same way as an already expired quota. All five languages now say \"Reset imminent,\" and that wording stays out of the separate \"will run out in\" warning. It is like a clinic telling you to return in ten minutes instead of knocking again every five, then clearly saying your turn is next."
+            },
+            "original": "**A rate-limited Antigravity quota probe now waits as long as the server asked, instead of retrying every five minutes.** That probe is the only external API call in the project. It and the token refresh both folded `HTTPError` into the same `except` clause as connection failures, so a 429 reached the caller as a bare `None` — the status code and the `Retry-After` header were discarded together, and the next cache expiry sent another request at a server that had already said to wait. Each now catches `HTTPError` separately, reads `Retry-After` in either the seconds or the HTTP-date form, and holds off until it elapses. A missing or unparseable header falls back to sixty seconds, and the delay is capped at an hour so an oversized value cannot strand the card.\n**The last minute before a quota resets no longer reads \"0m\".** Under sixty seconds the countdown's minute arithmetic rounds to zero, and the already-expired case printed the same string, so one line meant both \"forty seconds left\" and \"the window has already turned\". The card now reads \"Reset imminent\", in all five languages. The fix sits at the call site rather than in the shared duration formatter, which also renders the \"will run out in\" half of the burn warning — changing it there would have produced \"will run out in reset imminent\"."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.29.10",
       "raw": {
         "version": "0.29.10",
@@ -339,60 +381,6 @@
               "en": "This release also moves setuptools, a Python tool for packaging and installing software, to 83.0.0. The source note does not describe any effect on the interface or features. The source notes only this dependency upgrade and do not promise a specific feature change. For someone installing from source, packaging, or maintaining Usage, it is like replacing a kitchen measuring cup. The source note does not say what changes, if anything, in the finished app. If you only use the finished app, treat this as maintenance. If you manage build dependencies, use 83.0.0 as the stated version."
             },
             "original": "Bumped `setuptools` to 83.0.0."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.29.1",
-      "raw": {
-        "version": "0.29.1",
-        "period": "2026-07-25",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-26",
-        "entries": [
-          "**Council participants can wear a persona from the AI Talent Market**: every seat now has a role picker next to its model picker, listing the specialists from your installed talent packs (contract review, front-end, security audit, and the rest). The role's expertise is injected as a prompt prefix, so the same CLI can sit in two seats wearing two different hats. Roles are grouped by talent pack in a collapsible picker — collapsed it shows only the pack names, so a 50-role list no longer scrolls off the screen. Role text is fetched from the talent-market CLI at runtime and is never bundled into usage itself.",
-          "**Five debate styles for a council**: pick the tone every participant takes from the second round on — constructive consensus-seeking, adversarial fault-finding, collaborative gap-filling, Socratic questioning of assumptions, or devil's advocate. The stance label each participant must open with is preserved under every style.",
-          "**Council consensus is counted, and can end the discussion early**: the stance labels participants open their rebuttals with are now tallied and shown above the summary. Turn on *end on consensus* and a discussion stops as soon as every participant in a round agrees, instead of burning through the rounds you budgeted for. A round where anyone failed to finish never counts as consensus.",
-          "**The moderator no longer sees who said what**: the transcript handed to the moderator is anonymized, so it cannot favor the answers its own CLI wrote. Participant names are restored before the summary reaches your screen and the exported Markdown, so you still read \"Claude argued…\" rather than \"Participant A argued…\". Participants' own words are passed through untouched — a discussion *about* Claude or Codex stays readable."
-        ]
-      },
-      "curated": {
-        "version": "0.29.1",
-        "period": "2026-07-25",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "替 Council 每個座位配一頂專業帽子",
-              "en": "Give every Council seat its own expert hat"
-            },
-            "body": {
-              "zh-TW": "同一場 Council（讓多個 AI 分座討論的功能）裡，現在能替每個座位挑不同專長。想請一位看合約、一位找網頁問題、另一位做安全檢查時，模型選擇器旁的角色選擇器會列出已安裝人才包裡的專家。角色（persona，先替 AI 戴上的專業帽子）會以提示詞前綴加入，所以同一個 CLI（從命令列啟動的工具）可在兩張椅子分別扮演兩種人。角色會按人才包分組並可收合，五十個選項也不會把畫面捲到找不到底。角色文字則在執行時向 talent-market CLI 取得，不會塞進 usage 本身；像替一場會議現場選角，每張椅子都能坐上合適的專家。",
-              "en": "In one Council (a feature where several AIs discuss an issue from separate seats), each seat can now take a different specialty. Need one person to review a contract, one to spot front-end trouble, and another to audit security? A role picker beside the model picker lists specialists from your installed talent packs. A persona (an expert hat placed on an AI before it speaks) is injected as a prompt prefix, so the same CLI (a tool launched from a command line) can wear two different hats in two seats. Roles are grouped by talent pack in a collapsible picker, keeping even 50 choices manageable. Their text is fetched from the talent-market CLI at runtime instead of bundled into usage: like casting a meeting, each chair gets the right specialist."
-            },
-            "original": "**Council participants can wear a persona from the AI Talent Market**: every seat now has a role picker next to its model picker, listing the specialists from your installed talent packs (contract review, front-end, security audit, and the rest). The role's expertise is injected as a prompt prefix, so the same CLI can sit in two seats wearing two different hats. Roles are grouped by talent pack in a collapsible picker — collapsed it shows only the pack names, so a 50-role list no longer scrolls off the screen. Role text is fetched from the talent-market CLI at runtime and is never bundled into usage itself."
-          },
-          {
-            "title": {
-              "zh-TW": "先決定辯論打法，同意就提早收場",
-              "en": "Choose a debate style, then stop once everyone agrees"
-            },
-            "body": {
-              "zh-TW": "一群 AI 反覆討論時，你可以先決定這場會議要當腦力激盪，還是挑錯大會。Council 從第二輪起可替每位參與者從五種辯論風格中選一種：找共識、挑漏洞、補缺口、蘇格拉底式追問假設，或唱反調的魔鬼代言人。無論選哪種，每人回應開頭的立場標籤都會保留，並統計在摘要上方。若打開 end on consensus（全員同意便停止的開關），某一輪人人標示同意時，討論會立刻結束，不會耗完原先預留輪數；只要有人沒完成該輪，便不算共識。像會議主席先訂好規則、再看全體舉牌，牌沒全舉起就不宣布散會。",
-              "en": "When a group of AIs keeps debating, you can now decide whether the meeting should brainstorm together or hunt for flaws. From round two onward, Council lets each participant take one of five debate styles: constructive consensus-seeking, adversarial fault-finding, collaborative gap-filling, Socratic questioning of assumptions, or devil's advocate. Whatever style you choose, the stance label opening each reply stays visible and is counted above the summary. Enable end on consensus (a switch that stops once everyone agrees), and the discussion ends as soon as every participant marks agreement in a round instead of using all budgeted rounds. If anyone fails to finish that round, it does not count. Like a chair setting meeting rules, then checking every raised hand before calling the room settled."
-            },
-            "original": "**Five debate styles for a council**: pick the tone every participant takes from the second round on — constructive consensus-seeking, adversarial fault-finding, collaborative gap-filling, Socratic questioning of assumptions, or devil's advocate. The stance label each participant must open with is preserved under every style.\n**Council consensus is counted, and can end the discussion early**: the stance labels participants open their rebuttals with are now tallied and shown above the summary. Turn on *end on consensus* and a discussion stops as soon as every participant in a round agrees, instead of burning through the rounds you budgeted for. A round where anyone failed to finish never counts as consensus."
-          },
-          {
-            "title": {
-              "zh-TW": "主持人看不到名字，結論更不偏袒",
-              "en": "Moderators no longer see names, keeping summaries impartial"
-            },
-            "body": {
-              "zh-TW": "要主持人替多個 AI 的意見下結論時，現在它先看不到發言者姓名。交給主持人的逐字稿（transcript，完整保留每句話的討論記錄）已匿名化，避免它偏愛自己那個 CLI（從命令列啟動的工具）寫出的答案。摘要送回你的畫面或匯出成 Markdown（能直接排版的純文字格式）前，名字會恢復，所以你仍會讀到「Claude 主張……」，而非「參與者 A」。只有說話者的標記被遮住，原話不會改動；即使討論題目正是 Claude 或 Codex，內容也照樣看得懂。這像盲飲評酒：評審先喝內容、不看酒標，公布結果時才告訴你是哪一瓶。",
-              "en": "When a moderator is asked to draw a conclusion from several AIs, it now sees the opinions before it sees their authors. The transcript (a record preserving every spoken line) handed to the moderator is anonymized, so it cannot favor answers written by its own CLI (a tool launched from a command line). Names return before the summary reaches your screen or is exported as Markdown (plain text that can carry formatting), so you still read “Claude argued...” rather than “Participant A.” Only author labels are hidden; the words themselves remain untouched, even when the discussion is about Claude or Codex. It is like a blind wine tasting: judges taste what is in the glass before learning its label."
-            },
-            "original": "**The moderator no longer sees who said what**: the transcript handed to the moderator is anonymized, so it cannot favor the answers its own CLI wrote. Participant names are restored before the summary reaches your screen and the exported Markdown, so you still read \"Claude argued…\" rather than \"Participant A argued…\". Participants' own words are passed through untouched — a discussion *about* Claude or Codex stays readable."
           }
         ]
       }

@@ -5,6 +5,35 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.15.4",
+      "raw": {
+        "version": "0.15.4",
+        "period": "2026-06-03",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Panel load failures no longer degrade to a silent grey window**: when the popover's embedded web panel fails to load, it previously fell back to a blank dark window with no explanation. It now shows a native error view with the error detail and a GitHub report link, and logs navigation failures / render timeouts under `USAGE_DEBUG=1` for easier diagnosis."
+        ]
+      },
+      "curated": {
+        "version": "0.15.4",
+        "period": "2026-06-03",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "面板萬一當掉不再裝死，會直接告訴你哪裡出錯",
+              "en": "Panel crashes no longer play dead, telling you exactly what went wrong"
+            },
+            "body": {
+              "zh-TW": "萬一選單列的彈出面板（popover，顯示各項數據的小視窗）內嵌的網頁載入失敗，它不會再直接裝死不理你，或是留一片看不懂的空白灰畫面。現在它會換成一個原生的錯誤畫面，把具體的錯誤細節列出來，並附上一個能直接跳轉去回報問題的 GitHub 連結；如果你有另外設定 USAGE_DEBUG=1 這個環境變數（給進階使用者用的除錯開關），導覽失敗、畫面渲染逾時這些狀況還會被記錄下來，方便追查。這就像去銀行辦事，如果號碼牌機器壞了，以前它就直接黑畫面讓你傻站在那邊；現在它會在螢幕上顯示「機器故障，錯誤代碼 E-42」，還附上一張填好資訊、可以直接遞給維修人員的意見反映單。",
+              "en": "If the embedded web panel inside the popover (the small window showing your stats) fails to load, it no longer just silently freezes or leaves a blank grey window with no explanation. Now it shows a native error view listing the actual error detail, plus a GitHub link you can jump straight to for reporting the issue; if you separately set the USAGE_DEBUG=1 environment variable (an advanced debug switch), navigation failures and render timeouts also get logged for easier diagnosis. It's like going to the bank: if the ticket machine breaks, instead of just going dark and leaving you standing there confused, it now displays \"Machine error, code E-42\" on screen, complete with a pre-filled feedback slip you can hand straight to the technician."
+            },
+            "original": "**Panel load failures no longer degrade to a silent grey window**: when the popover's embedded web panel fails to load, it previously fell back to a blank dark window with no explanation. It now shows a native error view with the error detail and a GitHub report link, and logs navigation failures / render timeouts under `USAGE_DEBUG=1` for easier diagnosis."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.3",
       "raw": {
         "version": "0.15.3",
@@ -355,51 +384,6 @@
               "en": "Generating your HTML analysis reports is now significantly faster. Previously, the system was stubbornly inefficient, re-reading every single one of your historical log files from scratch every time you asked for a report. It now employs caching (saving previously read data into memory): if a file hasn't changed, it instantly reuses what it already remembers. Meanwhile, we've subjected the system's foundation to a massive type-checking sweep (a health check ensuring every variable holds the right kind of data). We uncovered a 35% blind spot in the codebase, and by covering it, we swept out several latent bugs involving mixed-up variables and redundant settings. We also added an automated failsafe for translations, meaning if a single word is left untranslated in any language, the build will immediately fail before release, stopping the weird glitch where a Japanese menu would silently fall back to English. It's like a librarian who used to recount every single book in the building whenever you asked for inventory, but has finally learned to just read the ledger. Plus, the library just passed a full-building safety inspection that shined a light into all the neglected dark corners, fixing even the missing translations on the exit signs."
             },
             "original": "**File-level cache for the HTML report loaders**: `adapters/claude.py` and `adapters/codex.py` gain an `mtime`+`size`-keyed LRU cache (matching `history_loader`), so generating a report no longer re-parses every JSONL log on each run; the Codex adapter shares one cache between `load_entries` and `load_rate_limits`. Whole-file `OSError` / `PermissionError` / `sqlite3.Error` are now printed to stderr when `USAGE_DEBUG=1` (per-line `JSONDecodeError` stays silent).\n**mypy `--strict` now covers the whole codebase**: removed the mypy exclude for `adapters/`, `analyzer/`, `ui/` and `usage_cli.py` (a ~35% type-checking blind spot), added the missing generics and function annotations, and switched `_group_by_agent` to a PEP 695 type parameter. `mypy --strict` now checks all 70 source files.\n**Three cross-module functions in `adapters/claude.py` are now public API**: `get_claude_dirs`, `extract_project_from_dir`, `parse_jsonl` (previously underscore-private), dropping the matching `# type: ignore[attr-defined]` in `analyzer/reporter.py`.\nRemoving the mypy exclude surfaced and fixed a few latent issues: a redundant `parsed_entries` re-annotation left over from the cache change in `adapters/claude.py`, the `agent` loop variable reused with two different types in `analyzer/reporter.py` (inner accumulator renamed `agent_totals`), and a redundant `cast` in `menubar.py`.\nAdded coverage for `_apply_sort` with the `\"time\"` sort key (which maps to `None` and is handled per-command).\nAdded an i18n key-parity test asserting all five `i18n.json` language sections share the same key set, so a forgotten translation fails CI instead of silently falling back to English."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.12.0",
-      "raw": {
-        "version": "0.12.0",
-        "period": "2026-05-29",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**\"Your subscription\" section in the HTML report**: auto-detects Claude (plan + subscription start date) and Codex (ChatGPT plan + subscription start date) from the local OAuth account files. Only the plan name and start date are read — tokens, emails and other secrets are never touched. When sharing the report, the subscription date is masked together with the \"Hide project names\" toggle. Adds the `subscription.py` module and its tests.",
-          "**Project-share donut chart in the HTML report**: pure-SVG (zero external deps) breakdown of token share per project; the top 6 projects get their own colour, the rest fold into \"Other\", and the centre shows the total.",
-          "**\"Claude vs Codex\" comparison section in the HTML report**: surfaces the per-agent usage (tokens / share / cost) that `build_report_data` already computed but never displayed.",
-          "**Double-counted report cost**: `build_report_data` summed cost once over all entries and then recomputed it per entry inside the loop — effectively doubling the work on large datasets. Now accumulated once inside the loop.",
-          "**Duplicated clipboard code in the report's \"copy command\" button**: the tip-copy button now reuses the shared `copyText()` helper instead of re-implementing the legacy-browser fallback.",
-          "**Hard-coded TWD rate**: the USD→TWD estimate in the report is now a named `_USD_TO_TWD` constant with a note that it is a display estimate, not a live FX rate."
-        ]
-      },
-      "curated": {
-        "version": "0.12.0",
-        "period": "2026-05-29",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "報告大升級：幫你抓出訂閱方案，新增專案圓環圖",
-              "en": "Report upgrades: auto-detecting subscriptions and a new project donut chart"
-            },
-            "body": {
-              "zh-TW": "HTML 分析報告現在會顯示更多有用的資訊。它新增了「你的訂閱」區塊，會自動從你電腦裡的授權檔讀出你買的是哪種 Claude 方案或 Codex 的 ChatGPT 方案，以及訂閱開始日期（放心，它絕不會偷看你的密碼或 email），而且當你把報告分享給別人並開啟「隱藏專案名稱」時，訂閱日也會自動幫你打上馬賽克。報告裡還多了一張精美的「專案佔比圓環圖」，把最吃資源的前 6 大專案塗上不同顏色，剩下的歸類為「其他」，正中央大字寫著總用量，一目了然。此外，以前系統其實早就默默算好了 Claude 跟 Codex 兩邊的用量對決（花了多少 token、佔比與成本），現在這份「Claude vs Codex」的對比戰報終於解禁顯示出來了。就像你去體檢，以前只給你一張總結數字，現在不僅在開頭幫你印出你買的是哪種等級的健檢套餐，還附上精緻的彩色圓餅圖告訴你哪裡脂肪最多，甚至把你兩隻手的肌肉量拉出來做對比。",
-              "en": "The HTML analysis report now displays a wealth of new insights. It introduces a \"Your subscription\" section that automatically detects which Claude tier or Codex ChatGPT plan you're paying for and when the subscription started, directly from your local authorization files (rest assured, it strictly ignores your passwords and emails). If you share the report and toggle \"Hide project names\", the subscription date gets pixelated out for privacy too. There is also a beautiful new \"Project-share donut chart\" that breaks down your usage, assigning unique colors to your top 6 hungriest projects, folding the rest into \"Other\", and boldly stamping the total in the center. Furthermore, the system had secretly been calculating the usage duel between Claude and Codex (how many tokens, share, and cost each consumed), and this \"Claude vs Codex\" head-to-head comparison is now finally visible. It's like getting a medical checkup: they used to just hand you a single total score, but now the report spells out exactly which premium health package you bought, gives you a vivid color chart of exactly where you're storing the most fat, and even explicitly compares the muscle mass of your left arm versus your right."
-            },
-            "original": "**\"Your subscription\" section in the HTML report**: auto-detects Claude (plan + subscription start date) and Codex (ChatGPT plan + subscription start date) from the local OAuth account files. Only the plan name and start date are read — tokens, emails and other secrets are never touched. When sharing the report, the subscription date is masked together with the \"Hide project names\" toggle. Adds the `subscription.py` module and its tests.\n**Project-share donut chart in the HTML report**: pure-SVG (zero external deps) breakdown of token share per project; the top 6 projects get their own colour, the rest fold into \"Other\", and the centre shows the total.\n**\"Claude vs Codex\" comparison section in the HTML report**: surfaces the per-agent usage (tokens / share / cost) that `build_report_data` already computed but never displayed."
-          },
-          {
-            "title": {
-              "zh-TW": "整理底層管線，除錯也不再讓電腦做白工",
-              "en": "Internal pipelines polished, saving your computer from doing double duty"
-            },
-            "body": {
-              "zh-TW": "產出報告的速度變得更快，因為系統改掉了背後的愚蠢計算方式。在計算報告的花費時，系統以前很糊塗，會先把所有數字加總一次，然後又在小圈圈裡一筆一筆重新算，如果你的資料量很大，它等於是在做雙倍的白工；現在改為只在小圈圈裡算一次，速度順暢多了。另外，報告裡「複製指令」按鈕的程式碼也被清理過了，不再疊床架屋寫兩份一樣的複製邏輯；而報告裡用來估算的台幣匯率，也標上了清楚的內部註解，說明這只是個固定的預估值、不是即時連網抓的匯率。就像餐廳的結帳櫃檯，以前算帳時會先把所有菜單全拿出來用計算機按一次，然後又翻開點菜單一筆一筆再加一次，客人排隊排到天荒地老；現在收銀員變聰明了，一邊點菜一邊就算好總金額。而且點餐機裡的程式碼也整理過了，上面還貼了張便條紙提醒新來的員工「這裡的匯率是寫死的參考值，不要傻傻去對當天的新聞」。",
-              "en": "Your reports now generate faster because the system dropped some silly internal calculation habits. When calculating your report costs, the system used to be deeply confused: it would sum up all the numbers once, and then redundantly re-calculate everything piece by piece inside a loop. If you had massive amounts of data, it was effectively doing double the work for nothing; it now smartly accumulates the total in a single pass, saving processing time. We also cleaned up the clipboard code for the \"copy command\" buttons in the report so it no longer relies on two duplicated chunks of logic, and we added a clear internal note to the hard-coded TWD exchange rate explaining it's just a static display estimate rather than a live network fetch. It's like a restaurant checkout counter: the cashier used to punch every single receipt into the calculator once, and then painstakingly re-add every itemized dish again while the line grew out the door; now they simply tally the total in one smooth motion. The cash register's software is much cleaner now, too, sporting a sticky note that reminds the new hires, \"The exchange rate here is just an estimate, don't try matching it against the morning news.\""
-            },
-            "original": "**Double-counted report cost**: `build_report_data` summed cost once over all entries and then recomputed it per entry inside the loop — effectively doubling the work on large datasets. Now accumulated once inside the loop.\n**Duplicated clipboard code in the report's \"copy command\" button**: the tip-copy button now reuses the shared `copyText()` helper instead of re-implementing the legacy-browser fallback.\n**Hard-coded TWD rate**: the USD→TWD estimate in the report is now a named `_USD_TO_TWD` constant with a note that it is a display estimate, not a live FX rate."
           }
         ]
       }

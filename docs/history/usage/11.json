@@ -5,6 +5,36 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.28.3",
+      "raw": {
+        "version": "0.28.3",
+        "period": "2026-07-16",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-16",
+        "entries": [
+          "**Antigravity quota probing now reads the current Windows CLI OAuth credential**: when the legacy token file is missing or unusable, usage falls back read-only to the `gemini:antigravity` Windows Credential Manager entry. The quota request's user agent now also identifies the actual host platform instead of always claiming Darwin/arm64.",
+          "**Claude Code quota collection now works with Git Bash on Windows**: status-line commands were written with Windows backslashes, but Claude Code runs them through Git Bash when it is installed, where those backslashes escape the path and prevent the Python hook from launching. New commands use portable forward slashes; startup self-heal migrates existing usage-owned commands, and `--doctor` identifies the legacy form and the recovery step."
+        ]
+      },
+      "curated": {
+        "version": "0.28.3",
+        "period": "2026-07-16",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 上的額度收集不再罷工，路徑與憑證抓取更聰明",
+              "en": "Quota collection stops failing on Windows with smarter paths and credentials"
+            },
+            "body": {
+              "zh-TW": "如果你是用 Windows 跑這些 AI 工具，現在統計使用額度時，終於不會卡住或抓不到你的身分了。以前 Antigravity 的額度探測（quota probing，去查你剩下多少可用次數的動作）只認得舊版的 token 檔案，這個檔案不見或壞掉時就會直接罷工；現在它多了一條退路，會退而求其次去唯讀 Windows CLI 目前的 OAuth 憑證（OAuth credential，一種讓程式證明這是你本人授權的通行證，存在 Windows Credential Manager 的 `gemini:antigravity` 項目裡），而且回報資料時能正確說出你是哪種主機平台，不再一律宣稱大家都是 Mac（Darwin/arm64）。另外，當你在 Windows 搭配 Git Bash 收集 Claude Code 額度時，以前狀態列指令（status-line commands，顯示在終端機底部的狀態更新指令）用的是 Windows 的反斜線路徑，這在 Git Bash 裡會被當成跳脫字元（escape character，用來標記特殊符號的寫法）把路徑吃掉，害背後的 Python 程式無法啟動。現在全部改用正斜線，啟動時的自我修復（self-heal，程式自己動手更新舊設定的機制）會順手幫你把舊指令升級，用 `--doctor` 也能幫你抓出舊格式並提示復原步驟。就像員工去外地出差報帳，以前只認一種舊版的紙本通行證，弄丟了就直接卡關，填表還會因為斜線打反導致印表機當機；現在多了備案，只要翻出目前有效的電子授權證明就能確認身分，並把報表格式統一，甚至連你以前寫錯的舊單據都順手改對了。",
+              "en": "If you're running these AI tools on Windows, tallying your usage quota will finally stop failing or losing track of your identity. Previously, Antigravity's quota probing (the action that checks how many requests you have left) only recognized the legacy token file, and would simply give up if it was missing or corrupted; now it has a fallback, reading the current Windows CLI OAuth credential (a pass proving you authorized the program, stored in the Windows Credential Manager's `gemini:antigravity` entry) in read-only mode, and it correctly identifies your actual host platform instead of blindly claiming everyone is on a Mac (Darwin/arm64). Additionally, when collecting Claude Code quota via Git Bash on Windows, status-line commands (instructions that update the state at the bottom of the terminal) used to be written with Windows backslashes, which Git Bash treated as escape characters (syntax used to mark special symbols), ruining the path and preventing the background Python hook from launching. Everything now uses portable forward slashes; a startup self-heal (a mechanism where the program automatically upgrades its own old configurations) process silently migrates your old commands, and running `--doctor` will also catch legacy formats to guide you through recovery. It's like an employee filing an expense report on a business trip — previously, only an old paper pass was accepted, and losing it would instantly halt the process, while writing slashes backward would jam the printer; now there's a backup option to verify identity using your current valid digital authorization, standardizes the form formatting, and automatically corrects any incorrectly filled old forms on the spot."
+            },
+            "original": "**Antigravity quota probing now reads the current Windows CLI OAuth credential**: when the legacy token file is missing or unusable, usage falls back read-only to the `gemini:antigravity` Windows Credential Manager entry. The quota request's user agent now also identifies the actual host platform instead of always claiming Darwin/arm64.\n**Claude Code quota collection now works with Git Bash on Windows**: status-line commands were written with Windows backslashes, but Claude Code runs them through Git Bash when it is installed, where those backslashes escape the path and prevent the Python hook from launching. New commands use portable forward slashes; startup self-heal migrates existing usage-owned commands, and `--doctor` identifies the legacy form and the recovery step."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.28.2",
       "raw": {
         "version": "0.28.2",
@@ -310,51 +340,6 @@
               "en": "When checking your Antigravity quotas, the reset countdowns now tick down live second by second, rather than freezing at whatever time it was last fetched. Behind the scenes, the system now reads the sign-in token already on your machine (strictly read-only) to query the official quota endpoint directly, instead of running background commands. This shortens the refresh cycle from 15 to 5 minutes, makes countdowns perfectly exact, and eliminates the overhead of spawning helper processes—and since it only reads metadata, it never consumes your model quota. Additionally, Antigravity usage rows in the HTML report are now properly labeled instead of defaulting to \"unknown\". It's like taking a train: the platform display used to only manually flip every 15 minutes and sometimes said \"Unknown Train\"; now it's hooked directly to dispatch, counting down perfectly to the second with the exact train name displayed."
             },
             "original": "**Antigravity reset countdowns tick down live** instead of freezing at the last-fetched value until the next refresh.\n**Antigravity quota now comes straight from the official quota API**: usage reads the sign-in token the Antigravity CLI already stores on your machine (strictly read-only — the file is never modified) and queries the official quota endpoint directly, replacing the background `/quota` CLI probe. Numbers refresh every ~5 minutes instead of 15, countdowns are exact, no helper process is spawned, and the call reads quota metadata only — it never consumes your model quota. Any fetch failure still falls back to the cached snapshot with the usual stale badge. The data-source description in all five README languages is updated to match.\nAntigravity token rows in the HTML report are labeled \"Antigravity\" instead of \"unknown\"."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.26.0",
-      "raw": {
-        "version": "0.26.0",
-        "period": "2026-07-13",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Antigravity (Gemini) support** — usage now watches a third AI tool alongside Claude Code and Codex:\n- **Quota card in every panel**: session + weekly limits appear as a third card in the classic panel and all nine themed quota panels, each styled in its host theme's visual language, with the same stale-data badge and hide toggle as the other two tools.\n- **Official numbers, no API poking**: quota is read by periodically running the Antigravity CLI's own `/quota` command in the background (15-minute cache) — identical to typing it yourself. No OAuth-token scraping, no internal API calls.\n- **Menu bar segment**: the Antigravity mark and session percentage join the menu bar, complete with a **lion spirit companion** whose animation speed follows Antigravity's own token burn rate — the phoenix (Claude) and dragon (Codex) finally have a third packmate.\n- **HTML report integration**: Antigravity token usage from local logs feeds the deep report.",
-          "**Drag to reorder quota cards**: press and drag the Claude / Codex / Antigravity cards in any panel to swap their order. The arrangement is validated, persisted, shared across all themes, and survives restarts.",
-          "**Antigravity quota probe hardening**: the probe no longer hangs on Antigravity CLI 1.1.1's new workspace-trust prompt, and the stale-data tooltip now describes the probe behavior accurately.",
-          "Fuzz harness imports are static so PyInstaller bundles the parser modules (CI fuzzing only; no user-facing impact).",
-          "README now ships in five languages (English, Traditional Chinese, Simplified Chinese, Japanese, Korean) with a cleaned-up presentation.",
-          "AI Tool Update Digest refreshed (Claude Code 2.1.206 / Codex 0.144.1 / Antigravity 1.1.1)."
-        ]
-      },
-      "curated": {
-        "version": "0.26.0",
-        "period": "2026-07-13",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Antigravity 正式加入監控行列，三強鼎立",
-              "en": "Antigravity joins the lineup, bringing the big three together"
-            },
-            "body": {
-              "zh-TW": "你現在可以同時監看 Antigravity（Gemini）的使用量了，它正式成為與 Claude Code、Codex 並列的第三個追蹤工具。不管你切換到哪種主題介面，都會多出一張專屬的 Antigravity 額度卡片，完全融入當前的設計風格；而且它靠著在背景每 15 分鐘跑一次官方指令來抓額度，不耍暗招也不亂戳內部介面。選單列上除了原本的鳳凰和龍，現在還多了一隻專屬的獅子精靈（spirit companion），牠的動畫快慢會誠實反映你燃燒 Antigravity token 的速度。此外，HTML 深度報表也已經把 Antigravity 的紀錄整合進去。就像是你車上的儀表板原本只能看油量和電量，現在多裝了一顆專屬的水箱溫度表，不但風格完美契合，連指針跳動的速度都跟引擎同步，讓你一手掌握整台車的狀況。",
-              "en": "You can now track your Antigravity (Gemini) usage alongside Claude Code and Codex, as it officially joins the app as the third monitored tool. No matter which UI theme you use, a dedicated Antigravity quota card now appears, styled perfectly to match its host theme. It safely reads this quota by running the official CLI command in the background every 15 minutes, with no sketchy token scraping or undocumented API poking. Up in the menu bar, the phoenix and dragon are joined by a new lion spirit companion, whose animation speed accurately reflects how fast you're burning through Antigravity tokens. Finally, Antigravity usage is now fully fed into the HTML deep report. It's like your car's dashboard: it used to only show gas and battery, but now it has a perfectly matching water temperature gauge installed; the needle moves in total sync with the engine, giving you the complete picture at a glance."
-            },
-            "original": "**Antigravity (Gemini) support** — usage now watches a third AI tool alongside Claude Code and Codex:\n- **Quota card in every panel**: session + weekly limits appear as a third card in the classic panel and all nine themed quota panels, each styled in its host theme's visual language, with the same stale-data badge and hide toggle as the other two tools.\n- **Official numbers, no API poking**: quota is read by periodically running the Antigravity CLI's own `/quota` command in the background (15-minute cache) — identical to typing it yourself. No OAuth-token scraping, no internal API calls.\n- **Menu bar segment**: the Antigravity mark and session percentage join the menu bar, complete with a **lion spirit companion** whose animation speed follows Antigravity's own token burn rate — the phoenix (Claude) and dragon (Codex) finally have a third packmate.\n- **HTML report integration**: Antigravity token usage from local logs feeds the deep report."
-          },
-          {
-            "title": {
-              "zh-TW": "卡片隨你排，說明書多國語言化",
-              "en": "Reorder cards by dragging, and read the manual in five languages"
-            },
-            "body": {
-              "zh-TW": "現在你可以直接按住拖曳，隨心所欲地把 Claude、Codex 或 Antigravity 的額度卡片換位子了。這份排版順序會自動存下來，就算你切換介面主題或重開機都不會跑掉。另外，當 Antigravity 遇到需要確認信任工作區的提示時，額度探測器（probe）也不會再傻傻卡住，過期資料的提示文字也寫得更準確。專案的 README 說明書現在一口氣支援了五種語言（英、繁中、簡中、日、韓），內容也梳理得更乾淨。就像你可以把自己最常用的悠遊卡、信用卡在皮夾裡隨意換格子，換了新皮夾順序依然照舊；而且買這套皮夾附贈的說明書，現在翻譯成了五國語言，任何人都能看懂。",
-              "en": "You can now click and drag the Claude, Codex, and Antigravity quota cards to arrange them however you like. Your custom order is saved, shared across all themes, and survives app restarts. Furthermore, the quota probe won't hang anymore if the Antigravity CLI throws up a workspace-trust prompt, and the tooltip explaining stale data is now perfectly accurate. The project's README manual has also been cleaned up and translated into five languages (English, Traditional Chinese, Simplified Chinese, Japanese, Korean). It's like being able to slide your ID and credit cards into whichever slots you prefer in your wallet, and that arrangement stays exactly the same even if you buy a different colored wallet of the same brand; plus, the wallet now comes with an instruction booklet everyone can read."
-            },
-            "original": "**Drag to reorder quota cards**: press and drag the Claude / Codex / Antigravity cards in any panel to swap their order. The arrangement is validated, persisted, shared across all themes, and survives restarts.\n**Antigravity quota probe hardening**: the probe no longer hangs on Antigravity CLI 1.1.1's new workspace-trust prompt, and the stale-data tooltip now describes the probe behavior accurately.\nFuzz harness imports are static so PyInstaller bundles the parser modules (CI fuzzing only; no user-facing impact).\nREADME now ships in five languages (English, Traditional Chinese, Simplified Chinese, Japanese, Korean) with a cleaned-up presentation.\nAI Tool Update Digest refreshed (Claude Code 2.1.206 / Codex 0.144.1 / Antigravity 1.1.1)."
           }
         ]
       }

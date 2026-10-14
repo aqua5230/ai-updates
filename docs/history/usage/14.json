@@ -5,6 +5,38 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.22.14",
+      "raw": {
+        "version": "0.22.14",
+        "period": "2026-07-03",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Archived Codex sessions could show stale data**: usage counted `~/.codex/archived_sessions/` when computing totals but didn't watch it for changes, so edits there might not refresh the menu bar until an unrelated refresh happened; the archived folder is now included in the same change-detection that drives live updates.",
+          "**A broken usage-data hook no longer causes constant background rescanning**: when Claude Code's status hook goes stale, usage now caches the \"is there recent activity\" check briefly instead of rescanning your entire `~/.claude/projects` tree on every poll.",
+          "**A small warning badge appears if local usage history can't be read**: previously, a failed read silently fell back to the last known data with no visible sign anything was wrong; the Project Usage card now shows a brief note (hover for detail) so you can tell \"no new data\" apart from \"something broke.\"",
+          "**Faster per-refresh history scans**: each refresh previously walked the Claude/Codex session directories multiple times (once to detect changes, again per data source); it's now scanned once and reused."
+        ]
+      },
+      "curated": {
+        "version": "0.22.14",
+        "period": "2026-07-03",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "歷史讀取更穩更快，壞掉時會坦白告訴你",
+              "en": "History reads are faster, stabler, and tell you honestly when they break"
+            },
+            "body": {
+              "zh-TW": "你現在會發現歷史讀取更穩更快，而且壞掉時也會坦白告訴你了。背後整理歷史紀錄的機制做了大掃除，現在只要掃描一次目錄，就能同時算好數字並找出有變動的地方，不用重複多跑好幾趟；而且如果你把 Codex 對話封存（archive）了，它也能即時跟上變化，不會再顯示舊數字。此外，萬一系統讀不到你的對話紀錄，以前它會悄悄拿上次的舊資料充數、讓你以為沒人在講話，現在它會在卡片旁邊掛一個小徽章，老實告訴你「我讀不到資料」；如果背後負責更新狀態的程式（hook）壞了，它也不會再像無頭蒼蠅一樣瘋狂重掃整個資料夾。就像以前計分板壞了會一直顯示 0 分讓你以為沒人得分，現在它會掛個牌子說「機器故障」，而且修理工人不會再為了找問題把整個球場的地板掀開。",
+              "en": "You'll notice that reading your history is now faster, more stable, and more honest when things break. The engine that crunches your history in the background has been completely overhauled. It now scans your directories just once to both calculate the numbers and spot any changes, rather than making multiple redundant trips; also, if you archive your Codex chats, the system now tracks those edits instantly instead of showing stale data. Additionally, if the system fails to read your chat logs, it used to quietly fall back to the last known data, making you think you simply hadn't typed anything; now, it hangs a small warning badge on the card, honestly confessing that it can't read the data. And if the background updater program (the hook) breaks, it will no longer frantically rescan your entire folder tree over and over. It's like a broken stadium scoreboard that used to freeze at zero and make you think no one was scoring, but now it hangs a \"Broken\" sign — and the repair crew no longer rips up the entire field trying to find the problem."
+            },
+            "original": "**Archived Codex sessions could show stale data**: usage counted `~/.codex/archived_sessions/` when computing totals but didn't watch it for changes, so edits there might not refresh the menu bar until an unrelated refresh happened; the archived folder is now included in the same change-detection that drives live updates.\n**A broken usage-data hook no longer causes constant background rescanning**: when Claude Code's status hook goes stale, usage now caches the \"is there recent activity\" check briefly instead of rescanning your entire `~/.claude/projects` tree on every poll.\n**A small warning badge appears if local usage history can't be read**: previously, a failed read silently fell back to the last known data with no visible sign anything was wrong; the Project Usage card now shows a brief note (hover for detail) so you can tell \"no new data\" apart from \"something broke.\"\n**Faster per-refresh history scans**: each refresh previously walked the Claude/Codex session directories multiple times (once to detect changes, again per data source); it's now scanned once and reused."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.22.13",
       "raw": {
         "version": "0.22.13",
@@ -277,35 +309,6 @@
               "en": "If you accidentally right-clicked the panel and selected \"Reload\", the panel used to turn permanently blank, leaving no way to recover short of restarting the entire app. The system has now stripped those useless web-navigation buttons (Reload, Back, Forward) from the context menu entirely, and the internal reloading mechanism now redraws the actual screen instead of foolishly loading a blank page. This also fixed a related issue: if the system silently killed the web view in the background, it now knows how to redraw itself automatically. It's like accidentally hitting the factory-reset button on your TV remote and having the screen go black forever — the system now hides that dangerous button away."
             },
             "original": "**Panel no longer goes permanently blank after a context-menu \"Reload\"**: the popover panel loads its HTML via `loadHTMLString` with no base URL, so the WKWebView system context-menu Reload reloaded `about:blank` and left the panel blank with no obvious way to recover (#42). usage now strips navigation items (Reload/back/forward/open/download) from the panel's context menu, and internal reloads re-inject the original HTML instead of calling `reload()` — which also fixes panel recovery after the web-content process is terminated."
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.22.4",
-      "raw": {
-        "version": "0.22.4",
-        "period": "2026-06-22",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Analysis report no longer crashes with \"bad local file header\" inside the packaged .app**: the report modules (`analyzer`/`adapters`/`ui`) were compiled into the bundle's `python313.zip` and loaded lazily via `zipimport`, so a single corrupt zip entry surfaced as a `ZipImportError` the moment a report was generated. They are now unzipped into the bundle as real directories (py2app `packages`), bypassing `zipimport` entirely. The bundle's `python313.zip` also no longer ships CPython's test suite, pytest, or setuptools, shrinking it from 1665 to 819 entries and cutting the surface for a corrupt entry. This deepens the packaged-report fix from 0.22.2."
-        ]
-      },
-      "curated": {
-        "version": "0.22.4",
-        "period": "2026-06-22",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "產出分析報告不再因為壓縮包裡一個壞檔就全盤崩潰",
-              "en": "Generating analysis reports no longer completely crashes due to one corrupt zip entry"
-            },
-            "body": {
-              "zh-TW": "在打包好的獨立 App 裡點擊產出分析報告時，不會再因為遇到一個 `bad local file header` 錯誤就整個崩潰了。以前報告相關的程式碼是被硬塞在一個壓縮包（zip）裡，要用的時候才解壓縮，所以只要裡面有任何一個檔案壞掉，產生報告的瞬間就會整組壞光光。現在系統直接把它們解開成真實的資料夾來讀取，完全避開了這個風險；同時也順手把壓縮包裡不必要的測試程式清掉，讓出錯的機率變得更低。就像以前你把所有工具都塞在一個打不開的生鏽鐵箱裡，現在直接把它們排在架子上，要用哪個拿哪個，再也不會因為鐵箱卡住而沒戲唱了。",
-              "en": "When clicking to generate an analysis report in the packaged standalone App, it will no longer completely crash due to a `bad local file header` error. Previously, the report-related code was jammed into a zip archive and unpacked lazily, meaning if a single file inside was corrupted, the entire report generation would blow up instantly. Now, the system extracts them into real directories for reading, completely bypassing this risk; at the same time, unnecessary testing programs were stripped from the archive, further lowering the chances of anything going wrong. It's like you used to shove all your tools into a rusty toolbox that wouldn't open — now you just organize them cleanly on a shelf, grab what you need, and never have your work halted by a stuck latch."
-            },
-            "original": "**Analysis report no longer crashes with \"bad local file header\" inside the packaged .app**: the report modules (`analyzer`/`adapters`/`ui`) were compiled into the bundle's `python313.zip` and loaded lazily via `zipimport`, so a single corrupt zip entry surfaced as a `ZipImportError` the moment a report was generated. They are now unzipped into the bundle as real directories (py2app `packages`), bypassing `zipimport` entirely. The bundle's `python313.zip` also no longer ships CPython's test suite, pytest, or setuptools, shrinking it from 1665 to 819 entries and cutting the surface for a corrupt entry. This deepens the packaged-report fix from 0.22.2."
           }
         ]
       }
