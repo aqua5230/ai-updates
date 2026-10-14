@@ -19,7 +19,7 @@ colors:
   link: "#0369A1"
   tag-new: "#047857"
   tag-fix: "#BE123C"
-  tag-perf: "#B45309"
+  tag-perf: "#6D28D9"
   background-dark: "#040B16"
   sidebar-dark: "#040B16"
   card-dark: "#0B1628"
@@ -35,7 +35,7 @@ colors:
   link-dark: "#60A5FA"
   tag-new-dark: "#34D399"
   tag-fix-dark: "#FB7185"
-  tag-perf-dark: "#FBBF24"
+  tag-perf-dark: "#A78BFA"
   tool-surface: "#E8EEF6"
   analogy-text: "#334155"
   analogy-start: "rgba(217,119,6,.06)"
@@ -172,7 +172,7 @@ components:
 
 風格名稱「深海琥珀」。深色底為 `#040B16`，卡片為實心 `#0B1628`；淺色底為 `#F3F6FA`，卡片為白色。卡片靠色階、細框與內外陰影分層。頁面頂端保留一道高度 120px 的淡青色徑向漸層，深色透明度 .16，淺色 .10。所有寬度都不使用背景模糊。
 
-四組主題分別是預設深色、系統淺色、手動淺色、手動深色。`--text-color` 用於正文，`--text-bright` 用於標題，`--muted-color` 用於日期與輔助文字，`--link-color` 用於連結。選中工具、分頁、篩選與開關共用 `--accent-color`；深色為 `#38BDF8`，文字為 `#04111F`，淺色為 `#1D4ED8`，文字為白色。`--selected-gradient` 的起訖同色。分類標籤底色用各分類色的 12%。
+四組主題分別是預設深色、系統淺色、手動淺色、手動深色。`--text-color` 用於正文，`--text-bright` 用於標題，`--muted-color` 用於日期與輔助文字，`--link-color` 用於連結。選中工具、篩選與開關共用 `--accent-color`；深色為 `#38BDF8`，文字為 `#04111F`，淺色為 `#1D4ED8`，文字為白色。`--selected-gradient` 的起訖同色。「最新版本／歷史版本」頁籤是次一層的切換，選中時用 `--accent-glow` 淡底配 `--text-bright` 文字，不和選中工具搶實心色。分類標籤底色用各分類色的 12%。琥珀色只留給比喻框，效能優化標籤用紫色。
 
 ## 字體與中文排版
 
@@ -182,7 +182,7 @@ Plus Jakarta Sans 承載標題、導覽與英文內文；Geist Mono 用於序號
 
 ## 版面與元件
 
-- 桌機側欄固定 280px，主內容最多 880px；內容區沒有左右直導引線。卡片表頭一列放序號、標題與類型膠囊，正文直接對齊卡片左緣。1023px 以下改成序號、膠囊一列，標題自成一列。
+- 桌機側欄固定 280px，主內容最多 880px；內容區沒有左右直導引線。卡片表頭一列放序號、標題與類型膠囊，正文直接對齊卡片左緣。600px 以下改成序號、膠囊一列，標題自成一列。
 - 更新卡與歷史卡用 14px 圓角、`--card-bg`、`--border-color` 與 `--glass-shadow`（深色 `inset 0 1px 0 0 rgba(255,255,255,.07), 0 8px 24px -4px rgba(0,0,0,.4)`，淺色 `inset 0 1px 0 0 #fff, 0 6px 20px -6px rgba(15,23,42,.12)`）。桌機內距 24px 28px，1023px 以下 20px；歷史卡由標頭與內容各自承接內距。卡片滑過不位移，首頁不播放卡片進場動畫。
 - 比喻框用琥珀色 3px 左線、向右淡出的暖色底、`0 8px 8px 0` 圓角、12px 16px 內距與 16px 上下間距。深色左線 `#F59E0B`，淺色 `#D97706`。偽元素依 `:lang()` 顯示「比喻」或「Analogy」，12px、600；後接的第一段加虛線和 12px 上內距。
 - 行內程式碼用 `--inline-code-fill`、`--inline-code-border`、`--accent-color`，5px 圓角、2px 6px 內距，字級用最接近原型 14px 的既有 13px token。「原始 CHANGELOG」展開後保留有框的程式碼區塊。
