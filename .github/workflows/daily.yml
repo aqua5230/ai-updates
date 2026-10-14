@@ -38,7 +38,10 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -o pipefail
-          python3 scripts/fetch.py | tee /tmp/ai-updates-new.txt
+          # One unreachable source must not hold back the other tools; the last step still fails the run.
+          if ! python3 scripts/fetch.py | tee /tmp/ai-updates-new.txt; then
+            echo "FETCH_FAILED=1" >> "$GITHUB_ENV"
+          fi
       - name: Verify build outputs
         run: |
           pip install "pytest>=9,<10" "ruff>=0.16,<0.17"
@@ -94,6 +97,7 @@ jobs:
               claude_code) tool_name="Claude Code" ;;
               codex) tool_name="Codex" ;;
               agy) tool_name="Antigravity" ;;
+              grok_build) tool_name="Grok Build" ;;
               usage) tool_name="Usage" ;;
               gh_cli) tool_name="GitHub CLI" ;;
               *)
@@ -110,3 +114,8 @@ jobs:
               --title "$issue_title" \
               --body "A new official ${tool_name} ${version} changelog was imported. Rewrite and review data/curated/${tool_id}/${version}.json, then merge it to main."
           done < /tmp/ai-updates-new.txt
+      - name: Report fetch failures
+        if: env.FETCH_FAILED == '1'
+        run: |
+          echo "::error::Some official changelogs could not be fetched; see the Fetch official updates step."
+          exit 1

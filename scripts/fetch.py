@@ -32,9 +32,17 @@ AGY_CHANGELOG_URL = (
     "main/CHANGELOG.md"
 )
 USAGE_CHANGELOG_URL = "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md"
+GROK_CHANGELOG_URL = "https://x.ai/changelog/build"
+# x.ai 直接抓會回 403，改經 Jina Reader 轉成 Markdown 再解析。
+GROK_READER_URL = f"https://r.jina.ai/{GROK_CHANGELOG_URL}"
 VERSION_HEADING = re.compile(r"^##\s+\[?[vV]?([^\]\s]+)\]?(?:\s|$)")
 KEEPACHANGELOG_HEADING = re.compile(
     r"^##\s+\[([^\]]+)\]\s*-\s*(\d{4}-\d{2}-\d{2})\s*$"
+)
+GROK_HEADING = re.compile(r"^##\s+Grok Build\s+(\S+)\s*$")
+GROK_DATE_LINE = re.compile(
+    r"^((?:January|February|March|April|May|June|July|August|September|October|November|December)"
+    r" \d{1,2}, \d{4})\b"
 )
 VERSION_COMPONENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 RELEASE_BODY_STOP_HEADINGS = {
@@ -171,6 +179,31 @@ def parse_keepachangelog(text: str) -> list[tuple[str, str, list[str]]]:
         elif current is not None and (line.startswith("  ") or not line.strip()):
             if line.strip():
                 current.append(line.strip())
+    finish_version()
+    return versions
+
+
+def parse_grok_changelog(text: str) -> list[tuple[str, str, list[str]]]:
+    """Parse the Grok Build changelog page; each heading follows its own date line."""
+    versions: list[tuple[str, str, list[str]]] = []
+    version: str | None = None
+    period: str | None = None
+    last_date: str | None = None
+    entries: list[str] = []
+
+    def finish_version() -> None:
+        if version and period and entries:
+            versions.append((version, period, entries.copy()))
+        entries.clear()
+
+    for line in text.splitlines():
+        if match := GROK_DATE_LINE.match(line):
+            last_date = datetime.strptime(match.group(1), "%B %d, %Y").date().isoformat()
+        elif match := GROK_HEADING.match(line):
+            finish_version()
+            version, period = match.group(1), last_date
+        elif version and line.startswith(("- ", "* ")):
+            entries.append(line[2:].strip())
     finish_version()
     return versions
 
@@ -362,12 +395,32 @@ def fetch_gh_cli(count: int = 20) -> int:
     return sum(_write_raw("gh_cli", record) for record in selected)
 
 
+def fetch_grok_build(count: int = 5) -> int:
+    # 加入時只補最近 5 版，避免一次翻譯整串歷史；之後每天抓，5 版夠蓋過幾天沒跑的空窗。
+    today = date.today().isoformat()
+    records = [
+        {
+            "version": version,
+            "period": period,
+            "source_url": GROK_CHANGELOG_URL,
+            "fetched_at": today,
+            "entries": entries,
+        }
+        for version, period, entries in parse_grok_changelog(fetch_text(GROK_READER_URL))
+    ]
+    selected = records[:count]
+    if not selected:
+        raise ValueError("Grok Build changelog contained no versions")
+    return sum(_write_raw("grok_build", record) for record in selected)
+
+
 def main() -> int:
     failures: list[tuple[str, str | None, Exception]] = []
     for tool_id, fetcher in (
         ("claude_code", fetch_claude),
         ("codex", fetch_codex),
         ("agy", fetch_agy),
+        ("grok_build", fetch_grok_build),
         ("usage", fetch_usage),
         ("gh_cli", fetch_gh_cli),
     ):

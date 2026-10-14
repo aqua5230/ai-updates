@@ -90,8 +90,9 @@ def test_build_outputs_pass_golden_validator(
     normalized = normalize_payload(payload)
 
     assert normalized is not None
-    assert len(normalized) == 5
-    assert len(payload["tools"]) == 5
+    assert len(payload["tools"]) == len(build_script.TOOLS)
+    # 剛加入、還沒有白話版的工具會被 validator 略過，只比對有版本的工具。
+    assert len(normalized) == sum(1 for tool in payload["tools"] if tool["versions"])
     assert all(len(tool["versions"]) <= 3 for tool in normalized)
     assert (tmp_path / "docs" / "data.json").is_file()
     assert (tmp_path / "daily.json").is_file()

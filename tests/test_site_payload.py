@@ -524,7 +524,7 @@ def test_built_pages_use_card_or_default_image(tmp_path, monkeypatch):
     assert f'<meta property="og:image:alt" content="{title}">' in zh
     assert f'<meta name="twitter:image:alt" content="{title}">' in zh
     original_alt = (
-        "AI Updates：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Usage、"
+        "AI Updates：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Grok Build、Usage、"
         "GitHub CLI 官方更新"
     )
     assert f'<meta property="og:image:alt" content="{original_alt}">' in missing

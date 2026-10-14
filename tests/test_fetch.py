@@ -84,6 +84,22 @@ def test_parse_github_releases_skips_non_version_tags() -> None:
     ]
 
 
+def test_parse_grok_changelog_fixture() -> None:
+    text = (FIXTURES / "grok_changelog.md").read_text(encoding="utf-8")
+
+    assert fetch.parse_grok_changelog(text) == [
+        (
+            "1.0.52",
+            "2026-10-11",
+            [
+                "Added support for OSC 7501 and the Rex terminal",
+                "HTTP hooks to `localhost` work, and bad hook URLs are reported at load time",
+            ],
+        ),
+        ("1.0.51", "2026-10-09", ["Memory is only an on or off switch (`[memory] enabled`)"]),
+    ]
+
+
 def test_parse_gh_cli_releases_fixture() -> None:
     payload = json.loads((FIXTURES / "gh_cli_releases.json").read_text(encoding="utf-8"))
 
@@ -242,11 +258,12 @@ def test_main_continues_after_single_fetcher_failure(monkeypatch, capsys) -> Non
     monkeypatch.setattr(fetch, "fetch_claude", fail)
     monkeypatch.setattr(fetch, "fetch_codex", lambda: succeed("codex"))
     monkeypatch.setattr(fetch, "fetch_agy", lambda: succeed("agy"))
+    monkeypatch.setattr(fetch, "fetch_grok_build", lambda: succeed("grok_build"))
     monkeypatch.setattr(fetch, "fetch_usage", lambda: succeed("usage"))
     monkeypatch.setattr(fetch, "fetch_gh_cli", lambda: succeed("gh_cli"))
 
     assert fetch.main() == 1
-    assert calls == ["claude_code", "codex", "agy", "usage", "gh_cli"]
+    assert calls == ["claude_code", "codex", "agy", "grok_build", "usage", "gh_cli"]
     assert capsys.readouterr().err == (
         "fetch failed: claude_code https://example.invalid/claude: <urlopen error offline>\n"
     )
