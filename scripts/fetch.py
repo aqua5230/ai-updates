@@ -428,6 +428,7 @@ def main() -> int:
             fetcher()
         except (
             OSError,
+            http.client.HTTPException,
             UnicodeDecodeError,
             ValueError,
             json.JSONDecodeError,

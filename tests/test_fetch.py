@@ -269,6 +269,28 @@ def test_main_continues_after_single_fetcher_failure(monkeypatch, capsys) -> Non
     )
 
 
+def test_main_continues_after_truncated_download(monkeypatch) -> None:
+    calls: list[str] = []
+
+    def truncated() -> int:
+        calls.append("codex")
+        raise http.client.IncompleteRead(b"partial", 32_000_000)
+
+    def succeed(tool_id: str) -> int:
+        calls.append(tool_id)
+        return 0
+
+    monkeypatch.setattr(fetch, "fetch_claude", lambda: succeed("claude_code"))
+    monkeypatch.setattr(fetch, "fetch_codex", truncated)
+    monkeypatch.setattr(fetch, "fetch_agy", lambda: succeed("agy"))
+    monkeypatch.setattr(fetch, "fetch_grok_build", lambda: succeed("grok_build"))
+    monkeypatch.setattr(fetch, "fetch_usage", lambda: succeed("usage"))
+    monkeypatch.setattr(fetch, "fetch_gh_cli", lambda: succeed("gh_cli"))
+
+    assert fetch.main() == 1
+    assert calls == ["claude_code", "codex", "agy", "grok_build", "usage", "gh_cli"]
+
+
 def test_request_retries_connection_reset_then_succeeds(monkeypatch) -> None:
     outcomes: list[ConnectionResetError | io.BytesIO] = [
         ConnectionResetError(104, "Connection reset by peer"),
