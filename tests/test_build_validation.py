@@ -247,3 +247,21 @@ def test_build_uses_period_end_date_for_static_metadata(
 def test_badge_treats_reverted_lines_as_fixes() -> None:
     original = "Fixed a crash\nReverted the 2.1.281 denial message change"
     assert build_script._badge_for(original, "提示訊息回歸既有設計")[0] == "fix"
+
+
+def test_badge_reads_no_longer_and_instead_of_as_fixes() -> None:
+    original = (
+        "Restarting after a model switch no longer reverts to the previous model\n"
+        "Pasted images over 50 MB are rejected instead of being dropped silently\n"
+        "`grok -p --effort` warns when the model ignores the flag"
+    )
+    assert build_script._badge_for(original, "模型切換重啟不回彈")[0] == "fix"
+
+
+def test_badge_keeps_title_when_card_adds_or_changes_behavior() -> None:
+    added = "Added a Rex terminal mode\nInline tags no longer break line layout"
+    changed = "Changed the limit to 8,192 characters instead of bytes"
+    perf = "Startup no longer re-downloads the pricing table, cutting idle CPU"
+    assert build_script._badge_for(added, "終端機支援 Rex")[0] == "new"
+    assert build_script._badge_for(changed, "上限改採字元計")[0] == "new"
+    assert build_script._badge_for(perf, "閒置更省 CPU")[0] == "perf"

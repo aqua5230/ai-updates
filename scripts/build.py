@@ -558,6 +558,11 @@ def _badge_from_title(text: str) -> tuple[str, str]:
     return "new", "feature"
 
 
+PERF_HINT_RE = re.compile(
+    r"performance|faster|speed|latency|memory|startup|slow|jank|lag|cpu|throughput|responsive"
+)
+
+
 def _classify_entry(line: str) -> str:
     text = re.sub(r"^[*`\s]+", "", line.strip().lower())
     prefix = re.match(r"^(feat|fix|perf|chore|docs|refactor|build|ci|test|style)(\([^)]*\))?!?:", text)
@@ -568,21 +573,31 @@ def _classify_entry(line: str) -> str:
     if re.match(r"^(added|add|adds|introduced|introduces|new)\b", text):
         return "new"
     if re.match(r"^(improved|improves|optimiz|optimis)\w*\b", text):
-        return "perf" if re.search(
-            r"performance|faster|speed|latency|memory|startup|slow|jank|lag|cpu|throughput|responsive", text
-        ) else "new"
+        return "perf" if PERF_HINT_RE.search(text) else "new"
+    # Grok 等工具不寫 Fixed，改用「X no longer…」「…instead of…」描述修好的行為；
+    # Changed／Removed 開頭的是刻意改行為，講效能的歸效能，都不算。
+    if (
+        re.search(r"\bno longer\b|\binstead of\b", text)
+        and not PERF_HINT_RE.search(text)
+        and not re.match(r"(changed|changes|removed|removes|deprecated|renamed)\b", text)
+    ):
+        return "fix"
     return "?"
 
 
 def _badge_for(original: str, title: str) -> tuple[str, str]:
-    kinds = {_classify_entry(line) for line in original.split("\n") if line.strip()}
-    if len(kinds) == 1 and "?" not in kinds:
-        kind = next(iter(kinds))
+    kinds = [_classify_entry(line) for line in original.split("\n") if line.strip()]
+    unique = set(kinds)
+    if len(unique) == 1 and "?" not in unique:
+        kind = next(iter(unique))
         if kind == "fix":
             return "fix", "bugfix"
         if kind == "perf":
             return "perf", "perf"
         return "new", "feature"
+    # 沒有新增或效能行、且至少一半判得出是修復，就算修復卡；其餘行多半是同類修復換個說法。
+    if kinds and not unique & {"new", "perf"} and kinds.count("fix") * 2 >= len(kinds):
+        return "fix", "bugfix"
     return _badge_from_title(title or "")
 
 
