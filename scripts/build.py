@@ -519,23 +519,15 @@ def _render_plain_prose(text: str) -> str:
     return f'<p class="log-prose-text">{_render_inline_code(text)}</p>'
 
 
-def _render_lead_prose(text: str, language: str) -> str:
-    stop = SENTENCE_STOP.get(language, ".")
-    cut = _first_sentence_end(text, stop)
-    if cut != -1 and "```" in text[: cut + 1]:
-        cut = -1
-    if cut == -1:
-        return _render_plain_prose(text)
-    lead = f'<p class="log-lead-text">{_render_inline_code(text[: cut + 1])}</p>'
-    rest = text[cut + 1 :].strip()
-    return lead + (_render_plain_prose(rest) if rest else "")
+def _render_lead_prose(text: str) -> str:
+    return f'<p class="log-lead-text">{_render_inline_code(text.strip())}</p>'
 
 
-def _render_prose_block(text: str, with_lead: bool, language: str) -> str:
+def _render_prose_block(text: str, with_lead: bool) -> str:
     before, analogy, after = _split_analogy(text)
     blocks = []
     if before:
-        blocks.append(_render_lead_prose(before, language) if with_lead else _render_plain_prose(before))
+        blocks.append(_render_lead_prose(before) if with_lead else _render_plain_prose(before))
     if analogy:
         blocks.append(
             f'<aside class="log-analogy" role="note">'
@@ -544,7 +536,7 @@ def _render_prose_block(text: str, with_lead: bool, language: str) -> str:
     rest = after.strip() if after else ""
     if rest:
         blocks.append(
-            _render_lead_prose(rest, language) if with_lead and not before else _render_plain_prose(rest)
+            _render_lead_prose(rest) if with_lead and not before else _render_plain_prose(rest)
         )
     return "".join(blocks)
 
@@ -654,13 +646,13 @@ def _render_prose(text: str) -> str:
     return "".join(blocks)
 
 
-def _render_body(text: str, language: str = "zh-TW") -> str:
+def _render_body(text: str) -> str:
     blocks = []
     cursor = 0
     for match in FENCED_CODE_RE.finditer(text):
         prose = re.sub(r"\r?\n$", "", text[cursor:match.start()])
         if prose:
-            blocks.append(_render_prose_block(prose, True, language))
+            blocks.append(_render_prose_block(prose, True))
         blocks.append(
             '<pre class="log-code-block"><code>'
             f"{escape(_strip_analogy_marks(match.group(1)))}"
@@ -673,7 +665,7 @@ def _render_body(text: str, language: str = "zh-TW") -> str:
             cursor += 1
     prose = text[cursor:]
     if prose:
-        blocks.append(_render_prose_block(prose, True, language))
+        blocks.append(_render_prose_block(prose, True))
     return "".join(blocks)
 
 
@@ -702,7 +694,7 @@ def _render_items(
                     f'<span class="log-badge badge-{badge_type}">'
                     f"{escape(BADGE_LABELS[language][badge_type])}</span>"
                     f'<h3 class="log-item-title">{escape(title)}</h3></div>'
-                    f"{_render_body(body, language)}{original}</article>"
+                    f"{_render_body(body)}{original}</article>"
                 )
         return "\n".join(blocks) or "<p>沒有可用的整理內容。</p>"
 
