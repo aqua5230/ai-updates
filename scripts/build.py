@@ -1121,7 +1121,7 @@ def _write_static_summary(history_tools: list[dict[str, Any]]) -> None:
                 f'<li><a href="{escape(_page_url(str(tool["id"]), str(latest["version"])), quote=True)}">'
                 f'{escape(str(tool["name"]))} {escape(str(latest["version"]))}</a>{excerpt}</li>'
             )
-    summary = "<!-- STATIC-SUMMARY:START -->\n  <noscript><section><h1>AI 工具更新速報</h1><p>最新版本：</p><ul>" + "".join(links) + "</ul></section></noscript>\n  <!-- STATIC-SUMMARY:END -->"
+    summary = "<!-- STATIC-SUMMARY:START -->\n  <section class=\"static-summary\"><h2>AI 工具更新速報</h2><p>最新版本：</p><ul>" + "".join(links) + "</ul></section>\n  <!-- STATIC-SUMMARY:END -->"
     if len(summary) > 2000:
         raise ValueError("STATIC-SUMMARY exceeds 2000 characters with curated excerpts")
     updated, count = re.subn(
