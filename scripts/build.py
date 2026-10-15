@@ -786,7 +786,7 @@ PAGE_CSS = """\
     .original-entry{margin:0 0 .6rem;background:var(--code-bg);border:1px solid var(--border-color);border-radius:12px;overflow:hidden}
     .original-entry summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .6rem;list-style:none;padding:.65rem .85rem}
     .original-entry summary::-webkit-details-marker{display:none}
-    .original-entry summary::before{content:"▸";flex:0 0 auto;color:var(--accent-color);transition:transform .2s ease}
+    .original-entry summary::before{content:"";flex:0 0 auto;align-self:center;width:.375rem;height:.375rem;margin:0 .125rem;border:solid var(--accent-color);border-width:0 1.5px 1.5px 0;rotate:-45deg;transition:transform .2s ease}
     .original-entry[open] summary::before{transform:rotate(90deg)}
     .original-entry-title{color:var(--text-bright);font:500 var(--fs-sm)/1.6 var(--font-ui)}
     .log-howto summary{padding:.65rem .85rem;cursor:pointer;color:var(--muted-color);font:500 var(--fs-xs)/1.5 var(--font-ui);line-height:1.5;min-height:var(--control-sm)}
