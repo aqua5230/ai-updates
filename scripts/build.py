@@ -577,8 +577,10 @@ def _classify_entry(line: str) -> str:
         return "perf" if PERF_HINT_RE.search(text) else "new"
     # Grok 等工具不寫 Fixed，改用「X no longer…」「…instead of…」描述修好的行為；
     # Changed／Removed 開頭的是刻意改行為，講效能的歸效能，都不算。
+    # 行首有 **粗體標題** 的（usage）只看標題：內文常為了對比提到 instead of，卻是在講新功能。
+    head = re.match(r"\*\*(.+?)\*\*", line.strip().lower())
     if (
-        re.search(r"\bno longer\b|\binstead of\b", text)
+        re.search(r"\bno longer\b|\binstead of\b", head.group(1) if head else text)
         and not PERF_HINT_RE.search(text)
         and not re.match(r"(changed|changes|removed|removes|deprecated|renamed)\b", text)
     ):

@@ -292,3 +292,13 @@ def test_build_rejects_badge_overrides_for_unknown_versions(
     )
     with pytest.raises(ValueError, match="unknown versions"):
         build_script.build()
+
+
+def test_badge_reads_only_bold_headline_for_usage_style_lines() -> None:
+    added = (
+        "**Pricing cache moved under `~/.usage/`**: the cache now lives at "
+        "`~/.usage/pricing_cache.json` instead of `~/.claude/pricing_cache.json`."
+    )
+    fixed = "**Codex quota no longer blanks out on refresh errors**: the error state reset the rows."
+    assert build_script._badge_for(added, "定價快取搬家")[0] == "new"
+    assert build_script._badge_for(fixed, "額度不再空白")[0] == "fix"

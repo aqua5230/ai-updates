@@ -341,7 +341,8 @@ def fetch_claude(count: int = 20) -> int:
 def fetch_codex(count: int = 20) -> int:
     records: list[dict[str, Any]] = []
     for page in range(1, 11):
-        payload = fetch_json(f"{CODEX_RELEASES_URL}?per_page=100&page={page}")
+        # 單頁 100 筆約 31MB，下載中斷機率高；只需要 count 筆就只拉 count 筆。
+        payload = fetch_json(f"{CODEX_RELEASES_URL}?per_page={min(count, 100)}&page={page}")
         records.extend(parse_github_releases(payload))
         if not payload or len(records) >= count:
             break
