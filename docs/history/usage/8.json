@@ -44,7 +44,11 @@
             "original": "**A rate-limited Antigravity quota probe now waits as long as the server asked, instead of retrying every five minutes.** That probe is the only external API call in the project. It and the token refresh both folded `HTTPError` into the same `except` clause as connection failures, so a 429 reached the caller as a bare `None` — the status code and the `Retry-After` header were discarded together, and the next cache expiry sent another request at a server that had already said to wait. Each now catches `HTTPError` separately, reads `Retry-After` in either the seconds or the HTTP-date form, and holds off until it elapses. A missing or unparseable header falls back to sixty seconds, and the delay is capped at an hour so an oversized value cannot strand the card.\n**The last minute before a quota resets no longer reads \"0m\".** Under sixty seconds the countdown's minute arithmetic rounds to zero, and the already-expired case printed the same string, so one line meant both \"forty seconds left\" and \"the window has already turned\". The card now reads \"Reset imminent\", in all five languages. The fix sits at the call site rather than in the shared duration formatter, which also renders the \"will run out in\" half of the burn warning — changing it there would have produced \"will run out in reset imminent\"."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "fix"
+      ]
     },
     {
       "version": "0.29.10",
@@ -75,7 +79,10 @@
             "original": "**Nothing changes on screen in this release — it is housekeeping on the menu bar code.** `menubar.py` had reached 2485 lines, creeping past 2000 for the third time after being split apart twice. The icon and alert helpers moved into a new `menubar_chrome.py`, and the state constructors joined `menubar_state.py`, taking the file down to 2230. Only module-level functions moved: PyObjC binds `AppDelegate` methods by selector name, so relocating one would silently stop the matching control from working. `_popover_size` was split rather than moved, because it ends in `NSMakeSize` and `menubar_state.py` has to stay importable without the ObjC runtime for its projections to be unit-testable — the arithmetic moved as `popover_dimensions()` and a three-line shell stayed behind.\n**The growth policy behind that cleanup is now enforced by CI rather than by discipline.** `scripts/check_file_size.py` fails the build when a guarded file passes its ceiling. The rule had been written in CLAUDE.md all along; nothing checked it, and the file grew back twice. Lower a ceiling when a cut lands, never raise it to go green.\n**CLAUDE.md's module map lists only modules with a gotcha.** Half its rows restated what opening the file would tell you, and three separate rows repeated the same stdlib-only constraint. It went from 24 rows to 12."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.29.9",
@@ -128,7 +135,12 @@
             "original": "**Dismissing the switch-panel menu no longer closes the panel**: opening \"Switch Panel\" and then clicking the panel itself, pressing Escape, or clicking away closed the whole panel. A transient popover was already gone by the time the menu took focus, so closing it was merely cleanup; the floating panel survives the menu, which turned the same cleanup into a mistouch that threw the panel away."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "fix",
+        "fix"
+      ]
     },
     {
       "version": "0.29.8",
@@ -157,7 +169,10 @@
             "original": "**The Windows panel no longer snaps back to the primary monitor on every panel switch**: dragging the popover onto a second display and then switching panel style (or theme) forced it right back onto the primary monitor. Windows' `SPI_GETWORKAREA` API only ever reports the *primary* monitor's work area, and the window was clamped against that single rectangle on every reposition regardless of which monitor it actually lived on — so a window dragged onto a secondary display got clamped straight back onto the primary one the next time the panel reloaded. Placement now looks up the work area of whichever monitor the window's current (or saved) position falls on via `MonitorFromPoint`/`GetMonitorInfoW`, so a window on a secondary display stays there across panel switches. A related issue on a single monitor is fixed alongside it: switching panels reset the remembered content height to `None`, so the window was briefly clamped against each panel's near-fullscreen placeholder height (`PANEL_HEIGHTS`) before its real height was measured, which could shove a dragged window toward the top of the screen; the previous panel's measured height is now kept as the transitional estimate instead."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.29.7",
@@ -186,7 +201,10 @@
             "original": "**The panel no longer leaves an empty strip at the bottom**: panel height came from a fixed per-panel constant, so any layout that rendered shorter than the registered value left dead space below the footer. The common trigger is Codex reporting only a weekly window with no 5-hour data, which drops a quota row from the card. The panel now measures its own natural height after each refresh and the window resizes to match, clamped to the usable screen area; the registered constants stay as the pre-measurement default and as the fallback when a measurement is unusable. A panel that deliberately leaves room for a full-window backdrop — World Cup's pitch is the only one — marks that region so it keeps its designed height instead of collapsing while the measurement releases the layout's height constraints."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.29.6",
@@ -215,7 +233,10 @@
             "original": "**Claude Code panel no longer stays blank forever on Windows**: the installer picked whichever `python`/`py` `shutil.which()` found on `PATH` without checking it actually ran, so on any Windows machine without a real Python install, it silently wired the statusLine hook to Windows' non-functional \"App Execution Alias\" stub (the placeholder `python.exe`/`python3.exe` that Windows 10/11 ships by default to prompt a Microsoft Store install). The hook then failed silently on every refresh, `usage-status.json` was never written, and the Claude Code panel showed `--` permanently — not a first-run loading state. The installer now actually runs each candidate with `--version` before trusting it, and skips any that don't execute."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.29.5",
@@ -244,7 +265,10 @@
             "original": "**AI Council spends less Claude quota per turn**: `claude -p` calls without an attached project folder used to omit `--tools` entirely, so Claude Code loaded its full built-in toolset — Bash, Edit, Write, and the rest — into every turn's input even though the council prompt already tells participants not to call tools. Calls now pass `--tools \"\"` when no project folder is attached, and every Claude call adds `--exclude-dynamic-system-prompt-sections` to keep the system prompt prefix byte-stable across turns for a better shot at Anthropic's automatic prompt caching. Codex and Antigravity participants are unaffected."
           }
         ]
-      }
+      },
+      "badges": [
+        "perf"
+      ]
     },
     {
       "version": "0.29.4",
@@ -275,7 +299,10 @@
             "original": "**Steer the council mid-discussion**: an opt-in \"guidance between rounds\" toggle pauses the session before every round after the first, so you can react to what you just heard — \"we're single-host, no cluster\" — instead of watching a debate run off in the wrong direction or stopping and restarting from scratch. The pause waits up to 5 minutes and is skipped automatically if left blank; the round then proceeds exactly as it did before.\n**See who disagreed, not just how many**: the consensus tally under the moderator's summary now lists each participant by name next to their stance, with dissenting and alternative positions colored so they stand out, instead of a bare \"2 agree, 1 alternative\" that meant scrolling back through the transcript to find out who.\n**The five debate tones now explain themselves**: a one-line plain-language hint appears under the tone picker — devil's advocate, for instance, now reads \"the AIs will deliberately argue the opposite side to test whether a plausible conclusion holds up\" — so a first-time user isn't left guessing how \"adversarial\" differs from \"devil's advocate.\""
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.29.3",
@@ -316,7 +343,11 @@
             "original": "**A service alert the provider forgot to clear no longer sticks around**: a status page can leave a component marked as degraded long after the incident is over, and the panel had no way to tell that apart from a live problem. Two rules now retire such an alert, both limited to the mildest *degraded performance* level so a partial or major outage is never hidden. First, if every unresolved incident on the page has sat in *monitoring* — the provider's own word for \"the fix is in, we are watching it\" — for more than four hours, the alert is suppressed until something changes. Second, a status observed unchanged for more than 24 hours is treated as residue. The second rule times what usage itself has seen rather than trusting the page's own timestamps: on OpenAI's page all 25 components, the operational ones included, share one timestamp from over two weeks earlier, so that field records when a component was defined, not when its status last moved."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.29.2",
@@ -383,7 +414,13 @@
             "original": "Bumped `setuptools` to 83.0.0."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix",
+        "fix",
+        "new",
+        "new"
+      ]
     }
   ]
 }

@@ -55,7 +55,12 @@
             "original": "**The CLI status line moved to a cooler color palette.** The project name, branch, and metric labels shifted from the original green/blue/magenta mix to a teal-and-blue variant; usage-percentage colors by severity are unchanged."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "fix",
+        "new"
+      ]
     },
     {
       "version": "0.29.20",
@@ -133,7 +138,14 @@
             "original": "**Three passages of duplicated code were extracted.** The sharded disk caches for Claude and Codex history held sixty-three identical lines, and `codex_disk_cache.py` reached across to import `history_disk_cache.py`'s private serialisers and re-export them under its own `__all__` — a detour that made the real owner of that code impossible to see. Serialisation, shard paths and index, stale-cache removal and the payload read/write now live in `disk_cache_common.py`. The disk-cache lifecycle shared verbatim by all three loaders — the one-time seed check, the throttled flush and the best-effort flush on termination — moved to `disk_cache_lifecycle.py`. The loaders themselves are still three separate modules and stay that way; they parse three unrelated formats, and only the cache plumbing around them was ever the same. In `session_hooks.py`, three pairs of `_is_X_entry`/`_strip_X_hooks` differing only in a marker constant were parameterised, with the six original names kept as thin wrappers. `agy_disk_cache.py` was deliberately left out: it is a single JSON file with no sharding, and forcing it into the shared shape would have meant changing its behaviour to fit. Net 218 lines removed, with no behavioural change.\n**Dead constants, two unused functions and thirteen orphaned translation keys were removed.** The keys came from renames and from the AI-updates feature moving to its own repository. Finding them took more care than the count suggests: a plain text search over the source reported 159 orphans, of which 146 were false. Keys are frequently assembled at runtime rather than written out — `discussion.html` builds `discussion_status_round1_running` by lowercasing a `SessionStatus` value, and `ui/html_report.py` prepends `report_` to every key it looks up, so four live `report_wrapped_beast_*` entries appear nowhere in the source under their full names. `agy_loader.recent_input_output_tokens()` looks equally dead from inside this repository and was kept: its only caller is a script outside it."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "fix",
+        "new",
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.29.19",
@@ -162,7 +174,10 @@
             "original": "**The app told Homebrew users to run a command that cannot work.** With no status file on disk, the popover footer said `Run python3 main.py --setup and open Claude Code once` — an instruction written for people who cloned the repo. Someone who installed the cask has no repo, so the natural next move is to look inside the bundle, and `main.py` really is in there: py2app copies it to `Contents/Resources/`. Running that copy with the system `python3` dies on `ImportError: cannot import name 'packaged_resource_path' from 'i18n'`, which points at the wrong thing entirely. The modules `main.py` imports are compiled into `lib/python313.zip`, and only the bundle's own interpreter has that on `sys.path`; with the real `i18n.py` unreachable, an unrelated PyPI package also named `i18n` in the user's site-packages answers the import instead. Both footer messages now name the \"Set Up Status Line\" button, which does the same job in one click and exists in every install regardless of how it was obtained. The bundled `main.py` additionally exits with an explanation when it is started without py2app's `RESOURCEPATH`, so the dead end says what it is instead of raising. (#92, reported by @kyang-06)"
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.29.18",
@@ -203,7 +218,11 @@
             "original": "**The Japanese and Korean locales shipped sixty-three blank labels each.** Flagged one version earlier and fixed here. Both locales carried all 489 keys, so `test_every_language_has_the_same_keys` compared key sets, found them identical, and passed — while `loading`, `no_data`, `session_title`, `col_time` and `model_breakdown` rendered as empty space for anyone running the app in either language. A present-but-empty value is invisible to a parity check by construction, which is the same blind spot that let fifty-two Simplified Chinese strings sit in the Traditional Chinese locale until last version. Two assertions now close it: no translated value may be blank, and every value's `{placeholder}` set must match English exactly. The second guards a failure the first cannot see — a translation that drops or renames a placeholder does not look wrong in the file, it raises at `format` time in front of the user. Rich markup (`[dim]`), format specs (`{m:02d}`) and command names were left in English."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.29.17",
@@ -256,7 +275,12 @@
             "original": "**`_refresh_in_background` moved into `menubar_refresh.py`.** At 203 lines it was the largest method in `menubar.py`, which had four lines left under its ceiling — and a ceiling exists on that file precisely because it has been split apart and grown back twice. Only three lines of the method touch PyObjC, the three `performSelectorOnMainThread` calls, and those stay behind along with every selector: an AppDelegate method is bound by name, so relocating one breaks the binding. What moved is the data work between them, split into `load_sources()` and `build_result()`, with the app passed in behind a `typing.Protocol` so the new module imports no PyObjC at all — the same rule that keeps `menubar_state.py` clean. `menubar.py` goes from 2116 lines to 1934 and the ceiling was lowered to match rather than raised, since raising it to get CI green would dismantle the only thing stopping the file from growing back a third time. Behaviour is unchanged, and that was verified rather than assumed: the six `refresh_timing` stages, the fifteen state assignments on the degraded path, and the `submitted`/`finally` guard that keeps a failed refresh from wedging the app were each compared line by line against the original."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "fix",
+        "new"
+      ]
     },
     {
       "version": "0.29.16",
@@ -322,7 +346,13 @@
             "original": "**`switchPanel_` builds its items through a helper.** A dozen menu entries each repeated the same five to seven lines — allocate the item, set the target, set the state, set the tooltip, add it — and `menubar.py` had two lines left under its ceiling. `menubar_menu.build_menu_item()` absorbs that shape. It lives in a new module rather than in `menubar_state.py`, which stays free of PyObjC. `switchPanel_` itself does not move: an AppDelegate method is bound by selector, and relocating one breaks the binding. The saving is smaller than it looks — 24 lines, not the 80 the line count suggested, because keyword arguments wrap across lines and give much of it back. The gain is the removed repetition, not the arithmetic. Moving the helper out also broke a test that patched `NSMenuItem` on the `menubar` module only; the fix was to patch the helper module too, never to add module-level indirection so the old patch keeps reaching."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new",
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.29.15",
@@ -411,7 +441,15 @@
             "original": "**`scripts/install_local.sh` replaces the hand-typed steps for installing a build locally.** Releasing does not touch `/Applications`: the tag drives CI, and the local copy keeps running whatever was already there. That last step lived only in a checklist, and the menu bar once ran a stale build for six versions before anyone noticed. The script checks the build exists, prints both versions, waits for the running app to exit, swaps it, and verifies the installed version matches."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix",
+        "new",
+        "fix",
+        "new",
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.29.14",
@@ -466,7 +504,12 @@
             "original": "**The macOS notification bridge moved out of `menubar.py` into `menubar_notify.py`.** The six module-level functions that talk to `UNUserNotificationCenter` had no reason to live in a 2230-line file. They were not folded into `usage_notifications.py`, which stays free of PyObjC so its decision logic remains testable without the ObjC runtime — these functions call `objc.registerMetaDataForSelector`. The update-dismissal cooldown joined `update_gate.py`, where the other update-timing constants already were. `menubar.py` is down to 2139 lines and its ceiling followed.\n**`jsonl_utils` and `time_utils` gained direct unit tests.** Both are shared by several loaders and had only incidental coverage through the modules above them. The JSONL reader's tolerance for blank lines, malformed rows and non-object values is now pinned, including the deliberate choice to raise on invalid UTF-8 when no `errors` argument is given — that decision belongs to the caller."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix",
+        "fix",
+        "new"
+      ]
     },
     {
       "version": "0.29.13",
@@ -496,7 +539,10 @@
             "original": "**Removing the Codex status line no longer deletes one that `usage` never installed.** `_unsetup_codex()` only checked whether a `tui.status_line` existed at all, not whether it was ours. Anyone who had configured their own status line and then ran the removal lost it. Worse, a corrupt backup file made the restore path overwrite the config with an empty list and then delete the only backup, losing both at once. Removal now acts only when the status line matches `CODEX_STATUS_LINE` exactly, and an unreadable or wrong-typed backup leaves both the config and the backup untouched.\n**A corrupt `~/.codex/hooks.json` is no longer treated as an empty one.** `_load_codex_hooks()` returned `{}` for \"file missing\" and \"file exists but won't parse\" alike; terse mode then rebuilt from that empty dict and wrote it back, permanently erasing every Codex hook the user had, with no backup and no message. Codex writing that file while `usage` reads it is enough to trigger this. The unreadable case now aborts before anything is copied or written, so a failed run can no longer leave a half-installed state either."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.29.12",
@@ -526,7 +572,10 @@
             "original": "**The AI Talent Market gained 25 engineering roles across seven new packs.** Frontend, backend, cloud ops, quality, AI, code maintenance and app development — React and Next.js specialists, API designers, SQL and Python pros, cloud architects, Docker and DevOps engineers, Swift and Electron experts, refactoring and dependency specialists, prompt engineers, and more. Every role ships the full zh-TW/zh-CN/en/ja/ko persona set. Two existing packs also absorbed a role each: SEO into marketing, payment integration into ecommerce.\n**Hiring a role is now one click instead of two.** A role card used to show \"Install\", and only after that did it turn into \"Launch\" — but installing is an implementation detail (writing one `.md` file into `~/.claude/agents/`) that no one needed to see. Every card now shows \"Launch\" directly; if the role isn't installed yet, it gets installed first and then starts. A failed install stops there and reports the error rather than opening an empty terminal. The \"Restore\" button for hand-edited roles is unchanged."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     }
   ]
 }

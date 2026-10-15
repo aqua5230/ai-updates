@@ -78,6 +78,7 @@ def _configure_build(
                 (curated_dir / f"{name}.json").write_text(
                     json.dumps(version["curated"]), encoding="utf-8"
                 )
+            version["badges"] = build_script._card_badges(version["raw"], version["curated"], {})
     docs = tmp_path / "docs"
     docs.mkdir()
     (docs / "index.html").write_text(
@@ -106,7 +107,9 @@ def test_site_payload_splits_history_without_losing_data(
     for number in range(10, 0, -1):
         version = f"0.{number}.0"
         raw = _raw(version, [f"Alpha {number}"])
-        records["alpha"].append({"version": version, "raw": raw, "curated": None})
+        records["alpha"].append(
+            {"version": version, "raw": raw, "curated": None, "badges": ["new"]}
+        )
         (tmp_path / "data" / "raw" / "alpha" / f"{version}.json").write_text(
             json.dumps(raw), encoding="utf-8"
         )
@@ -286,7 +289,7 @@ def test_english_pages_and_language_links(
 def test_english_page_neighbors_and_escaped_title() -> None:
     versions = [
         {"version": number, "raw": _raw(number, ["Original"]),
-         "curated": _curated(number, ["Original"])}
+         "curated": _curated(number, ["Original"]), "badges": ["new"]}
         for number in ("3.0.0", "2.0.0", "1.0.0")
     ]
     versions[0]["curated"] = None
@@ -393,6 +396,7 @@ def test_headline_limits_and_metadata(
         "version": "2.0.0",
         "raw": _raw("2.0.0", ["Raw update"]),
         "curated": _curated("2.0.0", ["Raw update"]),
+        "badges": ["new"],
     }
     first = version["curated"]["items"][0]
     first["title"]["zh-TW"] = "前面有重點，" + "長" * 35
@@ -441,6 +445,7 @@ def test_card_ids_keep_curated_positions_and_raw_fallback() -> None:
         "version": "1.0.0",
         "raw": _raw("1.0.0", ["Raw `entry`"]),
         "curated": _curated("1.0.0", ["First", "Skipped", "Third"]),
+        "badges": ["new", "new", "new"],
     }
     version["curated"]["items"][1]["title"] = {"zh-TW": "", "en": ""}
     version["curated"]["items"][1]["body"] = {"zh-TW": "", "en": ""}

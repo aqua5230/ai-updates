@@ -35,6 +35,7 @@ https://aqua5230.github.io/ai-updates/
 data/
   raw/<tool_id>/<version>.json       # Immutable official source records
   curated/<tool_id>/<version>.json   # Human-reviewed zh-TW and en records
+  badge_overrides.json               # Card badges fixed by hand where the rule misjudges
 docs/
   index.html                         # GitHub Pages site
   data.json                          # Generated website version index

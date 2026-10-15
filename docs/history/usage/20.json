@@ -32,7 +32,10 @@
             "original": "**Pricing cache moved under `~/.usage/`**: the LiteLLM pricing cache now lives at `~/.usage/pricing_cache.json` instead of `~/.claude/pricing_cache.json`, following the principle that usage-owned state belongs in its own directory. The legacy path stays as a read-only fallback for seamless migration. Thanks @ericweichun.\n**Explicit `usage report --help` and unknown-option handling**: previously the CLI silently ignored unknown report options and `--help` still triggered agent detection. Now `--help` returns the help text immediately and unknown options error out cleanly. Thanks @ericweichun."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.11.6",
@@ -75,7 +78,11 @@
             "original": "**Analysis report period follows the Project Usage range**: the Report button now switches output periods with the current project range, mapping 1d to today, 7d to week, and 30d to month. No new UI was added; it uses the existing range control.\n**Codex today / week / month reports now use tail scanning**: users with many sessions no longer wait for a full history scan when opening reports. Today reports drop from roughly 7 seconds to the 0.03-second range, with week / month benefiting from the same path."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix",
+        "new"
+      ]
     },
     {
       "version": "0.11.5",
@@ -129,7 +136,11 @@
             "original": "**Classic panel large visual refinement**: pushed towards a \"macOS system tool\" feel — card corners 18→8, tightened spacing, progress bars gained inset track shadow and outer glow, projects list got a relative-share comparison bar (top-3 ranks emphasized), footer status became chip pills, brand-color accent stripe added on the left, brand icons gained background tint and glow.\n**Six themed panels adopt the same UX trio** (matrix / win95 / newspaper / aquarium / cloud_observation / prism_arcade / black_hole): comparison bars, Terminal active-state coloring, button hover. Each panel's own theme art is preserved in full (Matrix green / Win95 pixel / newspaper print / aquarium ripple / cloud / prism rainbow / black-hole orange).\n**Landing page panel gallery expanded from 6 to 9 themes**: added aquarium / prism_arcade / black_hole; classic now uses its own screenshot instead of borrowing `popover.png`.\n**Refreshed all 9 panel screenshots (zh-TW & en)** in the README and on https://aqua5230.github.io/usage/.\n**Visible popovers are repositioned when switching panels**: changing the active theme/panel while the popover is open now closes the old popover, rebuilds the content and size, then shows it again to avoid transient indentation or sizing glitches.\n**Codex project usage and analysis reports now share one counting path**: when the same Codex session appears in multiple JSONL files, usage keeps the newer cumulative token entry; analysis reports now reuse `codex_loader.load_entries()`, and Project Usage includes Codex sessions so the app and report do not disagree for the same local data. Project Usage's Today range now matches the footer's local calendar day, and the footer no longer reloads Codex when the caller already supplied Codex entries.\n**Project Usage header truncation fixed across all 9 panels**: classic & matrix were patched by @ericweichun (#9); this release completes the remaining six (win95 / newspaper / aquarium / cloud_observation / prism_arcade / black_hole). All now use a 2-row grid (icon + title on top, three buttons evenly distributed below) so English \"Project Usage\" and longer Japanese/Korean titles no longer clip.\n**Matrix panel footer clipping**: the ASCII border + raindrop background made the content taller than the default 812 panel height, clipping the \"Refresh Now / Quit\" buttons. Raised to 880.\n**win95 / newspaper \"Resets in X\" text was glued to the card edge**: bumped win95 panel height 768 → 800, newspaper → 850, and added padding-bottom to the Claude/Codex card's `.row:last-child`.\n**Four grid panels (aquarium / cloud_observation / prism_arcade / black_hole) — Projects row layout rebuilt**: the original row-as-mini-card design (border + radius + background) fundamentally fought with the new column-spanning comparison bar (the bar always glued to the row card's bottom border; padding / margin / grid-template-rows tweaks all failed). Switched to flat rows with border-top dividers (same as classic), preserving each panel's theme color on the rank chip and background. Also removed the comparison bar from these four panels (grid + row-card + spanning bar is fundamentally conflicting; ROI too low). The other four panels (classic / matrix / win95 / newspaper) keep their comparison bars."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.11.4",
@@ -162,7 +173,10 @@
             "original": "**statusLine shows an \"update available\" hint**: after every successful update check, menubar writes the result to `~/.claude/usage-preferences.json` under `last_update_check`. statusLine reads this and renders `🆕 vX.Y.Z available` (cyan) on the model line when a newer version is cached, the cache is fresh (<30 days), and the version isn't on the user's skip list. New `update_available_suffix` translation across all 5 languages (zh-TW「可更新」/ zh-CN「可更新」/ en「available」/ ja「更新あり」/ ko「업데이트」).\n**statusLine context-window label format**: `對話窗(1.0M):[bar]` → `對話窗:[bar] 15% / 1.0M`. The capacity moves from a middle parenthetical to a right-aligned suffix, reading more naturally as \"15% of 1M\".\n**statusLine fast-mode display flipped**: previously both states showed a label (`⚡Fast` vs `/nofast`); now only the *on* state shows `⚡Fast`, off renders nothing — like an AC unit's indicator light: the light *being on* is the signal.\n**statusLine percentages now share the bar color**: previously rendered in neutral gray; now matched to the bar's warning color (yellow / green / red). The number alone tells you the warning level at a glance.\n**statusLine `(X left)` no longer dimmed**: previously rendered with ANSI dim, hard to read on dark terminal backgrounds. Removed dim; parentheses alone now carry the \"supplementary info\" semantic."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.11.3",
@@ -195,7 +209,10 @@
             "original": "**Read-only CLI commands silently mutated user settings**: `usage daily` / `report` / `sessions` / `dashboard` and other read commands unconditionally called `setup()` or `update_hook()`, potentially writing to `~/.claude/settings.json` or `~/.codex/config.toml` on every invocation. Fix: only `setup` / `unsetup` mutate user settings; other commands now show a one-line \"Hook not installed. Run: usage setup\" hint when the hook isn't installed.\n**Opus 4.6 / 4.7 cost was underestimated 3× on offline cold start**: `pricing.py`'s fallback table listed Opus as `5e-6 / 25e-6` (input / output per token), but the published Anthropic rate is `15e-6 / 75e-6`. Affected scenario: no pricing cache *and* LiteLLM live fetch fails. Users with network access or a cached price table are unaffected.\n**`adapters/codex.py` sqlite connection leak**: `_load_thread_models()` wrapped the work in `try / except`, but `conn.close()` ran *after* `execute().fetchall()` — any exception in between left the connection dangling. Now uses `contextlib.closing()` to guarantee release.\n**Mid-write crash could leave `~/.codex/config.toml` truncated**: `setup_hook.py`'s `_setup_codex` / `_unsetup_codex` used plain `write_text()`, so a crash or kill during setup could corrupt Codex config. Now uses `mkstemp + os.replace` atomic write, sharing a single module-private helper with Claude settings.\n**`analyzer/cost.py` removed**: it was a weakened duplicate of `pricing.py` — bidirectional substring model matching (prone to misclassification), no cache TTL, and an SSL-cert-verification-disabled fallback when fetching the price table (a security concern for cost data). `analyzer/{aggregator,blocks,reporter}` now import `pricing.calculate_cost` directly; the latter accepts a `typing.Protocol` so both `history_loader.UsageEntry` and `adapters.types.UsageEntry` work. Net 76 lines of duplicate cost-calc code removed."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.11.2",
@@ -229,7 +246,10 @@
             "original": "**`usage_cli.py` crashed on every first run** (thanks @will30-blockchain — [#7](https://github.com/aqua5230/usage/pull/7)): `setup(auto=True)` passed a non-existent keyword argument to `setup_hook.setup()`, causing a `TypeError` on any fresh install or after `unsetup`. Users who already had the hook installed were unaffected. Fix: drop the stale `auto=True` kwarg.\n**Incremental JSONL parsing**: `history_loader` and `codex_loader` now maintain module-level mtime+size caches and skip re-parsing files whose content hasn't changed, significantly reducing per-refresh disk I/O.\n**Parallel hook forwarding**: `usage_statusline_forwarder` now dispatches all hooks concurrently via `ThreadPoolExecutor`; a single slow or timing-out hook no longer stalls the others. Worst-case latency drops from `n × 5s` to `5s`.\n**Multi-session write protection**: `usage_statusline.py`'s `save()` now acquires `fcntl.LOCK_EX` before writing, preventing concurrent Claude Code sessions from clobbering each other's data.\n**Python path resolution**: `setup_hook` now uses `_find_system_python()` when building hook commands — preferring the bundled `.app` Python, then `/usr/bin/python3`, avoiding the broken Xcode stub that `shutil.which(\"python3\")` can resolve to after an Xcode update.\n**FSEvents-driven UI refresh**: `menubar` now uses a CoreServices `FSEventStream` (via ctypes) to watch `~/.claude/`. Changes to `usage-status.json` trigger `_refresh()` immediately, cutting update latency from up to 60 seconds to milliseconds. `NSTimer` is demoted to a 300-second fallback; silently degrades to timer-only mode if CoreServices is unavailable."
           }
         ]
-      }
+      },
+      "badges": [
+        "perf"
+      ]
     },
     {
       "version": "0.11.1",
@@ -265,7 +285,10 @@
             "original": "**[P0] Released `.app` crashes on launch on macOS Sequoia / arm64** (thanks @cmhcm — [#6](https://github.com/aqua5230/usage/pull/6)): all three prior releases (v0.10.0 / v0.10.1 / v0.11.0) are affected. Root cause: in py2app builds `i18n.py` is compiled into `lib/python313.zip` but `i18n.json` lives in `Contents/Resources/`. The old `Path(__file__).with_name(\"i18n.json\")` resolved to a path *through* the zipfile and raised `NotADirectoryError` on first read. Fix: new `i18n.packaged_resource_path()` helper prefers the `RESOURCEPATH` env var that py2app injects at launch (pointing at `Contents/Resources/`) and falls back to the source-adjacent path. All four packaged-resource callsites updated (`i18n.py` / `tui.py` / `main.py` / `menubar.py`). Source-mode runs are unaffected.\n**Packaging metadata completed**: `pyproject.toml` `py-modules` adds the previously-missing `burn_rate` / `update_checker` / `tips_loader` / `usage_lang` / `usage_statusline_forwarder`, and `packages.find` `include` adds `panels*`. Non-editable installs now ship the full code.\n**`.app` license metadata aligned**: `setup_app.py` `NSHumanReadableCopyright` updated from the stale `MIT License` to `Copyright © 2025-2026 lollapalooza. Licensed under AGPL-3.0-only.`, matching what `pyproject.toml` declares.\n**`pricing_cache.json` path unified**: `analyzer/cost.py` now caches to `~/.claude/pricing_cache.json` (was repo root), matching `pricing.py`. A stray 1.1 MB orphan cache at repo root was removed.\n**Panel names go through i18n**: `panels/__init__.py` exposes an `i18n_key` per panel and i18n.json gains the missing keys across all 5 languages. The \"Switch Panel\" menu no longer mixes Chinese names into en / ja / ko UIs.\n**Status-file error messages go through i18n**: `usage_client.py`'s \"status file not found\" and \"no quota data yet\" hints now route through `_t()`, all 5 languages covered.\n**Analytics CLI read order matches the main app**: `adapters/rate_limits.py` previously only read `~/.claude/tt-status.json`; it now follows the same `usage-status.json` → `usag-status.json` → `tt-status.json` fallback chain as `usage_client.py`.\n**README documents the v0.11.0 update check + GitHub Releases as a network exception**: README.md / README.en.md both gain a new \"update check\" bullet and list the GitHub Releases API as the second of two network exceptions (the first remains the LiteLLM pricing table)."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.11.0",
@@ -297,7 +320,10 @@
             "original": "**In-app update check (Stage 1)**: On launch, usage pings GitHub Releases for a newer version (rate-limited to once per 24h so you're not nagged every time you open the app). When a newer version is found, an NSAlert shows the version + release notes with three buttons: **Download**, **Later**, **Skip this version**. \"Download\" opens the Release page in your default browser — manually replace the old `.app` with the new one. (Stage 2 will bring Sparkle-style auto download + replace.)\n**Two new entries in the \"Switch panel\" menu**:\n- **Automatically Check for Updates** (toggleable): unchecking it disables the launch-time auto check entirely; the manual entry below still works.\n- **Check for Updates Now**: manually triggers a check, bypassing the 24h cooldown and skip-version preference. If you're already up to date, an alert says so; on network error you see \"Update check failed\".\nPreferences are stored in the existing `~/.claude/usage-preferences.json`, with three new keys: `auto_update_check` (default true), `update_dismissed_at` (Unix timestamp), `update_skipped_version` (skipped version string).\n`setup_app.py` now bundles `pyproject.toml` and `update_checker` into the py2app build — so the packaged `.app` can fall back to reading `pyproject.toml` when `importlib.metadata` can't resolve the version."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.10.1",
@@ -326,7 +352,10 @@
             "original": "**Weekly burn-rate warning false positive**: Extrapolating the last 10 minutes of usage slope onto a 7-day weekly quota was too aggressive (e.g. 56% used → projected 5h50m to exhaustion → \"Runs out in 5h50m (resets in 4d6h)\" warning), since users don't sustain that rate 24/7. Fix: `_quota_row` gained a `warning_max_seconds` parameter, and the three weekly call sites pass a 24h ceiling — projections beyond 24 hours no longer trigger the warning. Session warnings are unchanged."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.10.0",
@@ -371,7 +400,11 @@
             "original": "**HTML report sponsor section reworked**: Two Ko-fi badges now flank the brand slogan `No cloud. No tracking. Just yours.` (kept in English across all five UI languages). The slogan carries a subtle wobble animation to draw the eye, and the GitHub link (github.com/aqua5230/usage) appears below.\n**statusLine second line removed**: The cumulative token totals / cache / cost line has been dropped to simplify visuals. Key info now lives on line 1 (5h / 7d / Context window) and line 3 (session duration, model).\n**HTML report KPI card widths rebalanced**: tokens / cost are now wider; sessions / messages / active days narrower (grid ratio 1.5fr 1.4fr 1fr 1fr 1fr), preventing 9-digit token counts from wrapping.\nHTML report footer line `usage · Local-first analytics · Data stays on device` — replaced by the GitHub link in the sponsor section."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new"
+      ]
     }
   ]
 }

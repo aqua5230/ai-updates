@@ -32,7 +32,10 @@
             "original": "**Antigravity quota probing now reads the current Windows CLI OAuth credential**: when the legacy token file is missing or unusable, usage falls back read-only to the `gemini:antigravity` Windows Credential Manager entry. The quota request's user agent now also identifies the actual host platform instead of always claiming Darwin/arm64.\n**Claude Code quota collection now works with Git Bash on Windows**: status-line commands were written with Windows backslashes, but Claude Code runs them through Git Bash when it is installed, where those backslashes escape the path and prevent the Python hook from launching. New commands use portable forward slashes; startup self-heal migrates existing usage-owned commands, and `--doctor` identifies the legacy form and the recovery step."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.28.2",
@@ -62,7 +65,10 @@
             "original": "**Switching panels on Windows no longer risks a blank white window**: the panel-switch action reloaded the document synchronously from inside the pywebview JS-API callback, which could destroy the in-flight JavaScript Promise callback for that call and leave Edge WebView blank. The reload is now deferred until the bridge call has returned to JavaScript, with a pending-switch guard so rapid double-clicks recompute the target panel instead of reusing a stale one. The Windows PyInstaller bundle also now includes the status-line and session-hook source files that the setup and self-heal paths copy at runtime, which it previously omitted.\n**The Windows tray window no longer flashes white regardless of theme**: pywebview's window background defaults to white, which bled through the frameless window's rounded corners (and any unpainted first frame) even when the active panel's CSS was rendering its dark variant. The window background now reads the system's light/dark theme setting and matches the panel's background color."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.28.1",
@@ -119,7 +125,12 @@
             "original": "**Project names derive correctly from POSIX-style cwds on Windows**: `usage_session_resume._project_from_cwd` and `adapters.claude.project_from_cwd` split paths on `os.sep` only, so a transcript cwd recorded with forward slashes (or a `C:/...`-style path) kept the whole path as the \"project\" on Windows. Both now normalize separators on Windows before splitting; POSIX behavior is unchanged, since backslashes are legal in POSIX filenames.\n**Encoded project-path decoding now works on Windows**: `project_from_encoded_path` reconstructed a project's real directory from its dash-encoded name by searching from the filesystem root, but a bare Windows `\\` has no drive letter and never matches a real path, so decoding always fell back to the raw encoded string. It now anchors at the drive root (e.g. `C:\\`) when the encoded name starts with one; POSIX behavior is unchanged."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "fix",
+        "new"
+      ]
     },
     {
       "version": "0.28.0",
@@ -152,7 +163,10 @@
             "original": "**Full Windows support**: `usage` now runs natively on Windows, including the TUI, Claude Code status-line hook, and Codex history parsing.\n**Windows system tray UI**: a dynamic tray icon shows the Claude quota percentage; its tooltip summarizes Claude and Codex windows. Left-click opens the same 11 HTML theme panels used on macOS through WebView2, while the right-click menu offers panel switching, refresh, launch at login, update checks, and quit.\n**Portable Windows release**: GitHub Releases now include `usage-windows.zip`, containing `usage.exe` for unzip-and-run use. It requires the Microsoft Edge WebView2 Runtime, which is normally already present on Windows 10 and 11.\nWindows packaging and CI now use PyInstaller and `windows-latest` for both checks and release artifacts. The optional `windows` extra installs pystray, pywebview, and Pillow; macOS-only PyObjC dependencies are guarded by a Darwin platform marker.\nStatus-line hook file locking and generated hook-command quoting are platform-aware, so they work on Windows as well as macOS."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.27.4",
@@ -181,7 +195,10 @@
             "original": "**Codex card no longer leaves a blank gap (and clips the projects list) on four panels**: the \"Cloud Observation\", \"Aquarium\", \"Prism Arcade\", and \"Black Hole\" panels pinned every quota card at a fixed two-row height. When Codex reports weekly-only rate limits, the session row correctly hides but these four panels kept the card at its full height while the popover window itself had already shrunk by one row, leaving a blank band inside the Codex card and cutting off the projects card at the bottom. The card now collapses along with the missing row, matching the other five panels; the two-row layout is unchanged when both rows are present."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.27.3",
@@ -210,7 +227,10 @@
             "original": "**Report generation is much faster, especially on repeat clicks**: generating the \"Today\"/\"Last 7 days\" HTML report used to re-open and re-parse every Antigravity conversation database and re-scan Codex's OTel trace log from scratch every time, and recomputed the same entry's local date and working-directory-to-project-name mapping repeatedly within a single report build. All three now cache appropriately (file-level caching for the SQLite sources, in-memory caching scoped to each report build), so a repeat click of the same period is dramatically faster with no change in the numbers shown."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.27.2",
@@ -239,7 +259,10 @@
             "original": "**Opening the popover no longer stutters**: clicking the menu bar icon used to kick off a data refresh whose UI apply raced the popover's first frame on the main thread, and every open re-injected the full state JSON into the panel even when nothing changed. The refresh now starts only after the popover is fully shown, and state injection is skipped when the payload is identical to the last one (still force-reinjected after a WebKit process reload, so recovery is unaffected)."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.27.1",
@@ -268,7 +291,10 @@
             "original": "**Antigravity card no longer misreads as maxed out**: the card used to show whichever of the two quota groups (Gemini, or Claude/GPT) was most depleted, so an exhausted Claude/GPT five-hour window read as \"100% used\" even while the Gemini group the account actually runs on still had plenty left. The card now always tracks the Gemini group (falling back to the most-depleted group only if Gemini is ever absent from the API response)."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.27.0",
@@ -298,7 +324,10 @@
             "original": "**AI Update Daily** — clicking this menu item opens the public [web page](https://aqua5230.github.io/ai-updates/) in your default browser. The page auto-updates every day, covers Claude Code, Codex, and Antigravity, and keeps the full update history; reviewed updates show a plain-language summary in all five UI languages, while unreviewed ones show the official source text.\n**HTML report's \"AI Tool Update Digest\" section removed** — the digest has graduated into its own dedicated web page, so the HTML deep report no longer duplicates it."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.26.1",
@@ -342,7 +371,11 @@
             "original": "**Antigravity reset countdowns tick down live** instead of freezing at the last-fetched value until the next refresh.\n**Antigravity quota now comes straight from the official quota API**: usage reads the sign-in token the Antigravity CLI already stores on your machine (strictly read-only — the file is never modified) and queries the official quota endpoint directly, replacing the background `/quota` CLI probe. Numbers refresh every ~5 minutes instead of 15, countdowns are exact, no helper process is spawned, and the call reads quota metadata only — it never consumes your model quota. Any fetch failure still falls back to the cached snapshot with the usual stale badge. The data-source description in all five README languages is updated to match.\nAntigravity token rows in the HTML report are labeled \"Antigravity\" instead of \"unknown\"."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix",
+        "fix"
+      ]
     }
   ]
 }

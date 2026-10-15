@@ -47,7 +47,11 @@
             "original": "**Double-counted report cost**: `build_report_data` summed cost once over all entries and then recomputed it per entry inside the loop — effectively doubling the work on large datasets. Now accumulated once inside the loop.\n**Duplicated clipboard code in the report's \"copy command\" button**: the tip-copy button now reuses the shared `copyText()` helper instead of re-implementing the legacy-browser fallback.\n**Hard-coded TWD rate**: the USD→TWD estimate in the report is now a named `_USD_TO_TWD` constant with a note that it is a display estimate, not a live FX rate."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.11.19",
@@ -77,7 +81,10 @@
             "original": "**\"Hide Codex Section\" menu toggle**: the menubar gained a \"Hide Codex Section\" option that collapses the Codex card across all 9 HTML panels and shrinks popover height per-panel. The preference persists via `NSUserDefaults` so it survives restarts. i18n keys added for all 5 locales. (PR #19, thanks @RayCHWong for the first-time contribution)\n**`HTMLPanel.codex_card_height` is now a required keyword-only argument with no default**: previously the parameter had a `192.0` default, so a new panel that forgot to set its height in `panels/__init__.py` would silently fall back to the default — the Codex card would render at a height that doesn't match the rest of the panel without raising any error. Now declared as `*, codex_card_height: float` (keyword-only, no default), so any missing call site raises `TypeError` at import. All 9 existing panels already pass it by keyword and are unaffected; added `test_html_panel_requires_explicit_codex_card_height` to lock the contract."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.11.18",
@@ -107,7 +114,10 @@
             "original": "**Statusline progress bar visual refresh**: progress bar characters switched from `█░` to `■□` (filled / hollow squares), and the color palette moved from standard ANSI green/yellow/red (32/33/31) to 256-color teal/orange/dark-red (42/214/160) for stronger contrast around the 50% threshold — safe / warning / danger states are now distinguishable at a glance. Changes confined to `usage_statusline.py` (`progress_bar()` and `color_by_pct()`); HTML reports and the TUI progress bars are unaffected.\n**Traditional Chinese default panel screenshot refreshed**: `docs/繁體中文面板.png` updated to reflect the latest UI (new \"Report / Terminal\" toggle, per-project cost display, footer attribution)."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.11.16",
@@ -151,7 +161,11 @@
             "original": "**TUI language detection routed through `usage_lang.detect_lang`**: `tui.py` had its own detector that only returned `zh-TW` or `en` (treating simplified Chinese, Japanese, and Korean as English), and ignored `USAGE_LANG` / `TT_LANG` / `LANG` entirely. The menubar already used `usage_lang.detect_lang()`, so the same machine could show Japanese in the menubar and English in the TUI. The TUI now shares the same detector — all five languages render consistently.\n**LRU cap on history / codex loader caches**: `_file_cache` and `_jsonl_cache` were unbounded module-level dicts. As `~/.claude/projects/` and `~/.codex/sessions/` accumulated more jsonl files over time, the menubar's resident memory grew without bound — parsed `UsageEntry` lists never got released. Both caches are now `OrderedDict`s with a 512-entry ceiling: cache hits `move_to_end` to mark MRU, inserts on a full cache `popitem(last=False)` the oldest. The mtime/size invalidation logic and codex_loader's `entry.model` rebind on cache hit are unchanged."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix",
+        "fix"
+      ]
     },
     {
       "version": "0.11.14",
@@ -195,7 +209,11 @@
             "original": "**Codex usage bucketed by token_count deltas (@ericweichun, #11)**: `analyzer/reporter.py`'s fast path previously parsed Codex `.jsonl` files to extract a cumulative snapshot keyed by session-start timestamp, which diverged from the popover (which uses `codex_loader.load_entries` with per-event delta logic). The reporter now shares the same loader, so today/week/month reports match the popover exactly. Added a reporter-layer test exercising a cross-day cumulative Codex session to verify only the current-day delta is counted.\n**All-Time reports tied to the project range selector (@ericweichun, #15)**: v0.11.6's analyze-bridge refactor left out the All-Time period, so clicking All-Time showed 720h cached data instead of true all-time. The bridge now maps `projectRange === \"all\"` through `_analysis_period_from_project_range(\"all\") → \"all\"`, and project history loads with `hours_back=0` for true all-time data. All 9 panels gained a `projectRange === \"all\"` branch; `project_range_all` i18n keys added across all 5 locales."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "fix"
+      ]
     },
     {
       "version": "0.11.13",
@@ -224,7 +242,10 @@
             "original": "**Removed Codex model footer from popover**: the \"· model: gpt-5.5\" suffix added in v0.11.6 (`menubar.py:868-870`) misled users into thinking the model was being used *right now*, when in fact it reflects the model of the most recent Codex session with rate_limits data — possibly hours old. Without a timestamp context, this information is noise that can't be acted on. TUI model displays (`ui/tables.py:818,857`) are kept since they live inside different contexts (active session block / idle panel). The `model_label` i18n key and `CodexRateLimits.model` field are preserved; only the popover footer concatenation is removed."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.11.12",
@@ -268,7 +289,11 @@
             "original": "**`--doctor` hidden CLI flag**: `python3 main.py --doctor` prints a plain-text diagnostic report (English-only for easier GitHub issue searches) covering hook state, version, script file status, status file mtime, external hook detection (recognizes `ccusage` / `lord-kali` keywords), forwarder prompt ack state, last 5 self-heal log entries, and Codex sessions scan count. Hidden from `--help` via `argparse.SUPPRESS` so it doesn't distract typical users. New `doctor.py` renderer module.\n**Weekly burn warning no longer over-reacts to short bursts**: previously the weekly warning extrapolated from the most recent 10-minute sample window, so a single large prompt could trigger a scary \"8 hours until empty\" warning that vanished once the user took a break. The weekly warning now uses a 30-minute sample window with a 30-minute minimum span, requiring sustained high usage for at least half an hour before triggering. Session warnings keep the 10-minute window (session resets are frequent, can't be too strict). `burn_rate.ROLLING_WINDOW_SECONDS` was raised from 15 to 60 minutes so the longer window has enough history.\n**Burn warning text now says \"at current pace\"**: all 5 languages' burn warning strings now explicitly include \"按目前速度 / At current pace / 現在のペース / 현재 속도\", making it clear that this is a momentary extrapolation rather than a stable prediction."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.11.10",
@@ -297,7 +322,10 @@
             "original": "**\"Launch at login\" toggle now takes effect immediately, no reboot needed**: `login_item.enable()` / `disable()` now invoke `launchctl bootstrap gui/<uid> <plist>` / `launchctl bootout gui/<uid>/<label>` in addition to writing/removing `~/Library/LaunchAgents/com.lollapalooza.usage.plist`, so launchd learns about the change right away. Previously only the plist file was touched, so the toggle did nothing until the next reboot, and disabling left a KeepAlive orphan process behind. `launchctl` \"already bootstrapped\" (exit 17) and \"not bootstrapped\" (exit 113) are treated as success; other failures log a warning without affecting the plist operation (signatures stay `() -> None`)."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.11.9",
@@ -328,7 +356,10 @@
             "original": "**Pricing falls back to a stale cache when offline**: the fallback order in `pricing.py` is now fresh cache → network fetch → stale cache → hardcoded fallback. Previously a >7-day-old cache combined with no network dropped straight to the hardcoded prices, skewing cost estimates; the real (if stale) historical cache is now preferred.\n**Update check now handles pre-release versions**: `update_checker._parse_version` now strips pre-release / build suffixes via regex, so `0.11.0-beta.1` / `0.11.0+build.5` no longer return `None` and no longer make `compare_versions` raise. Beta testers receive update prompts correctly. No new package dependencies were added.\n**TUI session table no longer crashes on `cost_usd=None`**: widened `ui/tables.py:_fmt_cost` to `float | None` so entries written without a cost (a known path on the Codex side) now render as `--`, matching the popover-side behavior in `panels/web_panel.py`. Previously the `>=` comparison raised `TypeError` and broke the whole table."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.11.8",
@@ -357,7 +388,10 @@
             "original": "**git worktree entries collapse into the main project**: running Claude Code or Codex inside a worktree (a duplicate working tree of the same repo) no longer splits `usage` and `usage-fix-bug` into two separate rows in the HTML report and TUI ranking. They are now grouped under the main worktree's directory name. A new `project_resolver.py` module (stdlib only, 3-second timeout, falls back to the previous basename behavior when git is unavailable) is shared by `history_loader.py` and `codex_loader.py`. Seeing historical totals merge on first upgrade is the intended behavior."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     }
   ]
 }

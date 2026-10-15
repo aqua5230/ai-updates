@@ -551,9 +551,10 @@ def _render_prose_block(text: str, with_lead: bool, language: str) -> str:
 
 def _badge_from_title(text: str) -> tuple[str, str]:
     lower = text.lower()
-    if re.search(r"fix|bug|修|修復|修复|直|해결", lower):
+    # 只收繁中標題；單字「修」「直」會誤中「修改」「直接」，「省」「改善」「優化」多半不是講速度。
+    if re.search(r"fix|bug|修復|修复|修正|修好|修掉|修補|修回|解決|解决", lower):
         return "fix", "bugfix"
-    if re.search(r"perf|效能|性能|省|優化|优化|改善|성능", lower):
+    if re.search(r"perf|效能|性能", lower):
         return "perf", "perf"
     return "new", "feature"
 
@@ -599,6 +600,35 @@ def _badge_for(original: str, title: str) -> tuple[str, str]:
     if kinds and not unique & {"new", "perf"} and kinds.count("fix") * 2 >= len(kinds):
         return "fix", "bugfix"
     return _badge_from_title(title or "")
+
+
+def _load_badge_overrides() -> dict[str, dict[str, str]]:
+    """規則判錯的卡在 data/badge_overrides.json 指定標籤：{"tool/version": {"卡號": "new"}}。"""
+    path = DATA / "badge_overrides.json"
+    if not path.exists():
+        return {}
+    overrides = json.loads(path.read_text(encoding="utf-8"))
+    for key, cards in overrides.items():
+        for number, badge in cards.items():
+            if badge not in BADGE_LABELS["en"]:
+                raise ValueError(f"{path}: {key} card {number} has unknown badge {badge!r}")
+    return overrides
+
+
+def _card_badges(
+    raw: dict[str, Any] | None, curated: dict[str, Any] | None, overrides: dict[str, str]
+) -> list[str]:
+    """每張卡的標籤只算一次，版本頁各語言和首頁共用；退回看標題時一律看繁中標題。"""
+    if not curated:
+        return [_badge_for(entry, entry)[0] for entry in (raw or {}).get("entries", [])]
+    items = curated["items"]
+    if any(not 1 <= int(number) <= len(items) for number in overrides):
+        raise ValueError(f"badge override card number out of range: {sorted(overrides)}")
+    return [
+        overrides.get(str(number))
+        or _badge_for(str(item.get("original") or ""), _localized(item.get("title"), "zh-TW"))[0]
+        for number, item in enumerate(items, 1)
+    ]
 
 
 def _render_prose(text: str) -> str:
@@ -656,9 +686,7 @@ def _render_items(
             title = _localized(item.get("title"), language)
             body = _localized(item.get("body"), language)
             if title or body:
-                original_text = item.get("original")
-                original_text = original_text if isinstance(original_text, str) else ""
-                badge_type, _ = _badge_for(original_text, title)
+                badge_type = version["badges"][number - 1]
                 original = ""
                 if include_original:
                     original = (
@@ -1120,6 +1148,7 @@ def build() -> None:
     daily_tools: list[dict[str, Any]] = []
     search_cards: list[list[Any]] = []
     loaded = _load_and_validate_data()
+    badge_overrides = _load_badge_overrides()
     for tool_id, name in TOOLS:
         raw, curated = loaded[tool_id]
         curated_latest = sorted(curated, key=_version_key, reverse=True)[:3]
@@ -1137,7 +1166,13 @@ def build() -> None:
             "id": tool_id,
             "name": name,
             "versions": [
-                {"version": version, "raw": raw.get(version), "curated": curated.get(version)}
+                {
+                    "version": version, "raw": raw.get(version), "curated": curated.get(version),
+                    "badges": _card_badges(
+                        raw.get(version), curated.get(version),
+                        badge_overrides.pop(f"{tool_id}/{version}", {}),
+                    ),
+                }
                 for version in visible_versions
             ],
         }
@@ -1198,6 +1233,8 @@ def build() -> None:
                 )
         daily_tools.append({"id": tool_id, "name": name, "versions": daily_versions})
 
+    if badge_overrides:
+        raise ValueError(f"badge overrides for unknown versions: {sorted(badge_overrides)}")
     _write(ROOT / "ai_updates.json", {"generated_at": generated_at, "tools": app_tools})
     _write(
         ROOT / "docs" / "data.json",

@@ -35,6 +35,7 @@ https://aqua5230.github.io/ai-updates/
 data/
   raw/<tool_id>/<version>.json       # 不可覆寫的官方原文紀錄
   curated/<tool_id>/<version>.json   # 人工審核的繁中與英文紀錄
+  badge_overrides.json               # 規則判錯時手動指定的卡片標籤
 docs/
   index.html                         # GitHub Pages 網站
   data.json                          # 產出的網站版本索引

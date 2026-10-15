@@ -31,7 +31,10 @@
             "original": "**Auto-start 5-hour Session now actually fires**: the `claude` CLI resolution list was missing `~/.local/bin/claude` (where the native installer puts it), so inside the `.app` bundle's narrow `PATH` the ping silently found nothing to run and gave up. Also hardened against a false \"expired\" read: the reset-time check now only trusts the live statusLine hook data source (fallback sources can default a missing `resets_at` to parse time, which the next refresh would misread as already-expired) and requires the expiry to be at least 2 minutes old before firing, filtering out that false positive without meaningfully delaying a real away-from-keyboard ping. Dialog copy from 0.28.12 also simplified — leads with \"pauses on sleep, resumes on wake, nothing to manage\" and routes the sleep-setting instructions through System Settings search (the exact pane/wording varies by Mac model and macOS version) with a fallback suggestion to ask Claude Code to walk through it."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.28.12",
@@ -60,7 +63,10 @@
             "original": "**New opt-in menu toggle: Auto-start 5-hour Session.** When enabled, usage detects that your Claude 5-hour quota window has just reset and no session is currently running, then fires a single `claude -p ok --model haiku` in the background to immediately start the next window — useful if you're stepping away and want the next 5 hours counting down before you're back. Off by default; sends at most once per 5-hour window (self-throttled), never touches the Anthropic quota API, and silently no-ops if the `claude` CLI can't be found. Enabling it shows a one-time dialog explaining that it needs usage (and the Mac) to stay awake to fire — closing the lid always sleeps the Mac regardless of this setting."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.28.11",
@@ -89,7 +95,10 @@
             "original": "**The HTML usage report looks less like a template and reads more cleanly**: gold is no longer a blanket accent — it's now reserved for four focal points (headline tail, primary KPI number, the Wrapped kicker badge, the terminal cursor), with the contribution heatmap and donut chart moved to a cohesive teal/mauve palette instead. Fixed three alignment bugs: the KPI card grid now keeps a consistent rhythm across all six cards, the Wrapped section's total-token figure no longer overlaps the phoenix illustration at high digit counts, and the trailing metric card in that section no longer orphans onto its own row. Also cleans up several small \"obviously AI-generated\" tells: `transition: all` rules now list only the properties that actually animate, card/section borders read at a clearer contrast in both color schemes, disabled/active button states are now styled instead of falling back to defaults, motion respects `prefers-reduced-motion`, and the three share-dialog emoji icons are now matched-stroke SVGs."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.28.10",
@@ -118,7 +127,10 @@
             "original": "**Switching panels no longer stalls the UI with a beachball**: cold-rebuilding a panel view (evicted from the small LRU cache) reread and reassembled its HTML from disk every time — now the assembled markup is cached per panel and only built once. Selecting a panel no longer forces `NSUserDefaults.synchronize()` on the main thread. Unchanged panel state is no longer redundantly re-serialized and re-injected when a switch triggers two refresh passes back to back. Evicting an old cached panel view from the LRU cache is now deferred off the click's run-loop turn instead of running inline with the new panel's setup."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.28.9",
@@ -147,7 +159,10 @@
             "original": "**The Claude Code statusLine hook now works end-to-end on Windows**: four fixes land together. `setup_hook` now prefers an all-ASCII `python.exe` path (falling back to system PATH when the venv path isn't ASCII), since Claude Code on Windows fails to spawn statusLine commands whose path contains non-ASCII characters; `--setup` migrates existing non-ASCII commands. All five hook scripts now read stdin via `sys.stdin.buffer` and decode UTF-8 explicitly (and the forwarder pins `encoding=utf-8` on its subprocess fan-out), since Windows otherwise decodes the piped session JSON with the locale codepage, turning a cwd like `GitHub專案` into mojibake and silently breaking `usage-status.json` writes. Hooks now fall back to `GetUserDefaultUILanguage` when no `LANG`-style env var is set (the Windows norm), matching the tray's existing language detection. `get_width()` now probes the real console width via `CONOUT$` + `GetConsoleScreenBufferInfo` instead of always falling back to a fixed 116 columns, restoring the `(left)` reset-time suffix on wide terminals. Non-Windows behavior is unchanged."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.28.8",
@@ -177,7 +192,10 @@
             "original": "**The Windows tray no longer falls back to a stale quota cache when the hook already has live data**: a complete statusLine payload from the hook could still be overridden by the `.claude.json` fallback snapshot whenever its cached timestamp looked newer, even though that cache might describe a different or expired session; the tray now always prefers a complete hook payload, and the \"complete\" check itself is now stricter — malformed non-numeric percentages in the hook payload no longer count as complete, so a broken payload can't silently blank the quota by skipping the cache.\n**Windows tray history scanning no longer re-scans every Codex/Claude session log on each refresh tick**: `history_source_scan()` results are now cached for 30 seconds, removing the main source of UI jank in the tray."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.28.7",
@@ -207,7 +225,10 @@
             "original": "**Claude quota now shows on Windows even when the statusLine hook never fires**: a Claude Code regression stops the hook from being invoked on some Windows setups, leaving the Claude quota card permanently blank. `usage_client.py` now falls back to reading `cachedUsageUtilization` straight out of Claude Code's own `~/.claude.json` when no `usage-status.json` exists, so the card still populates.\n**Session hooks no longer break on non-ASCII (CJK) project paths on Windows**: the resume, terse-mode, and terse-reminder hook commands could point into the project or app-bundle source path, which failed to execute on Windows when that path contained Chinese/Japanese/Korean characters. Self-heal now normalizes these commands to their canonical `~/.claude/` targets, and the migration is idempotent — it no longer rewrites `settings.json` and appends a duplicate self-heal log entry on every restart once the command is already correct."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.28.6",
@@ -263,7 +284,12 @@
             "original": "**Windows quota-card empty areas now drag the panel rather than reorder cards**: the Windows shim temporarily marks only non-interactive card presses as native drag regions, retaining saved card order while buttons and links remain clickable.\n**Windows tray panels can now be repositioned**: a subtle top drag handle and quota-card empty areas move frameless panels with grab/grabbing cursors; the position is restored on the next open, clamped to the current work area, and can be reset from the tray menu."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix",
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.28.5",
@@ -292,7 +318,10 @@
             "original": "**The Claude quota card now explains why it shows no data for desktop-app/headless-only users**: the quota card depends entirely on the statusLine hook, which Claude Code only invokes when rendering an interactive terminal. Users whose usage happens exclusively through the desktop app or other non-TUI surfaces never trigger it, so the card stayed on a generic \"status file not found\" message even while the hook was correctly installed and Claude Code transcripts kept growing. The card now distinguishes this case — hook installed, transcripts actively updating, status file still missing — and shows a targeted hint that a terminal session needs to run once to sync, instead of the setup-focused message meant for users who never installed the hook at all."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.28.4",
@@ -336,7 +365,11 @@
             "original": "**The status line no longer drops quota data when two Claude Code instances refresh at once on Windows**: the hook's file lock was blocking on POSIX (`fcntl.flock(LOCK_EX)`) but non-blocking on Windows (`msvcrt.locking(LK_NBLCK)`), and a contended lock raised `OSError` that was swallowed — leaving the `rate_limits` carry-forward read-modify-write in `save()` completely unsynchronized. Windows now polls the lock until it is acquired (10s deadline), matching POSIX semantics; genuinely unsupported locking still falls back to the atomic write alone. Measured over 200 concurrent hook pairs: `rate_limits` were lost 21 times before, 0 times after.\n**The Claude Code hook no longer crashes on macOS**: a constant introduced by the Windows lock fix above referenced `errno.EDEADLOCK`, which doesn't exist on macOS — importing `usage_statusline.py` failed immediately for every macOS user. Now falls back to `errno.EDEADLK` when `EDEADLOCK` isn't defined."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix",
+        "fix"
+      ]
     }
   ]
 }

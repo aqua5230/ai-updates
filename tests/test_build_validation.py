@@ -264,4 +264,31 @@ def test_badge_keeps_title_when_card_adds_or_changes_behavior() -> None:
     perf = "Startup no longer re-downloads the pricing table, cutting idle CPU"
     assert build_script._badge_for(added, "終端機支援 Rex")[0] == "new"
     assert build_script._badge_for(changed, "上限改採字元計")[0] == "new"
-    assert build_script._badge_for(perf, "閒置更省 CPU")[0] == "perf"
+    assert build_script._badge_for(perf, "閒置效能提升")[0] == "perf"
+
+
+def test_card_badges_use_zh_title_and_overrides() -> None:
+    def item(zh: str, en: str) -> dict:
+        return {"title": {"zh-TW": zh, "en": en}, "original": "Sessions keep their order"}
+
+    curated = {"items": [
+        item("工作階段可直接改名", "Fix session names"),
+        item("保留未提交修改", "Keeps edits"),
+        item("排序修正", "Order kept"),
+    ]}
+    assert build_script._card_badges(None, curated, {}) == ["new", "new", "fix"]
+    assert build_script._card_badges(None, curated, {"3": "perf"}) == ["new", "new", "perf"]
+    with pytest.raises(ValueError, match="out of range"):
+        build_script._card_badges(None, curated, {"4": "new"})
+
+
+def test_build_rejects_badge_overrides_for_unknown_versions(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    raw_dir, curated_dir = _configure_build(tmp_path, monkeypatch)
+    _write_pair(raw_dir, curated_dir, _raw("1.0.0"), _curated("1.0.0"))
+    (tmp_path / "data" / "badge_overrides.json").write_text(
+        '{"codex/9.9.9": {"1": "new"}}', encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match="unknown versions"):
+        build_script.build()

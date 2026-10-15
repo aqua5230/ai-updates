@@ -31,7 +31,10 @@
             "original": "**Panel load failures no longer degrade to a silent grey window**: when the popover's embedded web panel fails to load, it previously fell back to a blank dark window with no explanation. It now shows a native error view with the error detail and a GitHub report link, and logs navigation failures / render timeouts under `USAGE_DEBUG=1` for easier diagnosis."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.15.3",
@@ -60,7 +63,10 @@
             "original": "**Codex quota no longer blanks out on refresh errors (#25)**: follow-up to #24. When the later refresh stage (history parsing) failed, the error state reset the Codex session/weekly rows to blank, overwriting the quota that had already been loaded at the start of the refresh. The error path now preserves those already-loaded Codex rows, so they no longer flash empty."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.15.2",
@@ -102,7 +108,11 @@
             "original": "**No stall on first launch / offline**: the pricing-table download moved to the background; cost calculation always uses the local cache or built-in fallback first and auto-refreshes once the download lands. A long-running app also refreshes pricing in the background after the cache expires."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix",
+        "new"
+      ]
     },
     {
       "version": "0.15.1",
@@ -143,7 +153,11 @@
             "original": "**Stale \"🆕 update available\" badge no longer lingers after upgrading**: the cache cleanup previously ran only inside the update-check path, so the badge stuck until the app restarted; it now compares the installed version on every timer refresh and clears as soon as you're current."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "fix"
+      ]
     },
     {
       "version": "0.15.0",
@@ -196,7 +210,12 @@
             "original": "**Ignore echoed Codex quota queries (#23)**: in some cases Codex echoes a prior quota query verbatim; older versions treated these echoes as new messages and let them flood the window. They're now detected and skipped."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.14.2",
@@ -238,7 +257,11 @@
             "original": "**README overhaul (EN/繁中)**: privacy / requirements and quick start moved to the top, the three install methods presented on equal footing, feature bullets and punctuation trimmed, and the developer guide moved to `docs/DEVELOPMENT`."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.14.1",
@@ -267,7 +290,10 @@
             "original": "**Codex quota stuck on stale values**: `load_rate_limits()` returned as soon as SQLite (`logs_2.sqlite`) had any data, never comparing the newer `rate_limits` in `~/.codex/sessions/*.jsonl`, so the menu bar stayed pinned to the previous day's quota. It now reads both SQLite and JSONL and picks the newest valid entry by `updated_at`, keeping the prior SQLite-preferred behavior when timestamps are equal."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.14.0",
@@ -308,7 +334,11 @@
             "original": "**\"Stale data\" hint on the Codex card**: when the local Codex usage snapshot is older than 15 minutes, the classic panel's Codex card shows an \"about N minutes ago\" tag plus an info (ⓘ) tooltip. Unlike Claude Code, Codex has no live status-line hook, so its usage numbers come from session logs it writes only intermittently and can lag your real account; the tooltip also explains that staying offline is a deliberate choice so it never burns your tokens. Built from the existing `rate_limits.updated_at` — **no network, no API**."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.13.0",
@@ -352,7 +382,11 @@
             "original": "**Broad robustness hardening**: systematically hardened every entry point that reads user files on disk against bad UTF-8, bad JSON, and type drift (numeric strings, non-dict, non-str fields) — covering `setup_hook`, `codex_loader`, the Codex / Claude / rate-limit adapters, the statusline, the history loader, subscription reads and JWT decoding, and the tips loader.\n**WebKit panel fallback**: registered the missing `evaluateJavaScript` block signature on the `loadBundle` fallback path."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.12.1",
@@ -386,7 +420,10 @@
             "original": "**File-level cache for the HTML report loaders**: `adapters/claude.py` and `adapters/codex.py` gain an `mtime`+`size`-keyed LRU cache (matching `history_loader`), so generating a report no longer re-parses every JSONL log on each run; the Codex adapter shares one cache between `load_entries` and `load_rate_limits`. Whole-file `OSError` / `PermissionError` / `sqlite3.Error` are now printed to stderr when `USAGE_DEBUG=1` (per-line `JSONDecodeError` stays silent).\n**mypy `--strict` now covers the whole codebase**: removed the mypy exclude for `adapters/`, `analyzer/`, `ui/` and `usage_cli.py` (a ~35% type-checking blind spot), added the missing generics and function annotations, and switched `_group_by_agent` to a PEP 695 type parameter. `mypy --strict` now checks all 70 source files.\n**Three cross-module functions in `adapters/claude.py` are now public API**: `get_claude_dirs`, `extract_project_from_dir`, `parse_jsonl` (previously underscore-private), dropping the matching `# type: ignore[attr-defined]` in `analyzer/reporter.py`.\nRemoving the mypy exclude surfaced and fixed a few latent issues: a redundant `parsed_entries` re-annotation left over from the cache change in `adapters/claude.py`, the `agent` loop variable reused with two different types in `analyzer/reporter.py` (inner accumulator renamed `agent_totals`), and a redundant `cast` in `menubar.py`.\nAdded coverage for `_apply_sort` with the `\"time\"` sort key (which maps to `None` and is handled per-command).\nAdded an i18n key-parity test asserting all five `i18n.json` language sections share the same key set, so a forgotten translation fails CI instead of silently falling back to English."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     }
   ]
 }

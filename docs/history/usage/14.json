@@ -34,7 +34,10 @@
             "original": "**Archived Codex sessions could show stale data**: usage counted `~/.codex/archived_sessions/` when computing totals but didn't watch it for changes, so edits there might not refresh the menu bar until an unrelated refresh happened; the archived folder is now included in the same change-detection that drives live updates.\n**A broken usage-data hook no longer causes constant background rescanning**: when Claude Code's status hook goes stale, usage now caches the \"is there recent activity\" check briefly instead of rescanning your entire `~/.claude/projects` tree on every poll.\n**A small warning badge appears if local usage history can't be read**: previously, a failed read silently fell back to the last known data with no visible sign anything was wrong; the Project Usage card now shows a brief note (hover for detail) so you can tell \"no new data\" apart from \"something broke.\"\n**Faster per-refresh history scans**: each refresh previously walked the Claude/Codex session directories multiple times (once to detect changes, again per data source); it's now scanned once and reused."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.22.13",
@@ -63,7 +66,10 @@
             "original": "**HTML report gets an \"Avg per Message\" KPI card**: a sixth summary card shows total tokens divided by message count, giving a quick read on how much each message burns (this includes cache tokens, so it reflects burn per message rather than literal message length)."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.22.12",
@@ -92,7 +98,10 @@
             "original": "**New model pricing refreshes as soon as usage sees an unknown model**: fresh cached pricing could hide newly-added models until the 7-day TTL expired, temporarily rendering them as $0.00/unknown. A pricing miss now triggers a debounced background refresh, and Claude Sonnet 5 has an offline fallback price so first-run or offline usage still estimates cost."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.22.11",
@@ -133,7 +142,11 @@
             "original": "**Archived Codex sessions are no longer undercounted**: usage now scans `~/.codex/archived_sessions/` alongside `~/.codex/sessions/`, so Codex sessions that have been archived still count toward your totals (no change when that directory doesn't exist)."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "fix"
+      ]
     },
     {
       "version": "0.22.10",
@@ -162,7 +175,10 @@
             "original": "**The AI tool updates bulletin now ships in five languages**: each bulletin item previously carried only Traditional Chinese and English, so Simplified Chinese, Japanese, and Korean readers fell back to English; every item now includes zh-CN/ja/ko translations that keep each technical term's plain-language gloss and everyday metaphor in the reader's own language. The bulletin content was also refreshed to Claude Code 2.1.187, Codex 0.142.0, and Antigravity 1.0.11."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.22.9",
@@ -195,7 +211,10 @@
             "original": "**World Cup panel: each team's squad size now reflects its usage**: a side using more of its session quota fields more players (5–8) and presses its formation toward midfield, sharing the same session-percent signal that already drives the ball drift.\n**Models with no pricing data show \"—\" instead of a misleading $0.00**: the cost column rendered unknown models as $0.00, which reads as free rather than unknown; unavailable costs now render as \"—\" in both the HTML report and the CSV export.\n**Codex quota rows are labelled by window length**: the free-plan 30-day window no longer shows as \"Session\" — each row's label now comes from the window length Codex reports (≈ Session / Weekly / Monthly).\n**World Cup quota bars now fill their whole half**: the duel bars used auto-margins that bunched both fills against the centre line, leaving the outer ends blank so a 100% side never reached the track edge; each fill is now anchored to the centre and extended outward.\n**Faster Codex log parsing**: unchanged session files are no longer re-read on every poll, and a versioned on-disk cache lets a fresh launch reuse prior parse results instead of re-scanning all history cold."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.22.8",
@@ -224,7 +243,10 @@
             "original": "**A panel that fails to load is no longer pinned to its error screen until restart**: the panel caching added in 0.22.7 stored whatever `build_view` returned — including the `ErrorPanelView` fallback shown when a panel's HTML can't be read — so once a load failed, switching back kept showing the error even after the file was available again. usage now caches only successfully-built web views; a failed build is shown but left uncached and rebuilt on the next switch, so a transient read failure recovers on its own."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.22.7",
@@ -253,7 +275,10 @@
             "original": "**Switching panels no longer flickers**: every switch tore down the WKWebView and reloaded its HTML, exposing the dark backing layer until the load finished — a visible flicker, plus the popover closed and reopened. usage now caches each panel's web view (lazily, capped at 6 with LRU eviction) inside a container view and switches by toggling visibility and re-injecting the latest state, so a previously-opened panel reappears instantly with no reload. The first build of a panel fades in from a same-color overlay that is removed on the first successful paint (or after a 1.5s safety timeout). The popover no longer closes and reopens on switch."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.22.6",
@@ -282,7 +307,10 @@
             "original": "**Annual Wrapped and the 52-week contribution heatmap no longer lose history when source logs are pruned**: the year view recomputed everything from whatever Claude Code / Codex session logs still existed on disk, so once those logs were rotated away it could only ever show the last ~2 months. usage now persists a daily ledger (`~/.usage/year_ledger.json`) that accumulates over time — each rebuild merges the currently-available days in (overwriting a stored day only when the fresh total is at least as large, so a partially-pruned day can't shrink the record) and trims entries beyond the 53-week window. The heatmap, streaks, active days, and Wrapped totals are all computed from the merged ledger, so coverage fills toward a full year from here on."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.22.5",
@@ -311,7 +339,10 @@
             "original": "**Panel no longer goes permanently blank after a context-menu \"Reload\"**: the popover panel loads its HTML via `loadHTMLString` with no base URL, so the WKWebView system context-menu Reload reloaded `about:blank` and left the panel blank with no obvious way to recover (#42). usage now strips navigation items (Reload/back/forward/open/download) from the panel's context menu, and internal reloads re-inject the original HTML instead of calling `reload()` — which also fixes panel recovery after the web-content process is terminated."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     }
   ]
 }

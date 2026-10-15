@@ -56,7 +56,12 @@
             "original": "**The moderator no longer sees who said what**: the transcript handed to the moderator is anonymized, so it cannot favor the answers its own CLI wrote. Participant names are restored before the summary reaches your screen and the exported Markdown, so you still read \"Claude argued…\" rather than \"Participant A argued…\". Participants' own words are passed through untouched — a discussion *about* Claude or Codex stays readable."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.29.0",
@@ -109,7 +114,12 @@
             "original": "**Council supports image attachments and an optional read-only project folder**: drag-and-drop or paste (Cmd+V) images into the topic box, and each participating CLI gets read access to them; a working directory can be attached so participants can reference real project files without write access."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.28.21",
@@ -165,7 +175,12 @@
             "original": "**Live usage-rate categories can distinguish heavy use again.** Heavy users previously remained permanently in Heavy because burn rate counted `cache_read`—a near-free prompt-cache reread that reflects conversation length rather than usage intensity—in its numerator. It now excludes `cache_read`, and the Idle / Normal / Active / Heavy thresholds have been recalibrated from 50 / 250 / 1000 to 500 / 2500 / 6000 tokens per minute."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "fix",
+        "new"
+      ]
     },
     {
       "version": "0.28.20",
@@ -206,7 +221,11 @@
             "original": "**Orphaned temp files piled up in `~/.usage/`.** Every atomic write unlinks its `mkstemp` file in a `finally` block, and that block never runs when the app is SIGKILLed or crashes mid-write. One install had collected 40 MB of them over twelve days, dominated by the large JSONL caches whose slow writes are the likeliest to be interrupted. Startup now sweeps `~/.usage` and its direct `*.d` children, deleting only regular files that match the `mkstemp` name shape and have gone untouched for 24 hours — long enough that a second usage process cannot lose a temp file it is still writing. Symlinks and directories are skipped no matter how well their name matches."
           }
         ]
-      }
+      },
+      "badges": [
+        "new",
+        "new"
+      ]
     },
     {
       "version": "0.28.19",
@@ -235,7 +254,10 @@
             "original": "**Windows tray now has the same \"Auto-start 5-hour session\" toggle macOS has had.** Wires the existing `window_keeper` auto-ping logic into `wintray.py`, firing after each refresh; the toggle is in both the tray menu and the HTML panel menu, with Windows-specific enable instructions (Settings → Power & battery) across all five languages. Also adds real-world Windows install-path fallbacks for the `claude`/`agy` binaries."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.28.18",
@@ -264,7 +286,10 @@
             "original": "**Antigravity quota showed a stuck, wrong percentage since the CLI's 1.1.5 update.** The Antigravity CLI moved its OAuth credential from a plain file on disk into the macOS Keychain (`security` service `gemini`, account `antigravity`, `go-keyring-base64:`-wrapped JSON) and switched its quota backend from `cloudcode-pa.googleapis.com` to `daily-cloudcode-pa.googleapis.com`. The card kept reading the now-abandoned token file, which silently refreshed against a stale grant and returned numbers that no longer matched the CLI's own `/quota` output. It now reads the Keychain entry first (falling back to the legacy file), and posts to the current backend."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix"
+      ]
     },
     {
       "version": "0.28.17",
@@ -305,7 +330,11 @@
             "original": "**Auto-start 5-hour Session could silently skip a reset boundary.** The keeper's fixed 5-hour self-throttle was measured from the last ping's own timestamp, which could drift out of sync with the real quota reset boundary and occasionally skip a ping entirely — leaving the next window to start only once you talked to Claude yourself. It now dedupes by the actual reset boundary instead of elapsed time, so drift can no longer cause a miss."
           }
         ]
-      }
+      },
+      "badges": [
+        "fix",
+        "fix"
+      ]
     },
     {
       "version": "0.28.16",
@@ -334,7 +363,10 @@
             "original": "**Idle CPU and disk I/O cut significantly across the board.** History scanning now uses FSEvents-reported paths to stat only changed files instead of re-walking and stat'ing every Claude/Codex session JSONL (thousands of files) on every refresh tick; a full rescan still runs periodically as a safety net. Startup no longer unconditionally re-downloads the pricing table or checks for updates — both now respect their existing cache freshness windows. Codex rate-limit reads reuse the same file index instead of re-scanning session directories, and SQLite reads (thread metadata, rate limits) are skipped entirely when the underlying database file hasn't changed. The on-disk parse cache is now sharded into 32 buckets so a single active session only rewrites its own shard instead of the whole multi-megabyte cache file."
           }
         ]
-      }
+      },
+      "badges": [
+        "perf"
+      ]
     },
     {
       "version": "0.28.15",
@@ -364,7 +396,10 @@
             "original": "**Auto-start is now one shared switch for Claude and Antigravity.** It starts both keepers together; users who previously enabled either individual switch are automatically treated as having both enabled.\n**Antigravity auto-start never fired, and the card showed a phantom countdown.** The Antigravity quota API reports a *sliding* reset time (always \"in ~5 hours\") while a 5-hour window is still untouched at 100% remaining. The 0.28.14 auto-start gate treated any reported countdown as \"a window is already running\", so it never pinged; it now treats 100% remaining itself as \"no active window\" (the 5-hour self-throttle still applies). The card likewise stopped rendering that placeholder as a live countdown — at 100% remaining it now shows \"Quota full\" until a real window starts."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     },
     {
       "version": "0.28.14",
@@ -393,7 +428,10 @@
             "original": "**Antigravity can now auto-start its next 5-hour session.** A new opt-in menu toggle watches fresh, non-mock agy quota results and, when the selected model group's session is fully reset with no countdown running, dispatches one background `agy -p ok --model 'Gemini 3.5 Flash (Low)'`. It is off by default, self-throttles for five hours, uses only the local agy CLI, and shows the same Mac sleep warning as the Claude window keeper when enabled."
           }
         ]
-      }
+      },
+      "badges": [
+        "new"
+      ]
     }
   ]
 }
