@@ -5,6 +5,152 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.11.12",
+      "raw": {
+        "version": "0.11.12",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Hook self-heal: broken installs fix themselves, silently**: every startup now runs `setup_hook.self_heal()`, which silently repairs three clearly-safe scenarios: (1) first-run (`is_setup()==False` and no `statusLine` key in settings) → invokes `setup()`; (2) hook script version is out of date (`needs_update()==True`) → `update_hook()`; (3) settings points to a missing hook file with state `us-direct`/`us-forwarder` → re-runs `_copy_hook_script()` + `_copy_forwarder_script()`. When state is `external`/`legacy-tt`, all three skip (no silent override of third-party tools). Each action appends to `settings[\"usage\"][\"selfHealLog\"]` (FIFO, 20 entries). Failures are swallowed; stderr is printed only when `USAGE_DEBUG=1`.",
+          "**Coexistence prompt consolidated**: when an external statusLine tool is detected, usage shows a single NSAlert with two buttons (\"Enable Coexistence Mode\" / \"Keep Current Setup\"). Either button sets `settings[\"usage\"][\"forwarderModePromptDismissed\"]=True` and the prompt never appears again. Replaces the previous three-button repair dialog in `main.py:health_check()`; the \"remind me later (24h cooldown)\" path is removed. Users who previously chose \"Do Not Ask Again\" on the old dialog will be re-prompted once (one click resolves it).",
+          "**`--doctor` hidden CLI flag**: `python3 main.py --doctor` prints a plain-text diagnostic report (English-only for easier GitHub issue searches) covering hook state, version, script file status, status file mtime, external hook detection (recognizes `ccusage` / `lord-kali` keywords), forwarder prompt ack state, last 5 self-heal log entries, and Codex sessions scan count. Hidden from `--help` via `argparse.SUPPRESS` so it doesn't distract typical users. New `doctor.py` renderer module.",
+          "**Weekly burn warning no longer over-reacts to short bursts**: previously the weekly warning extrapolated from the most recent 10-minute sample window, so a single large prompt could trigger a scary \"8 hours until empty\" warning that vanished once the user took a break. The weekly warning now uses a 30-minute sample window with a 30-minute minimum span, requiring sustained high usage for at least half an hour before triggering. Session warnings keep the 10-minute window (session resets are frequent, can't be too strict). `burn_rate.ROLLING_WINDOW_SECONDS` was raised from 15 to 60 minutes so the longer window has enough history.",
+          "**Burn warning text now says \"at current pace\"**: all 5 languages' burn warning strings now explicitly include \"按目前速度 / At current pace / 現在のペース / 현재 속도\", making it clear that this is a momentary extrapolation rather than a stable prediction."
+        ]
+      },
+      "curated": {
+        "version": "0.11.12",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "系統學會自己修復連線，與其他工具和平共存不擾人",
+              "en": "The system repairs its own connections and peacefully coexists with other tools"
+            },
+            "body": {
+              "zh-TW": "以前如果 Claude 的連線程式（hook，負責把用量傳出來的小程式）不小心被刪掉或過期了，你得自己打指令重裝。現在每次開啟 usage，它都會默默幫你檢查；如果是單純的檔案不見或版本太舊，它會一秒內自己修好，你完全不會發現。如果你同時有安裝別人的連線工具，它也不會偷偷蓋掉別人的設定，只會跳一次簡單的視窗問你要不要「共存」，點過一次以後就永遠不會再煩你。就像家裡的水管工，以前管子稍微鬆了還要你打電話叫他來，現在他會定期巡邏默默鎖緊；如果看到有別的師傅在施工，他也會禮貌地問一聲要不要配合，而且只問一次。",
+              "en": "Previously, if Claude's connection hook (the small script that relays your usage data) was accidentally deleted or became outdated, you had to manually run setup commands to fix it. Now, every time usage starts, it quietly checks its own health; if it spots a missing file or an old version, it instantly repairs itself without you ever noticing. If you happen to be running third-party connection tools alongside it, it won't aggressively overwrite their settings. Instead, it asks exactly once if you want to enable \"coexistence\" mode, and then never bothers you about it again. It's like a plumber who used to require a phone call every time a pipe came loose, but now does silent maintenance rounds; and if he sees another contractor working, he politely asks how to coordinate—and only asks once."
+            },
+            "original": "**Hook self-heal: broken installs fix themselves, silently**: every startup now runs `setup_hook.self_heal()`, which silently repairs three clearly-safe scenarios: (1) first-run (`is_setup()==False` and no `statusLine` key in settings) → invokes `setup()`; (2) hook script version is out of date (`needs_update()==True`) → `update_hook()`; (3) settings points to a missing hook file with state `us-direct`/`us-forwarder` → re-runs `_copy_hook_script()` + `_copy_forwarder_script()`. When state is `external`/`legacy-tt`, all three skip (no silent override of third-party tools). Each action appends to `settings[\"usage\"][\"selfHealLog\"]` (FIFO, 20 entries). Failures are swallowed; stderr is printed only when `USAGE_DEBUG=1`.\n**Coexistence prompt consolidated**: when an external statusLine tool is detected, usage shows a single NSAlert with two buttons (\"Enable Coexistence Mode\" / \"Keep Current Setup\"). Either button sets `settings[\"usage\"][\"forwarderModePromptDismissed\"]=True` and the prompt never appears again. Replaces the previous three-button repair dialog in `main.py:health_check()`; the \"remind me later (24h cooldown)\" path is removed. Users who previously chose \"Do Not Ask Again\" on the old dialog will be re-prompted once (one click resolves it)."
+          },
+          {
+            "title": {
+              "zh-TW": "隱藏診斷指令上線，額度用盡警告不再一驚一乍",
+              "en": "Hidden doctor command available, and burn warnings stop crying wolf"
+            },
+            "body": {
+              "zh-TW": "現在如果遇到疑難雜症，你可以用一個隱藏的 `--doctor` 指令來印出英文診斷報告，方便上網抓藥。更棒的是，介面上的「每週額度燃燒警告」變穩重了。以前只要你連續十分鐘狂問問題，系統就會嚇得推算出「剩下 8 小時就會把整週額度用光」的誇張數字；現在它會觀察整整半小時，確定你真的是持續高用量才會發出警告，而且五種語言的警告文字都會明確加上「按目前速度」的免責聲明。就像車子的油表預測，以前你只是踩了一腳油門超車，它就警告你油只夠開三公里；現在它會看你這半小時的平均車速再來估計，還會老實告訴你「這是用你現在猛踩油門的速度算的」。",
+              "en": "If you ever run into tricky issues, you can now use a hidden `--doctor` command to print a full English diagnostic report, making it much easier to search for solutions online. Even better, the weekly burn-rate warning on your dashboard has stopped being so dramatic. Previously, if you blasted through prompts for just 10 minutes, the system would panic and project that you'd drain your entire week's quota in 8 hours. It now observes you for a full 30 minutes to confirm you're actually sustaining a high burn rate before sounding the alarm, and the warning text across all five languages now explicitly adds an \"at current pace\" disclaimer. It's like your car's range estimator: instead of flashing an empty tank warning just because you floored the gas pedal to pass a truck, it now watches your average speed over the last half hour, honestly noting \"this is based on how heavy your foot is right now.\""
+            },
+            "original": "**`--doctor` hidden CLI flag**: `python3 main.py --doctor` prints a plain-text diagnostic report (English-only for easier GitHub issue searches) covering hook state, version, script file status, status file mtime, external hook detection (recognizes `ccusage` / `lord-kali` keywords), forwarder prompt ack state, last 5 self-heal log entries, and Codex sessions scan count. Hidden from `--help` via `argparse.SUPPRESS` so it doesn't distract typical users. New `doctor.py` renderer module.\n**Weekly burn warning no longer over-reacts to short bursts**: previously the weekly warning extrapolated from the most recent 10-minute sample window, so a single large prompt could trigger a scary \"8 hours until empty\" warning that vanished once the user took a break. The weekly warning now uses a 30-minute sample window with a 30-minute minimum span, requiring sustained high usage for at least half an hour before triggering. Session warnings keep the 10-minute window (session resets are frequent, can't be too strict). `burn_rate.ROLLING_WINDOW_SECONDS` was raised from 15 to 60 minutes so the longer window has enough history.\n**Burn warning text now says \"at current pace\"**: all 5 languages' burn warning strings now explicitly include \"按目前速度 / At current pace / 現在のペース / 현재 속도\", making it clear that this is a momentary extrapolation rather than a stable prediction."
+          }
+        ]
+      },
+      "badges": [
+        "new",
+        "new"
+      ]
+    },
+    {
+      "version": "0.11.10",
+      "raw": {
+        "version": "0.11.10",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**\"Launch at login\" toggle now takes effect immediately, no reboot needed**: `login_item.enable()` / `disable()` now invoke `launchctl bootstrap gui/<uid> <plist>` / `launchctl bootout gui/<uid>/<label>` in addition to writing/removing `~/Library/LaunchAgents/com.lollapalooza.usage.plist`, so launchd learns about the change right away. Previously only the plist file was touched, so the toggle did nothing until the next reboot, and disabling left a KeepAlive orphan process behind. `launchctl` \"already bootstrapped\" (exit 17) and \"not bootstrapped\" (exit 113) are treated as success; other failures log a warning without affecting the plist operation (signatures stay `() -> None`)."
+        ]
+      },
+      "curated": {
+        "version": "0.11.10",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "「開機自動啟動」開關立刻生效，不用等到下次重開機",
+              "en": "The \"Launch at login\" toggle now takes effect instantly without a reboot"
+            },
+            "body": {
+              "zh-TW": "以前你在選單裡點了「開機自動啟動」的開關，系統只會默默記在筆記本裡，你得等到下一次重開機，電腦才會真的照做；要是你把它關掉，背景還會留下一支不會停的舊程式。現在只要你一點開關，系統就會馬上拍拍電腦的肩膀跟它說「現在就開始」或「馬上停下來」，不用再等重開機了。就像你跟大樓管理員說明天開始不要送報紙了，以前他只會寫在明天的交接本上，今天還是照送；現在他會立刻用對講機跟派報生說停送。",
+              "en": "When you toggled \"Launch at login\" from the menu, the system previously just jotted it down in a config file and waited for your next reboot to actually do anything about it; and turning it off left a zombie background process running. Now, the moment you flip the switch, the system instantly taps macOS on the shoulder to say \"start doing this now\" or \"stop right now\", with zero reboots required. It's like telling the building manager to cancel your newspaper delivery: they used to just write it in tomorrow's log while still delivering today's paper, but now they immediately radio the delivery person to stop."
+            },
+            "original": "**\"Launch at login\" toggle now takes effect immediately, no reboot needed**: `login_item.enable()` / `disable()` now invoke `launchctl bootstrap gui/<uid> <plist>` / `launchctl bootout gui/<uid>/<label>` in addition to writing/removing `~/Library/LaunchAgents/com.lollapalooza.usage.plist`, so launchd learns about the change right away. Previously only the plist file was touched, so the toggle did nothing until the next reboot, and disabling left a KeepAlive orphan process behind. `launchctl` \"already bootstrapped\" (exit 17) and \"not bootstrapped\" (exit 113) are treated as success; other failures log a warning without affecting the plist operation (signatures stay `() -> None`)."
+          }
+        ]
+      },
+      "badges": [
+        "new"
+      ]
+    },
+    {
+      "version": "0.11.9",
+      "raw": {
+        "version": "0.11.9",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**TUI session table no longer crashes on `cost_usd=None`**: widened `ui/tables.py:_fmt_cost` to `float | None` so entries written without a cost (a known path on the Codex side) now render as `--`, matching the popover-side behavior in `panels/web_panel.py`. Previously the `>=` comparison raised `TypeError` and broke the whole table.",
+          "**Update check now handles pre-release versions**: `update_checker._parse_version` now strips pre-release / build suffixes via regex, so `0.11.0-beta.1` / `0.11.0+build.5` no longer return `None` and no longer make `compare_versions` raise. Beta testers receive update prompts correctly. No new package dependencies were added.",
+          "**Pricing falls back to a stale cache when offline**: the fallback order in `pricing.py` is now fresh cache → network fetch → stale cache → hardcoded fallback. Previously a >7-day-old cache combined with no network dropped straight to the hardcoded prices, skewing cost estimates; the real (if stale) historical cache is now preferred."
+        ]
+      },
+      "curated": {
+        "version": "0.11.9",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "離線估價更準確，測試版更新不再漏接，終端介面不崩潰",
+              "en": "Accurate offline estimates, fixed beta updates, and crash-free terminal UI"
+            },
+            "body": {
+              "zh-TW": "現在帶筆電出門沒網路時，系統估算花費會直接拿你上週剛抓過的價目表來算，不會再傻傻退回最古老的出廠價，讓成本估算大失真。如果你是愛用測試版的勇者，系統現在也看得懂「beta」這類後綴版號，有新版會正確跳出更新提示，不再報錯裝死。另外，用終端機查看對話紀錄時，就算有些紀錄沒有標示花費金額，畫面現在只會顯示「--」，不會再導致整個表格直接崩潰壞掉。就像出國沒網路時，你會拿出幾天前存的舊匯率表來換算，而不是硬用十年前的書本價格；而且就算清單裡某幾項商品沒貼標籤，結帳機台也不會整台當機了。",
+              "en": "When you're working offline without internet, the system now smartly estimates your costs using the real price list you fetched last week, instead of wildly falling back to ancient factory-default prices and skewing your budget. If you're an early adopter running beta versions, the update checker now understands version numbers ending in \"beta\", delivering update prompts correctly instead of throwing an error and playing dead. Also, when viewing your session history in the terminal, if a specific entry happens to lack cost data, it now gracefully displays \"--\" rather than crashing the entire table. It's like traveling abroad without data: you use the exchange rate you saved a few days ago instead of blindly relying on a ten-year-old guidebook; and if a couple of items on your grocery receipt are missing price tags, the whole cash register doesn't explode."
+            },
+            "original": "**Pricing falls back to a stale cache when offline**: the fallback order in `pricing.py` is now fresh cache → network fetch → stale cache → hardcoded fallback. Previously a >7-day-old cache combined with no network dropped straight to the hardcoded prices, skewing cost estimates; the real (if stale) historical cache is now preferred.\n**Update check now handles pre-release versions**: `update_checker._parse_version` now strips pre-release / build suffixes via regex, so `0.11.0-beta.1` / `0.11.0+build.5` no longer return `None` and no longer make `compare_versions` raise. Beta testers receive update prompts correctly. No new package dependencies were added.\n**TUI session table no longer crashes on `cost_usd=None`**: widened `ui/tables.py:_fmt_cost` to `float | None` so entries written without a cost (a known path on the Codex side) now render as `--`, matching the popover-side behavior in `panels/web_panel.py`. Previously the `>=` comparison raised `TypeError` and broke the whole table."
+          }
+        ]
+      },
+      "badges": [
+        "new"
+      ]
+    },
+    {
+      "version": "0.11.8",
+      "raw": {
+        "version": "0.11.8",
+        "period": "2026-05-27",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**git worktree entries collapse into the main project**: running Claude Code or Codex inside a worktree (a duplicate working tree of the same repo) no longer splits `usage` and `usage-fix-bug` into two separate rows in the HTML report and TUI ranking. They are now grouped under the main worktree's directory name. A new `project_resolver.py` module (stdlib only, 3-second timeout, falls back to the previous basename behavior when git is unavailable) is shared by `history_loader.py` and `codex_loader.py`. Seeing historical totals merge on first upgrade is the intended behavior."
+        ]
+      },
+      "curated": {
+        "version": "0.11.8",
+        "period": "2026-05-27",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "同一個專案的平行副本，用量不再被拆得七零八落",
+              "en": "Parallel working copies of the same project no longer fracture your usage stats"
+            },
+            "body": {
+              "zh-TW": "當你用工作樹（worktree，讓同一個專案多開幾份平行副本的 Git 功能）來修 bug 或開發新功能時，系統終於懂得把帳算在一起了。以前它會把你主資料夾跟副本資料夾的用量拆成兩個獨立專案，導致你的用量排行榜看起來很亂；現在它會自動把這些副本的用量，全部算在主專案頭上。升級後如果你看到某些專案的數字突然變大、名次合體，這是正常的。就像你拿了幾張附卡給家人刷，以前帳單會分開好幾份寄來讓你眼花，現在全部彙整到主卡帳單裡，一眼就能看出總共花了多少。",
+              "en": "When you use worktrees (a Git feature that lets you check out multiple parallel copies of the same project) to fix bugs or build features, the system finally knows how to consolidate the bill. Previously, it would split the usage from your main folder and your copies into separate projects, cluttering your leaderboards; it now intelligently groups all that usage under the main project's name. If you notice some project totals suddenly merging and growing upon upgrading, this is completely expected. It's like handing out supplementary credit cards to your family: instead of receiving a confusing pile of separate statements, everything is now cleanly rolled up into one master bill, making it immediately clear how much was spent in total."
+            },
+            "original": "**git worktree entries collapse into the main project**: running Claude Code or Codex inside a worktree (a duplicate working tree of the same repo) no longer splits `usage` and `usage-fix-bug` into two separate rows in the HTML report and TUI ranking. They are now grouped under the main worktree's directory name. A new `project_resolver.py` module (stdlib only, 3-second timeout, falls back to the previous basename behavior when git is unavailable) is shared by `history_loader.py` and `codex_loader.py`. Seeing historical totals merge on first upgrade is the intended behavior."
+          }
+        ]
+      },
+      "badges": [
+        "new"
+      ]
+    },
+    {
       "version": "0.11.7",
       "raw": {
         "version": "0.11.7",
@@ -249,161 +395,6 @@
       },
       "badges": [
         "perf"
-      ]
-    },
-    {
-      "version": "0.11.1",
-      "raw": {
-        "version": "0.11.1",
-        "period": "2026-05-24",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**[P0] Released `.app` crashes on launch on macOS Sequoia / arm64** (thanks @cmhcm — [#6](https://github.com/aqua5230/usage/pull/6)): all three prior releases (v0.10.0 / v0.10.1 / v0.11.0) are affected. Root cause: in py2app builds `i18n.py` is compiled into `lib/python313.zip` but `i18n.json` lives in `Contents/Resources/`. The old `Path(__file__).with_name(\"i18n.json\")` resolved to a path *through* the zipfile and raised `NotADirectoryError` on first read. Fix: new `i18n.packaged_resource_path()` helper prefers the `RESOURCEPATH` env var that py2app injects at launch (pointing at `Contents/Resources/`) and falls back to the source-adjacent path. All four packaged-resource callsites updated (`i18n.py` / `tui.py` / `main.py` / `menubar.py`). Source-mode runs are unaffected.",
-          "**Packaging metadata completed**: `pyproject.toml` `py-modules` adds the previously-missing `burn_rate` / `update_checker` / `tips_loader` / `usage_lang` / `usage_statusline_forwarder`, and `packages.find` `include` adds `panels*`. Non-editable installs now ship the full code.",
-          "**`.app` license metadata aligned**: `setup_app.py` `NSHumanReadableCopyright` updated from the stale `MIT License` to `Copyright © 2025-2026 lollapalooza. Licensed under AGPL-3.0-only.`, matching what `pyproject.toml` declares.",
-          "**`pricing_cache.json` path unified**: `analyzer/cost.py` now caches to `~/.claude/pricing_cache.json` (was repo root), matching `pricing.py`. A stray 1.1 MB orphan cache at repo root was removed.",
-          "**Panel names go through i18n**: `panels/__init__.py` exposes an `i18n_key` per panel and i18n.json gains the missing keys across all 5 languages. The \"Switch Panel\" menu no longer mixes Chinese names into en / ja / ko UIs.",
-          "**Status-file error messages go through i18n**: `usage_client.py`'s \"status file not found\" and \"no quota data yet\" hints now route through `_t()`, all 5 languages covered.",
-          "**Analytics CLI read order matches the main app**: `adapters/rate_limits.py` previously only read `~/.claude/tt-status.json`; it now follows the same `usage-status.json` → `usag-status.json` → `tt-status.json` fallback chain as `usage_client.py`.",
-          "**README documents the v0.11.0 update check + GitHub Releases as a network exception**: README.md / README.en.md both gain a new \"update check\" bullet and list the GitHub Releases API as the second of two network exceptions (the first remains the LiteLLM pricing table)."
-        ]
-      },
-      "curated": {
-        "version": "0.11.1",
-        "period": "2026-05-24",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "修復 macOS Sequoia 上的閃退死穴，選單語言不再混搭",
-              "en": "Instant crashes on macOS Sequoia fixed, and menu languages are fully localized"
-            },
-            "body": {
-              "zh-TW": "這次解決了一個致命錯誤。前幾個版本的 `.app` 檔在最新的 macOS Sequoia 系統上，只要一打開就會立刻閃退，因為它被包裝後的檔案結構給搞糊塗了，找不到用來顯示多國語言的字典檔；現在它已經學會正確摸黑找到對的資料夾，順利開機。同時，我們把翻譯補得更完整了——以前你在英文、日文或韓文的系統裡點開「更換面板」選單時，裡面還是會硬生生夾雜中文的面板名稱，或者在找不到檔案時拋出中文的錯誤提示；現在這些文字都會乖乖跟著你的系統語言切換。另外，我們也把散落在各處的快取檔案統整到 `~/.claude/` 底下，順手清掉了你硬碟裡 1.1 MB 的孤兒檔案。就像是買回來的進口家電原本會因為電壓不對直接燒斷保險絲，而且說明書還是各國語言亂湊的；現在插上插座就能正常運作，而且說明書保證整本都是你熟悉的語言。",
-              "en": "We've squashed a fatal bug where the released `.app` would instantly crash on launch if you were running the latest macOS Sequoia. The app was getting completely confused by its own packaged file structure and couldn't find its translation dictionary; it has now learned the correct path through the dark to boot up smoothly. Meanwhile, we've filled in the missing translation gaps. Previously, if you used an English, Japanese, or Korean system, your \"Switch Panel\" menu would awkwardly feature Chinese panel names, and system errors would spit out Chinese text. Now, all these strings strictly respect your chosen system language. We also tidied up the pricing cache files, unifying them under the `~/.claude/` folder and sweeping away a 1.1 MB orphaned file from your hard drive. It's like buying an imported appliance that used to blow a fuse immediately due to the wrong voltage while packing a poorly translated, mixed-language manual; now you can plug it in safely, and the instruction book reads perfectly in your native tongue."
-            },
-            "original": "**[P0] Released `.app` crashes on launch on macOS Sequoia / arm64** (thanks @cmhcm — [#6](https://github.com/aqua5230/usage/pull/6)): all three prior releases (v0.10.0 / v0.10.1 / v0.11.0) are affected. Root cause: in py2app builds `i18n.py` is compiled into `lib/python313.zip` but `i18n.json` lives in `Contents/Resources/`. The old `Path(__file__).with_name(\"i18n.json\")` resolved to a path *through* the zipfile and raised `NotADirectoryError` on first read. Fix: new `i18n.packaged_resource_path()` helper prefers the `RESOURCEPATH` env var that py2app injects at launch (pointing at `Contents/Resources/`) and falls back to the source-adjacent path. All four packaged-resource callsites updated (`i18n.py` / `tui.py` / `main.py` / `menubar.py`). Source-mode runs are unaffected.\n**Packaging metadata completed**: `pyproject.toml` `py-modules` adds the previously-missing `burn_rate` / `update_checker` / `tips_loader` / `usage_lang` / `usage_statusline_forwarder`, and `packages.find` `include` adds `panels*`. Non-editable installs now ship the full code.\n**`.app` license metadata aligned**: `setup_app.py` `NSHumanReadableCopyright` updated from the stale `MIT License` to `Copyright © 2025-2026 lollapalooza. Licensed under AGPL-3.0-only.`, matching what `pyproject.toml` declares.\n**`pricing_cache.json` path unified**: `analyzer/cost.py` now caches to `~/.claude/pricing_cache.json` (was repo root), matching `pricing.py`. A stray 1.1 MB orphan cache at repo root was removed.\n**Panel names go through i18n**: `panels/__init__.py` exposes an `i18n_key` per panel and i18n.json gains the missing keys across all 5 languages. The \"Switch Panel\" menu no longer mixes Chinese names into en / ja / ko UIs.\n**Status-file error messages go through i18n**: `usage_client.py`'s \"status file not found\" and \"no quota data yet\" hints now route through `_t()`, all 5 languages covered.\n**Analytics CLI read order matches the main app**: `adapters/rate_limits.py` previously only read `~/.claude/tt-status.json`; it now follows the same `usage-status.json` → `usag-status.json` → `tt-status.json` fallback chain as `usage_client.py`.\n**README documents the v0.11.0 update check + GitHub Releases as a network exception**: README.md / README.en.md both gain a new \"update check\" bullet and list the GitHub Releases API as the second of two network exceptions (the first remains the LiteLLM pricing table)."
-          }
-        ]
-      },
-      "badges": [
-        "fix"
-      ]
-    },
-    {
-      "version": "0.11.0",
-      "raw": {
-        "version": "0.11.0",
-        "period": "2026-05-24",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**In-app update check (Stage 1)**: On launch, usage pings GitHub Releases for a newer version (rate-limited to once per 24h so you're not nagged every time you open the app). When a newer version is found, an NSAlert shows the version + release notes with three buttons: **Download**, **Later**, **Skip this version**. \"Download\" opens the Release page in your default browser — manually replace the old `.app` with the new one. (Stage 2 will bring Sparkle-style auto download + replace.)",
-          "**Two new entries in the \"Switch panel\" menu**:\n- **Automatically Check for Updates** (toggleable): unchecking it disables the launch-time auto check entirely; the manual entry below still works.\n- **Check for Updates Now**: manually triggers a check, bypassing the 24h cooldown and skip-version preference. If you're already up to date, an alert says so; on network error you see \"Update check failed\".",
-          "Preferences are stored in the existing `~/.claude/usage-preferences.json`, with three new keys: `auto_update_check` (default true), `update_dismissed_at` (Unix timestamp), `update_skipped_version` (skipped version string).",
-          "`setup_app.py` now bundles `pyproject.toml` and `update_checker` into the py2app build — so the packaged `.app` can fall back to reading `pyproject.toml` when `importlib.metadata` can't resolve the version."
-        ]
-      },
-      "curated": {
-        "version": "0.11.0",
-        "period": "2026-05-24",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "App 學會自己檢查更新了，且不會煩死你",
-              "en": "The app now checks for updates automatically without annoying you"
-            },
-            "body": {
-              "zh-TW": "你現在不用再時不時跑去 GitHub 網頁看有沒有新版本了。App 啟動時會自動去檢查有沒有新版，如果發現更新，會直接跳出視窗告訴你新版本的改動內容，讓你點「Download」連過去下載。為了不打擾你，這個自動檢查一天最多只會跑一次；如果你覺得這個版本不重要，也可以點「跳過此版本」，它就不會再拿同一個版本煩你。當然，如果你想要手動控制，可以在「更換面板」選單裡關掉「自動檢查更新」，或者隨時點「立刻檢查更新」來強迫它查一次。就像你的汽車導航，現在懂自己在背景偷偷查圖資有沒有更新，有重大改變才問你要不要更新，而不是每次一發動就逼著你按確認。",
-              "en": "You no longer have to manually check the GitHub repository for new releases. On launch, the app now automatically checks for new versions and pops up a dialog with the release notes and a one-click button to download it. To respect your focus, this auto-check runs at most once every 24 hours. If a particular update doesn't interest you, you can hit \"Skip this version\" and it won't bother you about that specific release again. You are in full control — you can toggle off \"Automatically Check for Updates\" in the Switch Panel menu, or manually trigger a \"Check for Updates Now\" whenever you want. It's like your car's GPS silently checking for new maps in the background and only asking if you want to upgrade when there's actually a major new route, instead of forcing you to click OK every time you start the engine."
-            },
-            "original": "**In-app update check (Stage 1)**: On launch, usage pings GitHub Releases for a newer version (rate-limited to once per 24h so you're not nagged every time you open the app). When a newer version is found, an NSAlert shows the version + release notes with three buttons: **Download**, **Later**, **Skip this version**. \"Download\" opens the Release page in your default browser — manually replace the old `.app` with the new one. (Stage 2 will bring Sparkle-style auto download + replace.)\n**Two new entries in the \"Switch panel\" menu**:\n- **Automatically Check for Updates** (toggleable): unchecking it disables the launch-time auto check entirely; the manual entry below still works.\n- **Check for Updates Now**: manually triggers a check, bypassing the 24h cooldown and skip-version preference. If you're already up to date, an alert says so; on network error you see \"Update check failed\".\nPreferences are stored in the existing `~/.claude/usage-preferences.json`, with three new keys: `auto_update_check` (default true), `update_dismissed_at` (Unix timestamp), `update_skipped_version` (skipped version string).\n`setup_app.py` now bundles `pyproject.toml` and `update_checker` into the py2app build — so the packaged `.app` can fall back to reading `pyproject.toml` when `importlib.metadata` can't resolve the version."
-          }
-        ]
-      },
-      "badges": [
-        "new"
-      ]
-    },
-    {
-      "version": "0.10.1",
-      "raw": {
-        "version": "0.10.1",
-        "period": "2026-05-24",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Weekly burn-rate warning false positive**: Extrapolating the last 10 minutes of usage slope onto a 7-day weekly quota was too aggressive (e.g. 56% used → projected 5h50m to exhaustion → \"Runs out in 5h50m (resets in 4d6h)\" warning), since users don't sustain that rate 24/7. Fix: `_quota_row` gained a `warning_max_seconds` parameter, and the three weekly call sites pass a 24h ceiling — projections beyond 24 hours no longer trigger the warning. Session warnings are unchanged."
-        ]
-      },
-      "curated": {
-        "version": "0.10.1",
-        "period": "2026-05-24",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "每週額度的用完警告不再過度恐慌",
-              "en": "Weekly quota burn-rate warnings are no longer overly dramatic"
-            },
-            "body": {
-              "zh-TW": "現在系統預估「每週額度（weekly quota）」什麼時候會用完時，不會再隨便嚇你了。以前它會拿你最近 10 分鐘瘋狂輸出的速度，直接推算你接下來整週都會不眠不休地工作，然後在你額度其實還剩近一半時，就急著跳出「剩不到 6 小時就用完」的紅字警告。現在系統加上了 24 小時的預測上限，如果按照目前速度算出來還能撐超過一整天，它就不會跳警告來煩你；但針對單次對話（session）的額度警告則維持原樣。這就像手機電量預估，以前你只是剛好開了五分鐘的耗電遊戲，系統就斷言你手機半小時後會沒電並狂響警報，現在它學會考量你不會一直玩下去，不再過度反應。",
-              "en": "The system will no longer cause unnecessary panic when predicting when your weekly quota will run out. Previously, it would take your furious typing speed over the last 10 minutes and extrapolate that you'd be working non-stop 24/7, prematurely flashing a red \"runs out in 6 hours\" warning even when your quota was only half empty. Now, the system enforces a 24-hour prediction ceiling — if your current pace indicates you'll survive for more than a full day, it won't bother you with a warning. Short-term session quota warnings remain unchanged. It's like your phone's battery estimator: it used to panic and scream that your phone would die in 30 minutes just because you launched a heavy game for five minutes, but now it understands you won't be playing forever and stops overreacting."
-            },
-            "original": "**Weekly burn-rate warning false positive**: Extrapolating the last 10 minutes of usage slope onto a 7-day weekly quota was too aggressive (e.g. 56% used → projected 5h50m to exhaustion → \"Runs out in 5h50m (resets in 4d6h)\" warning), since users don't sustain that rate 24/7. Fix: `_quota_row` gained a `warning_max_seconds` parameter, and the three weekly call sites pass a 24h ceiling — projections beyond 24 hours no longer trigger the warning. Session warnings are unchanged."
-          }
-        ]
-      },
-      "badges": [
-        "new"
-      ]
-    },
-    {
-      "version": "0.10.0",
-      "raw": {
-        "version": "0.10.0",
-        "period": "2026-05-24",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**HTML report Share button**: A new Share button in the top-right opens a file-share modal with two actions — \"Download .html\" and \"Copy file path\" — so you can send the report via AirDrop / Mail / Slack / iMessage to a colleague or manager. Recipients open it in any browser on mobile or desktop.",
-          "**\"Hide project names\" toggle on download**: A checkbox inside the share modal (default ON, privacy-first) swaps every project name to `Project 1 / Project 2 / ...` before the HTML is serialized for download. The on-screen report is unaffected.",
-          "**HTML report sponsor section reworked**: Two Ko-fi badges now flank the brand slogan `No cloud. No tracking. Just yours.` (kept in English across all five UI languages). The slogan carries a subtle wobble animation to draw the eye, and the GitHub link (github.com/aqua5230/usage) appears below.",
-          "**statusLine second line removed**: The cumulative token totals / cache / cost line has been dropped to simplify visuals. Key info now lives on line 1 (5h / 7d / Context window) and line 3 (session duration, model).",
-          "**HTML report KPI card widths rebalanced**: tokens / cost are now wider; sessions / messages / active days narrower (grid ratio 1.5fr 1.4fr 1fr 1fr 1fr), preventing 9-digit token counts from wrapping.",
-          "HTML report footer line `usage · Local-first analytics · Data stays on device` — replaced by the GitHub link in the sponsor section."
-        ]
-      },
-      "curated": {
-        "version": "0.10.0",
-        "period": "2026-05-24",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "報告可點 Share 分享，還能自動把專案名稱打碼",
-              "en": "Share your report in one click with built-in project name redaction"
-            },
-            "body": {
-              "zh-TW": "現在你可以把分析報告輕鬆傳給主管或同事看了。報告右上角多了一顆分享按鈕，點開就能選擇「另存一份 .html」或「複製檔案路徑」，透過 AirDrop、信箱或通訊軟體傳送，對方用手機或電腦的瀏覽器都能直接打開看。而且，下載介面裡多了一個預設打勾的「隱藏專案名稱」選項，勾著下載的話，檔案裡的專案名字都會被自動替換成「Project 1、Project 2」這類代號，不用擔心機密外洩，而你螢幕上看的畫面仍然維持原樣。就像你拿提款機的明細給別人看，以前要自己拿黑筆塗掉帳號，現在列印時機器就自動幫你打好星號了。",
-              "en": "You can now easily share your usage analysis with managers or colleagues. A new Share button in the top-right corner of the report lets you \"Download .html\" or \"Copy file path\" to send via AirDrop, email, or messaging apps, and recipients can open it in any browser on mobile or desktop. Plus, there's a privacy-first \"Hide project names\" checkbox in the download modal that's checked by default. When enabled, all project names in the downloaded file are automatically swapped to generic labels like \"Project 1\" or \"Project 2\" to prevent leaking sensitive information, while your on-screen view remains unchanged. It's like handing someone your bank receipt — you used to have to cross out the account number with a sharpie, but now the machine prints asterisks for you automatically."
-            },
-            "original": "**HTML report Share button**: A new Share button in the top-right opens a file-share modal with two actions — \"Download .html\" and \"Copy file path\" — so you can send the report via AirDrop / Mail / Slack / iMessage to a colleague or manager. Recipients open it in any browser on mobile or desktop.\n**\"Hide project names\" toggle on download**: A checkbox inside the share modal (default ON, privacy-first) swaps every project name to `Project 1 / Project 2 / ...` before the HTML is serialized for download. The on-screen report is unaffected."
-          },
-          {
-            "title": {
-              "zh-TW": "介面大掃除，終端機與報告畫面更俐落",
-              "en": "Visual cleanup makes the terminal and reports much sleeker"
-            },
-            "body": {
-              "zh-TW": "這次為終端機的狀態列（statusLine，在輸入框上方顯示額度的區塊）和分析報告做了視覺瘦身。狀態列移除了原本顯示累計問答、快取和花費的第二行，讓版面更清爽，只把最重要的限額和模型資訊留在第一跟第三行。報告畫面的上方指標卡片（KPI 卡）也調整了寬度比例，把 token 與成本的卡片拉寬，避免累積到上億的長數字被折到下一行；報告底部則重新設計了贊助區塊，用會微微晃動的品牌標語取代了原本死板的頁尾文字，並補上 GitHub 連結。就像把儀表板上平時用不到的繁雜指針拆掉，並把最重要的油量表放大，讓你開車時一眼就能看清重點。",
-              "en": "We've put the terminal status line (the block above your input showing quotas) and the HTML report on a visual diet. The status line drops its second row that showed cumulative totals, cache, and costs, keeping the layout clean and focusing only on crucial limits and model info on the first and third lines. In the report, the top KPI cards have rebalanced widths — the tokens and cost cards are now wider so massive 9-digit numbers won't awkwardly wrap to the next line. We also reworked the sponsor section at the bottom, replacing the static footer text with a subtly wobbling brand slogan and adding a GitHub link. It's like removing the clutter of rarely-used gauges from your car's dashboard and enlarging the gas gauge so you can read what matters at a glance."
-            },
-            "original": "**HTML report sponsor section reworked**: Two Ko-fi badges now flank the brand slogan `No cloud. No tracking. Just yours.` (kept in English across all five UI languages). The slogan carries a subtle wobble animation to draw the eye, and the GitHub link (github.com/aqua5230/usage) appears below.\n**statusLine second line removed**: The cumulative token totals / cache / cost line has been dropped to simplify visuals. Key info now lives on line 1 (5h / 7d / Context window) and line 3 (session duration, model).\n**HTML report KPI card widths rebalanced**: tokens / cost are now wider; sessions / messages / active days narrower (grid ratio 1.5fr 1.4fr 1fr 1fr 1fr), preventing 9-digit token counts from wrapping.\nHTML report footer line `usage · Local-first analytics · Data stays on device` — replaced by the GitHub link in the sponsor section."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "new"
       ]
     }
   ]

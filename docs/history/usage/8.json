@@ -5,6 +5,229 @@
   "pages": 22,
   "versions": [
     {
+      "version": "0.29.15",
+      "raw": {
+        "version": "0.29.15",
+        "period": "2026-08-02",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-03",
+        "entries": [
+          "**Token estimates no longer undercount CJK text by a factor of four.** Six places in the waste diagnosis converted characters to tokens with `chars // 4`, which is the ASCII ratio. A CJK character is roughly one token, not a quarter of one, so every figure the diagnosis reported for a Chinese, Japanese or Korean file — wasted tokens and the cost derived from them — came out at a quarter of the truth. This project reads its own `i18n.json`, `CLAUDE.md` and `README.zh-TW.md` often enough to hit this on itself. The estimate now counts CJK codepoints as one token each and everything else at four characters per token. No tokenizer dependency was added: this is an offline tool, and pulling in a model-specific tokenizer to chase rounding-level accuracy is not a trade worth making.",
+          "**A corrupt disk cache is preserved instead of being deleted outright.** All three caches — Antigravity, Codex and history — dealt with an unreadable file by removing it and recomputing. That is the right recovery, but it also destroys the only evidence of what went wrong, so a later report of \"my numbers look off\" has nothing left to inspect. A damaged file is now moved to `~/.usage/quarantine/` first, named with a millisecond timestamp so a second failure cannot overwrite the first, capped at ten files and 5 MB each. A stale `schema_version` is *not* quarantined: that is an ordinary upgrade, and with 32 shards per cache one version bump would flush the whole budget and push the real evidence out. The quarantine helper swallows every error it can hit — it is a side service and must never take the caller down with it.",
+          "**`--doctor` no longer reports a missing file that the current mode does not use.** The report listed fourteen checks as one flat list, so `forwarder script: [missing]` read as a fault even when the installed mode never needs that script. It is now grouped into `[core]`, `[hook]` and `[optional]`, and the forwarder line says `[not needed in <state> mode]` when that is the case. None of the check logic changed.",
+          "**Two Windows tray tests wrote into the real `~/.claude/usage-preferences.json`.** Both call `switch_panel()`, which persists through `_save_active_panel_id()`, and neither patched `prefs.PREFERENCES_FILE` — so running the suite silently changed the developer's own active panel.",
+          "**The documentation parity check covers Simplified Chinese, Japanese and Korean.** `check_doc_parity.py` only compared English against Traditional Chinese, leaving the other three README translations unwatched; `CLAUDE.md` had to carry a note to sync them by hand. Each translation is now compared on its own and the failure message names the file that drifted. The comparison is still a count of `##` headings rather than their text — matching text would force translators to mirror English headings word for word, which is what makes translated docs read badly.",
+          "**`scripts/install_local.sh` replaces the hand-typed steps for installing a build locally.** Releasing does not touch `/Applications`: the tag drives CI, and the local copy keeps running whatever was already there. That last step lived only in a checklist, and the menu bar once ran a stale build for six versions before anyone noticed. The script checks the build exists, prints both versions, waits for the running app to exit, swaps it, and verifies the installed version matches."
+        ]
+      },
+      "curated": {
+        "version": "0.29.15",
+        "period": "2026-08-02",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "中文、日文、韓文的用量估算不再少算四倍",
+              "en": "Usage estimates no longer count CJK text at one quarter of its size"
+            },
+            "body": {
+              "zh-TW": "你拿中文、日文或韓文檔案檢查浪費的用量時，以前看到的數字其實少算了四倍。診斷工具把所有文字都當成四個字元才算一個 token（AI 處理文字量的單位），這套演算法適合 ASCII 文字，卻不適合 CJK 文字：一個中日韓字大約就是一個 token。現在它會把中日韓字逐一計算，其餘文字仍以四個字元估算，所以浪費的 token 與由此算出的費用不會再縮成四分之一。這像秤蔬菜時把每四顆番茄才當一顆，秤重結果當然偏低；秤法改正後，數字才接近實際重量。工具仍在離線運作，沒有為了追求細微的取整誤差加入特定模型的 tokenizer。",
+              "en": "If you use Chinese, Japanese, or Korean files to diagnose waste, the old figures were four times too small. The diagnostic treated every four characters as one token (the unit an AI uses to measure text). That works for ASCII text, but a CJK character is roughly one token. It now counts each CJK codepoint as one token and keeps the four-characters-per-token estimate for everything else, so reported waste and the cost based on it no longer shrink to a quarter of their real estimate. It was like weighing tomatoes but recording only one for every four on the scale. The tool remains offline; it does not add a model-specific tokenizer just to chase tiny rounding differences."
+            },
+            "original": "**Token estimates no longer undercount CJK text by a factor of four.** Six places in the waste diagnosis converted characters to tokens with `chars // 4`, which is the ASCII ratio. A CJK character is roughly one token, not a quarter of one, so every figure the diagnosis reported for a Chinese, Japanese or Korean file — wasted tokens and the cost derived from them — came out at a quarter of the truth. This project reads its own `i18n.json`, `CLAUDE.md` and `README.zh-TW.md` often enough to hit this on itself. The estimate now counts CJK codepoints as one token each and everything else at four characters per token. No tokenizer dependency was added: this is an offline tool, and pulling in a model-specific tokenizer to chase rounding-level accuracy is not a trade worth making."
+          },
+          {
+            "title": {
+              "zh-TW": "壞掉的快取先隔離，留下查問題的線索",
+              "en": "A damaged cache is quarantined instead of erased"
+            },
+            "body": {
+              "zh-TW": "某次用量數字看起來不對時，壞掉的快取（把查過結果暫存起來直接用的資料）現在不會立刻被刪光。Antigravity、Codex 與 history 三種快取遇到讀不懂的檔案，仍會重新計算以便繼續使用，但會先把原檔移到 `~/.usage/quarantine/`，讓你日後還能檢查出了什麼問題。每個檔名帶毫秒時間戳，第二次故障不會蓋掉第一次；隔離區最多留十個檔案，每個最多 5 MB。這像醫院把破損的檢體先放進證物袋，再重新採樣，而不是直接丟進垃圾桶。只有過期的 `schema_version` 不會被隔離，因為那是正常升級；每個快取有 32 個分片，一次升版若全送進隔離區，反而會擠掉真正的故障證據。",
+              "en": "When a usage number looks wrong, a damaged cache (stored results reused instead of recomputed) will no longer vanish immediately. Antigravity, Codex, and history caches still recover by recomputing an unreadable file, but first move the original into `~/.usage/quarantine/` so there is something to inspect later. Names include a millisecond timestamp, so a second failure cannot replace the first; the folder holds at most ten files, up to 5 MB each. It is like bagging a damaged lab sample before taking a new one instead of throwing away the only clue. An old `schema_version` is excluded because it is a normal upgrade. With 32 shards per cache, quarantining an entire version bump would crowd out the evidence from a real failure."
+            },
+            "original": "**A corrupt disk cache is preserved instead of being deleted outright.** All three caches — Antigravity, Codex and history — dealt with an unreadable file by removing it and recomputing. That is the right recovery, but it also destroys the only evidence of what went wrong, so a later report of \"my numbers look off\" has nothing left to inspect. A damaged file is now moved to `~/.usage/quarantine/` first, named with a millisecond timestamp so a second failure cannot overwrite the first, capped at ten files and 5 MB each. A stale `schema_version` is *not* quarantined: that is an ordinary upgrade, and with 32 shards per cache one version bump would flush the whole budget and push the real evidence out. The quarantine helper swallows every error it can hit — it is a side service and must never take the caller down with it."
+          },
+          {
+            "title": {
+              "zh-TW": "`--doctor` 會分清楚「缺檔」與「根本用不到」",
+              "en": "`--doctor` separates a missing file from one you do not need"
+            },
+            "body": {
+              "zh-TW": "跑 `--doctor` 檢查安裝狀態時，看到 `forwarder script: [missing]` 不必再先以為出錯。以前報告把十四項檢查攤成一張清單，即使你目前的模式根本不用 forwarder script（負責轉送資料的腳本），它也照樣標成 missing。現在結果分成 `[core]`、`[hook]` 與 `[optional]` 三組；不需要轉送腳本的模式會直接寫 `[not needed in <state> mode]`。這像健康檢查把必做檢驗、加選檢驗和不適用項目分欄，而不是把所有未做項目都標紅。檢查的判斷規則沒有改，改的是報告把情境講清楚的方式；真正缺少目前模式會用到的檔案，仍會顯示為問題。",
+              "en": "When you run `--doctor` to check an installation, `forwarder script: [missing]` no longer automatically means trouble. The report used to flatten fourteen checks into one list, so it showed a missing forwarder script even in a mode that never uses one. A forwarder script is simply a script that passes data along. Results are now separated into `[core]`, `[hook]`, and `[optional]`; a mode that does not need the script says `[not needed in <state> mode]`. It is like a health report separating required tests, elective tests, and tests that do not apply instead of marking every absent test red. The checking logic itself did not change; a file required by the current mode is still reported as missing."
+            },
+            "original": "**`--doctor` no longer reports a missing file that the current mode does not use.** The report listed fourteen checks as one flat list, so `forwarder script: [missing]` read as a fault even when the installed mode never needs that script. It is now grouped into `[core]`, `[hook]` and `[optional]`, and the forwarder line says `[not needed in <state> mode]` when that is the case. None of the check logic changed."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 的系統匣測試會寫入真實偏好設定",
+              "en": "Windows tray tests write to your real preferences"
+            },
+            "body": {
+              "zh-TW": "Windows 開發者跑系統匣（Windows 工作列角落放背景程式圖示的區域）測試後，自己的面板偏好曾被悄悄改掉。兩個測試都會呼叫 `switch_panel()` 切換面板；這個動作接著透過 `_save_active_panel_id()` 寫入偏好檔，但測試沒有把 `prefs.PREFERENCES_FILE` 改指向暫存位置，於是實際碰到的是 `~/.claude/usage-preferences.json`。換句話說，測試本來該在模型屋裡搬家具，卻走進你的家改了客廳。",
+              "en": "After a Windows developer ran tray tests, their own panel preference changed in silence. The tray is the corner of the Windows taskbar where background-app icons live. Two tests call `switch_panel()`, which then writes preferences through `_save_active_panel_id()`. But the tests did not redirect `prefs.PREFERENCES_FILE` to a temporary location, so they wrote to the real `~/.claude/usage-preferences.json`. The tests were meant to rearrange furniture in a model home, yet walked into your living room instead."
+            },
+            "original": "**Two Windows tray tests wrote into the real `~/.claude/usage-preferences.json`.** Both call `switch_panel()`, which persists through `_save_active_panel_id()`, and neither patched `prefs.PREFERENCES_FILE` — so running the suite silently changed the developer's own active panel."
+          },
+          {
+            "title": {
+              "zh-TW": "四種 README 翻譯都有人守，不再只盯繁中",
+              "en": "Documentation checks now watch all four README translations"
+            },
+            "body": {
+              "zh-TW": "英文 README 多加一節時，簡體中文、日文和韓文版現在也會被檢查有沒有跟上。原本 `check_doc_parity.py` 只比對英文與繁中 README，其他三份翻譯沒有自動守門員，只能靠 `CLAUDE.md` 裡的手動提醒。現在每一種翻譯各自和英文比較，若落後，錯誤訊息會直接點出是哪個檔案。它比的是 `##` 標題的數量，不是標題文字本身：譯者仍可用自然的語言改寫標題，不必逐字照翻。這像展覽入口只數每個語言版有沒有同樣多扇展廳門，而不強迫門牌翻成同一串字；少了一扇門才提醒你回頭補。",
+              "en": "When the English README gains a section, the Simplified Chinese, Japanese, and Korean versions are now checked for keeping up too. `check_doc_parity.py` used to compare English only with Traditional Chinese, leaving the other three translations guarded only by a hand-written reminder in `CLAUDE.md`. Each translation is now compared with English on its own, and a failure names the file that drifted. The check counts `##` headings rather than matching their wording, so translators can still write natural headings instead of copying English word for word. It is like checking that every language edition of an exhibition has the same number of gallery doors, without forcing all the signs to use identical words."
+            },
+            "original": "**The documentation parity check covers Simplified Chinese, Japanese and Korean.** `check_doc_parity.py` only compared English against Traditional Chinese, leaving the other three README translations unwatched; `CLAUDE.md` had to carry a note to sync them by hand. Each translation is now compared on its own and the failure message names the file that drifted. The comparison is still a count of `##` headings rather than their text — matching text would force translators to mirror English headings word for word, which is what makes translated docs read badly."
+          },
+          {
+            "title": {
+              "zh-TW": "本機安裝有了腳本，選單列不再默默跑舊版",
+              "en": "A local-install script keeps the menu bar from quietly running an old build"
+            },
+            "body": {
+              "zh-TW": "你剛做完本機 build（編譯完成、可執行的程式版本），標上 release tag 並不會自動換掉 `/Applications` 裡正在跑的 App。過去這一步只寫在檢查清單，曾讓選單列連續六個版本仍開著舊 build。現在要在本機安裝時，直接執行 `scripts/install_local.sh`：它先確認 build 存在，印出新舊兩個版本，等待正在執行的 App 結束，再替換檔案，最後核對已安裝版本是否相同。這像買了新燈泡卻只把盒子放在門口；打上標籤不等於已裝進燈座。腳本把拆舊燈、裝新燈和開燈確認串起來，讓本機副本跟著更新。",
+              "en": "After you make a local build (a compiled, runnable version of the app), adding a release tag does not replace the copy already running from `/Applications`. That final step used to live only in a checklist, and the menu bar once kept running a build six versions old. For a local install, run `scripts/install_local.sh`. It confirms the build exists, prints both versions, waits for the running app to exit, swaps the files, and verifies that the installed version matches. Buying a new light bulb is not the same as putting it in the socket. The script links removing the old bulb, fitting the new one, and checking that the light turns on, so the local copy actually catches up."
+            },
+            "original": "**`scripts/install_local.sh` replaces the hand-typed steps for installing a build locally.** Releasing does not touch `/Applications`: the tag drives CI, and the local copy keeps running whatever was already there. That last step lived only in a checklist, and the menu bar once ran a stale build for six versions before anyone noticed. The script checks the build exists, prints both versions, waits for the running app to exit, swaps it, and verifies the installed version matches."
+          }
+        ]
+      },
+      "badges": [
+        "fix",
+        "new",
+        "fix",
+        "new",
+        "new",
+        "new"
+      ]
+    },
+    {
+      "version": "0.29.14",
+      "raw": {
+        "version": "0.29.14",
+        "period": "2026-08-02",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-02",
+        "entries": [
+          "**The panel no longer creeps downward every time you open and close it.** Dragging it into place used to hold for one cycle at most: each reopen landed it a little lower than the last. Two anchors disagreed. The saved position was the window's bottom-left corner, but `setContentSizeKeepingTopLeft_` — added in 0.29.9 precisely so the panel would not appear to jump while resizing — holds the *top* edge. To hold that edge it calls `setFrameOrigin_`, and macOS posts `NSWindowDidMoveNotification` for a programmatic move just as it does for a drag, so `windowDidMove_` recorded a resize as though the user had dragged the window. Every open re-measured the content height, the bottom-left corner dropped by the difference, and that drop was saved as the new position. The anchor is now the top edge on both sides, so resizing cannot change the stored value. Positions saved by earlier versions are read through a migration path and are not reset.",
+          "**Opening the panel no longer starts short and then stretches.** Two height systems were computing the same number and disagreeing: `popover_dimensions` estimates from a panel's base height by arithmetic (subtract a card when Claude or Codex is hidden, subtract a row when Codex has no data, add for a wrapped status line or an install button), while the script in `panels/dynamic_height.py` measures the rendered content and reports it back. The window opened at the estimate and jumped to the measurement. The gap was widest with cards hidden, where the most terms are subtracted. The measured height is now remembered per panel and used on open, leaving the estimate as a fallback for a panel that has never been measured. The arithmetic constants were deliberately left alone — tuning them is whack-a-mole, since every new UI element needs another adjustment. The panel still adjusts once when the content genuinely changes size.",
+          "**A state file corrupted into non-UTF-8 bytes no longer raises instead of degrading.** `_load_preferences`, `_load_ping_state` and `_load_last_ping` each catch `OSError` and `json.JSONDecodeError` around a `read_text(encoding=\"utf-8\")` — but a file containing invalid UTF-8 raises `UnicodeDecodeError`, which is a sibling of `JSONDecodeError` under `ValueError`, not a subclass of it. All three are contracted to fall back quietly when their file is unusable, and a half-written or damaged file broke that contract by propagating the exception.",
+          "**The macOS notification bridge moved out of `menubar.py` into `menubar_notify.py`.** The six module-level functions that talk to `UNUserNotificationCenter` had no reason to live in a 2230-line file. They were not folded into `usage_notifications.py`, which stays free of PyObjC so its decision logic remains testable without the ObjC runtime — these functions call `objc.registerMetaDataForSelector`. The update-dismissal cooldown joined `update_gate.py`, where the other update-timing constants already were. `menubar.py` is down to 2139 lines and its ceiling followed.",
+          "**`jsonl_utils` and `time_utils` gained direct unit tests.** Both are shared by several loaders and had only incidental coverage through the modules above them. The JSONL reader's tolerance for blank lines, malformed rows and non-object values is now pinned, including the deliberate choice to raise on invalid UTF-8 when no `errors` argument is given — that decision belongs to the caller."
+        ]
+      },
+      "curated": {
+        "version": "0.29.14",
+        "period": "2026-08-02",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "面板記住位置與高度，開啟不再位移拉伸",
+              "en": "Panels remember their position and height instead of shifting or stretching open"
+            },
+            "body": {
+              "zh-TW": "每次打開又關閉面板後，若你已把它拖到順手位置，現在它不會一回比一回往下滑。之前它像掛歪的相框：儲存位置抓左下角，調整內容大小卻固定上緣；程式自己因高度改變移動視窗時，又誤當成你拖動，於是把偏移記下來。現在兩邊都認上緣，尺寸變動不會覆蓋你選的位置。舊版存下的位置也會經遷移（把舊資料換成新格式的轉換）讀取，不必重設。面板量過高度後，開啟不再先矮後拉長；尚未量過時仍以估算值作備援。內容真的變高或變矮時，仍會再調整一次。",
+              "en": "After you drag a panel where you want it, opening and closing it will no longer make it creep lower each time. It was like a crooked picture frame: the saved position used its bottom-left corner, while resizing held its top edge; when the app moved the window for a height change, it mistook that move for your drag and saved the offset. Both sides now use the top edge, so resizing cannot overwrite your chosen spot. Older saved positions are migrated rather than reset. A measured panel no longer opens short and then stretches; an estimate remains the fallback before measurement. It still adjusts when content truly changes size."
+            },
+            "original": "**The panel no longer creeps downward every time you open and close it.** Dragging it into place used to hold for one cycle at most: each reopen landed it a little lower than the last. Two anchors disagreed. The saved position was the window's bottom-left corner, but `setContentSizeKeepingTopLeft_` — added in 0.29.9 precisely so the panel would not appear to jump while resizing — holds the *top* edge. To hold that edge it calls `setFrameOrigin_`, and macOS posts `NSWindowDidMoveNotification` for a programmatic move just as it does for a drag, so `windowDidMove_` recorded a resize as though the user had dragged the window. Every open re-measured the content height, the bottom-left corner dropped by the difference, and that drop was saved as the new position. The anchor is now the top edge on both sides, so resizing cannot change the stored value. Positions saved by earlier versions are read through a migration path and are not reset.\n**Opening the panel no longer starts short and then stretches.** Two height systems were computing the same number and disagreeing: `popover_dimensions` estimates from a panel's base height by arithmetic (subtract a card when Claude or Codex is hidden, subtract a row when Codex has no data, add for a wrapped status line or an install button), while the script in `panels/dynamic_height.py` measures the rendered content and reports it back. The window opened at the estimate and jumped to the measurement. The gap was widest with cards hidden, where the most terms are subtracted. The measured height is now remembered per panel and used on open, leaving the estimate as a fallback for a panel that has never been measured. The arithmetic constants were deliberately left alone — tuning them is whack-a-mole, since every new UI element needs another adjustment. The panel still adjusts once when the content genuinely changes size."
+          },
+          {
+            "title": {
+              "zh-TW": "狀態檔讀到壞編碼，不再讓 usage 中斷",
+              "en": "A damaged state file no longer stops usage cold"
+            },
+            "body": {
+              "zh-TW": "某次電腦突然關機或檔案只寫到一半時，usage 的狀態檔（存偏好和上次連線資料的檔案）若混進不能用 UTF-8 的位元組，程式現在不會直接報錯中斷。它會把這份無法讀取的檔案當作暫時不可用，安靜改走備援處理。先前程式只攔住作業系統讀檔錯誤與 JSON 格式錯誤，卻漏了不合法 UTF-8 造成的解碼錯誤；三個載入偏好、連線狀態與上次連線時間的地方因此可能把錯誤一路丟出。這像讀到被水泡爛的便條：看不清就先放下，不讓整個工作台停擺。",
+              "en": "If a computer shuts down suddenly or a file is written only halfway, a usage state file can contain bytes that are not valid UTF-8. That no longer throws an error and stops the app. The unreadable file is treated as temporarily unusable and the app falls back quietly. Previously it caught operating-system read errors and malformed JSON, but missed decoding errors from invalid UTF-8; three loaders for preferences, connection state, and last connection time could let that error escape. It is like finding a note soaked through with water: set it aside when you cannot read it, instead of shutting down the whole workbench."
+            },
+            "original": "**A state file corrupted into non-UTF-8 bytes no longer raises instead of degrading.** `_load_preferences`, `_load_ping_state` and `_load_last_ping` each catch `OSError` and `json.JSONDecodeError` around a `read_text(encoding=\"utf-8\")` — but a file containing invalid UTF-8 raises `UnicodeDecodeError`, which is a sibling of `JSONDecodeError` under `ValueError`, not a subclass of it. All three are contracted to fall back quietly when their file is unusable, and a half-written or damaged file broke that contract by propagating the exception."
+          },
+          {
+            "title": {
+              "zh-TW": "通知程式拆開、共用讀檔工具補上測試",
+              "en": "Notification code is separated and shared file readers get direct tests"
+            },
+            "body": {
+              "zh-TW": "你收到通知、或開發者修改共用讀檔工具時，這版沒有添畫面上的新按鈕，卻把容易藏錯的角落收好。macOS 的通知橋接程式（把 app 與系統通知中心接起來的程式碼）從龐大的選單列檔拆到獨立檔案；更新通知的冷卻時間也移到管理其他更新時機的地方。通知的判斷邏輯仍不依賴 macOS 專用元件，因此可在沒有 macOS 執行環境下測試。另一邊，讀 JSONL（每行一筆 JSON 資料的檔案格式）與時間的共用工具補上直接單元測試：空白行、壞行和不是物件的資料怎麼處理都被固定下來；未指定錯誤處理時，遇到壞 UTF-8 仍會報錯，決定權留給呼叫它的地方。像把工具櫃裡常用尺和螺絲起子逐件驗過，往後修其他東西時較不易誤踩壞掉的工具。",
+              "en": "If you receive notifications or maintain shared file-reading code, this release adds no visible button but tidies places where bugs can hide. The macOS notification bridge, which connects the app to the system notification center, moves out of the huge menu-bar file into its own file; update-dismissal timing joins the other update timing rules. The decision logic still avoids macOS-only pieces, so it can be tested without that runtime. Meanwhile, the shared JSONL and time utilities get direct unit tests. Their behavior for blank lines, malformed rows, and non-object values is now pinned down; invalid UTF-8 still raises when the caller has not asked for error handling, leaving that choice to the caller. It is like checking each ruler and screwdriver in a tool cabinet before repairing something else."
+            },
+            "original": "**The macOS notification bridge moved out of `menubar.py` into `menubar_notify.py`.** The six module-level functions that talk to `UNUserNotificationCenter` had no reason to live in a 2230-line file. They were not folded into `usage_notifications.py`, which stays free of PyObjC so its decision logic remains testable without the ObjC runtime — these functions call `objc.registerMetaDataForSelector`. The update-dismissal cooldown joined `update_gate.py`, where the other update-timing constants already were. `menubar.py` is down to 2139 lines and its ceiling followed.\n**`jsonl_utils` and `time_utils` gained direct unit tests.** Both are shared by several loaders and had only incidental coverage through the modules above them. The JSONL reader's tolerance for blank lines, malformed rows and non-object values is now pinned, including the deliberate choice to raise on invalid UTF-8 when no `errors` argument is given — that decision belongs to the caller."
+          }
+        ]
+      },
+      "badges": [
+        "fix",
+        "fix",
+        "new"
+      ]
+    },
+    {
+      "version": "0.29.13",
+      "raw": {
+        "version": "0.29.13",
+        "period": "2026-08-02",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-02",
+        "entries": [
+          "**Removing the Codex status line no longer deletes one that `usage` never installed.** `_unsetup_codex()` only checked whether a `tui.status_line` existed at all, not whether it was ours. Anyone who had configured their own status line and then ran the removal lost it. Worse, a corrupt backup file made the restore path overwrite the config with an empty list and then delete the only backup, losing both at once. Removal now acts only when the status line matches `CODEX_STATUS_LINE` exactly, and an unreadable or wrong-typed backup leaves both the config and the backup untouched.",
+          "**A corrupt `~/.codex/hooks.json` is no longer treated as an empty one.** `_load_codex_hooks()` returned `{}` for \"file missing\" and \"file exists but won't parse\" alike; terse mode then rebuilt from that empty dict and wrote it back, permanently erasing every Codex hook the user had, with no backup and no message. Codex writing that file while `usage` reads it is enough to trigger this. The unreadable case now aborts before anything is copied or written, so a failed run can no longer leave a half-installed state either."
+        ]
+      },
+      "curated": {
+        "version": "0.29.13",
+        "period": "2026-08-02",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "移除 usage 不誤刪狀態列，讀壞掛鉤檔就停手",
+              "en": "Removing usage preserves your status line, and unreadable hooks stop safely"
+            },
+            "body": {
+              "zh-TW": "你曾把自己設定的終端機狀態列（終端機最底下顯示目前狀況的地方）留著，卻在移除 usage 加上的 Codex 狀態列時擔心它一起消失嗎？現在移除動作會逐字核對，只有完全等於 `CODEX_STATUS_LINE` 的那一列才會動；備份檔壞掉或內容型別不對時，設定和備份都原封不動。另一道保護留給掛鉤（特定事件發生時被觸發的小程式）：`~/.codex/hooks.json` 不可讀時，usage 會中止，不再把它當空檔重寫，避免清掉你全部掛鉤，也不會留下半套安裝。像收走租來的衣架，先認準自己的標籤；看不清置物櫃裡的東西，就先不碰。",
+              "en": "If you kept your own terminal status line, removing the Codex line added by usage used to risk taking yours with it. Removal now compares the text exactly and touches only a line equal to `CODEX_STATUS_LINE`; if its backup is corrupt or has the wrong type, both the configuration and backup stay untouched. A second safeguard covers hooks (small programs triggered by particular events): when `~/.codex/hooks.json` cannot be read, usage stops instead of treating it as empty and writing it back. That protects every hook and avoids leaving a half-installed state. It is like collecting rented coat hangers only after checking their labels; if you cannot see inside a locker, you leave it alone."
+            },
+            "original": "**Removing the Codex status line no longer deletes one that `usage` never installed.** `_unsetup_codex()` only checked whether a `tui.status_line` existed at all, not whether it was ours. Anyone who had configured their own status line and then ran the removal lost it. Worse, a corrupt backup file made the restore path overwrite the config with an empty list and then delete the only backup, losing both at once. Removal now acts only when the status line matches `CODEX_STATUS_LINE` exactly, and an unreadable or wrong-typed backup leaves both the config and the backup untouched.\n**A corrupt `~/.codex/hooks.json` is no longer treated as an empty one.** `_load_codex_hooks()` returned `{}` for \"file missing\" and \"file exists but won't parse\" alike; terse mode then rebuilt from that empty dict and wrote it back, permanently erasing every Codex hook the user had, with no backup and no message. Codex writing that file while `usage` reads it is enough to trigger this. The unreadable case now aborts before anything is copied or written, so a failed run can no longer leave a half-installed state either."
+          }
+        ]
+      },
+      "badges": [
+        "fix"
+      ]
+    },
+    {
+      "version": "0.29.12",
+      "raw": {
+        "version": "0.29.12",
+        "period": "2026-08-02",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-02",
+        "entries": [
+          "**The AI Talent Market gained 25 engineering roles across seven new packs.** Frontend, backend, cloud ops, quality, AI, code maintenance and app development — React and Next.js specialists, API designers, SQL and Python pros, cloud architects, Docker and DevOps engineers, Swift and Electron experts, refactoring and dependency specialists, prompt engineers, and more. Every role ships the full zh-TW/zh-CN/en/ja/ko persona set. Two existing packs also absorbed a role each: SEO into marketing, payment integration into ecommerce.",
+          "**Hiring a role is now one click instead of two.** A role card used to show \"Install\", and only after that did it turn into \"Launch\" — but installing is an implementation detail (writing one `.md` file into `~/.claude/agents/`) that no one needed to see. Every card now shows \"Launch\" directly; if the role isn't installed yet, it gets installed first and then starts. A failed install stops there and reports the error rather than opening an empty terminal. The \"Restore\" button for hand-edited roles is unchanged."
+        ]
+      },
+      "curated": {
+        "version": "0.29.12",
+        "period": "2026-08-02",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "工程人才多 25 位，啟動角色少一步",
+              "en": "25 more engineering roles, with fewer steps to launch one"
+            },
+            "body": {
+              "zh-TW": "網站缺前端、後台缺 API（讓軟體互相傳資料的介面）專長時，AI Talent Market 新增七組、共 25 個工程角色。角色涵蓋前端、後端、雲端維運、品質、AI、程式維護與應用程式開發；React、Next.js、SQL、Python、Docker、DevOps、Swift、Electron、重構、相依套件與提示詞工程也各有專家。既有的行銷包加入 SEO 角色，電商包加入付款整合角色；每位都有繁中、簡中、英文、日文、韓文人設。挑好角色後，卡片直接顯示「Launch」：未安裝才會先把一個 `.md` 檔寫進 `~/.claude/agents/`，接著啟動；安裝失敗便停下並報錯，不會開空終端機。手動改過的角色仍可按「Restore」還原。像人才仲介先把專長排好，帶你選到人便直接牽線。",
+              "en": "Need someone to build a page, design an API, or untangle a dependency? The AI Talent Market adds 25 engineering roles across seven new packs. They cover frontend, backend, cloud operations, quality, AI, code maintenance, and app development, with specialists in React, Next.js, SQL, Python, Docker, DevOps, Swift, Electron, refactoring, dependencies, and prompt engineering. Marketing also gains SEO, while ecommerce gains payment integration; every role comes with zh-TW, zh-CN, English, Japanese, and Korean personas. After choosing one, its card now says \"Launch\". If needed, it first writes one `.md` file to `~/.claude/agents/`, then starts; a failed install stops and reports its error instead of opening an empty terminal. Hand-edited roles still keep their \"Restore\" button. Think of a recruiter who sorts the specialties first, then introduces you straight to the right person."
+            },
+            "original": "**The AI Talent Market gained 25 engineering roles across seven new packs.** Frontend, backend, cloud ops, quality, AI, code maintenance and app development — React and Next.js specialists, API designers, SQL and Python pros, cloud architects, Docker and DevOps engineers, Swift and Electron experts, refactoring and dependency specialists, prompt engineers, and more. Every role ships the full zh-TW/zh-CN/en/ja/ko persona set. Two existing packs also absorbed a role each: SEO into marketing, payment integration into ecommerce.\n**Hiring a role is now one click instead of two.** A role card used to show \"Install\", and only after that did it turn into \"Launch\" — but installing is an implementation detail (writing one `.md` file into `~/.claude/agents/`) that no one needed to see. Every card now shows \"Launch\" directly; if the role isn't installed yet, it gets installed first and then starts. A failed install stops there and reports the error rather than opening an empty terminal. The \"Restore\" button for hand-edited roles is unchanged."
+          }
+        ]
+      },
+      "badges": [
+        "new"
+      ]
+    },
+    {
       "version": "0.29.11",
       "raw": {
         "version": "0.29.11",
@@ -236,190 +459,6 @@
       },
       "badges": [
         "fix"
-      ]
-    },
-    {
-      "version": "0.29.5",
-      "raw": {
-        "version": "0.29.5",
-        "period": "2026-07-27",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-27",
-        "entries": [
-          "**AI Council spends less Claude quota per turn**: `claude -p` calls without an attached project folder used to omit `--tools` entirely, so Claude Code loaded its full built-in toolset — Bash, Edit, Write, and the rest — into every turn's input even though the council prompt already tells participants not to call tools. Calls now pass `--tools \"\"` when no project folder is attached, and every Claude call adds `--exclude-dynamic-system-prompt-sections` to keep the system prompt prefix byte-stable across turns for a better shot at Anthropic's automatic prompt caching. Codex and Antigravity participants are unaffected."
-        ]
-      },
-      "curated": {
-        "version": "0.29.5",
-        "period": "2026-07-27",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "AI Council 少帶一箱工具，Claude 額度更省",
-              "en": "AI Council stops hauling unused tools into every Claude turn"
-            },
-            "body": {
-              "zh-TW": "AI Council 裡的 Claude 成員明明被要求只討論，卻每回合還背著一整箱用不到的工具，會白佔你的 Claude 額度。先前在沒有附上專案資料夾時，`claude -p` 沒有傳入 `--tools`，Claude Code 仍會把 Bash、Edit、Write 等內建工具（讓 AI 能執行終端機、編輯與寫入檔案的能力）整套塞進每回合的輸入。現在此情況會明確傳入 `--tools \"\"`，把工具箱留在門外。每次 Claude 呼叫也會加上 `--exclude-dynamic-system-prompt-sections`，讓系統提示詞（AI 每回合先讀的固定規則）開頭在各回合維持位元組完全一致，較有機會命中 Anthropic 的自動提示詞快取（把已處理內容暫存直接沿用），少花重複額度。這只影響 Claude；Codex 和 Antigravity 成員不變。",
-              "en": "In AI Council, Claude participants are told to discuss rather than use tools, yet they used to carry a whole unused toolbox into every turn, consuming Claude quota. When `claude -p` ran without an attached project folder, it omitted `--tools`, so Claude Code still packed its built-in tools—Bash, Edit, Write, and more—into each turn's input. It now explicitly sends `--tools \"\"` in that case, leaving the toolbox outside. Every Claude call also adds `--exclude-dynamic-system-prompt-sections`, keeping the system-prompt prefix byte-for-byte stable across turns and giving Anthropic's automatic prompt cache a better chance to reuse it. Codex and Antigravity participants are unchanged."
-            },
-            "original": "**AI Council spends less Claude quota per turn**: `claude -p` calls without an attached project folder used to omit `--tools` entirely, so Claude Code loaded its full built-in toolset — Bash, Edit, Write, and the rest — into every turn's input even though the council prompt already tells participants not to call tools. Calls now pass `--tools \"\"` when no project folder is attached, and every Claude call adds `--exclude-dynamic-system-prompt-sections` to keep the system prompt prefix byte-stable across turns for a better shot at Anthropic's automatic prompt caching. Codex and Antigravity participants are unaffected."
-          }
-        ]
-      },
-      "badges": [
-        "perf"
-      ]
-    },
-    {
-      "version": "0.29.4",
-      "raw": {
-        "version": "0.29.4",
-        "period": "2026-07-26",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-27",
-        "entries": [
-          "**Steer the council mid-discussion**: an opt-in \"guidance between rounds\" toggle pauses the session before every round after the first, so you can react to what you just heard — \"we're single-host, no cluster\" — instead of watching a debate run off in the wrong direction or stopping and restarting from scratch. The pause waits up to 5 minutes and is skipped automatically if left blank; the round then proceeds exactly as it did before.",
-          "**See who disagreed, not just how many**: the consensus tally under the moderator's summary now lists each participant by name next to their stance, with dissenting and alternative positions colored so they stand out, instead of a bare \"2 agree, 1 alternative\" that meant scrolling back through the transcript to find out who.",
-          "**The five debate tones now explain themselves**: a one-line plain-language hint appears under the tone picker — devil's advocate, for instance, now reads \"the AIs will deliberately argue the opposite side to test whether a plausible conclusion holds up\" — so a first-time user isn't left guessing how \"adversarial\" differs from \"devil's advocate.\""
-        ]
-      },
-      "curated": {
-        "version": "0.29.4",
-        "period": "2026-07-26",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "AI 開會時能插話校正，也一眼看懂誰持反對意見",
-              "en": "Steer an AI council as it talks, and see exactly who disagrees"
-            },
-            "body": {
-              "zh-TW": "幾個 AI 正在替你討論方案，第一輪卻發現大家把你的單機需求當成要做叢集，也就是讓多台主機一起運作；現在不用整場喊停重來。開啟「輪次間指引」開關後，討論工作階段（一次連續進行的討論）每一輪結束、下一輪開始前都會暫停，讓你補一句「只有單一主機，不要叢集」。若一直空白，最多等五分鐘便自動略過，討論照原本方式繼續，像主持會議時每回合按一下暫停鈴，及早把話題拉回來。主持人摘要下方的共識統計（列出每位參與者採取的立場）也會直接寫出名字；反對與替代意見用顏色標出，不必再翻紀錄猜是誰說的。第一次挑辯論語氣時，五種選項下方都有白話提示；例如「魔鬼代言人」會刻意站到相反邊，測試看似合理的結論是否站得住腳，因此不會再把它和「對抗式」混為一談。",
-              "en": "Picture an AI council discussing a plan, then learning after round one that your single-host setup is being mistaken for a cluster. You no longer need to scrap the whole discussion. Turn on “guidance between rounds” and the session pauses before every later round, so you can add a correction such as “single host, no cluster.” A blank pause skips itself after five minutes, then the next round continues normally—like a chairperson’s bell that gets the meeting back on topic early. The consensus tally beneath the moderator’s summary now names each participant beside their position and colors dissenting or alternative views, so you need not hunt through the transcript. New to the five debate tones? Each picker option now has a plain-language hint: devil’s advocate deliberately argues the other side to test whether a plausible conclusion actually holds up, rather than merely being adversarial."
-            },
-            "original": "**Steer the council mid-discussion**: an opt-in \"guidance between rounds\" toggle pauses the session before every round after the first, so you can react to what you just heard — \"we're single-host, no cluster\" — instead of watching a debate run off in the wrong direction or stopping and restarting from scratch. The pause waits up to 5 minutes and is skipped automatically if left blank; the round then proceeds exactly as it did before.\n**See who disagreed, not just how many**: the consensus tally under the moderator's summary now lists each participant by name next to their stance, with dissenting and alternative positions colored so they stand out, instead of a bare \"2 agree, 1 alternative\" that meant scrolling back through the transcript to find out who.\n**The five debate tones now explain themselves**: a one-line plain-language hint appears under the tone picker — devil's advocate, for instance, now reads \"the AIs will deliberately argue the opposite side to test whether a plausible conclusion holds up\" — so a first-time user isn't left guessing how \"adversarial\" differs from \"devil's advocate.\""
-          }
-        ]
-      },
-      "badges": [
-        "new"
-      ]
-    },
-    {
-      "version": "0.29.3",
-      "raw": {
-        "version": "0.29.3",
-        "period": "2026-07-25",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-26",
-        "entries": [
-          "**The menu bar critters no longer cost a third of a CPU core**: the phoenix, dragon and lion each drove their own timer, and every single frame re-sent the whole status item title to AppKit — which re-typesets the entire string through CoreText and re-measures the item's width, asking the system for its preferred languages along the way. With all three animating at full speed that came to 60 full relayouts a second, measured at 30–33% of a core with the popover closed; the cost arrived precisely when you were busiest, since the critters only animate while you are burning tokens. They now share a single timer, the fastest frame interval widens from 0.05s to 0.10s (indistinguishable on an 18px sprite), and a tick where no critter advances skips the redraw entirely. The burn-rate lookup that used to sit on the animation path — stat-ing 2,858 history files on the main thread every time its 30-second cache expired — moved to the background refresh, and the menu bar's text and sprite fragments are now cached instead of rebuilt per frame. Same animation, measured 4.2–5.9%.",
-          "**A service alert the provider forgot to clear no longer sticks around**: a status page can leave a component marked as degraded long after the incident is over, and the panel had no way to tell that apart from a live problem. Two rules now retire such an alert, both limited to the mildest *degraded performance* level so a partial or major outage is never hidden. First, if every unresolved incident on the page has sat in *monitoring* — the provider's own word for \"the fix is in, we are watching it\" — for more than four hours, the alert is suppressed until something changes. Second, a status observed unchanged for more than 24 hours is treated as residue. The second rule times what usage itself has seen rather than trusting the page's own timestamps: on OpenAI's page all 25 components, the operational ones included, share one timestamp from over two weeks earlier, so that field records when a component was defined, not when its status last moved."
-        ]
-      },
-      "curated": {
-        "version": "0.29.3",
-        "period": "2026-07-25",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "選單列小動物不再偷吃你的 CPU",
-              "en": "Menu bar critters stop hogging your CPU"
-            },
-            "body": {
-              "zh-TW": "你正趕著用 AI，選單列裡的鳳凰、龍、獅子卻可能反而拖慢電腦。它們只在燃燒 token（AI 處理與計費的文字單位）時動，原本各自用計時器，每秒重排畫面 60 次；連沒有角色換格的時刻也重畫。現在三隻共用一個計時器，最快節奏從 0.05 秒改為 0.10 秒，18px 小圖看不出差別，沒換格就不重畫。原先每 30 秒在主執行緒（程式處理畫面的主要路線）逐一查 2,858 個歷史檔的燃燒速率，也挪到背景更新；選單列的文字與圖像改用快取（把查過或算過的結果暫存直接用）。像三個人各搶同一盞舞台燈，如今輪流走位，動畫照樣在；面板關閉時實測 CPU 從一個核心的 30–33% 降至 4.2–5.9%。",
-              "en": "When you are busy using AI, the phoenix, dragon, and lion in the menu bar used to slow your Mac down at exactly the wrong moment. They animate only while you burn tokens, but each had its own timer and together forced 60 full redraws every second, even when no critter had moved. Now they share one timer, the quickest frame interval changes from 0.05 to 0.10 seconds with no visible difference in an 18px sprite, and unchanged frames skip redraws. The burn-rate lookup no longer checks 2,858 history files on the main thread every 30 seconds; it refreshes in the background, while text and sprites are cached. Like three performers fighting over one spotlight, they now take turns. The animation remains, while measured CPU use drops from 30–33% of one core to 4.2–5.9%."
-            },
-            "original": "**The menu bar critters no longer cost a third of a CPU core**: the phoenix, dragon and lion each drove their own timer, and every single frame re-sent the whole status item title to AppKit — which re-typesets the entire string through CoreText and re-measures the item's width, asking the system for its preferred languages along the way. With all three animating at full speed that came to 60 full relayouts a second, measured at 30–33% of a core with the popover closed; the cost arrived precisely when you were busiest, since the critters only animate while you are burning tokens. They now share a single timer, the fastest frame interval widens from 0.05s to 0.10s (indistinguishable on an 18px sprite), and a tick where no critter advances skips the redraw entirely. The burn-rate lookup that used to sit on the animation path — stat-ing 2,858 history files on the main thread every time its 30-second cache expired — moved to the background refresh, and the menu bar's text and sprite fragments are now cached instead of rebuilt per frame. Same animation, measured 4.2–5.9%."
-          },
-          {
-            "title": {
-              "zh-TW": "過期的服務警示會自己退場",
-              "en": "Stale service alerts now clear themselves"
-            },
-            "body": {
-              "zh-TW": "服務明明已恢復，面板卻還掛著警示，現在不會一直嚇你。供應商的狀態頁（顯示服務是否正常的公告頁）有時忘了清掉「效能下降」；usage 新增兩條只針對這個最輕等級的收線規則，部分或重大中斷絕不會被藏起來。第一條是：頁面上所有未結案事件都進入 monitoring（供應商表示修好後持續觀察的階段）超過四小時，警示先隱藏，直到狀態改變。第二條是 usage 自己連續看到同一狀態超過 24 小時，也把它當遺留資訊。為什麼不直接信頁面時間？OpenAI 狀態頁的 25 個元件連正常項目也共用兩週前的時間，那可能只是元件建立時間。這像商店門口忘了收回的「暫時缺貨」牌；只有確定是輕微狀況又久未更新才收起，真停業仍會留下。",
-              "en": "A service can be back to normal while its panel still shows a warning. Usage now clears that kind of leftover alert without hiding a real outage. A provider status page may forget to remove a mild degraded-performance notice, so two retirement rules apply only to that lowest severity; partial and major outages always remain visible. First, if every unresolved incident has been in monitoring — the provider saying the fix is in and it is watching — for over four hours, the alert hides until something changes. Second, if Usage itself sees an unchanged status for more than 24 hours, it treats it as residue. Why not trust the page timestamp? All 25 OpenAI components, including healthy ones, share a timestamp more than two weeks old. It may mark when a component was created, not when its status changed. Like a shop's forgotten “temporarily out of stock” sign, only an old minor notice comes down; a real closure stays posted."
-            },
-            "original": "**A service alert the provider forgot to clear no longer sticks around**: a status page can leave a component marked as degraded long after the incident is over, and the panel had no way to tell that apart from a live problem. Two rules now retire such an alert, both limited to the mildest *degraded performance* level so a partial or major outage is never hidden. First, if every unresolved incident on the page has sat in *monitoring* — the provider's own word for \"the fix is in, we are watching it\" — for more than four hours, the alert is suppressed until something changes. Second, a status observed unchanged for more than 24 hours is treated as residue. The second rule times what usage itself has seen rather than trusting the page's own timestamps: on OpenAI's page all 25 components, the operational ones included, share one timestamp from over two weeks earlier, so that field records when a component was defined, not when its status last moved."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "new"
-      ]
-    },
-    {
-      "version": "0.29.2",
-      "raw": {
-        "version": "0.29.2",
-        "period": "2026-07-25",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-26",
-        "entries": [
-          "**The council consensus tally no longer drops opinions**: stance labels were only matched at the very start of a turn's first line, so a rebuttal that reached its label a few words in — or ended its first line with one — counted as unparsed and vanished from the count. The whole first line is now scanned, and a turn must name exactly one distinct label to be counted; a turn quoting several stays unparsed instead of having one guessed for it.",
-          "**Every selected participant shows its check mark**: the \"✓\" marking a participant as joining the discussion is drawn as a CSS `::after` overlay, which never renders on a replaced element. It therefore appeared only on the seat whose avatar falls back to an inline SVG (Antigravity) and stayed invisible on the seats drawn from an image icon (Claude, Codex), making a fully selected line-up look half-selected. All three now host the overlay on a wrapper element.",
-          "**The disabled *start discussion* button says why it is disabled**: a line under the button now names what is missing — no topic, no participant selected, or a discussion already running — instead of leaving a greyed-out button and no explanation. The reason is tied to the button with `aria-describedby` and lives in a status region, so keyboard and screen-reader users get it too, not only whoever hovers.",
-          "**The moderator star is tellable apart**: all three stars carried the same accessible name, so a screen reader could not say which seat was moderating. Each star now exposes its pressed state, and its tooltip reads *current moderator* or *set as moderator* to match.",
-          "**Agreeing in a council rebuttal requires reasons**: a participant opening with the agreement stance must state what it reviewed, why it agrees, and what concerns remain, so consensus cannot be reached by rubber-stamping.",
-          "Bumped `setuptools` to 83.0.0."
-        ]
-      },
-      "curated": {
-        "version": "0.29.2",
-        "period": "2026-07-25",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "共識不再漏算意見，也不能只靠一句同意",
-              "en": "Consensus now counts every opinion and demands real agreement"
-            },
-            "body": {
-              "zh-TW": "一場討論要有共識，不能靠有人開頭寫了「同意」就算數。council 討論（讓多位參與者各自表態後彙整結論的流程）以前只在每回合第一行開頭找立場標籤；先寫幾個字才標、或把標籤放在行尾，意見就像投票箱旁漏掉的選票，沒有被計入。現在會掃完整第一行，但一回合必須明確只提一種不同立場才列入；同時引用幾種立場就維持未解析，不隨便猜。若有人以同意立場開場，還得交代看過什麼、為何同意、仍有哪些顧慮。得出的共識不再是蓋章，而是每張選票都可追查的會議紀錄。",
-              "en": "Consensus cannot rest on someone merely opening with “agree.” In a council discussion, where several participants state positions before a conclusion is collected, stance labels used to be checked only at the beginning of each turn’s first line. A label appearing later, or at line end, could disappear like a ballot dropped beside the box. The whole first line is now scanned, but a turn counts only when it names exactly one distinct label; a turn quoting several remains unparsed rather than being guessed at. An agreement opening must also say what was reviewed, why it agrees, and what concerns remain. The result is less a rubber stamp than meeting minutes with every ballot traceable."
-            },
-            "original": "**The council consensus tally no longer drops opinions**: stance labels were only matched at the very start of a turn's first line, so a rebuttal that reached its label a few words in — or ended its first line with one — counted as unparsed and vanished from the count. The whole first line is now scanned, and a turn must name exactly one distinct label to be counted; a turn quoting several stays unparsed instead of having one guessed for it.\n**Agreeing in a council rebuttal requires reasons**: a participant opening with the agreement stance must state what it reviewed, why it agrees, and what concerns remain, so consensus cannot be reached by rubber-stamping."
-          },
-          {
-            "title": {
-              "zh-TW": "選人與開始討論，介面終於說清楚",
-              "en": "Selecting participants and starting a discussion are finally clear"
-            },
-            "body": {
-              "zh-TW": "你選 Claude、Codex 或 Antigravity 加進討論時，每個被選中的座位現在都會亮出 ✓。先前這個記號綁在頭像本身，只有使用內嵌圖示的 Antigravity 碰巧顯示得出來；Claude 和 Codex 使用圖片頭像，整排明明都選好了，畫面卻像只選一半。現在三者都把記號放在外層，選取狀態一致可見。開始討論按鈕若變灰，底下也會說明是沒填主題、沒選參與者，還是已有討論正在跑。理由會連到按鈕並放進狀態區，鍵盤與螢幕閱讀器使用者也收得到，不必靠滑鼠懸停猜答案。像活動報名櫃台，名牌終於都掛在到場者胸前，不能開場時也會直接告訴你缺哪一項。",
-              "en": "When you add Claude, Codex, or Antigravity to a discussion, every selected seat now shows a ✓. The mark used to sit on the avatar itself: it happened to appear for Antigravity’s inline SVG icon, but stayed invisible for Claude and Codex image avatars, making a fully selected lineup look half-selected. All three now place the overlay on a wrapper, so selection is consistently visible. If Start discussion is greyed out, text underneath now says whether the topic is missing, nobody is selected, or a discussion is already running. That reason is connected to the button and placed in a status region, so keyboard and screen-reader users receive it too. It is like a registration desk where every attendee finally gets a visible badge, and a closed door explains exactly what is still missing."
-            },
-            "original": "**Every selected participant shows its check mark**: the \"✓\" marking a participant as joining the discussion is drawn as a CSS `::after` overlay, which never renders on a replaced element. It therefore appeared only on the seat whose avatar falls back to an inline SVG (Antigravity) and stayed invisible on the seats drawn from an image icon (Claude, Codex), making a fully selected line-up look half-selected. All three now host the overlay on a wrapper element.\n**The disabled *start discussion* button says why it is disabled**: a line under the button now names what is missing — no topic, no participant selected, or a discussion already running — instead of leaving a greyed-out button and no explanation. The reason is tied to the button with `aria-describedby` and lives in a status region, so keyboard and screen-reader users get it too, not only whoever hovers."
-          },
-          {
-            "title": {
-              "zh-TW": "主持人星號不再讓輔助工具猜人",
-              "en": "Moderator stars no longer make assistive tools guess"
-            },
-            "body": {
-              "zh-TW": "輪到你挑主持人時，三顆星星過去都對螢幕閱讀器說同一句話，根本無法清楚分辨到底哪一席正在主持。現在每顆星會公開自己的按下狀態，滑鼠提示也分成「目前主持人」或「設為主持人」。這改動看似小，卻讓不用看畫面的人能跟看得見的人一樣確認會議誰在掌舵。像舞台後的控台，三個按鈕以前都只寫「燈」，如今一眼或一聽就知道哪盞已經亮、按哪顆會換人。",
-              "en": "When it is time to choose a moderator, the three stars used to give a screen reader the same accessible name, leaving no way to tell which seat was moderating. Each star now exposes whether it is pressed, and its tooltip says either “current moderator” or “set as moderator.” The change is small but lets people who do not view the screen confirm who is steering the meeting just as everyone else can. It is like a stage control board whose three buttons once all said “light”; now you can see or hear which lamp is on and which button changes it."
-            },
-            "original": "**The moderator star is tellable apart**: all three stars carried the same accessible name, so a screen reader could not say which seat was moderating. Each star now exposes its pressed state, and its tooltip reads *current moderator* or *set as moderator* to match."
-          },
-          {
-            "title": {
-              "zh-TW": "打包工具 setuptools 升到 83.0.0",
-              "en": "Packaging tool setuptools moves to 83.0.0"
-            },
-            "body": {
-              "zh-TW": "這版也把 setuptools（Python 用來打包與安裝套件的工具）升到 83.0.0。原始紀錄未說明對畫面或功能的影響；原始紀錄只交代這項相依套件升級，沒有承諾特定功能改變。對從原始碼安裝、打包或維護 Usage 的人，它像廚房換了新的量杯：原始紀錄沒有說明成品會有什麼變化。若你只是開啟成品使用，知道這是維護性更新即可；若你處理建置環境中的相依版本，則以 83.0.0 為準。",
-              "en": "This release also moves setuptools, a Python tool for packaging and installing software, to 83.0.0. The source note does not describe any effect on the interface or features. The source notes only this dependency upgrade and do not promise a specific feature change. For someone installing from source, packaging, or maintaining Usage, it is like replacing a kitchen measuring cup. The source note does not say what changes, if anything, in the finished app. If you only use the finished app, treat this as maintenance. If you manage build dependencies, use 83.0.0 as the stated version."
-            },
-            "original": "Bumped `setuptools` to 83.0.0."
-          }
-        ]
-      },
-      "badges": [
-        "fix",
-        "new",
-        "new",
-        "new"
       ]
     }
   ]
