@@ -1,0 +1,94 @@
+{
+  "version": "1.4.0",
+  "period": "2026-10-16",
+  "items": [
+    {
+      "title": {
+        "zh-TW": "分頁標題即時回報進度，不用切回終端機看狀態",
+        "en": "Tab titles report progress in real time without switching back to the terminal"
+      },
+      "body": {
+        "zh-TW": "把終端機縮到背景讓耗時任務自己跑時，我們往往得三不五時切回視窗，確認它到底跑完了沒。⟦走在辦公大樓看電梯燈號，以前得特地走到門前貼著聽聲音才確定動了沒，現在瞄一眼門楣就知道它正在移動、抵達還是卡住。⟧只要你使用的終端機支援 OSC 7501 協定，視窗或分頁標籤就會直接顯示 CLI 正在運作、等待輸入、已完成還是失敗。程式啟動時會先自動偵測終端機是否支援，不支援的軟體不會受到任何干擾。如果想微調顯示方式，可以透過環境變數管理：\n\n```bash\nAGY_CLI_OSC7501=off # 關閉狀態回報\nAGY_CLI_OSC7501=on # 在支援卻未主動回應偵測的終端機上強制開啟\nAGY_CLI_OSC7501_MESSAGES=brief # 只顯示狀態，不顯示等待執行的指令或問題細節\n```",
+        "en": "When minimizing a terminal to run a long-running task in the background, we often have to switch windows repeatedly just to check if it is finished. ⟦Picture glancing at an elevator indicator in an office building: you once had to walk up to the door and listen closely to confirm movement, but now a glance above the door reveals whether it is running, arriving, or stuck.⟧ As long as your terminal supports the OSC 7501 protocol, window or tab titles will directly display whether the CLI is working, waiting for input, completed, or failed. The CLI automatically detects terminal support on startup, so unsupported software remains completely unaffected. If you want to tweak how details are shown, you can manage it with environment variables:\n\n```bash\nAGY_CLI_OSC7501=off # Disable status reporting\nAGY_CLI_OSC7501=on # Force enable on terminals that support it but do not actively respond to detection\nAGY_CLI_OSC7501_MESSAGES=brief # Show only the status, omitting pending commands or prompt details\n```"
+      },
+      "original": "Added terminal status reporting over OSC 7501: in terminals that support it, the tab or window shows whether the CLI is working, waiting for your input, done, or failed. The CLI checks for support first, so other terminals are unaffected. Set `AGY_CLI_OSC7501=off` to turn it off, `AGY_CLI_OSC7501=on` for a terminal that supports it but doesn't answer the check, or `AGY_CLI_OSC7501_MESSAGES=brief` to show only the status without details such as the pending command or question."
+    },
+    {
+      "title": {
+        "zh-TW": "快捷鍵反轉送出模式，臨時插單或排隊免改設定",
+        "en": "Shortcut inverts send mode to bypass queues or jump ahead without changing settings"
+      },
+      "body": {
+        "zh-TW": "打好一段訊息準備送出時，如果目前的發送模式正好與當下需求相反，過去總得大費周章進設定選單切換。⟦跟操作辦公室的印表機一樣，以前預設好排程列印就只能乖乖排隊，現在只要按住切換鍵，就能臨時插單立刻印出，也能隨時把即時文件收進佇列。⟧新增的 `alt+m` 快捷鍵，能依據你在 `/config` 裡設定的訊息排隊模式（Queued Messages）反向發送。在 macOS 上若將 Option 鍵設為 Alt，對應的按鍵組合是 `Option+m`。如果你平時處於排隊模式（Queue），按下這組快捷鍵就會立刻送出眼前這則訊息。反過來說，若平時處於即時發送模式（Send Immediately），這組按鍵則會幫你把訊息存進排程佇列。",
+        "en": "When typing a message and preparing to send it, finding that the current mode opposes what you need previously required a tedious trip through the settings menu. ⟦Think of using an office printer: where a scheduled print preset once forced you to wait in line, holding a toggle key now lets you jump ahead for an immediate print or route an urgent document into the queue at any time.⟧ The new `alt+m` shortcut inverts sending behavior based on the Queued Messages mode configured in `/config`. On macOS, if the Option key is mapped to Alt, the corresponding combination is `Option+m`. If you are normally in Queue mode, pressing this shortcut sends the current message immediately. Conversely, if you are normally in Send Immediately mode, this key combination saves your message into the scheduled queue."
+      },
+      "original": "Added the `alt+m` shortcut (`Option+m` on macOS when Option is set to act as Alt) to send a message using the opposite of your `Queued Messages` setting in `/config`, so you can send right away while in `Queue` mode, or queue a message while in `Send Immediately` mode."
+    },
+    {
+      "title": {
+        "zh-TW": "外掛驗證規則對齊執行環境，行號與格式錯誤一目了然",
+        "en": "Plugin validation rules align with runtime, making line numbers and format errors clear"
+      },
+      "body": {
+        "zh-TW": "開發外掛時最怕驗證工具回報合格，實際載入執行時卻因為隱蔽問題而無法啟動。⟦拿稿件去印刷廠打樣，以前簡易校對常誤判合格格式、又漏看致命排版問題，現在校對標準完全對齊正式印刷機台，哪個檔案第幾行出錯都會清楚標出。⟧驗證指令 `agy plugin validate` 現在改用與執行環境完全相同的規則來檢查外掛。過去簡化的檢查會誤擋未填 `name` 欄位的合格清單，卻又漏掉阻礙外掛載入的真正問題。現在檢查工具會精確標示每個錯誤與警告所在的檔案與行號，且同時接受外掛目錄或個別 `plugin.json` 檔案。工具還會提示 `plugin.json` 的常見錯誤，像是未知欄位與猜測建議、無效名稱，或組件誤置於 `.antigravity-plugin/` 而非根目錄。另外可搭配 `--strict` 讓警告一律算失敗，或使用 `--json` 在自動化建置中輸出報告。",
+        "en": "When developing plugins, nothing is worse than a validation tool reporting success only for hidden problems to block execution at runtime. ⟦A draft sent to a print shop for proofing once suffered from simplified checks that misjudged valid formats while missing fatal layout flaws, but proofs now align entirely with production presses to clearly mark which file and line contain errors.⟧ The validation command `agy plugin validate` now checks plugins using the exact same rules as the runtime environment. In the past, simplified checks falsely blocked valid manifests missing a `name` field while overlooking real issues that prevented plugins from loading. The validation tool now pinpoints the exact file and line number for every error and warning, accepting either plugin directories or individual `plugin.json` files. It also flags common `plugin.json` mistakes, such as unknown fields with suggested fixes, invalid names, or components mistakenly placed in `.antigravity-plugin/` instead of the root directory. Additionally, you can pair it with `--strict` to treat warnings as failures, or use `--json` to output reports in automated builds."
+      },
+      "original": "Improved `agy plugin validate` so it checks a plugin with the same rules the CLI uses to load it, instead of simplified checks that rejected valid plugins (such as a manifest without a `name`) and missed problems that kept a plugin from loading. It lists each error and warning with its file and line, accepts a plugin directory or its `plugin.json`, warns about common `plugin.json` mistakes such as unknown fields (with \"did you mean\" suggestions), invalid names, and components placed inside `.antigravity-plugin/` instead of the plugin root, and adds `--strict` to fail on warnings and `--json` for a machine-readable report in CI."
+    },
+    {
+      "title": {
+        "zh-TW": "啟動驗證暫時斷線會自動重試，不再鎖死工作階段",
+        "en": "Startup eligibility checks retry on transient errors without locking the session"
+      },
+      "body": {
+        "zh-TW": "在網路偶爾斷線或啟動時剛好撞上限流的時刻，終端機若突然整台卡住、拒收訊息，往往讓人不知所措。以前只要啟動時服務短暫連不上或達到速率限制，終端機就會持續跳出 `Eligibility check failed` 錯誤並拒絕每則訊息，非得重開程式不可。現在這項資格檢查遇到暫時性錯誤時會自動重試，不再鎖死整個工作階段，這個問題已經修好，連線恢復後就能直接繼續對話。",
+        "en": "When the network drops intermittently or startup runs into rate limits, having the entire terminal freeze and reject input is disorienting. Previously, if the service became briefly unreachable or hit a rate limit at launch, the terminal repeatedly threw `Eligibility check failed` errors and rejected every message, leaving you no choice but to restart the application. This eligibility check now automatically retries on transient errors instead of locking up the entire session. This issue has been fixed, allowing you to resume your conversation as soon as connectivity recovers."
+      },
+      "original": "Fixed the CLI refusing every message with `Eligibility check failed` until you restarted it when the service was briefly unavailable or rate-limited at launch; the check now retries temporary errors and no longer locks the session."
+    },
+    {
+      "title": {
+        "zh-TW": "外掛 MCP 標頭支援變數替換，權杖驗證不再傳送字面占位符",
+        "en": "Plugin MCP headers support variable substitution, preventing token authentication from sending literal placeholders"
+      },
+      "body": {
+        "zh-TW": "替外掛串接需要身分驗證的自訂服務時，最怕設定好的金鑰變數沒有被正確代入。外掛中的 MCP（讓 AI 連接外部工具的協定）伺服器如果在請求標頭使用了變數，例如 `\"Authorization\": \"Bearer ${TOKEN}\"`，以前會直接送出原始占位符而驗證失敗。現在標頭能像伺服器的指令、參數與環境變數一樣，正確代入你設定的數值，驗證失敗的問題已經修好。",
+        "en": "When connecting a plugin to a custom service that requires authentication, nothing is worse than having configured secret variables fail to substitute properly. If an MCP (a protocol connecting AI to external tools) server in a plugin used variables in request headers, such as `\"Authorization\": \"Bearer ${TOKEN}\"`, it previously sent the raw placeholder directly and failed authentication. Headers now properly substitute your configured values just like server commands, arguments, and environment variables, fixing the authentication failure."
+      },
+      "original": "Fixed plugin MCP servers that use a variable in a request header, such as `\"Authorization\": \"Bearer ${TOKEN}\"`, sending the literal placeholder and failing to authenticate; headers now get the value you configured, like the server's command, arguments, and environment already did."
+    },
+    {
+      "title": {
+        "zh-TW": "差異比較畫面填滿終端機，支援瀏覽百筆提交紀錄",
+        "en": "Diff view fills terminal height and supports browsing up to a hundred commits"
+      },
+      "body": {
+        "zh-TW": "想回顧專案最近的修改歷程時，在終端機裡瀏覽歷史版本往往受限於視野與操作順暢度。在 `/diff` 的提交樹（Commit Tree）檢視畫面中，以前頂端只會計算行數，而且最多只能看到最近 10 筆紀錄。現在整個畫面會自動填滿終端機高度，並支援捲動瀏覽最近 100 筆提交紀錄。頂端標題改為正確顯示提交筆數，游標也只會在提交列停留，只要按下 `Enter` 就能直接開啟該筆內容。",
+        "en": "When reviewing recent project revisions, browsing commit history inside a terminal is often constrained by viewport limits and navigation friction. In the `/diff` commit tree view, the header previously only counted lines and capped visibility at the 10 most recent commits. The view now expands to fill the full terminal height and supports scrolling through the 100 most recent commits. The top header now correctly displays the commit count, the cursor only stops on commit rows, and pressing `Enter` directly opens the selected entry."
+      },
+      "original": "Fixed the `/diff` Commit Tree view: the header now counts commits instead of lines, the cursor stops only on commit rows and `Enter` opens that commit, the view fills the terminal height, and it shows the latest 100 commits (previously 10) with scrolling."
+    },
+    {
+      "title": {
+        "zh-TW": "背景指令狀態不再回溯，完整保留工作進度與日誌",
+        "en": "Background command state no longer rolls back, keeping work progress and logs intact"
+      },
+      "body": {
+        "zh-TW": "讓 AI 助理在背景執行耗時指令的同時，如果你繼續在前景修改程式碼，現在兩邊的進度都不會再莫名遺失。\n\n以前只要背景指令執行完畢，若助理仍在持續工作，手邊剛修改的檔案、任務清單與工作階段花費就會全部遺失，甚至倒退回該指令剛啟動時的狀態。現在狀態回溯問題已經修好，背景任務結束時會妥善保留所有前景進度。\n\n背景指令的任務日誌過去有時會漏掉最後幾行輸出。現在無論指令是正常完成還是中途被取消，最終輸出內容都會完整寫入日誌中。⟦如同把大批文件交給影印機後轉頭批閱公文，以前影印結束時，剛批好的文件會莫名倒退回未批狀態，現在影印和手邊進度都能各自完整保留。⟧",
+        "en": "When having the AI assistant run time-consuming commands in the background while you continue editing code in the foreground, progress on both sides is no longer mysteriously lost.\n\nPreviously, once a background command finished, if the assistant was still actively working, your recent file edits, task lists, and session spend were entirely lost, even rolling back to the state when that command first started. This state regression issue is now fixed, cleanly preserving all foreground progress when background tasks complete.\n\nTask logs for background commands also previously missed the last few lines of output at times. Whether a command finishes normally or is canceled midway through, the final output is now fully written into the log. ⟦Consider handing a large stack of documents to a copier while reviewing paperwork at your desk: previously, finishing the copy job mysteriously reverted freshly reviewed papers to an unreviewed state, but copying and foreground work are now preserved completely.⟧"
+      },
+      "original": "Fixed the agent losing track of its file changes, tasks, and session cost when a background command finished while the agent kept working; they no longer roll back to the point where that command started.\nFixed a background command's final output sometimes missing from its task log; the output is now always recorded when the command finishes or is canceled."
+    },
+    {
+      "title": {
+        "zh-TW": "回覆中的資料夾連結恢復顯示，不再留下一片空白",
+        "en": "Folder links in responses reappear, leaving no blank gaps"
+      },
+      "body": {
+        "zh-TW": "看著 AI 助理在回答中推薦某個專案目錄時，如果路徑文字整段消失，往往讓人摸不著頭緒。以前助理的回覆如果包含指向資料夾的連結，該連結文字有時會從畫面上消失，讓整段說明缺字斷句。現在這個問題已經修好，回答會正常顯示出資料夾名稱，例如 `pipelines/`，讓你一眼看清路徑位置。",
+        "en": "When reading an AI assistant response that recommends a project directory, having the path text vanish entirely is confusing. Previously, if the assistant response contained a link pointing to a folder, the link text occasionally disappeared from the screen, leaving broken sentences with missing words. This issue is now fixed, and responses display folder names normally, such as `pipelines/`, allowing you to see path locations at a glance."
+      },
+      "original": "Fixed links to directories disappearing from agent responses; they now show the directory name, for example `pipelines/`."
+    }
+  ]
+}
