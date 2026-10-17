@@ -188,7 +188,7 @@ def test_single_failure_does_not_stop_next_card(tmp_path, monkeypatch, capsys):
     })
     browser = FakeBrowser(FakePage((True, True), fail=True))
     install_fake(monkeypatch, browser)
-    assert cards.main() == 0
+    assert cards.main() == 1
     assert not cards.card_path(card("2.0.0")).exists()
     assert cards.card_path(card()).exists()
     assert not list(tmp_path.rglob("*.tmp"))
@@ -199,15 +199,22 @@ def test_single_failure_does_not_stop_next_card(tmp_path, monkeypatch, capsys):
     assert output.endswith("make_cards: ok=1 skip=0 fail=1\n")
 
 
-def test_data_failure_returns_zero(monkeypatch, capsys):
+def test_data_failure_returns_one(monkeypatch, capsys):
     install_fake(monkeypatch, FakeBrowser(FakePage()))
 
     def broken():
         raise ValueError("bad data")
 
     monkeypatch.setattr(cards, "_load_and_validate_data", broken)
-    assert cards.main() == 0
+    assert cards.main() == 1
     assert "make_cards: fail: bad data" in capsys.readouterr().out
+
+
+def test_main_empty_data_returns_zero(monkeypatch, capsys):
+    install_fake(monkeypatch, FakeBrowser(FakePage()))
+    monkeypatch.setattr(cards, "_load_and_validate_data", lambda: {})
+    assert cards.main() == 0
+    assert capsys.readouterr().out == "make_cards: ok=0 skip=0 fail=0\n"
 
 
 def test_main_existing_cards_never_launch_browser(tmp_path, monkeypatch, capsys):

@@ -200,7 +200,7 @@ def main() -> int:
         print(f"make_cards: fail: {exc}")
     finally:
         print(f'make_cards: ok={counts["ok"]} skip={counts["skip"]} fail={counts["fail"]}')
-    return 0
+    return 1 if counts["fail"] > 0 else 0
 
 
 if __name__ == "__main__":
