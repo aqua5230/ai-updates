@@ -5,6 +5,238 @@
   "pages": 8,
   "versions": [
     {
+      "version": "1.1.6",
+      "raw": {
+        "version": "1.1.6",
+        "period": "2026-07-24",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-07-24",
+        "entries": [
+          "Custom Agents (Markdown Format). Added support for defining custom agents using Markdown files (`agent.md`) with YAML frontmatter and H1-delimited system prompts. Markdown agents support `mainAgent`, `subagent`, `hidden`, `inheritMcp`, and `commandExecutionPolicy` frontmatter fields for fine-grained control over agent behavior. Dynamically defined subagents (via `define_subagent`) now also write Markdown format so they resolve correctly on external builds.",
+          "Added an optional index argument to `/copy` so `/copy <n>` copies the n-th most recent response to the clipboard, while `/copy` and `/copy 1` still copy the latest.",
+          "Improved `/codesearch` to render results progressively as they stream in, showing a live count while loading and letting you cancel an in-flight search with `Esc` instead of blocking until the whole search finishes.",
+          "Improved default file access by granting read access to the system temporary directory out of the box, resolved correctly per platform, so agents no longer trigger permission prompts when reading temporary files.",
+          "Improved support for markdown-based custom agents so custom agent management and selection behave more consistently.",
+          "Improved customization discovery by sorting rules and discovered paths deterministically, preventing unstable prompt ordering and needless prompt-cache misses.",
+          "Improved overall reliability and stability across the CLI with additional hardening and fixes for intermittent failures in background tasks, print mode, and interactive flows.",
+          "Fixed switching from a custom agent back to the default agent via `/agents`, which previously failed silently and left the conversation stuck on the custom agent's persona.",
+          "Fixed a crash when a command was blocked by sandbox permissions before its output was captured, and cleaned up the permission approval and denial messages.",
+          "Fixed the artifact viewer emitting garbage escape bytes when cycling to image mode on terminals that are detected but cannot actually render Kitty graphics, such as iTerm2.",
+          "Fixed the first keystroke (such as `Esc`) being dropped when opening the first artifact view on some non-Kitty terminals.",
+          "Fixed conversation jitter and a stranded input box during streaming so transient markdown reflow no longer shifts the pending line and input box upward.",
+          "Fixed print mode (`-p`) surfacing the real conversation-creation failure instead of a misleading \"no active conversation\" error.",
+          "Fixed the message list dropping its header when rewinding or resetting conversation steps.",
+          "Fixed a background auto-updater double-spawn race where two processes could each spawn an updater within a single update window.",
+          "Fixed sandbox error reporting so blocked actions are recorded even when the network proxy is disabled.",
+          "Fixed the screen going blank after the authentication page.",
+          "Fixed the `ctrl+b` shortcut being hardcoded to background shell commands even when none were running, so a remapped `ctrl+b` is now respected whenever there are no running shell commands in the conversation."
+        ]
+      },
+      "curated": {
+        "version": "1.1.6",
+        "period": "2026-07-24",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "自訂 Agent 改用 Markdown，角色切換不再卡住",
+              "en": "Custom agents move to Markdown, and switching roles no longer gets stuck"
+            },
+            "body": {
+              "zh-TW": "想替 AI 配一位專門校稿或查資料的助手，現在可以用 `agent.md` 這種 Markdown 檔（用標題與一般文字寫內容的純文字格式）來定義 custom agent（自訂 Agent，替 AI 指定另一套角色與做事規則）。檔案開頭的 YAML frontmatter（放在檔案開頭、用欄位寫設定的區塊）可決定它是主助手、子助手、是否隱藏、是否沿用 MCP（讓 AI 連接外部工具的協定），以及可否執行指令；用 H1 標題也能切出給它的系統提示詞。這像替不同職務做名牌和工作守則；動態建立的子助手也會拿到同款名牌，搬到外部版本仍認得出來。`/agents` 從自訂角色切回預設角色的失敗問題也修好，不會表面切換、其實還困在舊人格。",
+              "en": "If you want an AI helper dedicated to proofreading or research, you can now define a custom agent with an `agent.md` Markdown file: ordinary text with headings. Its YAML frontmatter, a settings block at the very top of the file, can say whether it is the main agent, a subagent, hidden, inherits MCP (the protocol that lets AI connect to outside tools), or may run commands. Think of it as a job badge plus work rules for each role. Dynamically created subagents now get the same badge, so external builds recognize them too. `/agents` also correctly returns from a custom role to the default one instead of appearing to switch while leaving the conversation in the old persona."
+            },
+            "original": "Custom Agents (Markdown Format). Added support for defining custom agents using Markdown files (`agent.md`) with YAML frontmatter and H1-delimited system prompts. Markdown agents support `mainAgent`, `subagent`, `hidden`, `inheritMcp`, and `commandExecutionPolicy` frontmatter fields for fine-grained control over agent behavior. Dynamically defined subagents (via `define_subagent`) now also write Markdown format so they resolve correctly on external builds.\nImproved support for markdown-based custom agents so custom agent management and selection behave more consistently.\nFixed switching from a custom agent back to the default agent via `/agents`, which previously failed silently and left the conversation stuck on the custom agent's persona."
+          },
+          {
+            "title": {
+              "zh-TW": "`/copy` 能挑選較早的回答",
+              "en": "`/copy` can now pick an earlier answer"
+            },
+            "body": {
+              "zh-TW": "剛看完幾輪回答，才發現想貼出去的是前一則？`/copy 2` 現在會把倒數第二則回答複製到剪貼簿（暫時放著、可貼到別處的地方）。數字 `n` 代表第 n 則最近回答；不加數字的 `/copy` 和 `/copy 1` 仍是最新一則。你可直接把那段貼進訊息、文件或筆記。像翻相簿時直接抽出前一張照片，不必先把最新照片複製走，再回頭手動選文字。",
+              "en": "Finished a few rounds of answers and realized the one you need to paste is the previous one? `/copy 2` now copies the second-most-recent response to the clipboard, the temporary place from which you paste elsewhere. The number `n` means the n-th most recent response; plain `/copy` and `/copy 1` still mean the latest. It is like pulling the prior photo from an album directly instead of copying the newest photo first and then selecting old text by hand."
+            },
+            "original": "Added an optional index argument to `/copy` so `/copy <n>` copies the n-th most recent response to the clipboard, while `/copy` and `/copy 1` still copy the latest."
+          },
+          {
+            "title": {
+              "zh-TW": "程式碼搜尋邊找邊顯示，也能按 Esc 停下",
+              "en": "Code search shows results as it works, and Esc can stop it"
+            },
+            "body": {
+              "zh-TW": "在大專案裡用 `/codesearch` 找一個函式名稱時，不必盯著空畫面等全部結果。搜尋結果現在會隨資料到達逐步顯示，還會告訴你目前找到了幾筆；你可以先從已出現的檔案判斷是否找對地方。如果方向不對，按 `Esc` 就能取消還在跑的搜尋。這像在倉庫找貨時，搬運員一找到一箱就先送到你面前，數量也一路更新；你發現拿錯訂單，隨時喊停即可。",
+              "en": "When you use `/codesearch` to find a function name in a large project, you no longer have to stare at an empty screen until every result arrives. Matches now appear progressively, with a live count; if you searched in the wrong direction, `Esc` cancels the search while it is still running. It is like a warehouse worker bringing each box to you as soon as it is found while updating the tally, and stopping the moment you realize it is the wrong order."
+            },
+            "original": "Improved `/codesearch` to render results progressively as they stream in, showing a live count while loading and letting you cancel an in-flight search with `Esc` instead of blocking until the whole search finishes."
+          },
+          {
+            "title": {
+              "zh-TW": "讀取暫存檔不再先跳權限詢問",
+              "en": "Reading temporary files no longer starts with a permission prompt"
+            },
+            "body": {
+              "zh-TW": "你請 Agent 看剛下載或剛產生的暫存檔時，現在通常不會先被權限視窗打斷。CLI 已預設給 system temporary directory（系統暫存目錄，程式短暫放檔案的地方）讀取權限，並依 Windows、macOS、Linux 各自的位置正確處理。它只多開了「看」的門，沒有多開修改或刪除的門；像飯店櫃台直接給你行李寄放區的查看證，讓助手能讀到它剛放進去的收據，不必每次先打電話確認。",
+              "en": "When you ask an agent to inspect a file it just downloaded or generated temporarily, a permission dialog usually will not interrupt first. The CLI now grants read access by default to the system temporary directory, the place where programs briefly park files, and resolves that location correctly on each platform. This opens only the door to look, not to edit or delete. It is like a hotel desk giving you a viewing pass for the luggage area so the helper can read the receipt it just put there without calling for approval every time."
+            },
+            "original": "Improved default file access by granting read access to the system temporary directory out of the box, resolved correctly per platform, so agents no longer trigger permission prompts when reading temporary files."
+          },
+          {
+            "title": {
+              "zh-TW": "自訂規則排序固定，快取不再白白失效",
+              "en": "Custom rules keep a stable order, avoiding needless cache misses"
+            },
+            "body": {
+              "zh-TW": "同一套自訂規則和路徑，現在每次被找到時都會排成固定順序。以前順序偶爾飄動，即使內容沒變，送進 prompt cache（提示詞快取，把已處理過的指示暫存再利用）看起來也像另一份資料，得重新處理。這次把排序定下來，讓快取能認出「還是原來那張清單」，少做無謂的重複準備。像把食譜卡永遠照同一順序放回抽屜，廚師下次一眼就知道沒換菜單，不必重新備料。",
+              "en": "The same set of custom rules and discovered paths now arrives in a fixed order every time. Previously, the order could drift; even unchanged content then looked new to the prompt cache, which temporarily stores processed instructions for reuse, and had to be handled again. Stable sorting lets the cache recognize the same list. It is like returning recipe cards to a drawer in the same order, so the cook sees at once that the menu has not changed and need not prep everything again."
+            },
+            "original": "Improved customization discovery by sorting rules and discovered paths deterministically, preventing unstable prompt ordering and needless prompt-cache misses."
+          },
+          {
+            "title": {
+              "zh-TW": "終端機畫面修順，登入後不再一片空白",
+              "en": "Terminal views are smoother, with no blank screen after sign-in"
+            },
+            "body": {
+              "zh-TW": "螢幕上的小毛病，這版一次掃掉好幾個。切到圖片 artifact viewer（成品檢視器，用來看 AI 產出檔案的畫面）時，iTerm2 這類偵測到但不能畫 Kitty 圖形的終端機，不會再噴出亂碼；第一次開啟檢視器也不會吞掉你按的 `Esc`。回答串流時，Markdown（用簡單符號排版的文字格式）重新排版不再把輸入框往上推得抖動；倒帶或重設步驟後，訊息列表標題仍在。登入驗證頁結束後也不會只剩空白畫面。像電影院換幕時，以前字幕、座椅和片頭偶爾各自滑走；現在換場仍把畫面與你的按鍵留在該在的位置。",
+              "en": "Several screen glitches disappear together in this release. When switching an image artifact viewer, the view used for AI-generated files, iTerm2-like terminals that are detected but cannot draw Kitty graphics no longer spew garbage characters; the first viewer opening also stops swallowing your `Esc` key. During response streaming, Markdown, a plain-text formatting language, no longer reflows in a way that jitters the input box upward, and the message-list header survives rewinding or resetting steps. The screen also no longer goes blank after the sign-in page. Like a cinema changing scenes: subtitles, seats, and the opening title used to slide away separately; now the scene changes while the image and your keypress stay put."
+            },
+            "original": "Fixed the artifact viewer emitting garbage escape bytes when cycling to image mode on terminals that are detected but cannot actually render Kitty graphics, such as iTerm2.\nFixed the first keystroke (such as `Esc`) being dropped when opening the first artifact view on some non-Kitty terminals.\nFixed conversation jitter and a stranded input box during streaming so transient markdown reflow no longer shifts the pending line and input box upward.\nFixed the message list dropping its header when rewinding or resetting conversation steps.\nFixed the screen going blank after the authentication page."
+          },
+          {
+            "title": {
+              "zh-TW": "背景更新與受阻指令的錯誤資訊更可靠",
+              "en": "Background updates and blocked-command errors are more reliable"
+            },
+            "body": {
+              "zh-TW": "程式卡住時，最怕它只丟一句無關的錯誤。print mode（列印模式，用 `-p` 把回答直接輸出、不開互動介面的模式）建立對話失敗時，現在會顯示真正的建立失敗原因，不再假稱「沒有啟用中的對話」。sandbox（沙箱，把程式關在受限空間裡執行的保護機制）先擋住指令時，即使 network proxy（網路代理，代替程式轉送網路請求的中介）停用，也會留下受阻紀錄，核准與拒絕的訊息也整理得更清楚。背景自動更新器則修掉雙重啟動競賽：同一個更新時段不會兩個行程各自再叫一個更新器。沒有正在執行的背景 shell 指令時，你重新綁定的 `ctrl+b` 快捷鍵也會生效。像值班室終於寫對事故單，也確保同一班只派一位維修員出車。",
+              "en": "When a program fails, the worst outcome is an error that points somewhere else. If print mode, the `-p` mode that outputs an answer without an interactive interface, cannot create a conversation, it now shows the real creation failure rather than claiming there is no active conversation. When the sandbox, the protective restricted space for running programs, blocks a command first, it records that block even with the network proxy off; approval and denial messages are cleaner too. The background auto-updater also fixes a double-spawn race, so two processes cannot each launch an updater in the same update window. When no background shell commands are running, a remapped `ctrl+b` shortcut is now respected. It is like a control room finally filing the right incident report and sending only one repair crew for one shift."
+            },
+            "original": "Improved overall reliability and stability across the CLI with additional hardening and fixes for intermittent failures in background tasks, print mode, and interactive flows.\nFixed a crash when a command was blocked by sandbox permissions before its output was captured, and cleaned up the permission approval and denial messages.\nFixed print mode (`-p`) surfacing the real conversation-creation failure instead of a misleading \"no active conversation\" error.\nFixed a background auto-updater double-spawn race where two processes could each spawn an updater within a single update window.\nFixed sandbox error reporting so blocked actions are recorded even when the network proxy is disabled.\nFixed the `ctrl+b` shortcut being hardcoded to background shell commands even when none were running, so a remapped `ctrl+b` is now respected whenever there are no running shell commands in the conversation."
+          }
+        ]
+      },
+      "badges": [
+        "new",
+        "new",
+        "new",
+        "new",
+        "new",
+        "fix",
+        "new"
+      ]
+    },
+    {
+      "version": "1.1.5",
+      "raw": {
+        "version": "1.1.5",
+        "period": "2026-07-21",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-07-21",
+        "entries": [
+          "Added a `/effort` command to view and change the current model's reasoning effort, with a left/right timeline-gauge picker and a direct `/effort <level>` form so you can trade latency for depth on the fly.",
+          "Added an `--effort` flag to select a model's reasoning-effort variant when launching the CLI.",
+          "Added stable, user-facing model slugs that appear in the `/model` picker and are accepted by `--model`, so you can pin a specific model reliably across sessions.",
+          "Added a `model` option to custom agent frontmatter so an agent runs at a chosen model tier (such as `flash` or `pro`) when invoked as a subagent, defaulting to `inherit` (the parent's model).",
+          "Redesigned the `/model` picker to group models by their base model and choose reasoning effort from a timeline gauge navigable with Left and Right, and added an effort badge to the status line for models that expose multiple effort variants.",
+          "Improved the `/settings` (`/config`) panel by making it a bounded, scrollable list so it renders correctly in short terminals instead of overflowing, and stopped it from flickering when opening and closing dropdowns.",
+          "Improved background-task reliability by moving long-running work onto a shared lifecycle with deterministic startup and shutdown and panic-safe launching, so a failure in one background task no longer disrupts the session and pending analytics are flushed on exit instead of dropped.",
+          "Improved responsiveness of bursty background refreshes by coalescing rapid repeated triggers into a single run, cutting redundant work.",
+          "Fixed a crash when triggering Authenticate on a remote MCP server in the `/mcp` panel.",
+          "Fixed MCP tool results containing embedded resources being silently dropped, so text and inline media returned by MCP servers now surface in the conversation.",
+          "Fixed permission checks splitting a single command into a pipeline when an argument contained quoted shell metacharacters (such as `--grep=\"a|b\"`), which caused spurious permission prompts.",
+          "Fixed the file-view and file-search tools failing with invalid-UTF-8 errors when a multi-byte character was split at a truncation boundary.",
+          "Fixed a data race when collecting customization rules by guarding the shared structures.",
+          "Added support for stacking multiple leading slash commands in a single prompt, so a chain like `/plan /grill-me <prompt>` parses, activates, and renders every command in the order you typed them.",
+          "Improved scrolling in the `/diff` viewer so paging through a diff no longer jitters or pushes the status line off the screen when lines wrap or comments expand.",
+          "Fixed custom agents that declare `subagent: false` still appearing in the available-subagents list and being invocable as subagents.",
+          "Fixed headless (`-p` / `--print`) runs so they now honor persisted `settings.json` policies, including `permissions`, file access, sandbox mode, auto-execution, and artifact review.",
+          "Fixed `/btw` side-questions leaking into the conversation list as duplicate entries that carried the parent conversation's title.",
+          "Fixed the prompt to honor a custom Enter binding to `prompt.insert_newline`, so a remapped Enter inserts a newline instead of submitting.",
+          "Fixed eligibility error messages so the CLI shows the real reason again instead of defaulting to a generic \"unknown reason\"."
+        ]
+      },
+      "curated": {
+        "version": "1.1.5",
+        "period": "2026-07-21",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "模型選擇多了深淺旋鈕，也能替代理指定等級",
+              "en": "Model choice gains a depth dial and agent-specific tiers"
+            },
+            "body": {
+              "zh-TW": "趕著回覆訊息時，你會想要快；遇到棘手問題時，則願意多等一下換更深的推理。新的 `/effort` 指令把這個取捨做成時間軸儀表，可左右選擇，也能直接輸入等級；啟動 CLI 時則用 `--effort` 選定。`/model` 現在用穩定的 model slug（模型的固定代號）列出選項，跨工作階段也能可靠指定同一款模型。你替 custom agent（自訂代理，預先寫好工作規則的小幫手）加上 `model` 後，叫它當子代理時可跑 flash 或 pro；沒指定便沿用父代理。像相機不只選鏡頭，還能轉快門：快拍或細拍，由你在當下決定。",
+              "en": "When a reply is urgent, you want speed; when a problem is thorny, you may accept a wait for deeper reasoning. The new `/effort` command turns that tradeoff into a left/right timeline gauge, and also accepts a level directly; `--effort` makes the choice when launching the CLI. `/model` now shows stable model slugs, fixed names you can reliably reuse across sessions. A custom agent, a helper with prewritten instructions, can now declare its own `model`: as a subagent it can use a tier such as flash or pro, otherwise it inherits its parent’s model. It is like setting both a camera lens and shutter speed: choose quick or deliberate for task in front of you."
+            },
+            "original": "Added a `/effort` command to view and change the current model's reasoning effort, with a left/right timeline-gauge picker and a direct `/effort <level>` form so you can trade latency for depth on the fly.\nAdded an `--effort` flag to select a model's reasoning-effort variant when launching the CLI.\nAdded stable, user-facing model slugs that appear in the `/model` picker and are accepted by `--model`, so you can pin a specific model reliably across sessions.\nAdded a `model` option to custom agent frontmatter so an agent runs at a chosen model tier (such as `flash` or `pro`) when invoked as a subagent, defaulting to `inherit` (the parent's model).\nRedesigned the `/model` picker to group models by their base model and choose reasoning effort from a timeline gauge navigable with Left and Right, and added an effort badge to the status line for models that expose multiple effort variants."
+          },
+          {
+            "title": {
+              "zh-TW": "短終端機也看得清設定，檢視差異不再把畫面推歪",
+              "en": "Settings fit short terminals and diff viewing stays steady"
+            },
+            "body": {
+              "zh-TW": "筆電分割畫面時，設定清單不該像過長的海報從視窗底下溢出去。`/settings` 或 `/config` 現在是有邊界、可捲動的清單，開關下拉選單也不再閃爍。你查看程式修改處時，`/diff` 檢視器在換頁、長行折行或展開留言後，不會抖動，更不會把狀態列擠出螢幕。連輸入框也聽得懂你的重綁 Enter：若綁到 `prompt.insert_newline`，按下去會換行而非送出。這些改動像把凌亂書桌換成有抽屜的工作台；內容還是那些內容，手邊位置終於穩了。",
+              "en": "On a split laptop screen, a settings list should not spill below the window like an overlong poster. `/settings` and `/config` are now bounded, scrollable lists, and their dropdowns no longer flicker. While reviewing code changes, the `/diff` viewer no longer jitters or pushes the status line offscreen when you page, wrapped lines appear, or comments expand. The prompt also honors a remapped Enter: if it is bound to `prompt.insert_newline`, it inserts a line break instead of submitting. It is like replacing a messy desk with a workbench full of drawers: same tools, but they stay where your hands expect them."
+            },
+            "original": "Improved the `/settings` (`/config`) panel by making it a bounded, scrollable list so it renders correctly in short terminals instead of overflowing, and stopped it from flickering when opening and closing dropdowns.\nImproved scrolling in the `/diff` viewer so paging through a diff no longer jitters or pushes the status line off the screen when lines wrap or comments expand.\nFixed the prompt to honor a custom Enter binding to `prompt.insert_newline`, so a remapped Enter inserts a newline instead of submitting."
+          },
+          {
+            "title": {
+              "zh-TW": "背景工作不再一處失火、整場陪葬",
+              "en": "Background work becomes isolated, orderly, and less wasteful"
+            },
+            "body": {
+              "zh-TW": "讓 CLI 在背景慢慢更新資料時，最怕其中一件小事出錯，整個工作階段跟著亂掉。現在長時間背景任務共用同一套生命週期，啟動與關閉都有固定順序，啟動時也能安全面對 panic（程式遇到嚴重錯誤而中斷）；單一任務失敗不再拖垮整場，離開前待送的分析資料也會送完。短時間內連續觸發更新，則會合併成一次，少做重複工作。收集自訂規則時的 data race（多個工作同時碰同份資料造成結果不穩）也補上保護。像廚房把各道菜分到獨立爐火，並把連按三次的叫餐鈴合成一張單；一口鍋燒焦，不會讓整間餐廳停擺。",
+              "en": "When the CLI refreshes data in the background, one small failure should not scramble the whole session. Long-running background tasks now share one lifecycle, with deterministic start and shutdown and panic-safe launching; one failed task no longer disrupts the session, and pending analytics are flushed before exit. Several refresh triggers arriving in a burst are coalesced into one run instead of repeating work. A data race, where concurrent work touches shared data unpredictably, is also guarded while customization rules are collected. It is like giving each dish in a kitchen its own burner and turning three rapid bell rings into one order: one burnt pan does not close the restaurant."
+            },
+            "original": "Improved background-task reliability by moving long-running work onto a shared lifecycle with deterministic startup and shutdown and panic-safe launching, so a failure in one background task no longer disrupts the session and pending analytics are flushed on exit instead of dropped.\nImproved responsiveness of bursty background refreshes by coalescing rapid repeated triggers into a single run, cutting redundant work.\nFixed a data race when collecting customization rules by guarding the shared structures."
+          },
+          {
+            "title": {
+              "zh-TW": "MCP 登入不當機，伺服器回傳內容不再消失",
+              "en": "MCP authentication stays up and returned content reaches chat"
+            },
+            "body": {
+              "zh-TW": "你在 `/mcp` 面板替遠端 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器按 Authenticate 時，現在不會再把 CLI 按到當機。更重要的是，MCP 工具回傳的 embedded resources（嵌入式資源，文字或內嵌媒體等隨結果附上的內容）以前會被悄悄丟掉，現在會出現在對話裡。也就是說，接上外部工具後，登入這扇門能打開，工具端帶回來的說明或圖片也不會留在門外。像快遞站以前辦證時會關門，包裹裡附的文件還會被抽走；現在櫃台照常辦理，附檔也完整交到你手上。",
+              "en": "Pressing Authenticate for a remote MCP server in the `/mcp` panel no longer crashes the CLI. More importantly, embedded resources, extra text or inline media carried inside an MCP tool result, used to be silently discarded; they now appear in the conversation. In other words, once you connect an external tool through MCP, the authentication door opens and its explanation or image can come through with it. It is like a parcel counter that once shut down while checking your ID and removed documents from packages; now the counter stays open and every enclosure reaches your hands."
+            },
+            "original": "Fixed a crash when triggering Authenticate on a remote MCP server in the `/mcp` panel.\nFixed MCP tool results containing embedded resources being silently dropped, so text and inline media returned by MCP servers now surface in the conversation."
+          },
+          {
+            "title": {
+              "zh-TW": "指令判讀與檔案搜尋更耐髒資料，錯誤也說人話",
+              "en": "Command checks and file search handle awkward input more safely"
+            },
+            "body": {
+              "zh-TW": "你下 `--grep=\"a|b\"` 這類指令時，管線符號明明只是引號裡的參數，權限檢查卻曾誤以為你真要建立 pipeline（管線，把一個指令輸出交給下一個指令的串接），跳出多餘提示；現在能正確看懂。檢視或搜尋檔案時，若多位元字元剛好被截在中間，也不再因 invalid UTF-8 而失敗。資格不符時，CLI 也重新顯示真正原因，不再只說「unknown reason」。這像機場安檢終於會分辨行李標籤上的豎線和危險物，掃描到半截外文字也不會當成壞行李；拒絕登機時，還會告訴你缺的是哪份證件。",
+              "en": "With a command such as `--grep=\"a|b\"`, a pipe character inside a quoted argument is not a pipeline, a chain that passes one command’s output to another. Permission checks used to misread it and ask unnecessarily; now they interpret it correctly. File viewing and search also stop failing with invalid UTF-8 when a multibyte character is cut at a truncation boundary. And when you are not eligible, the CLI again shows the real reason rather than “unknown reason.” It is like airport screening that can distinguish a vertical mark on a luggage tag from a hazardous item, and can explain which document is missing when it cannot let you board."
+            },
+            "original": "Fixed permission checks splitting a single command into a pipeline when an argument contained quoted shell metacharacters (such as `--grep=\"a|b\"`), which caused spurious permission prompts.\nFixed the file-view and file-search tools failing with invalid-UTF-8 errors when a multi-byte character was split at a truncation boundary.\nFixed eligibility error messages so the CLI shows the real reason again instead of defaulting to a generic \"unknown reason\"."
+          },
+          {
+            "title": {
+              "zh-TW": "多指令能連著下，代理與無頭執行也各守界線",
+              "en": "Chained commands, agents, and headless runs now follow their intended rules"
+            },
+            "body": {
+              "zh-TW": "規劃完還想立刻請它挑毛病？現在同一句可排 `/plan /grill-me <prompt>`，每個開頭斜線指令會依輸入順序解析、啟用並顯示。custom agent 若明確寫 `subagent: false`，也不會再混進可呼叫的子代理清單。用 `-p` 或 `--print` 跑 headless（無頭模式，沒有終端機視窗／視覺介面的執行模式）時，已儲存的 `settings.json` 政策終於會生效，包括權限、檔案存取、sandbox mode（沙盒模式，把程式限制在安全範圍內的執行方式）、自動執行與成品審查。`/btw` 的岔題也不再複製成另一筆同標題對話。像火車站的轉乘牌：能依序換線，但標著不接客的月台不會被派車，沒有站務員的夜車仍照既定規則行駛。",
+              "en": "Finished planning and want an immediate critique? One prompt can now begin `/plan /grill-me <prompt>`; each leading slash command is parsed, activated, and displayed in typed order. A custom agent explicitly marked `subagent: false` no longer sneaks into the callable-subagent list. Headless runs, execution through `-p` or `--print` without a terminal window, now honor saved `settings.json` policies: permissions, file access, sandbox mode, auto-execution, and artifact review. A `/btw` side question also stops making a duplicate conversation with its parent’s title. It is like a station transfer board: you can change lines in order, closed platforms are not assigned trains, and an unattended night train still follows its rules."
+            },
+            "original": "Added support for stacking multiple leading slash commands in a single prompt, so a chain like `/plan /grill-me <prompt>` parses, activates, and renders every command in the order you typed them.\nFixed custom agents that declare `subagent: false` still appearing in the available-subagents list and being invocable as subagents.\nFixed headless (`-p` / `--print`) runs so they now honor persisted `settings.json` policies, including `permissions`, file access, sandbox mode, auto-execution, and artifact review.\nFixed `/btw` side-questions leaking into the conversation list as duplicate entries that carried the parent conversation's title."
+          }
+        ]
+      },
+      "badges": [
+        "new",
+        "new",
+        "new",
+        "fix",
+        "fix",
+        "new"
+      ]
+    },
+    {
       "version": "1.1.3",
       "raw": {
         "version": "1.1.3",
@@ -702,129 +934,6 @@
       "badges": [
         "new",
         "fix"
-      ]
-    },
-    {
-      "version": "1.0.12",
-      "raw": {
-        "version": "1.0.12",
-        "period": "2026-07-13",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-07-13",
-        "entries": [
-          "Added support for `--project` and `--new-project` launch flags to allow users to explicitly set or create projects, and updated the project resolution logic to default regardless of the active workspace.",
-          "Added a confirmation prompt when pressing `Esc` in comment mode with unsaved modifications to prevent users from accidentally discarding their work in review views.",
-          "Added dynamic OSC8 terminal hyperlink support to render clickable links in supporting terminals, with automatic fallback stripping for backward compatibility.",
-          "Introduced reverse diff cycling navigation mapped to `shift+n` in unified diff review mode to allow users to easily cycle backwards through diff blocks.",
-          "Improved permission config merging priorities by ensuring project-specific configurations (located in `~/.gemini/config/projects/`) take precedence over global settings in `~/.gemini/antigravity-cli/settings.json`.",
-          "Fixed a regression where `ctrl+o` scrollback clearing failed by restoring the use of cached fields rather than shared pointer comparisons for trajectory toggle detection.",
-          "Fixed a rendering bug where Makefile syntax (like `$(call ...)`) inside code blocks was mistakenly parsed and mangled by LaTeX math expansion, by introducing a state machine that restricts expansion to prose segments.",
-          "Fixed an enterprise network connectivity issue by restoring AES-NI compile-time optimizations, which prevents Deep Packet Inspection (DPI) firewalls from incorrectly flagging and resetting TLS connections.",
-          "Fixed incorrect key strings by removing the unsupported backtab default binding and correcting invalid `pgdn` references to `pgdown` to align with Bubble Tea v2 canonical names."
-        ]
-      },
-      "curated": {
-        "version": "1.0.12",
-        "period": "2026-07-13",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "預覽與留言更順手，連結能點且不怕誤刪",
-              "en": "Smoother review mode, clickable links, and safeguarded comments"
-            },
-            "body": {
-              "zh-TW": "現在在終端機裡審閱差異與留註解變得更安全也更靈活了。以前你在註解模式打字打到一半，如果不小心按到 Esc，千辛萬苦打好的字就會瞬間灰飛煙滅；現在它會貼心跳出確認對話框攔住你。看程式碼差異時，如果你不小心按下一筆跳過了想看的地方，現在可以按 shift+n 直接「倒車」回去看上一筆。此外，現在終端機裡的網址連結真的可以點擊了，按住熱鍵點一下就能直接在瀏覽器打開；清空歷史對話畫面的快捷鍵（ctrl+o）也修好重新復活，不會再失靈。就像看實體報紙變成看電子書一樣，現在不但可以在文章上點連結，不小心翻頁還能按 shift+n 退回，而且寫在旁邊的便條紙也不會因為風吹就飛走。",
-              "en": "Reviewing diffs and leaving comments in the terminal is now safer and more flexible. Previously, if you accidentally hit Esc while halfway through typing a comment, your hard work would instantly vanish into thin air; now, a thoughtful confirmation dialog pops up to stop you. When reviewing code changes, if you accidentally skip past a section you wanted to see, you can now press shift+n to instantly \"reverse\" back to the previous diff block. Furthermore, web links in the terminal are now genuinely clickable—just hold the modifier key and click to open them straight in your browser. The shortcut for clearing the conversation history screen (ctrl+o) has also been resurrected and fixed. Like upgrading from a physical newspaper to an e-book: you can now tap links on the page, instantly flip back if you turn a page by mistake, and your sticky notes won't blow away in the wind."
-            },
-            "original": "Added a confirmation prompt when pressing `Esc` in comment mode with unsaved modifications to prevent users from accidentally discarding their work in review views.\nIntroduced reverse diff cycling navigation mapped to `shift+n` in unified diff review mode to allow users to easily cycle backwards through diff blocks.\nAdded dynamic OSC8 terminal hyperlink support to render clickable links in supporting terminals, with automatic fallback stripping for backward compatibility.\nFixed a regression where `ctrl+o` scrollback clearing failed by restoring the use of cached fields rather than shared pointer comparisons for trajectory toggle detection.\nFixed incorrect key strings by removing the unsupported backtab default binding and correcting invalid `pgdn` references to `pgdown` to align with Bubble Tea v2 canonical names."
-          },
-          {
-            "title": {
-              "zh-TW": "啟動專案更直覺，設定檔優先順序與企業連線不再雷人",
-              "en": "Intuitive project launching, smarter config priorities, and reliable enterprise connections"
-            },
-            "body": {
-              "zh-TW": "你可以更直接地管理並啟動不同專案了。現在只要在啟動時加上 `--project` 或 `--new-project`，就能直接指定或建立專案，不用管你現在人在哪個資料夾。設定檔的優先順序也變聰明了，專案專屬的權限設定現在會確實蓋過全域設定，不會再發生「明明專案設定了卻不理我」的窘境。如果你在公司裡使用，以前因為企業防火牆的深度封包檢測（DPI）會誤擋系統的加密連線，導致你一直斷線；現在系統找回了最佳化設定，連線能順利穿透防火牆了。另外，系統也不會再自作聰明把你寫在程式碼區塊裡的 Makefile 語法當成數學公式亂改一通了。就像去不同的分公司上班，現在你只要報上分公司名字就能直接上工，當地的員工守則會確實蓋過總公司的規定，而且公司的門禁系統也不會再把你的正常公事包誤認為危險物品而被警衛攔下。",
-              "en": "Managing and launching different projects is now much more straightforward. By simply adding the `--project` or `--new-project` flags at startup, you can directly specify or create a project without worrying about which folder you are currently in. Config priorities are also smarter now: project-specific permission settings will reliably override global settings, ending the frustration of \"I set it for this project but it's ignoring me.\" If you use the tool at a corporate office, Deep Packet Inspection (DPI) firewalls used to falsely block the system's encrypted connections causing endless disconnects; optimizations have now been restored so traffic passes smoothly through the firewall. Additionally, the system will no longer foolishly misinterpret your Makefile syntax inside code blocks as math formulas and mangle them. Like reporting to work at different branch offices: you can now just state the branch name to get straight to work, the local branch rules will properly override corporate headquarters' policies, and the building's security scanner will no longer mistake your everyday briefcase for contraband and block you at the door."
-            },
-            "original": "Added support for `--project` and `--new-project` launch flags to allow users to explicitly set or create projects, and updated the project resolution logic to default regardless of the active workspace.\nImproved permission config merging priorities by ensuring project-specific configurations (located in `~/.gemini/config/projects/`) take precedence over global settings in `~/.gemini/antigravity-cli/settings.json`.\nFixed an enterprise network connectivity issue by restoring AES-NI compile-time optimizations, which prevents Deep Packet Inspection (DPI) firewalls from incorrectly flagging and resetting TLS connections.\nFixed a rendering bug where Makefile syntax (like `$(call ...)`) inside code blocks was mistakenly parsed and mangled by LaTeX math expansion, by introducing a state machine that restricts expansion to prose segments."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "new"
-      ]
-    },
-    {
-      "version": "1.0.11",
-      "raw": {
-        "version": "1.0.11",
-        "period": "2026-07-13",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-07-13",
-        "entries": [
-          "Added `ctrl+c` as an exit and interrupt key: the first press cancels active agent operations (like streaming responses), and a double-press triggers the exit flow. Also added a dynamic exit hint in the status line.",
-          "Fixed `ctrl+d` behavior to act as a forward-delete when the input prompt contains text, only triggering the exit flow when the prompt is empty.",
-          "Improved `/resume` loading performance by implementing a persistent metadata cache and parallel loader, eliminating severe latency with large conversation histories and preventing background loading log spam.",
-          "Added an expanded AltScreen view for tool confirmations (accessible via `ctrl+g`), allowing users to view and edit the full command and associated permissions in a dedicated full-screen view, replacing the inline edit (`e`) key.",
-          "Added the `AGY_CLI_CMD_OUTPUT_PERCENTAGE` environment variable, allowing users to customize the maximum height of command outputs in the TUI as a percentage of the terminal height.",
-          "Added strict key name validation to the keybindings system to reject invalid key names (like typos) and suggest canonical alternatives, preventing \"dead keys\" from being registered.",
-          "Added a validation warning when `ctrl+c` is mapped to a non-default action, clarifying that the system always intercepts `ctrl+c` to interrupt active operations or exit, and providing instructions on how to resolve the warning.",
-          "Improved command output rendering by making the output height dynamic, improving the readability of commands like `/keybindings`.",
-          "Improved text rendering with ANSI-aware word wrapping at word boundaries and prevented URLs containing hyphens from being incorrectly split across lines.",
-          "Improved the `/resume` experience: added support for pasting clipboard text into the search filter and rename fields, upgraded the rename input to a multiline editor to prevent long titles from being hidden, and fixed a bug where the navigation cursor could disappear.",
-          "Improved keybinding validation warning messages to use user-facing names (e.g., `cli.escape`) instead of internal representation names.",
-          "Improved startup behavior by only creating the `keybindings.json` configuration file when the user explicitly runs the `/keybindings` customization command, rather than automatically generating it on every startup.",
-          "Improved keybinding error presentation by replacing the persistent error footer with transient error alerts, freeing up valuable terminal space.",
-          "Fixed the `ctrl+c` exit safety valve to ensure it always works as an interrupt or exit key, regardless of how it is mapped in the user's custom keybindings configuration.",
-          "Fixed VCS commit tree rendering to reserve the `@` marker exclusively for the actual current commit in the VCS history rather than the synthetic \"Working Copy\" entry, helping users easily identify the working copy parent.",
-          "Fixed authentication error handling to gracefully handle unsigned-in states by returning an empty configuration and suppressing noisy error logs."
-        ]
-      },
-      "curated": {
-        "version": "1.0.11",
-        "period": "2026-07-13",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "快捷鍵與中斷操作更直覺，設定防呆不卡死",
-              "en": "Intuitive shortcuts and interrupt operations with foolproof keybinding settings"
-            },
-            "body": {
-              "zh-TW": "現在鍵盤快捷鍵的行為更符合你的直覺了。按 ctrl+c 第一下會中斷代理正在做的事（例如打斷它還在碎碎唸的回覆），連按兩下則會退出程式，而且這是一道防死當的安全閥，就算你自己在設定裡把 ctrl+c 綁成別的功能，它依然會強制攔截以防你卡死，並會給你明確的修改建議。按 ctrl+d 時，如果你正在打字，它會正常把游標後面的字刪掉，只有在輸入框全空時才會退出程式，不會再因為想刪字就不小心關掉整個軟體了。自訂快捷鍵時，系統也變聰明了：如果你打錯按鍵名稱，它會直接挑錯並推薦正確寫法，不會再讓你設定出根本按不出來的「死鍵」；而且錯誤提示也會用人話（像是 cli.escape）告訴你，還改成彈出式警告，不再霸佔畫面底部的寶貴空間。就像搭電梯，以前你可能按了開門鍵結果電梯卻關機，或者設定保全時不小心把自己反鎖，現在不但緊急停止鈕絕對有效，設定時如果密碼格式不對也會當場糾正你。",
-              "en": "Keyboard shortcuts now behave much more intuitively. Pressing ctrl+c once interrupts whatever the agent is currently doing (like stopping a rambling, streaming response), and pressing it twice exits the program. Furthermore, this acts as a fail-safe safety valve: even if you mapped ctrl+c to another function in your settings, the system forcibly intercepts it to prevent you from getting permanently locked up, offering clear suggestions on how to fix your config. When pressing ctrl+d while typing, it now correctly forward-deletes text, and only exits the app if the input box is completely empty — no more accidentally closing the whole program just because you tried to delete a typo. The custom keybinding system is also smarter now: if you misspell a key name, it will outright reject it and suggest the correct spelling, ensuring you don't register \"dead keys\" that can never be pressed; the error messages also use human-readable names (like cli.escape) and appear as transient alerts instead of permanently hogging valuable space at the bottom of the screen. Like riding an elevator: you used to press the \"open door\" button and the elevator might shut down, or you might accidentally lock yourself out while setting up the security system; now, the emergency stop button is guaranteed to work, and if you punch in the wrong passcode format, it corrects you on the spot."
-            },
-            "original": "Added `ctrl+c` as an exit and interrupt key: the first press cancels active agent operations (like streaming responses), and a double-press triggers the exit flow. Also added a dynamic exit hint in the status line.\nFixed `ctrl+d` behavior to act as a forward-delete when the input prompt contains text, only triggering the exit flow when the prompt is empty.\nAdded strict key name validation to the keybindings system to reject invalid key names (like typos) and suggest canonical alternatives, preventing \"dead keys\" from being registered.\nAdded a validation warning when `ctrl+c` is mapped to a non-default action, clarifying that the system always intercepts `ctrl+c` to interrupt active operations or exit, and providing instructions on how to resolve the warning.\nImproved keybinding error presentation by replacing the persistent error footer with transient error alerts, freeing up valuable terminal space.\nImproved keybinding validation warning messages to use user-facing names (e.g., `cli.escape`) instead of internal representation names.\nImproved startup behavior by only creating the `keybindings.json` configuration file when the user explicitly runs the `/keybindings` customization command, rather than automatically generating it on every startup.\nFixed the `ctrl+c` exit safety valve to ensure it always works as an interrupt or exit key, regardless of how it is mapped in the user's custom keybindings configuration."
-          },
-          {
-            "title": {
-              "zh-TW": "歷史對話載入神速，搜尋與改名更順利",
-              "en": "Blazing fast history loading with improved search and rename features"
-            },
-            "body": {
-              "zh-TW": "你現在打開 /resume 查看歷史對話時會發現順暢無比。以前如果你的歷史紀錄太多，打開這個畫面會卡很久，背後還會狂印載入日誌；現在系統加了快取機制和同步載入，點開瞬間就能看到清單。在這畫面裡搜尋或改名時，現在終於支援直接從剪貼簿貼上文字了。幫對話改名時，輸入框也升級成可以多行顯示的版本，再長的名字都不會被卡掉一半，而且選單游標也不會再莫名其妙消失了。就像去圖書館找書，以前圖書館員要一本本翻找還會一直碎碎唸，現在有了最新的電子目錄，一秒就能找到，而且要幫借閱清單加備註時，終於可以直接貼上整段字，不會再被限制只能打一行字了。",
-              "en": "Opening /resume to view your conversation history is now blazingly fast and smooth. Previously, if you had a massive chat history, loading this screen would freeze for a long time while spamming loading logs in the background; now, thanks to a new caching mechanism and parallel loader, the list pops up instantly. When searching or renaming conversations in this view, you can finally paste text directly from your clipboard. The rename input box has also been upgraded to a multiline editor, so long titles won't get chopped off halfway, and the menu cursor will no longer mysteriously vanish. Like searching for a book at the library: the librarian used to flip through cards one by one while mumbling non-stop, but now there's an electronic catalog that finds it in a second, and when you want to add a note to your reading list, you can finally paste an entire paragraph instead of being restricted to a single line."
-            },
-            "original": "Improved `/resume` loading performance by implementing a persistent metadata cache and parallel loader, eliminating severe latency with large conversation histories and preventing background loading log spam.\nImproved the `/resume` experience: added support for pasting clipboard text into the search filter and rename fields, upgraded the rename input to a multiline editor to prevent long titles from being hidden, and fixed a bug where the navigation cursor could disappear."
-          },
-          {
-            "title": {
-              "zh-TW": "排版更漂亮，全螢幕審查指令與更清晰的版本紀錄",
-              "en": "Better formatting, full-screen command review, and clearer version history"
-            },
-            "body": {
-              "zh-TW": "現在終端機裡的文字與畫面排版更友善了。當系統跳出工具確認對話框問你要不要執行指令時，你可以按 ctrl+g 切換到全螢幕模式，舒舒服服地查看並編輯完整指令和權限，不再只能擠在原本小小的單行修改框裡。指令輸出的高度現在會自動調整，你甚至可以用 AGY_CLI_CMD_OUTPUT_PERCENTAGE 這個環境變數（設定程式環境的參數）來控制它最多能佔畫面的幾成。文字排版時也不會再發生「網址裡有連字號就被硬生生切成兩半」的糗事。在看版本控制（VCS，像是 Git 紀錄）的樹狀圖時，代表當前位置的 `@` 符號現在會精準標示在你真正所在的版本上，不會再跑去標記「還沒存檔的工作區」，讓你一眼看出自己到底在哪裡。就像看電影時，以前字幕遇到長網址會被隨便切斷，重點片段只能在小視窗看，現在不但字幕排版完美，遇到重要確認還能按 ctrl+g 放大到全螢幕看個仔細。",
-              "en": "The text and layout in the terminal are now much friendlier. When the tool confirmation dialog pops up asking if you want to run a command, you can press ctrl+g to switch to a full-screen view, allowing you to comfortably inspect and edit the entire command and its permissions rather than cramming into a tiny single-line box. Command output heights now adjust dynamically, and you can even set a maximum terminal height percentage using the AGY_CLI_CMD_OUTPUT_PERCENTAGE environment variable (a parameter used to configure the program's environment). Text formatting has also been improved to stop awkwardly splitting URLs in half just because they contain a hyphen. When viewing the version control system (VCS, like Git) tree history, the `@` marker representing your current position now accurately highlights your actual committed state, rather than pointing to the uncommitted \"Working Copy\", letting you see exactly where you stand. Like watching a movie: the subtitles used to awkwardly chop long URLs in half, and crucial scenes were forced into a tiny window; now the subtitles are perfectly formatted, and you can instantly expand important prompts to full-screen to read every detail clearly."
-            },
-            "original": "Added an expanded AltScreen view for tool confirmations (accessible via `ctrl+g`), allowing users to view and edit the full command and associated permissions in a dedicated full-screen view, replacing the inline edit (`e`) key.\nAdded the `AGY_CLI_CMD_OUTPUT_PERCENTAGE` environment variable, allowing users to customize the maximum height of command outputs in the TUI as a percentage of the terminal height.\nImproved command output rendering by making the output height dynamic, improving the readability of commands like `/keybindings`.\nImproved text rendering with ANSI-aware word wrapping at word boundaries and prevented URLs containing hyphens from being incorrectly split across lines.\nFixed VCS commit tree rendering to reserve the `@` marker exclusively for the actual current commit in the VCS history rather than the synthetic \"Working Copy\" entry, helping users easily identify the working copy parent.\nFixed authentication error handling to gracefully handle unsigned-in states by returning an empty configuration and suppressing noisy error logs."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "new",
-        "new"
       ]
     }
   ]
