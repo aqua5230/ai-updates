@@ -2,7 +2,7 @@
 
 English | [繁體中文](README.zh-TW.md)
 
-AI Updates tracks the official changelogs for Claude Code, Codex, Antigravity, Grok Build, Usage, and GitHub CLI. It preserves immutable source records, supports human-reviewed plain-language updates in Traditional Chinese (zh-TW) and English (en), and publishes feeds for a static website and compatible applications.
+AI Updates tracks the official changelogs for Claude Code, Codex, Antigravity, Grok Build, Usage, and GitHub CLI. It preserves immutable source records, supports AI-written plain-language updates in Traditional Chinese (zh-TW) and English (en), each fact-checked against the official text by a second AI model, and publishes feeds for a static website and compatible applications.
 
 ## Website
 
@@ -21,7 +21,7 @@ https://aqua5230.github.io/ai-updates/
 
 ## How It Works
 
-`data/raw/` stores daily imports of official changelog entries. Records are written per version and are never overwritten. `data/curated/` holds human-reviewed, plain-language versions of those entries in Traditional Chinese and English.
+`data/raw/` stores daily imports of official changelog entries. Records are written per version and are never overwritten. `data/curated/` holds fact-checked, plain-language versions of those entries in Traditional Chinese and English.
 
 `scripts/build.py` combines both layers into generated artifacts:
 
@@ -34,7 +34,7 @@ https://aqua5230.github.io/ai-updates/
 ```text
 data/
   raw/<tool_id>/<version>.json       # Immutable official source records
-  curated/<tool_id>/<version>.json   # Human-reviewed zh-TW and en records
+  curated/<tool_id>/<version>.json   # Fact-checked zh-TW and en records
   badge_overrides.json               # Card badges fixed by hand where the rule misjudges
 docs/
   index.html                         # GitHub Pages site
@@ -82,9 +82,9 @@ This command runs `agy changelog`; existing version records are not overwritten.
 ## Curation Workflow
 
 1. The daily workflow opens an issue for each newly imported version.
-2. Create `data/curated/<tool>/<version>.json` with the reviewed zh-TW and en plain-language `items`.
-3. Run `python3 scripts/build.py` and `pytest`.
-4. Open a pull request and merge it after review.
+2. A local scheduled job has an AI model write the zh-TW and en plain-language `items` in `data/curated/<tool>/<version>.json`. A model from a different family then checks each card against `original` and the findings are fixed, for up to several rounds.
+3. Only versions that pass lint, the fact check, `python3 scripts/build.py`, and `pytest` are committed; the issue is then closed.
+4. Versions that still fail keep their issue open for a person to take over.
 
 Curated content must accurately reflect the official entries. The `original` field retains the original English text.
 
