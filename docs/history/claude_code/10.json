@@ -5,6 +5,94 @@
   "pages": 10,
   "versions": [
     {
+      "version": "2.1.187",
+      "raw": {
+        "version": "2.1.187",
+        "period": "2026-06-23",
+        "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+        "fetched_at": "2026-07-13",
+        "entries": [
+          "Added `sandbox.credentials` setting to block sandboxed commands from reading credential files and secret environment variables",
+          "Added org-configured model restrictions to the model picker, `--model`, `/model`, and `ANTHROPIC_MODEL`, with a \"restricted by your organization's settings\" message when a restricted model is selected",
+          "Added mouse click support to select menus (permission prompts, `/model`, `/config`, etc.) in fullscreen mode",
+          "Fixed `--resume` failing with \"No conversation found\" when the original `-p` run produced no model turns",
+          "Fixed `--json-schema` and workflow `agent({schema})` structured output: the model can no longer re-call `StructuredOutput` indefinitely after a successful call, and follow-up turns now reliably return structured output",
+          "Fixed remote MCP tool calls that hang with no response for 5 minutes — they now abort with an error instead of blocking indefinitely (override with `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT`)",
+          "Fixed Claude Code Remote sessions taking ~2.7s longer to start after the agent proxy CA system-trust install was added",
+          "Fixed pasted Korean/CJK text turning into mojibake in terminals that deliver paste as per-byte extended-key events",
+          "Fixed `/update` over Remote Control hanging when a startup trust dialog would have shown",
+          "Fixed background jobs in the agents view getting stuck in \"working\" indefinitely when the agent ended a turn without producing structured output",
+          "Fixed channel connections dropping after navigating to the agents view and back, and after `/bg`, `/tui`, or `/update`",
+          "Fixed agent stop notifications not correctly attributing who stopped the agent, and improved wording (\"finished\"/\"stopped\" instead of \"came to rest\")",
+          "Fixed subagent depth tracking: resumed subagents now restore their original spawn depth, and forked subagents now count toward the depth cap",
+          "Fixed leaked agent worktree registrations: locked `.git/worktrees/` entries from killed agents are now cleaned up automatically",
+          "Fixed Cmd+click not opening URLs in fullscreen mode in Ghostty on macOS",
+          "Fixed `claude --help` not listing the `--bg`/`--background` flag",
+          "Fixed Esc, Ctrl-C, and Ctrl-D not working while `/share` is uploading",
+          "Improved `/install-github-app`: GitHub Actions workflow setup is now optional — you can install just the GitHub App and skip the workflow/secret steps",
+          "Improved `/btw` with ←/→ arrow navigation to step through earlier answers",
+          "Improved `/plugin` to surface plugins you haven't used recently so you can clean them up",
+          "[VSCode] Fixed extension becoming unresponsive when resuming a large session"
+        ]
+      },
+      "curated": {
+        "version": "2.1.187",
+        "period": "2026-06-23",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "權限管控更嚴格，沙盒防護升級",
+              "en": "Tighter permissions and upgraded sandbox security"
+            },
+            "body": {
+              "zh-TW": "這次針對安全與管控做了重要升級。現在你可以透過設定 `sandbox.credentials`，防止在沙盒（sandbox，隔離的安全執行環境）裡跑的指令偷看你的密碼檔或環境變數機密。如果你在企業環境裡用，現在只要選到公司禁用的模型，介面上會明確跳出「受組織設定限制」的提示，不會讓你白忙一場。此外，對於外部工具（MCP）連線，以前如果對方毫無反應，系統會傻傻地無限期等下去；現在只要卡住 5 分鐘就會自動中斷並報錯（你也可以自己改設定），不讓整個流程被拖垮。這就像幫公司的實驗室加裝了防盜門，不但會阻擋來路不明的軟體偷拿機密資料，而且如果連線到外部廠商一直沒人接，五分鐘後電話就會自動掛斷，不會佔線一整天。",
+              "en": "We've rolled out major upgrades for security and administrative control. You can now use the new `sandbox.credentials` setting to explicitly block commands running inside the sandbox (an isolated secure environment) from peeking at your credential files or secret environment variables. For enterprise users, the model picker now respects organization-configured restrictions and will clearly tell you if a model is \"restricted by your organization's settings\" rather than letting you guess why it failed. Additionally, if an external MCP tool server goes silent and hangs, the system will no longer wait around forever; it will automatically abort the call and throw an error after 5 minutes (a timeout you can adjust). It's like installing a vault door on the company lab to prevent rogue experiments from stealing passwords, and implementing a strict five-minute rule on hold times so an unresponsive vendor doesn't tie up the phone line all day."
+            },
+            "original": "Added `sandbox.credentials` setting to block sandboxed commands from reading credential files and secret environment variables\nAdded org-configured model restrictions to the model picker, `--model`, `/model`, and `ANTHROPIC_MODEL`, with a \"restricted by your organization's settings\" message when a restricted model is selected\nFixed remote MCP tool calls that hang with no response for 5 minutes — they now abort with an error instead of blocking indefinitely (override with `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT`)"
+          },
+          {
+            "title": {
+              "zh-TW": "代理人管理更精準，不再無意義空轉",
+              "en": "Agent management is more precise, avoiding endless spinning"
+            },
+            "body": {
+              "zh-TW": "讓多個 AI 代理人（agent）一起工作時，現在更穩定了。當你要求代理人以特定格式（JSON schema）輸出結果時，它現在給出正確答案後就不會再陷入無限重覆呼叫工具的死迴圈。如果在背景工作的代理人做完事卻沒吐出結果，也不會再一直卡在「執行中」騙你。對於分支出來的子代理人，系統現在會正確計算它們的層級深度，不會讓代理人無限制地「子生孫、孫生子」下去。而且代理人被停掉時，通知現在會正確寫出是誰停的，並把用語改成更白話的「已結束」或「已停止」。如果你強制砍掉代理人，它遺留在 Git 工作樹（worktree）裡的垃圾檔案，現在系統也會自動幫你清乾淨了。這就像工廠裡的機器人，以前交差後還會原地一直轉圈圈不肯停，甚至做了一堆複製人塞滿走道，現在它們只要完成任務就會乖乖回報「停工」，而且離職時還會順手把自己的工作桌收乾淨。",
+              "en": "Coordinating multiple AI agents is now much more stable. When you require an agent to produce structured output (like a JSON schema), it will no longer get stuck in an endless loop re-calling the output tool after already succeeding. If a background agent ends its turn without producing the requested structure, it won't deceptively stay stuck displaying a 'working' status forever. For spawned subagents, the system now accurately tracks how deep the chain goes, ensuring agents don't infinitely spawn subagents and violate the depth cap. When an agent gets halted, the notification now correctly attributes who stopped it and uses clearer wording like 'finished' or 'stopped' instead of cryptic phrasing. Also, if you kill an agent, any locked entries it left behind in your Git worktree are now automatically cleaned up. It's like factory robots that used to mindlessly spin in circles after finishing a job, or endlessly build clones of themselves until the floor ran out of space; now they properly clock out, report exactly who shut them off, and perfectly tidy up their workstations before they leave."
+            },
+            "original": "Fixed `--json-schema` and workflow `agent({schema})` structured output: the model can no longer re-call `StructuredOutput` indefinitely after a successful call, and follow-up turns now reliably return structured output\nFixed background jobs in the agents view getting stuck in \"working\" indefinitely when the agent ended a turn without producing structured output\nFixed agent stop notifications not correctly attributing who stopped the agent, and improved wording (\"finished\"/\"stopped\" instead of \"came to rest\")\nFixed subagent depth tracking: resumed subagents now restore their original spawn depth, and forked subagents now count toward the depth cap\nFixed leaked agent worktree registrations: locked `.git/worktrees/` entries from killed agents are now cleaned up automatically"
+          },
+          {
+            "title": {
+              "zh-TW": "介面操作大翻新，支援滑鼠點擊與全形文字",
+              "en": "UI overhauled with mouse support and CJK text fixes"
+            },
+            "body": {
+              "zh-TW": "軟體的互動體驗變得更順手了！現在如果你在全螢幕模式下叫出選單（像是模型選單 `/model` 或是權限確認），可以直接用滑鼠去點擊選項了。對於會打中文、日文、韓文等全形文字的使用者，以前在某些終端機貼上這些文字會變成一堆亂碼（mojibake），現在都修復了，會正常顯示你貼的文字。另外修復了一堆容易當機的毛病：在 Remote Control 模式下，`/update` 不會再因為卡在信任確認畫面而死當、切換代理人介面也不會再造成斷線。如果你用 VS Code 重新載入超大的對話，它也不會再把整個外掛卡死。最後，上傳檔案分享（`/share`）時，如果你中途反悔，現在按 Esc 或 Ctrl+C 終於能成功打斷上傳了。這就像原本只能用按鈕死板操作的舊型自動販賣機，現在升級成支援觸控螢幕，而且不再因為你投入外國硬幣就當機，投錯錢的時候按退幣鈕也終於有反應了。",
+              "en": "The interactive experience has received a major polish! When running in fullscreen mode, you can now use your mouse to click on select menus directly (like the `/model` picker or permission prompts). For users of CJK (Chinese/Japanese/Korean) languages, pasting multi-byte characters in certain terminals used to result in a garbled mess of mojibake; this is fixed and your text will paste perfectly. We've also resolved a host of crash and hang bugs: running `/update` over Remote Control no longer hangs waiting for a startup trust dialog, navigating back and forth from the agents view won't spontaneously drop your connection, and the VS Code extension will no longer freeze when trying to resume an exceptionally massive session. Finally, if you change your mind while uploading a session via `/share`, hitting Esc or Ctrl+C will now successfully abort the upload. It's like an old vending machine that only took stiff button presses upgrading to a modern touchscreen; it no longer jams when you insert foreign coins, and the cancel button actually works if you change your mind mid-purchase."
+            },
+            "original": "Added mouse click support to select menus (permission prompts, `/model`, `/config`, etc.) in fullscreen mode\nFixed pasted Korean/CJK text turning into mojibake in terminals that deliver paste as per-byte extended-key events\nFixed Claude Code Remote sessions taking ~2.7s longer to start after the agent proxy CA system-trust install was added\nFixed `/update` over Remote Control hanging when a startup trust dialog would have shown\nFixed channel connections dropping after navigating to the agents view and back, and after `/bg`, `/tui`, or `/update`\nFixed Cmd+click not opening URLs in fullscreen mode in Ghostty on macOS\nFixed Esc, Ctrl-C, and Ctrl-D not working while `/share` is uploading\nFixed `--resume` failing with \"No conversation found\" when the original `-p` run produced no model turns\n[VSCode] Fixed extension becoming unresponsive when resuming a large session"
+          },
+          {
+            "title": {
+              "zh-TW": "實用小功能再升級，外掛大掃除更方便",
+              "en": "Handy feature upgrades make cleanup and setup easier"
+            },
+            "body": {
+              "zh-TW": "這次還送了幾個貼心的小改進。如果你想讓 AI 幫你寫 GitHub App 的設定檔（`/install-github-app`），現在設定自動部署（workflow）已經變成選配了，你可以只裝 App 就好，不用強迫走完一整套複雜流程。使用 `/btw` 回顧歷史對話時，現在可以用左右方向鍵 `←/→` 在過往的答案中輕鬆切換。管理套件的 `/plugin` 介面變得更聰明了，它會把你好久沒用的套件挑出來放在顯眼處，提醒你可以順手清一清垃圾。而且系統在印出求救手冊（`claude --help`）時，終於記得把在背景執行的 `--bg` 參數寫進去了，不再當作隱藏秘技。這就像是你的工具箱升級了，現在買電動起子不強迫你連整組鑽頭一起買，歷史翻頁就像滑手機一樣順暢，而且抽屜會自動把長滿灰塵的舊工具推到最前面問你要不要丟掉。",
+              "en": "We've added a handful of thoughtful quality-of-life improvements. When setting up a GitHub App (`/install-github-app`), generating the automated workflows and secrets is now completely optional, letting you install just the App itself without forcing you through a heavy CI/CD setup process. When reviewing past answers using `/btw`, you can now effortlessly step through history using the left and right `←/→` arrow keys. The plugin manager (`/plugin`) got smarter too: it now explicitly surfaces add-ons you haven't used recently, making it much easier to do some spring cleaning. Finally, when you ask for the manual (`claude --help`), it finally lists the `--bg` flag instead of keeping background mode an undocumented secret. It's like your digital toolbox got a sensible upgrade: you can now buy a power drill without being forced to buy the 100-piece bit set, flipping through history is as easy as swiping on your phone, and your drawers automatically push dusty, forgotten tools to the front so you can finally throw them out."
+            },
+            "original": "Improved `/install-github-app`: GitHub Actions workflow setup is now optional — you can install just the GitHub App and skip the workflow/secret steps\nImproved `/btw` with ←/→ arrow navigation to step through earlier answers\nImproved `/plugin` to surface plugins you haven't used recently so you can clean them up\nFixed `claude --help` not listing the `--bg`/`--background` flag"
+          }
+        ]
+      },
+      "badges": [
+        "new",
+        "fix",
+        "fix",
+        "new"
+      ]
+    },
+    {
       "version": "2.1.186",
       "raw": {
         "version": "2.1.186",
