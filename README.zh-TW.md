@@ -2,7 +2,7 @@
 
 [English](README.md) | 繁體中文
 
-AI Updates 追蹤 Claude Code、Codex、Antigravity、Grok Build、Usage 與 GitHub CLI 的官方 changelog。它保存不可覆寫的官方原文紀錄，提供 AI 改寫的繁中與英文白話速報（zh-TW、en），每則都由另一個 AI 模型對照官方原文查核，並產出靜態網站與相容應用程式使用的資料 feed。
+AI Updates 追蹤 Claude Code、Codex、Antigravity、Grok Build、Muse Code、Usage 與 GitHub CLI 的官方 changelog。它保存不可覆寫的官方原文紀錄，提供 AI 改寫的繁中與英文白話速報（zh-TW、en），每則都由另一個 AI 模型對照官方原文查核，並產出靜態網站與相容應用程式使用的資料 feed。
 
 ## 網站
 
@@ -16,6 +16,7 @@ https://aqua5230.github.io/ai-updates/
 | Codex | [OpenAI Codex releases](https://api.github.com/repos/openai/codex/releases) |
 | Antigravity | [Antigravity CLI changelog](https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md)（公開來源不可用時退回本機 `scripts/sync_agy.py`） |
 | Grok Build | [Grok Build changelog](https://x.ai/changelog/build)（x.ai 擋直接抓取，經 [Jina Reader](https://jina.ai/reader/) 轉抓） |
+| Muse Code | [Muse Code changelog](https://dev.meta.ai/docs/muse-code/changelog)（官方頁沒有發布日期，用第一次抓到的日期） |
 | Usage | [Usage changelog](https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md) |
 | GitHub CLI | [GitHub CLI releases](https://api.github.com/repos/cli/cli/releases) |
 

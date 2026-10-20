@@ -2,7 +2,7 @@
 
 English | [繁體中文](README.zh-TW.md)
 
-AI Updates tracks the official changelogs for Claude Code, Codex, Antigravity, Grok Build, Usage, and GitHub CLI. It preserves immutable source records, supports AI-written plain-language updates in Traditional Chinese (zh-TW) and English (en), each fact-checked against the official text by a second AI model, and publishes feeds for a static website and compatible applications.
+AI Updates tracks the official changelogs for Claude Code, Codex, Antigravity, Grok Build, Muse Code, Usage, and GitHub CLI. It preserves immutable source records, supports AI-written plain-language updates in Traditional Chinese (zh-TW) and English (en), each fact-checked against the official text by a second AI model, and publishes feeds for a static website and compatible applications.
 
 ## Website
 
@@ -16,6 +16,7 @@ https://aqua5230.github.io/ai-updates/
 | Codex | [OpenAI Codex releases](https://api.github.com/repos/openai/codex/releases) |
 | Antigravity | [Antigravity CLI changelog](https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md) (falls back to local `scripts/sync_agy.py` if public source is unavailable) |
 | Grok Build | [Grok Build changelog](https://x.ai/changelog/build) (fetched through [Jina Reader](https://jina.ai/reader/) because x.ai blocks direct requests) |
+| Muse Code | [Muse Code changelog](https://dev.meta.ai/docs/muse-code/changelog) (no release dates on the page; the date a version is first fetched is used) |
 | Usage | [Usage changelog](https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md) |
 | GitHub CLI | [GitHub CLI releases](https://api.github.com/repos/cli/cli/releases) |
 

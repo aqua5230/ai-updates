@@ -20,6 +20,7 @@ TOOLS = (
     ("codex", "Codex"),
     ("agy", "Antigravity"),
     ("grok_build", "Grok Build"),
+    ("muse_code", "Muse Code"),
     ("usage", "Usage"),
     ("gh_cli", "GitHub CLI"),
 )
@@ -31,6 +32,7 @@ TOOL_OPERATING_SYSTEMS = {
     "codex": "macOS, Windows, Linux",
     "agy": "macOS, Windows, Linux",
     "grok_build": "macOS, Windows, Linux",
+    "muse_code": "macOS, Windows, Linux",
     "usage": "macOS, Windows",
     "gh_cli": "macOS, Windows, Linux",
 }
@@ -895,8 +897,8 @@ def _render_static_page(
     image_url = _og_image_url(tool_id, version_name, english)
     image_alt = (
         title if image_url != f"{SITE_URL}og-image.png" else
-        "AI Updates: Plain-language AI tool release notes for Claude Code, Codex, Antigravity, Grok Build, Usage, and GitHub CLI" if english else
-        "AI Updates：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Grok Build、Usage、GitHub CLI 官方更新"
+        "AI Updates: Plain-language AI tool release notes for Claude Code, Codex, Antigravity, Grok Build, Muse Code, Usage, and GitHub CLI" if english else
+        "AI Updates：AI 工具更新速報，追蹤 Claude Code、Codex、Antigravity、Grok Build、Muse Code、Usage、GitHub CLI 官方更新"
     )
     site = {"@type": "Organization", "name": "AI Updates", "url": SITE_URL}
     structured_data = [
@@ -1017,7 +1019,7 @@ def _write_not_found_page() -> None:
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>找不到頁面 · AI 工具更新速報</title>
-  <meta name="description" content="這個網址不存在或已經失效。回到 AI 工具更新速報首頁，查看六個工具的最新版本與歷史紀錄。">
+  <meta name="description" content="這個網址不存在或已經失效。回到 AI 工具更新速報首頁，查看七個工具的最新版本與歷史紀錄。">
   <meta name="robots" content="noindex, follow">
   <link rel="icon" href="{SITE_URL}favicon.svg" type="image/svg+xml">
   <link rel="alternate" type="application/rss+xml" title="AI Updates" href="{SITE_URL}feed.xml">
@@ -1028,7 +1030,7 @@ def _write_not_found_page() -> None:
   {GOATCOUNTER_SCRIPT}
 </head>
 <body>
-  <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="頁面路徑"><ol><li><a href="{SITE_URL}">AI Updates</a></li><li aria-current="page">404</li></ol></nav><h1 class="version-heading">404</h1><p class="release-period">找不到這個頁面 · Page not found</p></header><main><div class="log-item-card"><p class="log-prose-text">這個網址不存在，或是版本號打錯了。首頁列出六個工具的最新版本，每個工具都能往回翻完整的歷史紀錄。</p><p class="log-prose-text" lang="en">This page does not exist. The home page lists the latest release for all six tools, each with its full version history.</p><nav class="error-tools" aria-label="工具導覽"><p>工具導覽</p><ul><li><a href="{SITE_URL}#claude_code">Claude Code</a></li><li><a href="{SITE_URL}#codex">Codex</a></li><li><a href="{SITE_URL}#agy">Antigravity</a></li><li><a href="{SITE_URL}#grok_build">Grok Build</a></li><li><a href="{SITE_URL}#usage">Usage</a></li><li><a href="{SITE_URL}#gh_cli">GitHub CLI</a></li></ul></nav><div class="error-actions"><a href="{SITE_URL}">回到首頁</a><a href="{SITE_URL}feed.xml">訂閱 RSS</a></div></div></main></div>
+  <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="頁面路徑"><ol><li><a href="{SITE_URL}">AI Updates</a></li><li aria-current="page">404</li></ol></nav><h1 class="version-heading">404</h1><p class="release-period">找不到這個頁面 · Page not found</p></header><main><div class="log-item-card"><p class="log-prose-text">這個網址不存在，或是版本號打錯了。首頁列出七個工具的最新版本，每個工具都能往回翻完整的歷史紀錄。</p><p class="log-prose-text" lang="en">This page does not exist. The home page lists the latest release for all seven tools, each with its full version history.</p><nav class="error-tools" aria-label="工具導覽"><p>工具導覽</p><ul><li><a href="{SITE_URL}#claude_code">Claude Code</a></li><li><a href="{SITE_URL}#codex">Codex</a></li><li><a href="{SITE_URL}#agy">Antigravity</a></li><li><a href="{SITE_URL}#grok_build">Grok Build</a></li><li><a href="{SITE_URL}#muse_code">Muse Code</a></li><li><a href="{SITE_URL}#usage">Usage</a></li><li><a href="{SITE_URL}#gh_cli">GitHub CLI</a></li></ul></nav><div class="error-actions"><a href="{SITE_URL}">回到首頁</a><a href="{SITE_URL}feed.xml">訂閱 RSS</a></div></div></main></div>
 </body>
 </html>
 """

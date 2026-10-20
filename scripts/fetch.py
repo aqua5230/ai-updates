@@ -12,6 +12,7 @@ import time
 import urllib.error
 import urllib.request
 from datetime import UTC, date, datetime
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +36,8 @@ USAGE_CHANGELOG_URL = "https://raw.githubusercontent.com/aqua5230/usage/main/CHA
 GROK_CHANGELOG_URL = "https://x.ai/changelog/build"
 # x.ai 直接抓會回 403，改經 Jina Reader 轉成 Markdown 再解析。
 GROK_READER_URL = f"https://r.jina.ai/{GROK_CHANGELOG_URL}"
+MUSE_CHANGELOG_URL = "https://dev.meta.ai/docs/muse-code/changelog"
+MUSE_VERSION = re.compile(r"^\d+(\.\d+)+$")
 VERSION_HEADING = re.compile(r"^##\s+\[?[vV]?([^\]\s]+)\]?(?:\s|$)")
 KEEPACHANGELOG_HEADING = re.compile(
     r"^##\s+\[([^\]]+)\]\s*-\s*(\d{4}-\d{2}-\d{2})\s*$"
@@ -206,6 +209,71 @@ def parse_grok_changelog(text: str) -> list[tuple[str, str, list[str]]]:
             entries.append(line[2:].strip())
     finish_version()
     return versions
+
+
+class _MuseChangelogParser(HTMLParser):
+    """Read only the official docs article, excluding navigation and the outline."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.versions: list[tuple[str, list[str]]] = []
+        self.in_article = False
+        self.heading: list[str] | None = None
+        self.version: str | None = None
+        self.entries: list[str] = []
+        self.entry: list[str] | None = None
+
+    def _finish_version(self) -> None:
+        if self.version is not None:
+            self.versions.append((self.version, self.entries))
+        self.version = None
+        self.entries = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "article" and dict(attrs).get("data-docs-article") == "true":
+            self.in_article = True
+        if not self.in_article:
+            return
+        if tag == "h2":
+            self._finish_version()
+            self.heading = []
+        elif tag == "li" and self.version is not None:
+            self.entry = []
+        elif tag == "code" and self.entry is not None:
+            self.entry.append("`")
+        elif tag == "br" and self.entry is not None:
+            self.entry.append(" ")
+
+    def handle_endtag(self, tag: str) -> None:
+        if not self.in_article:
+            return
+        if tag == "h2" and self.heading is not None:
+            heading = " ".join("".join(self.heading).split())
+            self.version = heading if MUSE_VERSION.fullmatch(heading) else None
+            self.heading = None
+        elif tag == "code" and self.entry is not None:
+            self.entry.append("`")
+        elif tag == "li" and self.entry is not None:
+            self.entries.append(" ".join("".join(self.entry).split()))
+            self.entry = None
+        elif tag == "article":
+            self._finish_version()
+            self.in_article = False
+
+    def handle_data(self, data: str) -> None:
+        if not self.in_article:
+            return
+        if self.heading is not None:
+            self.heading.append(data)
+        elif self.entry is not None:
+            self.entry.append(data)
+
+
+def parse_muse_changelog(text: str) -> list[tuple[str, list[str]]]:
+    parser = _MuseChangelogParser()
+    parser.feed(text)
+    parser.close()
+    return parser.versions
 
 
 _RELEASE_TAG_PREFIX = re.compile(r"^(?:rust-v|v)")
@@ -396,8 +464,8 @@ def fetch_gh_cli(count: int = 20) -> int:
     return sum(_write_raw("gh_cli", record) for record in selected)
 
 
-def fetch_grok_build(count: int = 5) -> int:
-    # 加入時只補最近 5 版，避免一次翻譯整串歷史；之後每天抓，5 版夠蓋過幾天沒跑的空窗。
+def fetch_grok_build(count: int = 15) -> int:
+    # Grok 幾乎一天一版；原本只抓 5 版，10/15～10/19 的空窗漏掉 1.0.53～1.0.57，改抓 15 版。
     today = date.today().isoformat()
     records = [
         {
@@ -415,6 +483,34 @@ def fetch_grok_build(count: int = 5) -> int:
     return sum(_write_raw("grok_build", record) for record in selected)
 
 
+def fetch_muse_code() -> int:
+    versions = parse_muse_changelog(fetch_text(MUSE_CHANGELOG_URL))
+    if not versions:
+        raise ValueError("Muse Code changelog contained no versions")
+    versions.sort(key=lambda item: tuple(map(int, item[0].split("."))), reverse=True)
+    existing = [
+        tuple(map(int, path.stem.split(".")))
+        for path in (RAW_ROOT / "muse_code").glob("*.json")
+        if MUSE_VERSION.fullmatch(path.stem)
+    ]
+    if existing:
+        latest = max(existing)
+        selected = [item for item in versions if tuple(map(int, item[0].split("."))) > latest]
+    else:
+        selected = versions[:1]
+    today = date.today().isoformat()
+    return sum(
+        _write_raw("muse_code", {
+            "version": version,
+            "period": today,
+            "source_url": MUSE_CHANGELOG_URL,
+            "fetched_at": today,
+            "entries": entries,
+        })
+        for version, entries in selected
+    )
+
+
 def main() -> int:
     failures: list[tuple[str, str | None, Exception]] = []
     for tool_id, fetcher in (
@@ -422,6 +518,7 @@ def main() -> int:
         ("codex", fetch_codex),
         ("agy", fetch_agy),
         ("grok_build", fetch_grok_build),
+        ("muse_code", fetch_muse_code),
         ("usage", fetch_usage),
         ("gh_cli", fetch_gh_cli),
     ):

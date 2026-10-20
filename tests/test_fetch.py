@@ -119,6 +119,100 @@ def test_parse_gh_cli_releases_fixture() -> None:
     ]
 
 
+def test_parse_muse_changelog_fixture() -> None:
+    text = (FIXTURES / "muse_changelog.html").read_text(encoding="utf-8")
+
+    assert fetch.parse_muse_changelog(text) == [
+        ("1.4.10", ["Added `/blender` to reconstruct reference images as editable Blender scenes"]),
+        ("1.4.9", [
+            "`--disable-request-user-input` (TUI, `muse exec`, `muse serve`) withholds "
+            "`request_user_input` from the main conversation (side chats keep it), so an "
+            "unattended run never stops to wait on a question; a call naming it gets an "
+            "unavailable-tool error instead. `--yolo` implies the flag on the TUI and `muse exec`"
+        ]),
+    ]
+
+
+def test_parse_muse_changelog_excludes_non_versions_and_navigation() -> None:
+    text = """<nav><h2>9.0.0</h2><ul><li>Sidebar</li></ul></nav>
+<article data-docs-article="true">
+<h2><a><span>1.2.3</span></a></h2><h3>New</h3>
+<ul><li>  Use <code>muse   exec</code> &amp;\n continue. </li></ul>
+<h3>Fixes</h3><ul><li>Fixed <strong>startup</strong>.</li></ul>
+<h2>1.0.x</h2><ul><li>Not a numeric version</li></ul>
+<h2>0.1.x</h2><ul><li>Also not a numeric version</li></ul>
+</article><aside><nav aria-label="On this page"><ul><li>1.2.3</li></ul></nav></aside>"""
+
+    assert fetch.parse_muse_changelog(text) == [
+        ("1.2.3", ["Use `muse exec` & continue.", "Fixed startup."]),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("existing", "expected"),
+    [
+        (None, ["1.4.10"]),
+        ("1.4.8", ["1.4.10", "1.4.9"]),
+        ("1.4.9", ["1.4.10"]),
+        ("1.4.10", []),
+    ],
+)
+def test_fetch_muse_code_selects_new_versions(tmp_path, monkeypatch, existing, expected) -> None:
+    text = (FIXTURES / "muse_changelog.html").read_text(encoding="utf-8")
+    urls = []
+
+    def fetch_text(url):
+        urls.append(url)
+        return text
+
+    monkeypatch.setattr(fetch, "RAW_ROOT", tmp_path)
+    monkeypatch.setattr(fetch, "fetch_text", fetch_text)
+    directory = tmp_path / "muse_code"
+    directory.mkdir()
+    (directory / "9.0.x.json").write_text("ignored")
+    if existing:
+        (directory / f"{existing}.json").write_text("immutable")
+
+    assert fetch.fetch_muse_code() == len(expected)
+    assert urls == [fetch.MUSE_CHANGELOG_URL]
+    assert {p.stem for p in directory.glob("*.json")} == {
+        "9.0.x", *expected, *([existing] if existing else []),
+    }
+    entries = dict(fetch.parse_muse_changelog(text))
+    for version in expected:
+        assert json.loads((directory / f"{version}.json").read_text()) == {
+            "version": version,
+            "period": fetch.date.today().isoformat(),
+            "fetched_at": fetch.date.today().isoformat(),
+            "source_url": fetch.MUSE_CHANGELOG_URL,
+            "entries": entries[version],
+        }
+    if existing:
+        assert (directory / f"{existing}.json").read_text() == "immutable"
+
+
+def test_fetch_muse_code_rejects_empty_changelog(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(fetch, "RAW_ROOT", tmp_path)
+    monkeypatch.setattr(fetch, "fetch_text", lambda url: "<html></html>")
+
+    with pytest.raises(ValueError, match="^Muse Code changelog contained no versions$"):
+        fetch.fetch_muse_code()
+    assert not list(tmp_path.iterdir())
+
+
+def test_fetch_grok_build_defaults_to_fifteen_versions(tmp_path, monkeypatch) -> None:
+    text = "October 19, 2026\n" + "".join(
+        f"## Grok Build 1.0.{patch}\n* Release {patch}\n" for patch in range(62, 46, -1)
+    )
+    monkeypatch.setattr(fetch, "RAW_ROOT", tmp_path)
+    monkeypatch.setattr(fetch, "fetch_text", lambda url: text)
+
+    assert fetch.fetch_grok_build() == 15
+    assert {path.stem for path in (tmp_path / "grok_build").glob("*.json")} == {
+        f"1.0.{patch}" for patch in range(48, 63)
+    }
+
+
 def test_release_body_entries_ignores_changelog_pr_list() -> None:
     body = """## New Features
 - Added a faster installer.
@@ -259,11 +353,12 @@ def test_main_continues_after_single_fetcher_failure(monkeypatch, capsys) -> Non
     monkeypatch.setattr(fetch, "fetch_codex", lambda: succeed("codex"))
     monkeypatch.setattr(fetch, "fetch_agy", lambda: succeed("agy"))
     monkeypatch.setattr(fetch, "fetch_grok_build", lambda: succeed("grok_build"))
+    monkeypatch.setattr(fetch, "fetch_muse_code", lambda: succeed("muse_code"))
     monkeypatch.setattr(fetch, "fetch_usage", lambda: succeed("usage"))
     monkeypatch.setattr(fetch, "fetch_gh_cli", lambda: succeed("gh_cli"))
 
     assert fetch.main() == 1
-    assert calls == ["claude_code", "codex", "agy", "grok_build", "usage", "gh_cli"]
+    assert calls == ["claude_code", "codex", "agy", "grok_build", "muse_code", "usage", "gh_cli"]
     assert capsys.readouterr().err == (
         "fetch failed: claude_code https://example.invalid/claude: <urlopen error offline>\n"
     )
@@ -284,11 +379,12 @@ def test_main_continues_after_truncated_download(monkeypatch) -> None:
     monkeypatch.setattr(fetch, "fetch_codex", truncated)
     monkeypatch.setattr(fetch, "fetch_agy", lambda: succeed("agy"))
     monkeypatch.setattr(fetch, "fetch_grok_build", lambda: succeed("grok_build"))
+    monkeypatch.setattr(fetch, "fetch_muse_code", lambda: succeed("muse_code"))
     monkeypatch.setattr(fetch, "fetch_usage", lambda: succeed("usage"))
     monkeypatch.setattr(fetch, "fetch_gh_cli", lambda: succeed("gh_cli"))
 
     assert fetch.main() == 1
-    assert calls == ["claude_code", "codex", "agy", "grok_build", "usage", "gh_cli"]
+    assert calls == ["claude_code", "codex", "agy", "grok_build", "muse_code", "usage", "gh_cli"]
 
 
 def test_request_retries_connection_reset_then_succeeds(monkeypatch) -> None:
