@@ -1,0 +1,72 @@
+{
+  "version": "1.0.53",
+  "period": "2026-10-12",
+  "items": [
+    {
+      "title": {
+        "zh-TW": "長任務與工作流程加強防呆，暫停閒置目標並保護核准按鍵",
+        "en": "Safeguards tighten for long tasks and workflows, pausing idle goals and protecting approval keystrokes"
+      },
+      "body": {
+        "zh-TW": "當自動化任務持續運作時，隨意中斷或背景空轉都會打亂排程。⟦正如大樓的自動防護系統，以前隨手切斷開關便會直接終止作業；現在中控台會要求再次確認，防止未完工的流程停擺。⟧結束時若會終止執行中的工作流程，會先提出警告並要求第二次 quit 確認。`/goal` 連續三次繼續執行卻未呼叫工具時會主動暫停，輸入 `/goal resume` 即可接續。若有等待核准的請求，輸入 `/fork` 會被拒絕，確保按鍵繼續回應請求。`/workflow stop` 與 `/workflow pause` 不再以寬鬆模糊比對選取執行個體。在無頭模式（headless，沒有終端機視覺介面的執行模式）下以 `-p` 執行時，遭拒的核准請求會印至 stderr。工作流程檢視會列出宣告階段外的代理人，且只將結束者算入 done。",
+        "en": "When automated tasks run continuously, accidental interruptions or background idling can disrupt schedules. ⟦Picture an automated building safety system where flicking a switch previously cut off operations immediately, whereas the control panel now asks for a second confirmation to prevent unfinished routines from stalling.⟧ Exiting when it would terminate an active workflow now raises a warning and requires a second quit confirmation. When `/goal` continues three consecutive times without calling any tools, it automatically pauses, and entering `/goal resume` resumes execution. If approval requests are pending, entering `/fork` is rejected to ensure keystrokes continue responding to prompts. `/workflow stop` and `/workflow pause` no longer pick instances through loose fuzzy matching. Running with `-p` in headless mode (execution without a visual terminal interface) prints rejected approval requests to stderr. The workflow view lists agents outside declaration phases and counts only finished ones toward done."
+      },
+      "original": "`/goal` pauses after three continuations in a row with no tool call; run `/goal resume` to continue\nQuitting warns when it would stop a running workflow and asks you to confirm with a second quit\n`/fork` is refused while an approval request is open, so the approval keys keep answering that request\n`/workflow stop` and `/workflow pause` no longer pick a run from a loose fuzzy match, and headless `-p` runs print each refused approval request to stderr\nWorkflow run views list agents outside a declared phase and count only finished agents as done"
+    },
+    {
+      "title": {
+        "zh-TW": "工作階段清單略過損毀目錄，多視窗寫入完整記錄用量",
+        "en": "Session listings skip corrupted directories, preserving usage across multi-window writes"
+      },
+      "body": {
+        "zh-TW": "在多視窗或多終端機環境切換操作時，對話紀錄與執行狀態的保存往往攸關工作延續。以前只要有單一工作階段目錄無法讀取，`grok sessions list` 與 `/resume` 就會整批中斷；現在會自動略過異常資料夾，讓其餘正常紀錄順利列出與接續。當兩個視窗同時寫入同一個工作階段時，每一輪對話的用量紀錄現在都會完整保留，不再相互覆蓋。常駐 shell 即使還原先前狀態失敗，依然會如常執行你輸入的指令。從專案子資料夾建立工作樹（worktree，Git 讓同一專案平行開多份副本的功能）時，`grok worktree list` 與 `grok worktree show` 都會正確以儲存庫根目錄為來源回報。",
+        "en": "When switching across multiple windows or terminal environments, preserving conversation logs and execution states is vital for continuity. Previously, if a single session directory was unreadable, `grok sessions list` and `/resume` would abort entirely. They now automatically skip faulty directories, letting remaining valid records list and resume normally. When two windows write to the same session simultaneously, usage records for every turn are now fully preserved instead of overwriting each other. Persistent shells still execute your typed commands as usual even if restoring prior state fails. When creating a worktree (a Git feature that keeps multiple parallel copies of the same project) from a project subfolder, `grok worktree list` and `grok worktree show` correctly report from the repository root."
+      },
+      "original": "Worktrees created from a repository subfolder report the repository root as their source in `grok worktree list` and `grok worktree show`\nPersistent shell runs your command even when restoring its saved state fails\n`grok sessions list` and `/resume` keep working when one session directory is unreadable\nSession usage keeps every turn when two windows write to the same session"
+    },
+    {
+      "title": {
+        "zh-TW": "外掛與掛鉤載入異常明朗化，設定檢查會警告非布林值",
+        "en": "Plugin and hook loading errors gain visibility, with config checks warning on non-boolean values"
+      },
+      "body": {
+        "zh-TW": "自訂擴充功能或調整環境參數時，清晰的錯誤提示能省下大量摸索時間。現在執行 `/hooks` 會清楚列出行內掛鉤（hook，特定事件發生時被觸發的小程式）與外掛載入時發生的錯誤。你手動停用的掛鉤，在記錄停用的檔案無法讀取時依然會保持停用。在 Linux 上安裝外掛時，若 `grok plugin install` 在複製中途被中斷，不再留下殘缺資料夾阻礙重新安裝。當 config.toml 中的已知 `[features]` 鍵值包含非布林值時，`grok inspect` 會發出警告。輸入 `/docs` 會直接開啟你鍵入的精確指南或挑選器。單純執行 `grok --help` 與 `grok --version` 時，不會再自動建立 `.grok` 資料夾。",
+        "en": "Clear error diagnostics save substantial troubleshooting time when customizing extensions or adjusting environment parameters. Running `/hooks` now clearly lists errors encountered while loading inline hooks (small programs triggered when a specific event occurs) and plugins. Hooks you manually disable remain disabled even if the file recording disabled entries cannot be read. When installing plugins on Linux, interrupting `grok plugin install` mid-copy no longer leaves corrupted folders that block reinstallation. When known `[features]` keys in config.toml contain non-boolean values, `grok inspect` issues a warning. Entering `/docs` directly opens your exact typed guide or picker. Simply running `grok --help` and `grok --version` no longer automatically creates a `.grok` folder."
+      },
+      "original": "`/hooks` lists load errors from inline hooks and from plugins\n`grok --help` and `grok --version` no longer create a `.grok` folder\n`grok plugin install` interrupted mid-clone on Linux no longer leaves a partial folder that blocks the retry\nHooks you disabled stay disabled when the disabled-hooks file cannot be read\n`/docs` opens the exact guide or picker you type\n`grok inspect` warns when a known `[features]` key in config.toml has a non-boolean value"
+    },
+    {
+      "title": {
+        "zh-TW": "終端機指令折行自動整併，黑白環境以增減號標記差異",
+        "en": "Wrapped terminal commands join automatically, with monochrome diffs marking changes using plus and minus signs"
+      },
+      "body": {
+        "zh-TW": "在終端機中檢視長輸出與比對程式碼時，排版細節直接影響操作的流暢度。⟦好比在多欄排版的收據上複製長序號，以前只要號碼被折到下一行，手動剪下就得自己刪除多餘換行；現在選取折行內容會自動連成完整文字，一貼就能直接使用。⟧工具與背景任務列中折行顯示的 shell 指令，複製時會自動還原為單行文字。工具標頭中折行的網址，現在每一行都能點擊連向完整地址。同時編輯多個檔案時，會明確標註本次編輯還改動了多少其他檔案。當關閉色彩顯示時，編輯差異比對會以 `-` 與 `+` 標記刪除與新增行。讀取目錄清單失敗時，清單會自動展開顯示失敗原因。",
+        "en": "Layout details directly shape workflow smoothness when reviewing long terminal output and comparing code. ⟦Think of copying a long serial number from a multi-column receipt, where wrapped lines previously required manually deleting stray breaks after cutting, whereas selecting wrapped text now automatically joins into continuous text ready to paste directly.⟧ Shell commands displayed across wrapped lines in tool and background task rows automatically restore to a single line when copied. Wrapped URLs in tool headers can now be clicked on any line to navigate to the complete address. When editing multiple files simultaneously, the view explicitly notes how many other files this edit touches. When color output is disabled, edit diffs mark deleted and added lines with `-` and `+`. If reading a directory listing fails, the list automatically expands to show the reason for failure."
+      },
+      "original": "Wrapped shell commands in tool and background-task rows copy back as one line\nMulti-file edits show how many other files the edit changed\nWrapped URLs in tool headers link to the full address on every row\nEdit diffs mark removed and added lines with `-` and `+` when color is off\nFailed directory listings expand to show why they failed"
+    },
+    {
+      "title": {
+        "zh-TW": "輸入焦點與反饋草稿加強防護，快捷送出避開背景卡片",
+        "en": "Input focus and feedback drafts gain protections, with instant submissions bypassing background cards"
+      },
+      "body": {
+        "zh-TW": "在終端機輸入回覆或反饋時，最怕突如其來的提示視窗搶走游標焦點。⟦跟在郵局櫃檯填單一樣，以前只要後方號碼牌一響或專員遞件，手上的表格就會被收走；現在檯面保留你的書寫空間，讓你從容寫完手頭內容。⟧在輸入 `/feedback` 時，即使中途收到權限請求、提問或外部工具提示，反饋視窗依然會維持開啟。讀取反饋草稿時，即便有單一草稿損毀，其餘有效草稿仍會正常載入。輸入 `@` 提及檔案時，會重複使用暫存的檔案清單，直到資料夾結構改變才重新掃描，讓候選建議更快出現。嘗試編輯排隊中的指令（例如 `/compact`）時會跳出提示並拒絕操作，完整保留你剛鍵入的新文字。按 `Ctrl+Enter` 立即送出時，不再會誤回答停止子代理人面板或外部工具提示卡片。",
+        "en": "When typing responses or feedback in the terminal, sudden popups stealing cursor focus are especially disruptive. ⟦Like filling out forms at a post office counter where a chiming ticket or an arriving clerk previously whisked away your paperwork, the desk now reserves your writing space so you can finish the task at hand unhurriedly.⟧ When entering `/feedback`, the feedback window stays open even if permission prompts, questions, or external tool notices arrive in the background. When loading feedback drafts, remaining valid drafts still load normally even if a single draft is corrupted. Typing `@` to mention files reuses a cached file list until directory structures change before rescanning, making suggestions appear faster. Attempting to edit a queued command (such as `/compact`) displays a prompt and rejects the action, fully preserving your newly typed text. Pressing `Ctrl+Enter` to submit immediately no longer accidentally answers stop subagent panels or external tool prompt cards."
+      },
+      "original": "`/feedback` stays open while you type when a permission request, question, or MCP prompt arrives\n`/feedback` Drafts load the valid drafts when one saved draft is invalid\nEditing a queued command such as `/compact` is refused with a message, so your new text is kept\nSend now (`Ctrl+Enter`) no longer answers the stop-subagents panel or an MCP prompt card\n@-mentions reuse the file list until the folder tree changes, so suggestions appear faster"
+    },
+    {
+      "title": {
+        "zh-TW": "外部工具支援平行輸入提示，啟動旗標落實互動介面權限",
+        "en": "External tools support parallel input prompts, with launch flags enforcing interactive terminal permissions"
+      },
+      "body": {
+        "zh-TW": "透過外接工具擴充 AI 的操作能力時，精準的權限範圍與清晰的互動提示格外關鍵。啟動時設定的 `--tools` 與 `--disallowed-tools` 工具名單，現在於互動式終端介面中也會生效。當模型透過 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）平行呼叫多個需要輸入的工具時，各呼叫會分別顯示自己的提示。設定標準輸入輸出形式的 Stdio MCP 伺服器時，指令與參數開頭的波浪號 `~` 會被展開。`~` 現在會自動展開成你的家目錄，不必手打絕對路徑；平行呼叫各自顯示自己的提示卡片。",
+        "en": "Expanding AI capabilities through external tools demands precise permission boundaries and clear interactive prompts. The `--tools` and `--disallowed-tools` lists configured at launch now take effect inside the interactive terminal interface as well. When models make parallel calls through MCP (Model Context Protocol, a protocol for connecting AI to external tools) to multiple tools requiring input, each call displays its own prompt. When configuring stdio MCP servers, a leading tilde `~` in commands and arguments is expanded. `~` now automatically expands into your home directory without manually typing absolute paths, and parallel calls display their own distinct prompt cards."
+      },
+      "original": "`--tools` and `--disallowed-tools` also apply in the interactive TUI\nParallel MCP tool calls that ask for input each show their own prompt\nStdio MCP servers expand a leading `~` in their command and arguments to your home directory"
+    }
+  ]
+}
