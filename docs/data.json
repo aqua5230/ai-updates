@@ -1368,156 +1368,135 @@
       "id": "agy",
       "name": "Antigravity",
       "latest": {
-        "version": "1.4.3",
+        "version": "1.4.4",
         "raw": {
-          "version": "1.4.3",
-          "period": "2026-10-20",
+          "version": "1.4.4",
+          "period": "2026-10-21",
           "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-          "fetched_at": "2026-10-20",
+          "fetched_at": "2026-10-21",
           "entries": [
-            "Added `/` search to the `/diff` file list and file view: matches are highlighted as you type, the search prompt shows how many matches the diff and each file contain, `Enter` jumps to the first match, and `n`/`N` step through matches one at a time across every file, with `match A/B` in the file view header. `n`/`N` in the artifact viewer now also step through matches one at a time, including several on the same line, instead of jumping from line to line.",
-            "Improved `agy plugin validate` to also check a plugin's hooks, sidecars, and component lists: it reports an error when `hooks.json`, a `sidecar.json`, or a `skills.json`, `rules.json`, `agents.json`, or `sidecars.json` file can't be parsed, and warns about unknown hook events, hook matchers that aren't valid regular expressions and so never match, a `hooks/hooks.json` file (which isn't read), list entries with no path or with a path missing from the plugin, `commands/` folders and `workflows/` Markdown files (which plugins don't load), and a Claude Code-style top-level `\"hooks\"` key, which loads as a single hook named `hooks`.",
-            "Improved timer labels in `/tasks` and the active task list to show durations in days, hours, minutes, and seconds, such as `1d 2h timer` or `5m timer`, instead of raw seconds such as `93784s timer`.",
-            "Fixed Gemini 4 Argon not shown in `/model` and `--model` when you connect with a `GEMINI_API_KEY`.",
-            "Fixed the CLI offering options that need the terminal sandbox on systems where it can't run, such as Linux systems that block unprivileged user namespaces and Windows before Windows 11 24H2.",
-            "Fixed subagents and custom agents in Auto mode asking you to approve every command that would leave the terminal sandbox; like the main agent's, their commands are now first reviewed by a separate agent, so safe commands run without asking and risky ones still prompt you.",
-            "Fixed the agent losing track of its most recently started subagents after a conversation was compacted, because the summary included each subagent's full initial prompt and was cut off before their conversation IDs; the summary now keeps only each subagent's type, role, and result, which also leaves more room in the context window.",
-            "Fixed a `PostToolUse` hook that fails to run, for example because its command is missing, exits with an error, times out, or prints invalid JSON, marking the tool call it follows as failed even though the tool succeeded; the failure is now logged and the tool keeps its result.",
-            "Fixed the agent failing to create empty files such as `__init__.py` or `.gitkeep`, and failing to write or edit regular project files with `... is not a valid artifact path` when the model sent blank artifact details.",
-            "Fixed updating or reinstalling a marketplace plugin on Windows leaving it half-deleted when another `agy` session, the Antigravity desktop app, or the Remote Control background service had it open; the installed plugin now stays intact until the new copy is in place, and the previous version is restored if the replacement fails.",
-            "Fixed `agy plugin install` and `agy plugin import` writing color codes into piped or redirected output, ignoring `NO_COLOR`, and showing raw codes in older Windows consoles; like `agy plugin validate`, they now use color only in a terminal and follow `NO_COLOR`, `CLICOLOR`, and `CLICOLOR_FORCE`.",
-            "Fixed Remote Control on iPhone and iPad asking you to accept the `Security Notice & Data Use` terms and showing the `Enable Notifications` prompt again every time you reopened it; it now remembers your answers, along with your theme, layout, and dismissed tips.",
-            "Fixed the prompt cursor appearing in the wrong place after resizing the terminal (sometimes on the `↑ N more lines` indicator or below the input box), when a slash command's completion hint didn't fit on the last line of the prompt (the hint is now shortened or left out), when the prompt was taller than the terminal, after pressing `Up` or `Down` onto a line with CJK characters or emoji, and after entering Vim visual mode, which also rewrapped the text.",
-            "Fixed the cursor drifting on lines with emoji such as 👩‍💻, 👍🏽, or ⚠️ inside tmux 3.6 and later, and after returning from your external editor (`Ctrl+G`) or a `Ctrl+Z` suspend in terminals that support grapheme-cluster widths.",
-            "Fixed the cursor drifting and lines wrapping too early under Japanese, Chinese, or Korean locales such as `LANG=ja_JP.UTF-8` when text contains characters like `→`, `…`, `─`, or `•`, which parts of the CLI counted as two columns wide while the rest drew them as one.",
-            "Fixed `Left`, `Right`, `Backspace`, and `Delete` in the prompt and other text boxes moving over or deleting only part of an emoji such as 👩‍💻 or 👍🏽, a flag, or a letter with a combining accent, and fixed text boxes cutting off a wide character, such as a CJK character or emoji, at the end of a wrapped line instead of moving it to the next line.",
-            "Fixed lines containing combining marks or other zero-width characters wrapping too early or leaving blank rows in `/diff` and the inline diff preview, and being cut off with `…` too soon in `/artifact` previews."
+            "Added Auto mode on Windows 11 version 24H2 and later for personal Google Accounts, selectable via `--mode auto`, `Agent Mode` in `/config`, `Shift+Tab`, or Remote Control Settings (`Agent` remains the default).",
+            "Added whole-file toggle (`f`) and hunk folding (`Ctrl+O`) to `Commit Tree` and `Per Turn` views in `/diff`, and consolidated `Per Turn` diffs so multiple edits to a file in one turn appear as a single combined diff.",
+            "Added `_meta[\"antigravity.google/root_conversation_id\"]` to MCP `tools/call` requests so MCP servers receive the top-level conversation ID even when a tool is called from a nested subagent.",
+            "Improved Auto mode's review of commands that leave the terminal sandbox to include the assistant's preceding question on short replies like `yes`, check every subcommand in pipelines, and prompt before destructive Git or file commands.",
+            "Improved `agy plugin validate` with stricter checks across `plugin.json`, MCP server configs, `hooks.json`, and sidecar manifests for invalid JSON syntax, unknown fields, bad variable placeholders, unrecognized hook tool matchers, and missing hook scripts.",
+            "Improved CPU and memory usage while streaming responses by caching streamed code-block syntax tokens, rendered Markdown blocks, and inline file-edit confirmation diffs across frames.",
+            "Improved `/compact` and automatic compaction to retain tool declarations on summarization requests so the model API reuses its cached prompt prefix.",
+            "Improved Remote Control on tablets and foldables to use the multi-pane layout with touch-sized controls instead of collapsing to the phone view, and kept popovers open while dragging scrollbars.",
+            "Fixed subagents losing plugins inherited from the parent session, and fixed plugin-bundled subagents with `plugins.inherit_user: false` and restricted MCP tools failing to start with `mcp spec not found for provider`.",
+            "Fixed rules and `SKILL.md` skills loading twice when discovered from both a standalone customization folder and an enabled plugin.",
+            "Fixed long rows wrapping instead of truncating at the terminal width in `/diff`'s `Commit Tree` and `Per Turn` lists, and `Per Turn` headers truncating prompts at 50 characters.",
+            "Fixed the prompt box staying mid-screen after closing panels, dropdowns, or inline prompts, and blank gaps appearing above the prompt in `Medium` verbosity mode.",
+            "Fixed `Ctrl+Z` undo in the prompt mishandling pasted text, merging typing with recalled history entries, recording no-op `Backspace` or `Delete` steps, and truncating characters near emoji.",
+            "Fixed MCP client sessions and background connection routines leaking when `tools/list` failed during server startup or when the CLI shut down while a server was connecting.",
+            "Fixed the system prompt's user rules wording so `GEMINI.md` and `AGENTS.md` rules explicitly override earlier built-in instructions instead of only instructions that follow them.",
+            "Fixed supported media attachments with parameterized MIME types such as `audio/webm; codecs=opus` being rejected as unsupported.",
+            "Fixed several UI issues in Remote Control, including clipped headers and dialogs on phones, iOS Safari zoom on input focus, `Enable Telemetry` and `Marketing Emails` reverting while Settings loads, and dragged URLs losing query or `#` parameters.",
+            "Fixed rendering and export bugs in Remote Control, including broken nested code blocks, `$VAR` shell variables parsed as LaTeX, broken media previews, blurry or blank diagrams in `Copy Image` and `Export as PDF`, and background-tab timer drift."
           ]
         },
         "curated": {
-          "version": "1.4.3",
-          "period": "2026-10-20",
+          "version": "1.4.4",
+          "period": "2026-10-21",
           "items": [
             {
               "title": {
-                "zh-TW": "/diff 與產物檢視器新增搜尋功能，支援跨檔案逐筆跳轉",
-                "en": "/diff and Artifact Viewer Add Search with Cross-File Match Navigation"
+                "zh-TW": "Auto 模式登陸 Windows 11，加強沙盒外高風險指令審查",
+                "en": "Auto Mode Arrives on Windows 11 with Stricter Out-of-Sandbox Command Review"
               },
               "body": {
-                "zh-TW": "比對大批修改內容時，要在冗長的變更清單中精準定位某個函式或變數往往相當費時。在 `/diff` 的檔案清單與檔案檢視中，按下 `/` 即可啟動搜尋。輸入關鍵字時會即時反白相符字串，提示列還會列出整份差異比對與各檔案分別包含多少筆相符項目。按下 `Enter` 會跳到第一筆結果，接著按 `n` 或 `N` 就能跨檔案逐筆來回巡覽，頁首也會顯示如 `match A/B` 的進度指示。⟦尋訪長篇族譜名冊時，以前只能逐頁掃描而容易看漏同行的重複名字；現在輸入字根便立刻標記全冊，提示列載明各章節出現次數，還能依序巡禮每個相符人名。⟧在產物檢視器（artifact viewer，用來預覽生成文件的面板）中按 `n` 與 `N`，現在也會逐筆跳過同一行內的多個項目，不再整行跳躍。",
-                "en": "When reviewing large sets of changes, pinpointing a specific function or variable across a lengthy change list is often time-consuming. In the file list and file view of `/diff`, pressing `/` starts a search. Typing keywords highlights matching strings in real time, while the prompt bar lists total matches across the diff and per file. Pressing `Enter` jumps to the first result, and pressing `n` or `N` navigates back and forth between matches across files, with the header showing progress indicators like `match A/B`. ⟦When searching through a lengthy genealogy registry, people previously had to scan page by page and easily missed duplicate names on the same line; now, typing a root immediately highlights the entire registry, with a prompt bar showing the number of occurrences per chapter, and lets you browse each matching name in sequence.⟧ In the artifact viewer (a panel used to preview generated documents), pressing `n` and `N` now also steps through multiple matches on the same line rather than skipping entire lines."
+                "zh-TW": "在 Windows 11 24H2 或更新版本上使用個人 Google 帳戶時，現在你可以體驗能自行決定工具呼叫的 Auto 模式。⟦如同具備主動防護的車輛巡航系統，以前只照既定速限行駛而難以應對突發變換，現在遇到危險路況會主動放慢並要求駕駛接手確認。⟧你可以透過 `--mode auto` 參數、在 `/config` 設定選單的 Agent Mode 選取、按下快捷鍵 `Shift+Tab`，或是開啟 Remote Control 設定進行切換，預設選項仍維持為 Agent 模式。當 Auto 模式審查即將脫離終端機沙盒（sandbox，隔離指令執行的安全環境）的指令時，防護更為嚴謹。面對管線指令會逐一檢查其中的每個子指令；若是 `yes` 等簡短回覆，會連同助理的前一個提問一併納入評估，並在執行具破壞性的 Git 或檔案操作前主動跳出提示確認。",
+                "en": "When running on Windows 11 24H2 or later with a personal Google account, you can now experience Auto mode, which decides tool calls on its own. ⟦Picture a car cruise control system with active safety: where it once only held a preset speed and struggled with sudden shifts, it now slows down on hazardous roads and prompts the driver to take over.⟧ You can switch modes via the `--mode auto` flag, by selecting Agent Mode in the `/config` settings menu, by pressing `Shift+Tab`, or by enabling Remote Control settings, while Agent mode remains the default. When Auto mode reviews commands about to leave the terminal sandbox (an isolated security environment for command execution), safeguards are significantly stricter. For pipeline commands, it inspects every sub-command individually; for short replies like `yes`, it evaluates them alongside the assistant's preceding question, prompting for confirmation before running destructive Git or file operations."
               },
-              "original": "Added `/` search to the `/diff` file list and file view: matches are highlighted as you type, the search prompt shows how many matches the diff and each file contain, `Enter` jumps to the first match, and `n`/`N` step through matches one at a time across every file, with `match A/B` in the file view header. `n`/`N` in the artifact viewer now also step through matches one at a time, including several on the same line, instead of jumping from line to line."
+              "original": "Added Auto mode on Windows 11 version 24H2 and later for personal Google Accounts, selectable via `--mode auto`, `Agent Mode` in `/config`, `Shift+Tab`, or Remote Control Settings (`Agent` remains the default).\nImproved Auto mode's review of commands that leave the terminal sandbox to include the assistant's preceding question on short replies like `yes`, check every subcommand in pipelines, and prompt before destructive Git or file commands."
             },
             {
               "title": {
-                "zh-TW": "外掛驗證新增結構檢查，修正 Windows 覆寫防護與顏色輸出",
-                "en": "Plugin Validation Adds Structural Checks, Fixing Windows Overwrite Protection and Color Output"
+                "zh-TW": "/diff 支援區塊折疊與整檔切換，修正清單換行與標題截斷",
+                "en": "/diff Adds Hunk Folding and Full File Toggle, Fixing List Wrapping and Title Truncation"
               },
               "body": {
-                "zh-TW": "外掛設定疏漏或檔案被佔用以往容易導致異常。`agy plugin validate` 新增結構檢查：無法解析 `hooks.json`、`sidecar.json` 或元件清單時報錯；遇未知掛鉤、無效正規表達式（用符號比對字串）、未讀取的 `hooks/hooks.json`、遺漏路徑、不載入的 `commands/` 與 `workflows/` 或頂層 `\"hooks\"` 鍵名則警告。\n\n在 Windows 更新或重裝外掛時，若被其他工作階段佔用，以前會留下半刪除毀損目錄；新版就位前舊版維持完整，替換失敗也會還原。\n\n`agy plugin install` 與 `agy plugin import` 修正了導向輸出夾帶色碼的問題，現在只在終端機著色，並遵循 `NO_COLOR`、`CLICOLOR` 與 `CLICOLOR_FORCE`。",
-                "en": "Oversights in plugin configuration or occupied files previously caused errors. `agy plugin validate` adds structural checks, reporting errors if `hooks.json`, `sidecar.json`, or component manifests cannot be parsed. It warns on unknown hooks, unread `hooks/hooks.json`, missing paths, unloaded `commands/` and `workflows/`, or top-level `\"hooks\"` keys. It also warns on invalid regular expressions (patterns used to match strings).\n\nWhen updating or reinstalling plugins on Windows, if files were locked by another session, a half-deleted corrupted directory was previously left behind. The old version now remains intact until the new version is in place, and rolls back if replacement fails.\n\n`agy plugin install` and `agy plugin import` fix an issue where redirected output included color escape codes. Output is now colored only in the terminal, respecting `NO_COLOR`, `CLICOLOR`, and `CLICOLOR_FORCE`."
+                "zh-TW": "在終端機輸入 `/diff` 檢視程式碼變更時，Commit Tree 與 Per Turn 兩種檢視模式新增了多項閱讀控制。⟦跟查閱裝訂成冊的工程藍圖一樣，以前只能整頁攤開翻找細節，現在可以隨手折疊次要章節，還能把同一次施工的多處修改彙整在同一份清單。⟧現在按下快捷鍵 `f` 可以切換顯示整份檔案，按下 `Ctrl+O` 則能折疊個別變更區塊（hunk，版本控制中連續的一段程式碼修改）。在 Per Turn 檢視中，同一輪對話內對同一檔案進行的多次編輯，會直接合併為單一比對畫面，不再被拆得零散。清單顯示的排版問題也已修復，清單中超出終端機寬度的長行會正常截斷而不再強行折行，Per Turn 頂部標題也不會再把提示詞截斷在 50 個字元。",
+                "en": "When typing `/diff` in the terminal to inspect code changes, Commit Tree and Per Turn views add several reading controls. ⟦Like consulting a bound set of engineering blueprints where you previously had to spread out entire pages to search for details, you can now collapse secondary sections at will and consolidate edits from the same job into a single list.⟧ Pressing `f` now toggles the full file view, while `Ctrl+O` folds an individual hunk (a contiguous section of code changes in version control). In Per Turn view, multiple edits made to the same file within a single turn merge directly into a unified diff screen instead of being scattered. List formatting issues are also fixed: lines exceeding terminal width now truncate cleanly rather than wrapping forcefully, and Per Turn headers no longer truncate prompts at 50 characters."
               },
-              "original": "Improved `agy plugin validate` to also check a plugin's hooks, sidecars, and component lists: it reports an error when `hooks.json`, a `sidecar.json`, or a `skills.json`, `rules.json`, `agents.json`, or `sidecars.json` file can't be parsed, and warns about unknown hook events, hook matchers that aren't valid regular expressions and so never match, a `hooks/hooks.json` file (which isn't read), list entries with no path or with a path missing from the plugin, `commands/` folders and `workflows/` Markdown files (which plugins don't load), and a Claude Code-style top-level `\"hooks\"` key, which loads as a single hook named `hooks`.\nFixed updating or reinstalling a marketplace plugin on Windows leaving it half-deleted when another `agy` session, the Antigravity desktop app, or the Remote Control background service had it open; the installed plugin now stays intact until the new copy is in place, and the previous version is restored if the replacement fails.\nFixed `agy plugin install` and `agy plugin import` writing color codes into piped or redirected output, ignoring `NO_COLOR`, and showing raw codes in older Windows consoles; like `agy plugin validate`, they now use color only in a terminal and follow `NO_COLOR`, `CLICOLOR`, and `CLICOLOR_FORCE`."
+              "original": "Added whole-file toggle (`f`) and hunk folding (`Ctrl+O`) to `Commit Tree` and `Per Turn` views in `/diff`, and consolidated `Per Turn` diffs so multiple edits to a file in one turn appear as a single combined diff.\nFixed long rows wrapping instead of truncating at the terminal width in `/diff`'s `Commit Tree` and `Per Turn` lists, and `Per Turn` headers truncating prompts at 50 characters."
             },
             {
               "title": {
-                "zh-TW": "/tasks 計時器改以天時分秒顯示，清楚掌握剩餘時間",
-                "en": "/tasks Timers Switch to Days, Hours, Minutes, and Seconds for Clearer Remaining Time"
+                "zh-TW": "MCP 工具呼叫支援追溯最上層對話，清理伺服器連線洩漏",
+                "en": "MCP Tool Calls Support Root Conversation Tracing, Fixing Server Connection Leaks"
               },
               "body": {
-                "zh-TW": "當你在背景啟動了長時間排程，隨時掌握任務的等待時間是安排後續工作的關鍵。在終端機查看進行中的排程計時器時，時間標示方式直接影響你掌握進度的速度。在 `/tasks` 任務清單與作用中任務清單中，計時器標籤現在改以天、小時、分鐘與秒數來顯示時間長度，例如呈現為 `1d 2h timer` 或 `5m timer`。以前這裡只會顯示原始秒數，像是 `93784s timer`，讓人難以一眼看出到底還要等多久。⟦盯著大樓停車場的繳費機螢幕，以前停留時間只顯示幾萬秒讓人摸不著頭緒；現在直接換算成幾天幾小時幾分幾秒，一眼就能看清車輛停放了多久。⟧當你設定了排程任務時，只要在對話中輸入 `/tasks`，就能立刻從清單看到以天或分鐘標示的計時器，不必再自行拿計算機換算秒數。",
-                "en": "When running long-running schedules in the background, keeping track of task waiting time is key to planning subsequent work. When checking active scheduled timers in the terminal, the time display format directly affects how quickly you grasp progress. In the `/tasks` task list and active tasks list, timer labels now display durations in days, hours, minutes, and seconds, appearing as `1d 2h timer` or `5m timer`. Previously, this displayed only raw seconds like `93784s timer`, making it hard to tell at a glance how much waiting time remained. ⟦Picture the screen of a parking payment machine, where parking duration previously showed only tens of thousands of seconds and left drivers baffled; now it directly converts into days, hours, minutes, and seconds, making it obvious at a glance how long a vehicle has been parked.⟧ When you configure scheduled tasks, simply typing `/tasks` in a conversation lets you immediately see timers labeled in days or minutes from the list, without needing a calculator to convert seconds yourself."
+                "zh-TW": "當你使用 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）串接自訂伺服器時，子代理呼叫工具的追蹤能力有了重大改善。⟦就像委託跨國快遞寄件，以前轉交給各區投遞員後就查不到源頭，現在每筆派工紀錄都烙印總單號，無論轉發幾手都能追溯最初的寄件委託。⟧現在即使工具是由深層的巢狀子代理所觸發，發出的 `tools/call` 請求都會自動帶上 `_meta[\"antigravity.google/root_conversation_id\"]` 欄位，讓外部伺服器能辨識最頂層的對話識別碼。在伺服器連線與資源釋放方面，先前若在伺服器啟動期間執行 `tools/list` 失敗，或是在連線尚未完成時直接關閉命令列工具，背景連線常式與用戶端工作階段容易殘留。這兩種情況造成的用戶端工作階段與背景連線常式洩漏，現在已修好。",
+                "en": "When connecting custom servers with MCP (Model Context Protocol, a protocol that connects AI to external tools), tracking tool calls made by subagents is substantially improved. ⟦Think of shipping a package through an international courier: previously, handoffs to regional delivery agents obscured the origin, but now every dispatch record stamps a master tracking number so the initial request remains traceable across any number of transfers.⟧ Even when tools are invoked by deeply nested subagents, outgoing `tools/call` requests now automatically include the `_meta[\"antigravity.google/root_conversation_id\"]` field so external servers can identify the top-level conversation ID. In terms of server connections and resource cleanup, background connection routines and client sessions previously lingered if `tools/list` failed during startup or if the CLI closed before the connection finished. Leaks of client sessions and background connection routines caused by both scenarios are now resolved."
               },
-              "original": "Improved timer labels in `/tasks` and the active task list to show durations in days, hours, minutes, and seconds, such as `1d 2h timer` or `5m timer`, instead of raw seconds such as `93784s timer`."
+              "original": "Added `_meta[\"antigravity.google/root_conversation_id\"]` to MCP `tools/call` requests so MCP servers receive the top-level conversation ID even when a tool is called from a nested subagent.\nFixed MCP client sessions and background connection routines leaking when `tools/list` failed during server startup or when the CLI shut down while a server was connecting."
             },
             {
               "title": {
-                "zh-TW": "修復以金鑰連線時未顯示 Gemini 4 Argon 的問題",
-                "en": "Fix Missing Gemini 4 Argon When Connecting with an API Key"
+                "zh-TW": "外掛程式驗證加強嚴格檢查，修復子代理繼承與技能重複載入",
+                "en": "Plugin Validation Enforces Stricter Checks, Fixing Subagent Inheritance and Skill Duplication"
               },
               "body": {
-                "zh-TW": "習慣使用個人 API 金鑰切換模型時，可用清單若漏列特定選項會影響工作調度。當你透過環境變數 `GEMINI_API_KEY`（Gemini 服務的存取金鑰）連線時，先前在切換模型的 `/model` 指令選單以及 `--model` 啟動參數中，都沒有列出 Gemini 4 Argon 模型。現在這個問題已經修好，以金鑰連線時也能正常在選單與參數中指定該模型。",
-                "en": "When you are accustomed to switching models using a personal API key, missing options from the available list disrupt workflow planning. When connecting through the `GEMINI_API_KEY` environment variable (the access key for Gemini services), the Gemini 4 Argon model was previously omitted from the `/model` command selection menu and the `--model` launch flag. This issue is now resolved, and you can properly select the model from the menu and specify it via the flag when connecting with an API key."
+                "zh-TW": "在開發或安裝自訂擴充套件時，外掛程式的驗證機制與執行環境獲得了多項修正。\n\n指令 `agy plugin validate` 導入更嚴格的檢查，全面檢驗 `plugin.json`、MCP 伺服器設定、`hooks.json` 與 sidecar 清單，防範無效 JSON 語法、未知欄位、錯誤變數佔位符、無法辨識的掛鉤（hook，事件觸發時執行的自動腳本）工具比對器及遺失腳本。\n\n子代理方面，修復了子代理遺失父工作階段繼承外掛的問題；若打包外掛的子代理設定 `plugins.inherit_user: false` 且限制 MCP 工具，先前啟動拋出 `mcp spec not found for provider` 的異常也已修復。\n\n當自訂規則或 `SKILL.md` 技能同時存在於獨立客製化資料夾與已啟用外掛程式時，系統不再重複載入兩次。",
+                "en": "When developing or installing custom extensions, plugin validation mechanisms and execution environments received multiple fixes.\n\nThe `agy plugin validate` command introduces stricter checks that thoroughly inspect `plugin.json`, MCP server configurations, `hooks.json`, and sidecar manifests, guarding against invalid JSON syntax, unknown fields, malformed variable placeholders, unrecognized tool matchers for hooks (automated scripts triggered by specific events), and missing scripts.\n\nFor subagents, an issue where subagents lost plugins inherited from parent sessions has been resolved. If a packaged plugin subagent sets `plugins.inherit_user: false` and restricts MCP tools, the startup error throwing `mcp spec not found for provider` is also fixed.\n\nWhen custom rules or `SKILL.md` skills exist simultaneously in standalone customization folders and enabled plugins, the system no longer loads them twice."
               },
-              "original": "Fixed Gemini 4 Argon not shown in `/model` and `--model` when you connect with a `GEMINI_API_KEY`."
+              "original": "Improved `agy plugin validate` with stricter checks across `plugin.json`, MCP server configs, `hooks.json`, and sidecar manifests for invalid JSON syntax, unknown fields, bad variable placeholders, unrecognized hook tool matchers, and missing hook scripts.\nFixed subagents losing plugins inherited from the parent session, and fixed plugin-bundled subagents with `plugins.inherit_user: false` and restricted MCP tools failing to start with `mcp spec not found for provider`.\nFixed rules and `SKILL.md` skills loading twice when discovered from both a standalone customization folder and an enabled plugin."
             },
             {
               "title": {
-                "zh-TW": "不支援沙盒的作業系統不再列出終端機沙盒選項",
-                "en": "Terminal Sandbox Options Omitted on Operating Systems Lacking Sandbox Support"
+                "zh-TW": "串流回應暫存降低資源消耗，壓縮請求保留工具宣告重用快取",
+                "en": "Stream Response Caching Cuts Resource Overhead, Compaction Retains Tool Declarations"
               },
               "body": {
-                "zh-TW": "在不支援終端機沙盒（隔離執行指令的受限環境）的電腦上打開 CLI，本來就用不了的選項不該出現在選單裡。這類系統包括阻擋非特權使用者命名空間的 Linux 系統，以及 Windows 11 24H2 之前的舊版 Windows，以前命令列介面仍會提供需要沙盒支援的選項。這個問題已經修好，不支援沙盒的系統上不會再看到需要沙盒的選項。",
-                "en": "When opening the CLI on a machine that does not support a terminal sandbox (a restricted environment that isolates command execution), unusable options should not appear in the menu. Such systems include Linux systems blocking unprivileged user namespaces and versions of Windows prior to Windows 11 24H2, where the command-line interface previously still offered options requiring sandbox support. This issue has been resolved, and systems without sandbox support will no longer display options requiring a sandbox."
+                "zh-TW": "當你請模型生成長篇回應或修改大量程式碼時，回應串流與對話壓縮的快取（cache，把處理過的結果暫存起來重複使用）機制減輕了運算負擔。⟦好比在料理檯旁備妥常備菜，已切洗好的食材直接下鍋而不重複動刀，收拾廚房時也把標準菜單留在黑板上，省去重新謄寫核對的時間。⟧在文字串流輸出期間，終端機現在會跨影格暫存程式碼區塊的語法標記（token，程式碼結構的分析記號）、算繪後的 Markdown 區塊，以及行內檔案編輯的確認比對畫面，降低 CPU 與記憶體使用量。而在執行 `/compact` 指令或系統觸發自動壓縮時，對話摘要請求會完整保留工具宣告，讓模型 API 能順暢重複使用先前已快取的提示詞前綴。",
+                "en": "When asking models to generate lengthy responses or modify extensive code, caching mechanisms for response streaming and conversation compaction reduce computing overhead. ⟦Imagine keeping prepped ingredients ready by the kitchen counter, where washed and chopped items drop straight into the pot without re-cutting, while standard menus stay on the chalkboard during cleanup to save time re-copying.⟧ During streamed text output, the terminal now caches code-block syntax tokens (structural analysis units for code) across frames, along with rendered Markdown blocks and inline file edit confirmation diffs, lowering CPU and memory usage. When running `/compact` or when the system triggers automatic compaction, conversation summary requests preserve tool declarations intact, allowing model APIs to smoothly reuse previously cached prompt prefixes."
               },
-              "original": "Fixed the CLI offering options that need the terminal sandbox on systems where it can't run, such as Linux systems that block unprivileged user namespaces and Windows before Windows 11 24H2."
+              "original": "Improved CPU and memory usage while streaming responses by caching streamed code-block syntax tokens, rendered Markdown blocks, and inline file-edit confirmation diffs across frames.\nImproved `/compact` and automatic compaction to retain tool declarations on summarization requests so the model API reuses its cached prompt prefix."
             },
             {
               "title": {
-                "zh-TW": "自動模式子代理指令改由獨立代理審核，安全操作免手動核准",
-                "en": "Auto-Mode Subagent Commands Reviewed by Independent Agent, Allowing Safe Operations Without Manual Approval"
+                "zh-TW": "Remote Control 支援平板多欄排版，修正行動端介面與算繪錯誤",
+                "en": "Remote Control Adds Multi-Column Layout on Tablets, Fixing Mobile UI and Rendering Bugs"
               },
               "body": {
-                "zh-TW": "讓代理在背景自動排解複雜任務時，頻繁跳出確認提示會打斷原本流暢的工作流程。在自動模式下，子代理（subagent，負責分流特定任務的輔助代理）與自訂代理以往只要執行脫離終端機沙盒的指令，每次都會停下來要求你手動核准。現在比照主代理的處理機制，它們的指令會先由另一個獨立代理負責審核。安全指令會直接執行，只有具備潛在風險的操作才會跳出提示向你確認。",
-                "en": "When letting agents automatically handle complex tasks in the background, frequent confirmation prompts interrupt an otherwise smooth workflow. In auto mode, subagents (auxiliary agents that handle specific tasks) and custom agents previously paused to require manual approval every time they executed a command outside the terminal sandbox. Matching the behavior of the main agent, their commands are now reviewed first by an independent agent. Safe commands run directly, and only potentially risky operations prompt you for confirmation."
+                "zh-TW": "在平板與行動裝置上使用 Remote Control 遠端控制時，大螢幕排版與多項操作體驗獲得整體升級。\n\n平板與摺疊螢幕裝置不再強制縮成單欄手機畫面，而是啟用具備觸控尺寸控制項的多欄排版，拖曳捲軸時彈出的控制面板（popover）也會持續保持開啟。\n\n行動端的介面細節也獲得修正。手機上標題與對話框遭截斷、iOS Safari 點選輸入框時畫面被自動放大、設定載入中 Enable Telemetry 與 Marketing Emails 開關自行跳回，以及拖曳網址時遺失查詢參數或井字標記（#）的問題已全數排除。\n\n輸出算繪與檔案匯出同樣更為穩定。先前巢狀程式碼區塊排版破裂、帶錢字號的 Shell 變數（$VAR）被誤判為 LaTeX 公式、媒體預覽無法載入、複製圖片或匯出 PDF 時圖表模糊或空白，以及背景分頁計時器偏差等現象，現在都已修正完畢。",
+                "en": "When using Remote Control on tablets and mobile devices, large-screen layouts and various operational experiences received an overall upgrade.\n\nTablets and foldable devices are no longer forced into a single-column phone view; instead, they enable a multi-column layout with touch-sized controls, and popover panels remain open while dragging scrollbars.\n\nMobile interface details have also been refined. Issues where titles and dialogs truncated on phones, tapping input fields in iOS Safari triggered automatic zoom, the Enable Telemetry and Marketing Emails toggles flipped back while settings loaded, and dragging URLs lost query parameters or hashes (#) are all resolved.\n\nOutput rendering and file exports are likewise more stable. Prior issues with broken nested code block layouts, Shell variables ($VAR) being misidentified as LaTeX formulas, media previews failing to load, blurry or blank charts when copying images or exporting PDFs, and background tab timer drift have all been fixed."
               },
-              "original": "Fixed subagents and custom agents in Auto mode asking you to approve every command that would leave the terminal sandbox; like the main agent's, their commands are now first reviewed by a separate agent, so safe commands run without asking and risky ones still prompt you."
+              "original": "Improved Remote Control on tablets and foldables to use the multi-pane layout with touch-sized controls instead of collapsing to the phone view, and kept popovers open while dragging scrollbars.\nFixed several UI issues in Remote Control, including clipped headers and dialogs on phones, iOS Safari zoom on input focus, `Enable Telemetry` and `Marketing Emails` reverting while Settings loads, and dragged URLs losing query or `#` parameters.\nFixed rendering and export bugs in Remote Control, including broken nested code blocks, `$VAR` shell variables parsed as LaTeX, broken media previews, blurry or blank diagrams in `Copy Image` and `Export as PDF`, and background-tab timer drift."
             },
             {
               "title": {
-                "zh-TW": "對話壓縮保留子代理編號，精簡摘要不再丟失背景任務",
-                "en": "Conversation Compaction Preserves Subagent IDs, Preventing Compacted Summaries from Losing Background Tasks"
+                "zh-TW": "終端機輸入框回歸底部定位，修復 Ctrl+Z 復原與表情符號截斷",
+                "en": "Terminal Input Box Re-Anchors to Bottom, Fixing Ctrl+Z Undo and Emoji Truncation"
               },
               "body": {
-                "zh-TW": "長時間對話進行壓縮整理時，歷史任務資訊若被截斷，會讓代理遺忘先前派出的幫手。以前對話摘要會塞入每個子代理完整的初始提示詞，往往因為長度超限而在記錄對話編號（conversation ID）前就被截斷，導致代理失去對近期子代理的追蹤。現在壓縮摘要只保留各子代理的類型、角色與執行結果，確保識別資訊完整留存，並為語境視窗（context window，模型一次能讀取的記憶上限）留出更多空間。",
-                "en": "When compacting and summarizing long conversations, truncated historical task information causes the agent to forget previously delegated helpers. Previously, conversation summaries included the full initial prompts for each subagent, which frequently exceeded length limits and were truncated before recording conversation IDs, causing the agent to lose track of recent subagents. Compacted summaries now retain only the type, role, and execution results of each subagent, ensuring identifiers are preserved while freeing up space for the context window (the maximum memory a model can read at one time)."
+                "zh-TW": "在終端機中與模型對話時，輸入框的排版位置與文字復原行為迎來了重要修正。⟦正如在紙上書寫與擦拭草稿，以前橡皮擦常常擦掉多餘的字跡甚至弄縐紙張，現在每一次復原動作都能精準撤回上一筆紀錄。⟧先前當你關閉面板、下拉選單或行內提示時，輸入框有時會卡在螢幕中間不回彈，在 Medium 詳細度模式下輸入框上方還會出現空白縫隙；現在這些排版異常都已修復，輸入列會穩定貼齊底部。文字編輯方面，快捷鍵 Ctrl+Z 的復原機制已重新調整。過去貼上文字時復原容易錯亂，新輸入的內容甚至會與歷史紀錄錯誤合併。現在無作用的退格鍵與 Delete 不再被記錄為多餘步驟，在表情符號（emoji）旁執行刪除或復原時，也不會再發生字元遭到截斷的狀況。",
+                "en": "When chatting with models in the terminal, the input box layout position and text undo behavior received major fixes. ⟦A writer sketching and erasing drafts on paper once risked smudging extra marks or wrinkling the sheet, but now each undo step accurately retracts the previous entry.⟧ Previously, closing panels, dropdown menus, or inline prompts could leave the input box stuck midway up the screen, and a blank gap appeared above the input box in Medium verbosity mode; these layout anomalies are now resolved, keeping the input bar securely anchored to the bottom. For text editing, the Ctrl+Z undo mechanism has been retuned. Pasting text previously scrambled undo history, sometimes incorrectly merging newly typed content with older history. Ineffective Backspace and Delete keystrokes are no longer recorded as extra steps, and deleting or undoing next to emojis (pictographic symbols) no longer causes characters to be truncated."
               },
-              "original": "Fixed the agent losing track of its most recently started subagents after a conversation was compacted, because the summary included each subagent's full initial prompt and was cut off before their conversation IDs; the summary now keeps only each subagent's type, role, and result, which also leaves more room in the context window."
+              "original": "Fixed the prompt box staying mid-screen after closing panels, dropdowns, or inline prompts, and blank gaps appearing above the prompt in `Medium` verbosity mode.\nFixed `Ctrl+Z` undo in the prompt mishandling pasted text, merging typing with recalled history entries, recording no-op `Backspace` or `Delete` steps, and truncating characters near emoji."
             },
             {
               "title": {
-                "zh-TW": "PostToolUse 掛鉤失敗改為記錄日誌，不再將工具誤判為失敗",
-                "en": "PostToolUse Hook Failures Now Logged Rather Than Misreporting Tool Failures"
+                "zh-TW": "修正規則優先順序措辭，明確涵蓋前方內建指示",
+                "en": "Clarify Rule Precedence Phrasing to Explicitly Cover Earlier Built-In Instructions"
               },
               "body": {
-                "zh-TW": "設定工具執行的後續連動時，附加檢查腳本若發生異常，不應影響主要操作的成敗判定。在工具呼叫後觸發的 `PostToolUse` 掛鉤（特定事件發生時被觸發的小程式）若執行失敗，例如指令不存在、執行逾時、退出回傳錯誤或輸出無效的 JSON，以前會將原本成功的工具呼叫直接標記為失敗。現在這類失敗只會記錄在日誌中，工具會完整保留原本的執行成果。",
-                "en": "When configuring post-execution actions for tools, errors in supplemental check scripts should not affect the outcome of the primary operation. If `PostToolUse` hooks (small programs triggered when specific events occur) failed after a tool call—such as from a missing command, execution timeout, non-zero exit code, or invalid JSON output—the system previously marked an otherwise successful tool call as failed. Such failures are now recorded only in logs, leaving the original tool results fully intact."
+                "zh-TW": "當你在專案根目錄撰寫自訂規範時，可以留意系統提示詞對規則優先順序的說明。以前系統提示詞（system prompt，引導 AI 行為的核心指示）的措辭，只寫出 GEMINI.md 與 AGENTS.md 的使用者規則可覆寫排在它們後方的指示。現在系統提示詞明確寫出 GEMINI.md 與 AGENTS.md 規則可覆寫較早出現的內建指示。",
+                "en": "When writing custom rules in project roots, note the updated system prompt phrasing for rule precedence. Phrasing in the system prompt (core instructions guiding AI behavior) previously only stated that user rules in GEMINI.md and AGENTS.md could override instructions placed after them. The system prompt now explicitly clarifies that GEMINI.md and AGENTS.md rules can override earlier built-in instructions."
               },
-              "original": "Fixed a `PostToolUse` hook that fails to run, for example because its command is missing, exits with an error, times out, or prints invalid JSON, marking the tool call it follows as failed even though the tool succeeded; the failure is now logged and the tool keeps its result."
+              "original": "Fixed the system prompt's user rules wording so `GEMINI.md` and `AGENTS.md` rules explicitly override earlier built-in instructions instead of only instructions that follow them."
             },
             {
               "title": {
-                "zh-TW": "修復空白檔案建立失敗，以及專案寫入誤報產物路徑的問題",
-                "en": "Fix Empty File Creation Failures and Erroneous Artifact Path Errors on Project Writes"
+                "zh-TW": "支援帶編碼參數的媒體附件，避免音訊檔案遭錯誤拒絕",
+                "en": "Support Media Attachments with Codec Parameters, Preventing Erroneous Audio Rejections"
               },
               "body": {
-                "zh-TW": "讓代理建立新模組或初始化目錄時，建立標記檔案與修改專案內容是常見的操作。以前代理在建立如 `__init__.py` 或 `.gitkeep` 等空白檔案時會執行失敗，而且當模型送出空白的產物資訊時，寫入或編輯一般專案檔案也會跳出 `... is not a valid artifact path` 的報錯。現在這個問題已經修好，建立零內容檔案與正常編輯專案檔案都能順利完成。",
-                "en": "When having an agent create new modules or initialize directories, generating marker files and modifying project contents are common operations. Previously, agents failed when creating empty files such as `__init__.py` or `.gitkeep`. In addition, writing or editing normal project files threw a `... is not a valid artifact path` error whenever the model sent blank artifact information. This issue is now resolved, allowing both zero-content file creation and standard project file editing to complete smoothly."
+                "zh-TW": "當你在終端機對話中上傳音訊或多媒體檔案時，附件格式的相容性獲得了修正。以前若媒體附件的 MIME 類型（標示附件內容格式的類型名稱）帶有額外參數，例如常見的音訊格式 audio/webm; codecs=opus，會被誤判為不支援而直接遭到拒絕。這類原本受支援的附件，現在不會再因 MIME 類型帶有參數而被誤拒。",
+                "en": "When uploading audio or multimedia files in terminal conversations, attachment format compatibility has been fixed. Previously, if a media attachment's MIME type (a label identifying attachment content formats) included extra parameters, such as the common audio format audio/webm; codecs=opus, it was incorrectly flagged as unsupported and rejected. Such natively supported attachments are no longer falsely rejected due to parameterized MIME types."
               },
-              "original": "Fixed the agent failing to create empty files such as `__init__.py` or `.gitkeep`, and failing to write or edit regular project files with `... is not a valid artifact path` when the model sent blank artifact details."
-            },
-            {
-              "title": {
-                "zh-TW": "iPhone 與 iPad 遠端控制支援狀態記憶，不再重複提示條款與通知",
-                "en": "Remote Control on iPhone and iPad Adds State Persistence, Ending Repeated Terms and Notification Prompts"
-              },
-              "body": {
-                "zh-TW": "在行動裝置上透過遠端功能查看進度時，每次開啟都必須手動關閉重複的提示視窗相當不便。在 iPhone 與 iPad 上使用 Remote Control（遠端控制功能）時，以前每次重新開啟，都會重複要求同意 `Security Notice & Data Use` 安全與資料使用條款，並再次彈出 `Enable Notifications` 啟用通知提示。現在應用程式會記住你的回覆，連同主題、排版設定以及已關閉的提示一併儲存。",
-                "en": "When monitoring progress remotely on mobile devices, having to manually dismiss repetitive modal dialogs upon every launch is frustrating. When using Remote Control on iPhone and iPad, reopening previously prompted users to accept the `Security Notice & Data Use` terms again and popped up the `Enable Notifications` prompt each time. The application now remembers your responses, saving them alongside your theme, layout preferences, and dismissed prompts."
-              },
-              "original": "Fixed Remote Control on iPhone and iPad asking you to accept the `Security Notice & Data Use` terms and showing the `Enable Notifications` prompt again every time you reopened it; it now remembers your answers, along with your theme, layout, and dismissed tips."
-            },
-            {
-              "title": {
-                "zh-TW": "修復終端機游標錯位與換行，完善表情符號與多語字元排版",
-                "en": "Fix terminal cursor misalignment and line wrapping, improving emoji and multilingual character layouts"
-              },
-              "body": {
-                "zh-TW": "在終端機處理多國文字與圖示時，字寬計算誤差常導致游標跑位或排版錯亂。\n\n調整視窗（停在 `↑ N more lines` 或框外）、提示過高、按上下鍵移至中日韓或表情符號，以及進入 Vim 視覺模式時游標不再錯位，過長的補全提示也會自動縮短。\n\n在支援圖素叢集寬度的終端機中，從外部編輯器（`Ctrl+G`）或 `Ctrl+Z` 返回後及在 tmux 3.6+ 下，含 👩💻、👍🏽、⚠️ 的行不再漂移。在日中韓語系（如 `LANG=ja_JP.UTF-8`）下含 `→`、`…`、`─`、`•` 時的漂移與提早折行也一併修復。\n\n按方向鍵、`Backspace` 或 `Delete` 不再只刪改半個表情符號、旗幟或變音字母，行末寬字元也會正確折行。在 `/diff` 與 `/artifact` 預覽中，結合符號或零寬字元導致提早折行、空白列或過早以 `…` 截斷也已修好。",
-                "en": "When handling multilingual text and symbols in the terminal, character width calculation errors often lead to cursor displacement or layout glitches.\n\nThe cursor no longer misaligns when resizing the window (resting on `↑ N more lines` or outside the frame), when prompts are excessively tall, when pressing Up or Down keys across CJK characters or emojis, or when entering Vim visual mode. Excessively long completion hints will also automatically shrink.\n\nIn terminals supporting grapheme cluster widths, lines containing 👩💻, 👍🏽, or ⚠️ no longer drift after returning from an external editor (`Ctrl+G`) or `Ctrl+Z`, or under tmux 3.6+. Drifting and premature line wraps when containing `→`, `…`, `─`, or `•` under CJK locales (such as `LANG=ja_JP.UTF-8`) have also been fixed.\n\nPressing arrow keys, `Backspace`, or `Delete` no longer modifies or deletes half of an emoji, flag, or accented letter, and wide characters at line ends now wrap correctly. In `/diff` and `/artifact` previews, premature line wrapping, blank lines, or early truncation with `…` caused by combining characters or zero-width characters have also been fixed."
-              },
-              "original": "Fixed the prompt cursor appearing in the wrong place after resizing the terminal (sometimes on the `↑ N more lines` indicator or below the input box), when a slash command's completion hint didn't fit on the last line of the prompt (the hint is now shortened or left out), when the prompt was taller than the terminal, after pressing `Up` or `Down` onto a line with CJK characters or emoji, and after entering Vim visual mode, which also rewrapped the text.\nFixed the cursor drifting on lines with emoji such as 👩‍💻, 👍🏽, or ⚠️ inside tmux 3.6 and later, and after returning from your external editor (`Ctrl+G`) or a `Ctrl+Z` suspend in terminals that support grapheme-cluster widths.\nFixed the cursor drifting and lines wrapping too early under Japanese, Chinese, or Korean locales such as `LANG=ja_JP.UTF-8` when text contains characters like `→`, `…`, `─`, or `•`, which parts of the CLI counted as two columns wide while the rest drew them as one.\nFixed `Left`, `Right`, `Backspace`, and `Delete` in the prompt and other text boxes moving over or deleting only part of an emoji such as 👩‍💻 or 👍🏽, a flag, or a letter with a combining accent, and fixed text boxes cutting off a wide character, such as a CJK character or emoji, at the end of a wrapped line instead of moving it to the next line.\nFixed lines containing combining marks or other zero-width characters wrapping too early or leaving blank rows in `/diff` and the inline diff preview, and being cut off with `…` too soon in `/artifact` previews."
+              "original": "Fixed supported media attachments with parameterized MIME types such as `audio/webm; codecs=opus` being rejected as unsupported."
             }
           ]
         },
@@ -1526,9 +1505,7 @@
           "fix",
           "new",
           "fix",
-          "fix",
-          "fix",
-          "fix",
+          "new",
           "fix",
           "fix",
           "fix",
@@ -2237,30 +2214,30 @@
       "id": "usage",
       "name": "Usage",
       "latest": {
-        "version": "0.33.10",
+        "version": "0.34.5",
         "raw": {
-          "version": "0.33.10",
-          "period": "2026-10-16",
+          "version": "0.34.5",
+          "period": "2026-10-21",
           "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-          "fetched_at": "2026-10-17",
+          "fetched_at": "2026-10-21",
           "entries": [
-            "**Windows installs hooks and keeps them up to date again.** Since v0.33.2 the Windows build left the hook scripts out of the folder the installer reads, so first-run setup and the resume, terse and quota-aware toggles silently did nothing, and existing hooks stopped updating. macOS was not affected."
+            "**The Muse card shows a used-up 5-hour window even when Muse sends no numbers.** Once the window runs out, Muse usually refuses the quota check with a \"Subscription quota exhausted\" error that only says when the window resets. The card now shows the window as 100% with that reset time. The error has no weekly figure, so the weekly percentage stays from the last reading and the card keeps its \"last checked\" badge."
           ]
         },
         "curated": {
-          "version": "0.33.10",
-          "period": "2026-10-16",
+          "version": "0.34.5",
+          "period": "2026-10-21",
           "items": [
             {
               "title": {
-                "zh-TW": "Windows 版恢復 hook 安裝與更新",
-                "en": "Windows Restores Hook Installation and Updates"
+                "zh-TW": "Muse 額度用完即使未給數字，卡片也會標示 5 小時已用滿",
+                "en": "Cards mark the 5-hour quota as full even when Muse provides no numbers upon exhaustion"
               },
               "body": {
-                "zh-TW": "若你在 Windows 電腦上使用時，曾碰過切換設定後毫無動靜，現在各項開關都能正常生效了。⟦就像按下電燈開關，以前怎麼按都沒有反應，現在一按燈就亮了。⟧這項問題源自工具仰賴 hook（掛鉤，特定事件發生時被觸發的小程式）來串接各項功能。從 v0.33.2 版起，Windows 打包時未將 hook 腳本放入安裝程式讀取的資料夾，導致安裝程式找不到檔案。連帶讓首次設定，以及接續對話、精簡模式與額度感知等開關在點擊後靜默沒有反應，原本已裝好的 hook 也停止更新。macOS 系統完全不受此問題影響。現在 Windows 版已恢復正常，能順利安裝並持續更新 hook。",
-                "en": "If you previously experienced toggling settings on Windows with no response, all switches now take effect normally. ⟦Think of flipping a light switch: pressing it previously produced no reaction at all, but now the light turns on immediately.⟧ This issue stemmed from the tool relying on hooks (scripts triggered when specific events occur) to connect various features. Starting from v0.33.2, Windows packaging failed to include hook scripts in the folder read by the installer, leaving the installer unable to find the files. Consequently, initial setup as well as switches for continuing conversations, compact mode, and quota awareness silently failed to respond when clicked, and previously installed hooks also stopped updating. macOS is completely unaffected by this issue. Windows has now returned to normal, smoothly installing and continuously updating hooks."
+                "zh-TW": "當你連續使用 Muse 處理工作時，一旦額度耗盡，往往會想確認何時才能繼續。以往 5 小時額度一用完，Muse 通常會直接拒絕額度查詢，只拋出「Subscription quota exhausted」錯誤訊息並告知重置時間，導致卡片拿不到具體數字。⟦跟運動場地的租借機一樣，以前名額一被搶光，票機只印出額滿通知與下一場時間，看板卻因抓不到剩餘數值而沒能更新；現在螢幕會直接標示目前時段已全滿，並貼上下次開放進場的時刻。⟧現在卡片遇到這種狀況，會主動把 5 小時額度顯示為 100%，並附上該重置時間。因為這項錯誤回報裡沒有週額度數字，所以卡片上的週額度百分比會沿用上次的讀數，卡片也保留「上次查詢」的時間提示，讓你在等待額度恢復時依然能掌握先前的用量狀態。",
+                "en": "When you use Muse continuously for work, you often want to confirm when you can resume once your quota runs out. Previously, as soon as the 5-hour quota was exhausted, Muse would typically reject quota queries outright, only throwing a \"Subscription quota exhausted\" error message alongside the reset time, leaving the card without concrete numbers. ⟦Much like a sports venue reservation kiosk, where the ticket machine previously printed only a full notice and the next session time once slots filled up, leaving the display unupdated because it could not fetch the remaining count, the screen now directly marks the current slot as completely full and displays the time for the next admission.⟧ Now when encountering this situation, the card proactively displays the 5-hour quota at 100% and attaches that reset time. Because this error response contains no weekly quota figures, the weekly quota percentage on the card retains its previous reading, and the card also preserves the \"Last checked\" timestamp prompt, allowing you to keep track of prior usage status while waiting for the quota to recover."
               },
-              "original": "**Windows installs hooks and keeps them up to date again.** Since v0.33.2 the Windows build left the hook scripts out of the folder the installer reads, so first-run setup and the resume, terse and quota-aware toggles silently did nothing, and existing hooks stopped updating. macOS was not affected."
+              "original": "**The Muse card shows a used-up 5-hour window even when Muse sends no numbers.** Once the window runs out, Muse usually refuses the quota check with a \"Subscription quota exhausted\" error that only says when the window resets. The card now shows the window as 100% with that reset time. The error has no weekly figure, so the weekly percentage stays from the last reading and the card keeps its \"last checked\" badge."
             }
           ]
         },

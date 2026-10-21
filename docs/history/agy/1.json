@@ -32,22 +32,117 @@
           "Fixed rendering and export bugs in Remote Control, including broken nested code blocks, `$VAR` shell variables parsed as LaTeX, broken media previews, blurry or blank diagrams in `Copy Image` and `Export as PDF`, and background-tab timer drift."
         ]
       },
-      "curated": null,
+      "curated": {
+        "version": "1.4.4",
+        "period": "2026-10-21",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Auto 模式登陸 Windows 11，加強沙盒外高風險指令審查",
+              "en": "Auto Mode Arrives on Windows 11 with Stricter Out-of-Sandbox Command Review"
+            },
+            "body": {
+              "zh-TW": "在 Windows 11 24H2 或更新版本上使用個人 Google 帳戶時，現在你可以體驗能自行決定工具呼叫的 Auto 模式。⟦如同具備主動防護的車輛巡航系統，以前只照既定速限行駛而難以應對突發變換，現在遇到危險路況會主動放慢並要求駕駛接手確認。⟧你可以透過 `--mode auto` 參數、在 `/config` 設定選單的 Agent Mode 選取、按下快捷鍵 `Shift+Tab`，或是開啟 Remote Control 設定進行切換，預設選項仍維持為 Agent 模式。當 Auto 模式審查即將脫離終端機沙盒（sandbox，隔離指令執行的安全環境）的指令時，防護更為嚴謹。面對管線指令會逐一檢查其中的每個子指令；若是 `yes` 等簡短回覆，會連同助理的前一個提問一併納入評估，並在執行具破壞性的 Git 或檔案操作前主動跳出提示確認。",
+              "en": "When running on Windows 11 24H2 or later with a personal Google account, you can now experience Auto mode, which decides tool calls on its own. ⟦Picture a car cruise control system with active safety: where it once only held a preset speed and struggled with sudden shifts, it now slows down on hazardous roads and prompts the driver to take over.⟧ You can switch modes via the `--mode auto` flag, by selecting Agent Mode in the `/config` settings menu, by pressing `Shift+Tab`, or by enabling Remote Control settings, while Agent mode remains the default. When Auto mode reviews commands about to leave the terminal sandbox (an isolated security environment for command execution), safeguards are significantly stricter. For pipeline commands, it inspects every sub-command individually; for short replies like `yes`, it evaluates them alongside the assistant's preceding question, prompting for confirmation before running destructive Git or file operations."
+            },
+            "original": "Added Auto mode on Windows 11 version 24H2 and later for personal Google Accounts, selectable via `--mode auto`, `Agent Mode` in `/config`, `Shift+Tab`, or Remote Control Settings (`Agent` remains the default).\nImproved Auto mode's review of commands that leave the terminal sandbox to include the assistant's preceding question on short replies like `yes`, check every subcommand in pipelines, and prompt before destructive Git or file commands."
+          },
+          {
+            "title": {
+              "zh-TW": "/diff 支援區塊折疊與整檔切換，修正清單換行與標題截斷",
+              "en": "/diff Adds Hunk Folding and Full File Toggle, Fixing List Wrapping and Title Truncation"
+            },
+            "body": {
+              "zh-TW": "在終端機輸入 `/diff` 檢視程式碼變更時，Commit Tree 與 Per Turn 兩種檢視模式新增了多項閱讀控制。⟦跟查閱裝訂成冊的工程藍圖一樣，以前只能整頁攤開翻找細節，現在可以隨手折疊次要章節，還能把同一次施工的多處修改彙整在同一份清單。⟧現在按下快捷鍵 `f` 可以切換顯示整份檔案，按下 `Ctrl+O` 則能折疊個別變更區塊（hunk，版本控制中連續的一段程式碼修改）。在 Per Turn 檢視中，同一輪對話內對同一檔案進行的多次編輯，會直接合併為單一比對畫面，不再被拆得零散。清單顯示的排版問題也已修復，清單中超出終端機寬度的長行會正常截斷而不再強行折行，Per Turn 頂部標題也不會再把提示詞截斷在 50 個字元。",
+              "en": "When typing `/diff` in the terminal to inspect code changes, Commit Tree and Per Turn views add several reading controls. ⟦Like consulting a bound set of engineering blueprints where you previously had to spread out entire pages to search for details, you can now collapse secondary sections at will and consolidate edits from the same job into a single list.⟧ Pressing `f` now toggles the full file view, while `Ctrl+O` folds an individual hunk (a contiguous section of code changes in version control). In Per Turn view, multiple edits made to the same file within a single turn merge directly into a unified diff screen instead of being scattered. List formatting issues are also fixed: lines exceeding terminal width now truncate cleanly rather than wrapping forcefully, and Per Turn headers no longer truncate prompts at 50 characters."
+            },
+            "original": "Added whole-file toggle (`f`) and hunk folding (`Ctrl+O`) to `Commit Tree` and `Per Turn` views in `/diff`, and consolidated `Per Turn` diffs so multiple edits to a file in one turn appear as a single combined diff.\nFixed long rows wrapping instead of truncating at the terminal width in `/diff`'s `Commit Tree` and `Per Turn` lists, and `Per Turn` headers truncating prompts at 50 characters."
+          },
+          {
+            "title": {
+              "zh-TW": "MCP 工具呼叫支援追溯最上層對話，清理伺服器連線洩漏",
+              "en": "MCP Tool Calls Support Root Conversation Tracing, Fixing Server Connection Leaks"
+            },
+            "body": {
+              "zh-TW": "當你使用 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）串接自訂伺服器時，子代理呼叫工具的追蹤能力有了重大改善。⟦就像委託跨國快遞寄件，以前轉交給各區投遞員後就查不到源頭，現在每筆派工紀錄都烙印總單號，無論轉發幾手都能追溯最初的寄件委託。⟧現在即使工具是由深層的巢狀子代理所觸發，發出的 `tools/call` 請求都會自動帶上 `_meta[\"antigravity.google/root_conversation_id\"]` 欄位，讓外部伺服器能辨識最頂層的對話識別碼。在伺服器連線與資源釋放方面，先前若在伺服器啟動期間執行 `tools/list` 失敗，或是在連線尚未完成時直接關閉命令列工具，背景連線常式與用戶端工作階段容易殘留。這兩種情況造成的用戶端工作階段與背景連線常式洩漏，現在已修好。",
+              "en": "When connecting custom servers with MCP (Model Context Protocol, a protocol that connects AI to external tools), tracking tool calls made by subagents is substantially improved. ⟦Think of shipping a package through an international courier: previously, handoffs to regional delivery agents obscured the origin, but now every dispatch record stamps a master tracking number so the initial request remains traceable across any number of transfers.⟧ Even when tools are invoked by deeply nested subagents, outgoing `tools/call` requests now automatically include the `_meta[\"antigravity.google/root_conversation_id\"]` field so external servers can identify the top-level conversation ID. In terms of server connections and resource cleanup, background connection routines and client sessions previously lingered if `tools/list` failed during startup or if the CLI closed before the connection finished. Leaks of client sessions and background connection routines caused by both scenarios are now resolved."
+            },
+            "original": "Added `_meta[\"antigravity.google/root_conversation_id\"]` to MCP `tools/call` requests so MCP servers receive the top-level conversation ID even when a tool is called from a nested subagent.\nFixed MCP client sessions and background connection routines leaking when `tools/list` failed during server startup or when the CLI shut down while a server was connecting."
+          },
+          {
+            "title": {
+              "zh-TW": "外掛程式驗證加強嚴格檢查，修復子代理繼承與技能重複載入",
+              "en": "Plugin Validation Enforces Stricter Checks, Fixing Subagent Inheritance and Skill Duplication"
+            },
+            "body": {
+              "zh-TW": "在開發或安裝自訂擴充套件時，外掛程式的驗證機制與執行環境獲得了多項修正。\n\n指令 `agy plugin validate` 導入更嚴格的檢查，全面檢驗 `plugin.json`、MCP 伺服器設定、`hooks.json` 與 sidecar 清單，防範無效 JSON 語法、未知欄位、錯誤變數佔位符、無法辨識的掛鉤（hook，事件觸發時執行的自動腳本）工具比對器及遺失腳本。\n\n子代理方面，修復了子代理遺失父工作階段繼承外掛的問題；若打包外掛的子代理設定 `plugins.inherit_user: false` 且限制 MCP 工具，先前啟動拋出 `mcp spec not found for provider` 的異常也已修復。\n\n當自訂規則或 `SKILL.md` 技能同時存在於獨立客製化資料夾與已啟用外掛程式時，系統不再重複載入兩次。",
+              "en": "When developing or installing custom extensions, plugin validation mechanisms and execution environments received multiple fixes.\n\nThe `agy plugin validate` command introduces stricter checks that thoroughly inspect `plugin.json`, MCP server configurations, `hooks.json`, and sidecar manifests, guarding against invalid JSON syntax, unknown fields, malformed variable placeholders, unrecognized tool matchers for hooks (automated scripts triggered by specific events), and missing scripts.\n\nFor subagents, an issue where subagents lost plugins inherited from parent sessions has been resolved. If a packaged plugin subagent sets `plugins.inherit_user: false` and restricts MCP tools, the startup error throwing `mcp spec not found for provider` is also fixed.\n\nWhen custom rules or `SKILL.md` skills exist simultaneously in standalone customization folders and enabled plugins, the system no longer loads them twice."
+            },
+            "original": "Improved `agy plugin validate` with stricter checks across `plugin.json`, MCP server configs, `hooks.json`, and sidecar manifests for invalid JSON syntax, unknown fields, bad variable placeholders, unrecognized hook tool matchers, and missing hook scripts.\nFixed subagents losing plugins inherited from the parent session, and fixed plugin-bundled subagents with `plugins.inherit_user: false` and restricted MCP tools failing to start with `mcp spec not found for provider`.\nFixed rules and `SKILL.md` skills loading twice when discovered from both a standalone customization folder and an enabled plugin."
+          },
+          {
+            "title": {
+              "zh-TW": "串流回應暫存降低資源消耗，壓縮請求保留工具宣告重用快取",
+              "en": "Stream Response Caching Cuts Resource Overhead, Compaction Retains Tool Declarations"
+            },
+            "body": {
+              "zh-TW": "當你請模型生成長篇回應或修改大量程式碼時，回應串流與對話壓縮的快取（cache，把處理過的結果暫存起來重複使用）機制減輕了運算負擔。⟦好比在料理檯旁備妥常備菜，已切洗好的食材直接下鍋而不重複動刀，收拾廚房時也把標準菜單留在黑板上，省去重新謄寫核對的時間。⟧在文字串流輸出期間，終端機現在會跨影格暫存程式碼區塊的語法標記（token，程式碼結構的分析記號）、算繪後的 Markdown 區塊，以及行內檔案編輯的確認比對畫面，降低 CPU 與記憶體使用量。而在執行 `/compact` 指令或系統觸發自動壓縮時，對話摘要請求會完整保留工具宣告，讓模型 API 能順暢重複使用先前已快取的提示詞前綴。",
+              "en": "When asking models to generate lengthy responses or modify extensive code, caching mechanisms for response streaming and conversation compaction reduce computing overhead. ⟦Imagine keeping prepped ingredients ready by the kitchen counter, where washed and chopped items drop straight into the pot without re-cutting, while standard menus stay on the chalkboard during cleanup to save time re-copying.⟧ During streamed text output, the terminal now caches code-block syntax tokens (structural analysis units for code) across frames, along with rendered Markdown blocks and inline file edit confirmation diffs, lowering CPU and memory usage. When running `/compact` or when the system triggers automatic compaction, conversation summary requests preserve tool declarations intact, allowing model APIs to smoothly reuse previously cached prompt prefixes."
+            },
+            "original": "Improved CPU and memory usage while streaming responses by caching streamed code-block syntax tokens, rendered Markdown blocks, and inline file-edit confirmation diffs across frames.\nImproved `/compact` and automatic compaction to retain tool declarations on summarization requests so the model API reuses its cached prompt prefix."
+          },
+          {
+            "title": {
+              "zh-TW": "Remote Control 支援平板多欄排版，修正行動端介面與算繪錯誤",
+              "en": "Remote Control Adds Multi-Column Layout on Tablets, Fixing Mobile UI and Rendering Bugs"
+            },
+            "body": {
+              "zh-TW": "在平板與行動裝置上使用 Remote Control 遠端控制時，大螢幕排版與多項操作體驗獲得整體升級。\n\n平板與摺疊螢幕裝置不再強制縮成單欄手機畫面，而是啟用具備觸控尺寸控制項的多欄排版，拖曳捲軸時彈出的控制面板（popover）也會持續保持開啟。\n\n行動端的介面細節也獲得修正。手機上標題與對話框遭截斷、iOS Safari 點選輸入框時畫面被自動放大、設定載入中 Enable Telemetry 與 Marketing Emails 開關自行跳回，以及拖曳網址時遺失查詢參數或井字標記（#）的問題已全數排除。\n\n輸出算繪與檔案匯出同樣更為穩定。先前巢狀程式碼區塊排版破裂、帶錢字號的 Shell 變數（$VAR）被誤判為 LaTeX 公式、媒體預覽無法載入、複製圖片或匯出 PDF 時圖表模糊或空白，以及背景分頁計時器偏差等現象，現在都已修正完畢。",
+              "en": "When using Remote Control on tablets and mobile devices, large-screen layouts and various operational experiences received an overall upgrade.\n\nTablets and foldable devices are no longer forced into a single-column phone view; instead, they enable a multi-column layout with touch-sized controls, and popover panels remain open while dragging scrollbars.\n\nMobile interface details have also been refined. Issues where titles and dialogs truncated on phones, tapping input fields in iOS Safari triggered automatic zoom, the Enable Telemetry and Marketing Emails toggles flipped back while settings loaded, and dragging URLs lost query parameters or hashes (#) are all resolved.\n\nOutput rendering and file exports are likewise more stable. Prior issues with broken nested code block layouts, Shell variables ($VAR) being misidentified as LaTeX formulas, media previews failing to load, blurry or blank charts when copying images or exporting PDFs, and background tab timer drift have all been fixed."
+            },
+            "original": "Improved Remote Control on tablets and foldables to use the multi-pane layout with touch-sized controls instead of collapsing to the phone view, and kept popovers open while dragging scrollbars.\nFixed several UI issues in Remote Control, including clipped headers and dialogs on phones, iOS Safari zoom on input focus, `Enable Telemetry` and `Marketing Emails` reverting while Settings loads, and dragged URLs losing query or `#` parameters.\nFixed rendering and export bugs in Remote Control, including broken nested code blocks, `$VAR` shell variables parsed as LaTeX, broken media previews, blurry or blank diagrams in `Copy Image` and `Export as PDF`, and background-tab timer drift."
+          },
+          {
+            "title": {
+              "zh-TW": "終端機輸入框回歸底部定位，修復 Ctrl+Z 復原與表情符號截斷",
+              "en": "Terminal Input Box Re-Anchors to Bottom, Fixing Ctrl+Z Undo and Emoji Truncation"
+            },
+            "body": {
+              "zh-TW": "在終端機中與模型對話時，輸入框的排版位置與文字復原行為迎來了重要修正。⟦正如在紙上書寫與擦拭草稿，以前橡皮擦常常擦掉多餘的字跡甚至弄縐紙張，現在每一次復原動作都能精準撤回上一筆紀錄。⟧先前當你關閉面板、下拉選單或行內提示時，輸入框有時會卡在螢幕中間不回彈，在 Medium 詳細度模式下輸入框上方還會出現空白縫隙；現在這些排版異常都已修復，輸入列會穩定貼齊底部。文字編輯方面，快捷鍵 Ctrl+Z 的復原機制已重新調整。過去貼上文字時復原容易錯亂，新輸入的內容甚至會與歷史紀錄錯誤合併。現在無作用的退格鍵與 Delete 不再被記錄為多餘步驟，在表情符號（emoji）旁執行刪除或復原時，也不會再發生字元遭到截斷的狀況。",
+              "en": "When chatting with models in the terminal, the input box layout position and text undo behavior received major fixes. ⟦A writer sketching and erasing drafts on paper once risked smudging extra marks or wrinkling the sheet, but now each undo step accurately retracts the previous entry.⟧ Previously, closing panels, dropdown menus, or inline prompts could leave the input box stuck midway up the screen, and a blank gap appeared above the input box in Medium verbosity mode; these layout anomalies are now resolved, keeping the input bar securely anchored to the bottom. For text editing, the Ctrl+Z undo mechanism has been retuned. Pasting text previously scrambled undo history, sometimes incorrectly merging newly typed content with older history. Ineffective Backspace and Delete keystrokes are no longer recorded as extra steps, and deleting or undoing next to emojis (pictographic symbols) no longer causes characters to be truncated."
+            },
+            "original": "Fixed the prompt box staying mid-screen after closing panels, dropdowns, or inline prompts, and blank gaps appearing above the prompt in `Medium` verbosity mode.\nFixed `Ctrl+Z` undo in the prompt mishandling pasted text, merging typing with recalled history entries, recording no-op `Backspace` or `Delete` steps, and truncating characters near emoji."
+          },
+          {
+            "title": {
+              "zh-TW": "修正規則優先順序措辭，明確涵蓋前方內建指示",
+              "en": "Clarify Rule Precedence Phrasing to Explicitly Cover Earlier Built-In Instructions"
+            },
+            "body": {
+              "zh-TW": "當你在專案根目錄撰寫自訂規範時，可以留意系統提示詞對規則優先順序的說明。以前系統提示詞（system prompt，引導 AI 行為的核心指示）的措辭，只寫出 GEMINI.md 與 AGENTS.md 的使用者規則可覆寫排在它們後方的指示。現在系統提示詞明確寫出 GEMINI.md 與 AGENTS.md 規則可覆寫較早出現的內建指示。",
+              "en": "When writing custom rules in project roots, note the updated system prompt phrasing for rule precedence. Phrasing in the system prompt (core instructions guiding AI behavior) previously only stated that user rules in GEMINI.md and AGENTS.md could override instructions placed after them. The system prompt now explicitly clarifies that GEMINI.md and AGENTS.md rules can override earlier built-in instructions."
+            },
+            "original": "Fixed the system prompt's user rules wording so `GEMINI.md` and `AGENTS.md` rules explicitly override earlier built-in instructions instead of only instructions that follow them."
+          },
+          {
+            "title": {
+              "zh-TW": "支援帶編碼參數的媒體附件，避免音訊檔案遭錯誤拒絕",
+              "en": "Support Media Attachments with Codec Parameters, Preventing Erroneous Audio Rejections"
+            },
+            "body": {
+              "zh-TW": "當你在終端機對話中上傳音訊或多媒體檔案時，附件格式的相容性獲得了修正。以前若媒體附件的 MIME 類型（標示附件內容格式的類型名稱）帶有額外參數，例如常見的音訊格式 audio/webm; codecs=opus，會被誤判為不支援而直接遭到拒絕。這類原本受支援的附件，現在不會再因 MIME 類型帶有參數而被誤拒。",
+              "en": "When uploading audio or multimedia files in terminal conversations, attachment format compatibility has been fixed. Previously, if a media attachment's MIME type (a label identifying attachment content formats) included extra parameters, such as the common audio format audio/webm; codecs=opus, it was incorrectly flagged as unsupported and rejected. Such natively supported attachments are no longer falsely rejected due to parameterized MIME types."
+            },
+            "original": "Fixed supported media attachments with parameterized MIME types such as `audio/webm; codecs=opus` being rejected as unsupported."
+          }
+        ]
+      },
       "badges": [
         "new",
-        "new",
-        "new",
-        "new",
-        "new",
-        "perf",
-        "new",
+        "fix",
         "new",
         "fix",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
+        "new",
         "fix",
         "fix",
         "fix",
