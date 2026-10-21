@@ -5,6 +5,86 @@
   "pages": 23,
   "versions": [
     {
+      "version": "0.28.5",
+      "raw": {
+        "version": "0.28.5",
+        "period": "2026-07-16",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-17",
+        "entries": [
+          "**The Claude quota card now explains why it shows no data for desktop-app/headless-only users**: the quota card depends entirely on the statusLine hook, which Claude Code only invokes when rendering an interactive terminal. Users whose usage happens exclusively through the desktop app or other non-TUI surfaces never trigger it, so the card stayed on a generic \"status file not found\" message even while the hook was correctly installed and Claude Code transcripts kept growing. The card now distinguishes this case — hook installed, transcripts actively updating, status file still missing — and shows a targeted hint that a terminal session needs to run once to sync, instead of the setup-focused message meant for users who never installed the hook at all."
+        ]
+      },
+      "curated": {
+        "version": "0.28.5",
+        "period": "2026-07-16",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "配額卡片更聰明，桌面版用戶不再滿頭問號",
+              "en": "Quota card gets smarter, ending confusion for desktop app users"
+            },
+            "body": {
+              "zh-TW": "那些只用桌面版的人，不會再對著沒有數字的 Claude 配額卡片發愣，懷疑自己是不是沒裝好了。配額卡片背後仰賴的是 statusLine hook（一種用來攔截並回報狀態的隱藏小程式），但 Claude Code 只有在你打開互動式終端機時才會叫醒它。以前如果你只用桌面版，這個 hook 永遠不會被觸發，就算你的對話紀錄明明一直在增加，卡片還是只會死板地說「找不到狀態檔」，甚至叫你重新安裝。現在卡片會分辨情況了：如果它發現你明明有裝 hook 也有在聊天，只是缺了狀態檔，它會明確告訴你「需要開一次終端機工作階段來同步」，而不是丟給你根本不適用的安裝教學。就像你裝了智慧電表，但都在用別的插座，電表沒感應到；以前它只會叫你把電表拆掉重裝，現在它會告訴你「去插一下這個專用插座同步數據就好」。",
+              "en": "People who exclusively use the desktop app will no longer stare at a blank Claude quota card wondering if they botched the installation. The quota card relies heavily on the statusLine hook (a hidden mini-program that intercepts and reports status), but Claude Code only wakes it up when you open an interactive terminal. Previously, if you only used the desktop version, this hook was never triggered. Even if your transcripts were actively growing, the card stubbornly displayed a generic \"status file not found\" message and told you to run the setup again. Now, the card recognizes when the hook is installed and you're actively chatting, but the status file is just missing. Instead of giving you irrelevant installation instructions, it gives you a targeted hint that a terminal session needs to run once to sync. It's like installing a smart water meter but using a different sink; previously the meter would tell you to rip it out and reinstall it, but now it just tells you to \"go turn on the main faucet once to sync the data.\""
+            },
+            "original": "**The Claude quota card now explains why it shows no data for desktop-app/headless-only users**: the quota card depends entirely on the statusLine hook, which Claude Code only invokes when rendering an interactive terminal. Users whose usage happens exclusively through the desktop app or other non-TUI surfaces never trigger it, so the card stayed on a generic \"status file not found\" message even while the hook was correctly installed and Claude Code transcripts kept growing. The card now distinguishes this case — hook installed, transcripts actively updating, status file still missing — and shows a targeted hint that a terminal session needs to run once to sync, instead of the setup-focused message meant for users who never installed the hook at all."
+          }
+        ]
+      },
+      "badges": [
+        "new"
+      ]
+    },
+    {
+      "version": "0.28.4",
+      "raw": {
+        "version": "0.28.4",
+        "period": "2026-07-16",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-16",
+        "entries": [
+          "**Windows panel card order now follows across themes**: reloading a theme after dragging a quota card now rereads the shared saved order before state injection, so every draggable panel opens with the same Claude, Codex, and Antigravity card order.",
+          "**The tray panel no longer appears as an empty white/dark rectangle at launch**: pywebview's `resize()` and `move()` call `SetWindowPos` with `SWP_SHOWWINDOW`, and the tray placed its still-hidden window as soon as the panel document loaded — dragging the unrendered panel onto the screen on every start. The window is now placed right before it is shown; after a visible panel switch the placement is re-applied as before.",
+          "**Launching the Windows tray twice no longer leaves a blank white window**: a second instance fought the first over the shared WebView2 user-data directory, so its panel failed to initialize and lingered on screen as a bare white rectangle. The tray now holds a named mutex for its lifetime; a second launch shows an \"already running\" notice (localized) and exits instead.",
+          "**The status line no longer drops quota data when two Claude Code instances refresh at once on Windows**: the hook's file lock was blocking on POSIX (`fcntl.flock(LOCK_EX)`) but non-blocking on Windows (`msvcrt.locking(LK_NBLCK)`), and a contended lock raised `OSError` that was swallowed — leaving the `rate_limits` carry-forward read-modify-write in `save()` completely unsynchronized. Windows now polls the lock until it is acquired (10s deadline), matching POSIX semantics; genuinely unsupported locking still falls back to the atomic write alone. Measured over 200 concurrent hook pairs: `rate_limits` were lost 21 times before, 0 times after.",
+          "**The Claude Code hook no longer crashes on macOS**: a constant introduced by the Windows lock fix above referenced `errno.EDEADLOCK`, which doesn't exist on macOS — importing `usage_statusline.py` failed immediately for every macOS user. Now falls back to `errno.EDEADLK` when `EDEADLOCK` isn't defined."
+        ]
+      },
+      "curated": {
+        "version": "0.28.4",
+        "period": "2026-07-16",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 系統匣不再鬧雙胞或留白，面板卡片排序全同步",
+              "en": "Windows system tray no longer blanks out or duplicates, and panel cards sync flawlessly"
+            },
+            "body": {
+              "zh-TW": "現在 Windows 的面板與系統匣（system tray，常駐在螢幕右下角的圖示選單）畫面變得更順眼了。當你拖曳額度卡（quota card）改變排列順序並重載主題時，系統會先重新讀取共用的已儲存排序（shared saved order），所以不管你打開哪個支援拖曳排序的面板，上面的 Claude、Codex 與 Antigravity 卡片順序都會是一致的。另外，以前系統匣在啟動時，會過早對還沒準備好的視窗定位，硬是把一個空白的白色或深色長方形拉到畫面上；如果重複啟動兩次，第二個實例還會與第一個爭奪共用的 WebView2（讓桌面程式內嵌顯示網頁畫面的元件）用來存放使用者資料的目錄而初始化失敗，留下一塊純白長方形殘留在螢幕上。現在系統改為顯示前一刻才定位視窗，而且面板顯示後如果又切換面板，視窗定位還是會照舊重新套用一次；系統匣會持有一個具名 mutex（named mutex，用來確保同時間只有一個程式運行的鎖定機制），點第二次只會顯示「已在執行中」的在地化提示然後關閉。就像一間店面，以前店員還沒把假人模特兒穿好衣服就把鐵捲門拉開，或者兩位店長在同一個地址搶著掛招牌；現在他們會在開門前把商品陳列整齊，而且知道這地址有人營業就會客氣地離開，不再鬧雙胞。",
+              "en": "The Windows panels and system tray (the icon menu tucked in the corner of your taskbar) now look much cleaner. When you drag a quota card to change its order and then reload a theme, the system now rereads the shared saved order first, so your Claude, Codex, and Antigravity cards will line up exactly the same way across all draggable panels. Previously, the tray would prematurely position its hidden window before it finished rendering, dragging an empty white or dark rectangle onto your screen at launch; furthermore, if you accidentally launched the tray twice, the second instance would fight the first over the shared WebView2 (the component that renders web content within desktop apps) user-data directory, fail to initialize, and linger as a bare white rectangle. Now, the window is positioned right before it becomes visible, and after a visible panel switch the placement is re-applied as before; moreover, the tray holds a named mutex (a lock mechanism ensuring only one copy runs at a time) during its lifetime, so a second launch simply shows a localized \"already running\" notice and exits. It's like a storefront where employees used to roll up the shutters before dressing the mannequins, or two managers trying to open a shop at the same address; now they perfectly arrange the display before opening the doors, and the second manager politely leaves upon seeing the \"Open\" sign."
+            },
+            "original": "**Windows panel card order now follows across themes**: reloading a theme after dragging a quota card now rereads the shared saved order before state injection, so every draggable panel opens with the same Claude, Codex, and Antigravity card order.\n**The tray panel no longer appears as an empty white/dark rectangle at launch**: pywebview's `resize()` and `move()` call `SetWindowPos` with `SWP_SHOWWINDOW`, and the tray placed its still-hidden window as soon as the panel document loaded — dragging the unrendered panel onto the screen on every start. The window is now placed right before it is shown; after a visible panel switch the placement is re-applied as before.\n**Launching the Windows tray twice no longer leaves a blank white window**: a second instance fought the first over the shared WebView2 user-data directory, so its panel failed to initialize and lingered on screen as a bare white rectangle. The tray now holds a named mutex for its lifetime; a second launch shows an \"already running\" notice (localized) and exits instead."
+          },
+          {
+            "title": {
+              "zh-TW": "狀態列額度同步更安全，Windows 不掉額度資料、macOS 不閃退",
+              "en": "Safer quota sync prevents quota data drops on Windows and startup crashes on macOS"
+            },
+            "body": {
+              "zh-TW": "當你同時開好幾個 Claude Code 視窗時，你的額度資料（`rate_limits`）不再莫名其妙遺失，這波修復也順手解決了 macOS 使用者一開程式就閃退的災難。以前在 Windows 上，如果有兩個實例同時刷新狀態列，用來保護檔案不被同時修改的檔案鎖（file lock）是採用非阻塞式（non-blocking，搶不到鎖就直接放棄並拋出錯誤），而這個搶鎖失敗拋出的 OSError 錯誤又被系統吞掉，導致讀取並寫入 `rate_limits`（額度資料）的過程完全沒有同步保護，把資料給弄丟了。現在 Windows 會不斷輪詢（polling，定期重複嘗試）直到取得鎖，最多等 10 秒；若該檔案系統真的不支援鎖定，就會退回單靠原子寫入（atomic write，確保寫入動作一次完成中途不被打斷）。實測 200 組並行（concurrent）運作，資料遺失次數從 21 次降為完美的 0 次。而這次在修復 Windows 鎖定問題時，不小心用了一個 macOS 上不存在的 `errno.EDEADLOCK` 常數，導致所有 macOS 使用者一載入程式就直接崩潰；現在已經補上防護，當找不到該屬性時會自動退回使用 `errno.EDEADLK`。就像多個記帳員同時要寫同一本帳冊，以前在 Windows 上大家不排隊硬搶，搶不到筆就漏記而弄丟了原本的紀錄，而在 macOS 上則是記帳員看到新版的排隊規定看不懂就直接罷工；現在大家不僅學會耐心排隊等筆，看不懂新規定時也懂得變通，用自己熟悉的方式繼續工作。",
+              "en": "Your quota data will no longer vanish when you run multiple Claude Code windows at the same time, and a related fix resolves a disastrous startup crash for macOS users. Previously on Windows, if two instances refreshed the status line simultaneously, the file lock (a mechanism preventing simultaneous file edits) operated in a non-blocking manner (immediately giving up if the lock wasn't available). The resulting OSError was silently swallowed, leaving the read-modify-write cycle for `rate_limits` (quota data) completely unsynchronized, causing data drops. Windows now polls (repeatedly checks) for the lock until acquired, with a 10-second deadline; if the file system genuinely doesn't support locking, it safely falls back to an atomic write (saving the entire change in one uninterruptible motion). In a test of 200 concurrent runs, data loss plummeted from 21 incidents to zero. Furthermore, the initial fix for this Windows lock issue introduced an `errno.EDEADLOCK` constant that simply doesn't exist on macOS, causing every macOS user's app to crash instantly upon loading. It now falls back to the supported `errno.EDEADLK` when the former is undefined. It's like multiple accountants trying to write in the same ledger: previously on Windows they'd just grab at the book, fail to get a pen, and lose track of the records, while on macOS the accountants saw the new queuing rules, got confused, and walked off the job entirely; now they patiently wait in line for the pen, and know how to adapt when the rulebook uses unfamiliar terms."
+            },
+            "original": "**The status line no longer drops quota data when two Claude Code instances refresh at once on Windows**: the hook's file lock was blocking on POSIX (`fcntl.flock(LOCK_EX)`) but non-blocking on Windows (`msvcrt.locking(LK_NBLCK)`), and a contended lock raised `OSError` that was swallowed — leaving the `rate_limits` carry-forward read-modify-write in `save()` completely unsynchronized. Windows now polls the lock until it is acquired (10s deadline), matching POSIX semantics; genuinely unsupported locking still falls back to the atomic write alone. Measured over 200 concurrent hook pairs: `rate_limits` were lost 21 times before, 0 times after.\n**The Claude Code hook no longer crashes on macOS**: a constant introduced by the Windows lock fix above referenced `errno.EDEADLOCK`, which doesn't exist on macOS — importing `usage_statusline.py` failed immediately for every macOS user. Now falls back to `errno.EDEADLK` when `EDEADLOCK` isn't defined."
+          }
+        ]
+      },
+      "badges": [
+        "fix",
+        "fix"
+      ]
+    },
+    {
       "version": "0.28.3",
       "raw": {
         "version": "0.28.3",
@@ -294,87 +374,6 @@
       },
       "badges": [
         "fix"
-      ]
-    },
-    {
-      "version": "0.27.0",
-      "raw": {
-        "version": "0.27.0",
-        "period": "2026-07-13",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**AI Update Daily** — clicking this menu item opens the public [web page](https://aqua5230.github.io/ai-updates/) in your default browser. The page auto-updates every day, covers Claude Code, Codex, and Antigravity, and keeps the full update history; reviewed updates show a plain-language summary in all five UI languages, while unreviewed ones show the official source text.",
-          "**HTML report's \"AI Tool Update Digest\" section removed** — the digest has graduated into its own dedicated web page, so the HTML deep report no longer duplicates it."
-        ]
-      },
-      "curated": {
-        "version": "0.27.0",
-        "period": "2026-07-13",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "專屬更新網頁上線，報表不再塞滿冗長紀錄",
-              "en": "Dedicated update website is live, keeping the HTML report uncluttered"
-            },
-            "body": {
-              "zh-TW": "點擊選單列上的「AI Update Daily」，你現在可以直接打開專屬的更新網頁，不用再像以前那樣在 HTML 深度報表（deep report，顯示完整數據分析的網頁）裡翻找。這個新網頁每天自動更新，完整收錄了 Claude Code、Codex 和 Antigravity 的歷史紀錄；有人工審查過的版本會顯示五種語言的白話摘要，還沒審查的則會顯示官方原文。也因為有了這個專屬網頁，原本塞在深度報表裡的更新摘要區塊就被移除了，讓報表回歸清爽。就像是一間餐廳把原本擠在點菜單角落的新菜介紹，獨立印成一本精美的全彩菜單，點菜單本身變乾淨了，想看新菜的人也能看得更清楚。",
-              "en": "Clicking \"AI Update Daily\" in the menu bar now takes you straight to a dedicated public web page, instead of making you hunt through the HTML deep report (the page showing your full data analysis). This new page auto-updates daily with the complete history for Claude Code, Codex, and Antigravity; reviewed versions show plain-language summaries in all five UI languages, while unreviewed ones display the official source text. Because this dedicated page now exists, the old update digest section has been removed from the HTML deep report to keep it uncluttered. It's like a restaurant moving the \"new dishes\" section from the corner of the order sheet into a beautifully printed full-color menu—the order sheet stays clean, and those looking for new dishes get a much better reading experience."
-            },
-            "original": "**AI Update Daily** — clicking this menu item opens the public [web page](https://aqua5230.github.io/ai-updates/) in your default browser. The page auto-updates every day, covers Claude Code, Codex, and Antigravity, and keeps the full update history; reviewed updates show a plain-language summary in all five UI languages, while unreviewed ones show the official source text.\n**HTML report's \"AI Tool Update Digest\" section removed** — the digest has graduated into its own dedicated web page, so the HTML deep report no longer duplicates it."
-          }
-        ]
-      },
-      "badges": [
-        "new"
-      ]
-    },
-    {
-      "version": "0.26.1",
-      "raw": {
-        "version": "0.26.1",
-        "period": "2026-07-13",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Codex card no longer shows an untitled \"--\" row**: mid-day on 2026-07-13, OpenAI's server-side rate-limit payload switched to weekly-only (the 5-hour window vanished with the CLI version unchanged), and the loader — which mapped fields by position — shoved the weekly number into the session slot, leaving a blank row behind. Rate-limit windows are now classified by their duration, a window the server no longer reports is hidden entirely (the card shrinks by one row), and the menu-bar Codex percentage falls back to the weekly value while the 5-hour limit is absent. If OpenAI brings the 5-hour window back, both rows return automatically.",
-          "**Antigravity reset countdowns tick down live** instead of freezing at the last-fetched value until the next refresh.",
-          "**Antigravity quota now comes straight from the official quota API**: usage reads the sign-in token the Antigravity CLI already stores on your machine (strictly read-only — the file is never modified) and queries the official quota endpoint directly, replacing the background `/quota` CLI probe. Numbers refresh every ~5 minutes instead of 15, countdowns are exact, no helper process is spawned, and the call reads quota metadata only — it never consumes your model quota. Any fetch failure still falls back to the cached snapshot with the usual stale badge. The data-source description in all five README languages is updated to match.",
-          "**Less idle disk I/O**: the JSONL scan caches are flushed to disk at most once per 5 minutes (with a final flush on quit), rapid file-event bursts coalesce into a single refresh, and the four per-project ranking windows are aggregated in one pass over history.",
-          "Antigravity token rows in the HTML report are labeled \"Antigravity\" instead of \"unknown\"."
-        ]
-      },
-      "curated": {
-        "version": "0.26.1",
-        "period": "2026-07-13",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "介面不再留下空白列，硬碟讀寫更安靜",
-              "en": "No more blank rows in the interface, and disk I/O stays quiet"
-            },
-            "body": {
-              "zh-TW": "當 OpenAI 伺服器突然把 Codex 的限流（rate-limit，限制你多久能發送幾次請求的機制）從「5 小時與每週」改成「只剩每週」時，你的選單列卡片不會再留下一行醜醜的空白了。以前系統只會傻傻照著位置填數字，現在它會認明限流的時長，伺服器沒給的就不顯示，整張卡片會自動縮排；而且選單列上的百分比也會聰明地退回顯示每週的額度。另外，系統現在把零碎的檔案掃描紀錄集中起來，最多每 5 分鐘才寫入硬碟（disk I/O，程式讀寫硬碟的動作）一次，不再頻繁吵醒你的硬碟。就像是原本收納盒裡有兩個專屬格子，如果廠商突然不送其中一款贈品，以前格子會空在那裡長灰塵，現在收納盒會自動縮小不佔位；而且原本你每丟一張發票記帳軟體就要存檔一次，現在它會先記在腦袋裡，每五分鐘才寫進本子裡一次。",
-              "en": "When OpenAI's servers abruptly switch the Codex rate-limit (the mechanism restricting how many requests you can make) payload from showing both a 5-hour and a weekly window to weekly-only, your menu bar card won't leave an ugly blank row anymore. Previously, the system mapped numbers purely by their position, but now it classifies limits by their duration—if the server stops reporting one, that row disappears completely, the card shrinks, and the menu bar percentage smartly falls back to the weekly value. Additionally, the system now coalesces file scan records and flushes them to your disk (disk I/O) at most once every 5 minutes, stopping the constant disk waking. It's like a bento box with dedicated slots: if a side dish stops being served, the box used to just leave an empty, dusty compartment, but now it automatically resizes to save space; and instead of writing to the ledger every single time you hand over a receipt, the accountant now batches them up and writes everything down once every five minutes."
-            },
-            "original": "**Codex card no longer shows an untitled \"--\" row**: mid-day on 2026-07-13, OpenAI's server-side rate-limit payload switched to weekly-only (the 5-hour window vanished with the CLI version unchanged), and the loader — which mapped fields by position — shoved the weekly number into the session slot, leaving a blank row behind. Rate-limit windows are now classified by their duration, a window the server no longer reports is hidden entirely (the card shrinks by one row), and the menu-bar Codex percentage falls back to the weekly value while the 5-hour limit is absent. If OpenAI brings the 5-hour window back, both rows return automatically.\n**Less idle disk I/O**: the JSONL scan caches are flushed to disk at most once per 5 minutes (with a final flush on quit), rapid file-event bursts coalesce into a single refresh, and the four per-project ranking windows are aggregated in one pass over history."
-          },
-          {
-            "title": {
-              "zh-TW": "Antigravity 額度更新更即時，報表標籤更清楚",
-              "en": "Antigravity quotas refresh faster, with live countdowns and clear labels"
-            },
-            "body": {
-              "zh-TW": "查看 Antigravity 的額度倒數時，數字現在會即時跟著時間跳動，不會像以前那樣卡在上次更新的時間點。這背後是因為系統現在改為直接讀取你電腦上已有的登入憑證（唯讀不修改），去向官方的額度介面（API）要資料，不再透過背景偷跑指令來檢查。這讓資料更新頻率從 15 分鐘縮短到 5 分鐘，倒數時間無比精準，也免去了多開額外處理程序的負擔；而且這完全只讀取額度資訊，不會扣到你的模型扣打（quota）。此外，HTML 報表裡的 Antigravity 使用紀錄也不會再被誤標成「unknown」了。就像搭火車，以前月台看板每 15 分鐘才人工翻牌一次，有時還會寫著「未知車種」；現在直接連線行控中心，每分每秒都精準倒數，而且車次名稱清清楚楚。",
-              "en": "When checking your Antigravity quotas, the reset countdowns now tick down live second by second, rather than freezing at whatever time it was last fetched. Behind the scenes, the system now reads the sign-in token already on your machine (strictly read-only) to query the official quota endpoint directly, instead of running background commands. This shortens the refresh cycle from 15 to 5 minutes, makes countdowns perfectly exact, and eliminates the overhead of spawning helper processes—and since it only reads metadata, it never consumes your model quota. Additionally, Antigravity usage rows in the HTML report are now properly labeled instead of defaulting to \"unknown\". It's like taking a train: the platform display used to only manually flip every 15 minutes and sometimes said \"Unknown Train\"; now it's hooked directly to dispatch, counting down perfectly to the second with the exact train name displayed."
-            },
-            "original": "**Antigravity reset countdowns tick down live** instead of freezing at the last-fetched value until the next refresh.\n**Antigravity quota now comes straight from the official quota API**: usage reads the sign-in token the Antigravity CLI already stores on your machine (strictly read-only — the file is never modified) and queries the official quota endpoint directly, replacing the background `/quota` CLI probe. Numbers refresh every ~5 minutes instead of 15, countdowns are exact, no helper process is spawned, and the call reads quota metadata only — it never consumes your model quota. Any fetch failure still falls back to the cached snapshot with the usual stale badge. The data-source description in all five README languages is updated to match.\nAntigravity token rows in the HTML report are labeled \"Antigravity\" instead of \"unknown\"."
-          }
-        ]
-      },
-      "badges": [
-        "fix",
-        "new"
       ]
     }
   ]
