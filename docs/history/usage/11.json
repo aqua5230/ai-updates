@@ -5,6 +5,134 @@
   "pages": 23,
   "versions": [
     {
+      "version": "0.28.13",
+      "raw": {
+        "version": "0.28.13",
+        "period": "2026-07-18",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-20",
+        "entries": [
+          "**Auto-start 5-hour Session now actually fires**: the `claude` CLI resolution list was missing `~/.local/bin/claude` (where the native installer puts it), so inside the `.app` bundle's narrow `PATH` the ping silently found nothing to run and gave up. Also hardened against a false \"expired\" read: the reset-time check now only trusts the live statusLine hook data source (fallback sources can default a missing `resets_at` to parse time, which the next refresh would misread as already-expired) and requires the expiry to be at least 2 minutes old before firing, filtering out that false positive without meaningfully delaying a real away-from-keyboard ping. Dialog copy from 0.28.12 also simplified — leads with \"pauses on sleep, resumes on wake, nothing to manage\" and routes the sleep-setting instructions through System Settings search (the exact pane/wording varies by Mac model and macOS version) with a fallback suggestion to ask Claude Code to walk through it."
+        ]
+      },
+      "curated": {
+        "version": "0.28.13",
+        "period": "2026-07-18",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "離席自動起跑，現在真的會啟動也不會誤響",
+              "en": "Away-time auto-start now runs reliably without false alarms"
+            },
+            "body": {
+              "zh-TW": "你離開電腦前開啟 Auto-start 5-hour Session（下個 5 小時階段自動啟動），它現在就會準時啟動。Mac App 的 `PATH` 很窄，找指令的名單漏掉原生安裝器放置 `claude` CLI（從終端機下指令操作 Claude 的工具）的 `~/.local/bin/claude`，背景 ping 找不到可執行項目便放棄；已補上。它也只信任 statusLine hook（會提供終端機底部狀態列資料、在特定事件觸發的小程式）的即時資料來判斷重設時間，避免備援來源把缺少的 `resets_at` 當成剛解析時間，下一次刷新又誤認額度已過期。到期滿兩分鐘才 ping，濾掉誤報，離席自動啟動不會明顯變慢。像定時洗衣機終於找得到插座，也不會把剛按下的按鈕誤當成洗完。說明視窗改成先講睡眠會暫停、醒來會恢復；睡眠設定改用 System Settings 搜尋。",
+              "en": "Turn on Auto-start 5-hour Session before stepping away, and it will now fire on time. The Mac app's `.app` bundle has a narrow `PATH`, and its command lookup list had omitted `~/.local/bin/claude`, where the native installer puts the `claude` CLI. The background ping could find nothing to run and quietly give up; that location is now included. The reset-time check also now trusts only live statusLine hook data, supplied by a small program that is triggered by particular events and feeds the terminal's bottom status bar, rather than fallback data that can treat a missing `resets_at` value as the parsing time and later mistake it for an expired session. It waits until expiry is at least two minutes old before pinging, filtering that false alarm without meaningfully delaying a real away-time auto-start. Think of a timed washing machine that can finally find its outlet and no longer mistakes a freshly pressed button for a completed wash. The dialog now leads with the important bit: it pauses during sleep and resumes on wake. Sleep instructions send you to System Settings search, so you do not have to hunt through differently named panes on different Macs or macOS versions."
+            },
+            "original": "**Auto-start 5-hour Session now actually fires**: the `claude` CLI resolution list was missing `~/.local/bin/claude` (where the native installer puts it), so inside the `.app` bundle's narrow `PATH` the ping silently found nothing to run and gave up. Also hardened against a false \"expired\" read: the reset-time check now only trusts the live statusLine hook data source (fallback sources can default a missing `resets_at` to parse time, which the next refresh would misread as already-expired) and requires the expiry to be at least 2 minutes old before firing, filtering out that false positive without meaningfully delaying a real away-from-keyboard ping. Dialog copy from 0.28.12 also simplified — leads with \"pauses on sleep, resumes on wake, nothing to manage\" and routes the sleep-setting instructions through System Settings search (the exact pane/wording varies by Mac model and macOS version) with a fallback suggestion to ask Claude Code to walk through it."
+          }
+        ]
+      },
+      "badges": [
+        "new"
+      ]
+    },
+    {
+      "version": "0.28.12",
+      "raw": {
+        "version": "0.28.12",
+        "period": "2026-07-18",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-18",
+        "entries": [
+          "**New opt-in menu toggle: Auto-start 5-hour Session.** When enabled, usage detects that your Claude 5-hour quota window has just reset and no session is currently running, then fires a single `claude -p ok --model haiku` in the background to immediately start the next window — useful if you're stepping away and want the next 5 hours counting down before you're back. Off by default; sends at most once per 5-hour window (self-throttled), never touches the Anthropic quota API, and silently no-ops if the `claude` CLI can't be found. Enabling it shows a one-time dialog explaining that it needs usage (and the Mac) to stay awake to fire — closing the lid always sleeps the Mac regardless of this setting."
+        ]
+      },
+      "curated": {
+        "version": "0.28.12",
+        "period": "2026-07-18",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "離席時，讓下一個 5 小時額度窗口先起跑",
+              "en": "Start your next 5-hour window while you're away"
+            },
+            "body": {
+              "zh-TW": "要離開電腦吃飯或出門，卻不想回來才開始等下一輪 Claude 額度嗎？usage 新增可自行開啟的「Auto-start 5-hour Session」選項。它發現 5 小時 quota window（Claude 額度每 5 小時重新計算的一段時間）剛重設、而且目前沒有執行中的 session（一次持續運作的工作階段）時，會在背景送出一次 `claude -p ok --model haiku`，立刻替下一個窗口起跑。像替洗衣機設好延後啟動：你人不在，倒數仍先開始；每個窗口最多只送一次，不會反覆叫醒它。這項功能預設關閉，不會碰 Anthropic 的 quota API（查詢額度的程式介面）；找不到 `claude` CLI（從終端機下指令操作 Claude 的工具）也會安靜略過。開啟時會先說明 usage 和 Mac 必須保持醒著，但闔上筆電仍照常讓 Mac 睡眠。",
+              "en": "Heading out for lunch or errands and don't want your next Claude allowance window to start only when you return? usage now has an opt-in Auto-start 5-hour Session toggle. When it sees that a 5-hour quota window has reset and no session is running, it sends one background `claude -p ok --model haiku` command to start the next window immediately. Think of it like scheduling a washing machine: the countdown can begin while you're away, but it runs at most once per window rather than repeatedly nudging the machine. It is off by default, never calls Anthropic's quota API, and quietly does nothing if the `claude` CLI is unavailable. On setup, it explains that usage and your Mac need to stay awake; closing the lid still puts your Mac to sleep as usual."
+            },
+            "original": "**New opt-in menu toggle: Auto-start 5-hour Session.** When enabled, usage detects that your Claude 5-hour quota window has just reset and no session is currently running, then fires a single `claude -p ok --model haiku` in the background to immediately start the next window — useful if you're stepping away and want the next 5 hours counting down before you're back. Off by default; sends at most once per 5-hour window (self-throttled), never touches the Anthropic quota API, and silently no-ops if the `claude` CLI can't be found. Enabling it shows a one-time dialog explaining that it needs usage (and the Mac) to stay awake to fire — closing the lid always sleeps the Mac regardless of this setting."
+          }
+        ]
+      },
+      "badges": [
+        "new"
+      ]
+    },
+    {
+      "version": "0.28.11",
+      "raw": {
+        "version": "0.28.11",
+        "period": "2026-07-18",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-18",
+        "entries": [
+          "**The HTML usage report looks less like a template and reads more cleanly**: gold is no longer a blanket accent — it's now reserved for four focal points (headline tail, primary KPI number, the Wrapped kicker badge, the terminal cursor), with the contribution heatmap and donut chart moved to a cohesive teal/mauve palette instead. Fixed three alignment bugs: the KPI card grid now keeps a consistent rhythm across all six cards, the Wrapped section's total-token figure no longer overlaps the phoenix illustration at high digit counts, and the trailing metric card in that section no longer orphans onto its own row. Also cleans up several small \"obviously AI-generated\" tells: `transition: all` rules now list only the properties that actually animate, card/section borders read at a clearer contrast in both color schemes, disabled/active button states are now styled instead of falling back to defaults, motion respects `prefers-reduced-motion`, and the three share-dialog emoji icons are now matched-stroke SVGs."
+        ]
+      },
+      "curated": {
+        "version": "0.28.11",
+        "period": "2026-07-18",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "用量報表不再像套版，重點更好找也更好看",
+              "en": "Usage reports look less templated and put the important numbers in focus"
+            },
+            "body": {
+              "zh-TW": "月底打開 HTML 用量報表（可在瀏覽器看的網頁格式）時，重要數字終於不必從一片金色裡挖。金色現在只留給標題尾端、主要 KPI 數字（最關鍵的指標）、Wrapped 小標與終端機游標；貢獻熱圖和甜甜圈圖則改用一致的藍綠與藕紫。這像把舞台追光只打在主角身上，其餘演員穿協調的服裝，目光自然會落到最該看的地方。六張 KPI 卡片的排列距離已對齊，Wrapped 的總 token 數（AI 處理文字的計量單位）再長也不會壓住鳳凰插圖，最後一張指標卡也不會孤零零掉到下一列。卡片和區塊邊框在兩套配色中都更清楚；按鈕的停用、啟用狀態也更好認。動畫會尊重「減少動態效果」偏好，分享視窗三個圖示換成筆畫一致的 SVG 圖檔。連 CSS 的 `transition: all` 都改成只列會動的屬性，少掉模板常見的多餘手勢。",
+              "en": "When you open your HTML usage report (the web-page version you view in a browser) at the end of the month, the important numbers no longer have to fight through a sea of gold. Gold is now reserved for the headline tail, main KPI number (the key performance indicator), Wrapped badge, and terminal cursor; the contribution heatmap and donut chart use a coordinated teal-and-mauve palette instead. It is like saving the spotlight for the lead actor while the rest of the cast wears matching costumes. The six KPI cards now keep even spacing, a long Wrapped total-token count no longer overlaps the phoenix, and the last metric card no longer drops onto a row by itself. Card and section borders are clearer in both color schemes, while button states are easier to recognize. Motion follows reduced-motion preferences, and the share dialog's three icons now use matching-stroke SVG artwork. Even CSS `transition: all` rules now name only properties that move, removing a telltale template habit."
+            },
+            "original": "**The HTML usage report looks less like a template and reads more cleanly**: gold is no longer a blanket accent — it's now reserved for four focal points (headline tail, primary KPI number, the Wrapped kicker badge, the terminal cursor), with the contribution heatmap and donut chart moved to a cohesive teal/mauve palette instead. Fixed three alignment bugs: the KPI card grid now keeps a consistent rhythm across all six cards, the Wrapped section's total-token figure no longer overlaps the phoenix illustration at high digit counts, and the trailing metric card in that section no longer orphans onto its own row. Also cleans up several small \"obviously AI-generated\" tells: `transition: all` rules now list only the properties that actually animate, card/section borders read at a clearer contrast in both color schemes, disabled/active button states are now styled instead of falling back to defaults, motion respects `prefers-reduced-motion`, and the three share-dialog emoji icons are now matched-stroke SVGs."
+          }
+        ]
+      },
+      "badges": [
+        "new"
+      ]
+    },
+    {
+      "version": "0.28.10",
+      "raw": {
+        "version": "0.28.10",
+        "period": "2026-07-18",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-18",
+        "entries": [
+          "**Switching panels no longer stalls the UI with a beachball**: cold-rebuilding a panel view (evicted from the small LRU cache) reread and reassembled its HTML from disk every time — now the assembled markup is cached per panel and only built once. Selecting a panel no longer forces `NSUserDefaults.synchronize()` on the main thread. Unchanged panel state is no longer redundantly re-serialized and re-injected when a switch triggers two refresh passes back to back. Evicting an old cached panel view from the LRU cache is now deferred off the click's run-loop turn instead of running inline with the new panel's setup."
+        ]
+      },
+      "curated": {
+        "version": "0.28.10",
+        "period": "2026-07-18",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "切換面板不再轉彩球，畫面終於跟得上手",
+              "en": "Panel switching no longer leaves you waiting on a spinning beachball"
+            },
+            "body": {
+              "zh-TW": "你在面板間點來點去查用量時，畫面不該每次都像重新拆箱再組裝。之前若面板剛好被 LRU cache（快取，把算過的結果暫存起來直接用）擠出去，切回去得從磁碟重讀 HTML 並重組；現在每個面板組好的內容會留著，只建一次。切換時也不再讓主執行緒（專門處理你點擊與畫面的主要工作線）硬做設定同步，連著兩次刷新更不會重複打包同一份狀態。舊面板的清理改在點擊之後處理，就像店員先替你打開下一扇門，再慢慢收回前一間的展示架；換面板時終於不必盯著彩球等它回神。",
+              "en": "When you hop between panels to check usage, the app should not unpack and rebuild a room every time. If a panel had been pushed out of the small LRU cache, switching back used to reread its HTML from disk and assemble it again. Now each panel keeps its finished markup and builds it only once. Switching also stops forcing settings synchronization on the main thread, duplicate back-to-back refreshes no longer repackage unchanged state, and cleanup of an old panel happens after your click. Like a shop attendant opening your next door before tidying the last display, rather than making you wait in the aisle."
+            },
+            "original": "**Switching panels no longer stalls the UI with a beachball**: cold-rebuilding a panel view (evicted from the small LRU cache) reread and reassembled its HTML from disk every time — now the assembled markup is cached per panel and only built once. Selecting a panel no longer forces `NSUserDefaults.synchronize()` on the main thread. Unchanged panel state is no longer redundantly re-serialized and re-injected when a switch triggers two refresh passes back to back. Evicting an old cached panel view from the LRU cache is now deferred off the click's run-loop turn instead of running inline with the new panel's setup."
+          }
+        ]
+      },
+      "badges": [
+        "fix"
+      ]
+    },
+    {
       "version": "0.28.9",
       "raw": {
         "version": "0.28.9",
@@ -241,170 +369,6 @@
       "badges": [
         "fix",
         "fix"
-      ]
-    },
-    {
-      "version": "0.28.3",
-      "raw": {
-        "version": "0.28.3",
-        "period": "2026-07-16",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-16",
-        "entries": [
-          "**Antigravity quota probing now reads the current Windows CLI OAuth credential**: when the legacy token file is missing or unusable, usage falls back read-only to the `gemini:antigravity` Windows Credential Manager entry. The quota request's user agent now also identifies the actual host platform instead of always claiming Darwin/arm64.",
-          "**Claude Code quota collection now works with Git Bash on Windows**: status-line commands were written with Windows backslashes, but Claude Code runs them through Git Bash when it is installed, where those backslashes escape the path and prevent the Python hook from launching. New commands use portable forward slashes; startup self-heal migrates existing usage-owned commands, and `--doctor` identifies the legacy form and the recovery step."
-        ]
-      },
-      "curated": {
-        "version": "0.28.3",
-        "period": "2026-07-16",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Windows 上的額度收集不再罷工，路徑與憑證抓取更聰明",
-              "en": "Quota collection stops failing on Windows with smarter paths and credentials"
-            },
-            "body": {
-              "zh-TW": "如果你是用 Windows 跑這些 AI 工具，現在統計使用額度時，終於不會卡住或抓不到你的身分了。以前 Antigravity 的額度探測（quota probing，去查你剩下多少可用次數的動作）只認得舊版的 token 檔案，這個檔案不見或壞掉時就會直接罷工；現在它多了一條退路，會退而求其次去唯讀 Windows CLI 目前的 OAuth 憑證（OAuth credential，一種讓程式證明這是你本人授權的通行證，存在 Windows Credential Manager 的 `gemini:antigravity` 項目裡），而且回報資料時能正確說出你是哪種主機平台，不再一律宣稱大家都是 Mac（Darwin/arm64）。另外，當你在 Windows 搭配 Git Bash 收集 Claude Code 額度時，以前狀態列指令（status-line commands，顯示在終端機底部的狀態更新指令）用的是 Windows 的反斜線路徑，這在 Git Bash 裡會被當成跳脫字元（escape character，用來標記特殊符號的寫法）把路徑吃掉，害背後的 Python 程式無法啟動。現在全部改用正斜線，啟動時的自我修復（self-heal，程式自己動手更新舊設定的機制）會順手幫你把舊指令升級，用 `--doctor` 也能幫你抓出舊格式並提示復原步驟。就像員工去外地出差報帳，以前只認一種舊版的紙本通行證，弄丟了就直接卡關，填表還會因為斜線打反導致印表機當機；現在多了備案，只要翻出目前有效的電子授權證明就能確認身分，並把報表格式統一，甚至連你以前寫錯的舊單據都順手改對了。",
-              "en": "If you're running these AI tools on Windows, tallying your usage quota will finally stop failing or losing track of your identity. Previously, Antigravity's quota probing (the action that checks how many requests you have left) only recognized the legacy token file, and would simply give up if it was missing or corrupted; now it has a fallback, reading the current Windows CLI OAuth credential (a pass proving you authorized the program, stored in the Windows Credential Manager's `gemini:antigravity` entry) in read-only mode, and it correctly identifies your actual host platform instead of blindly claiming everyone is on a Mac (Darwin/arm64). Additionally, when collecting Claude Code quota via Git Bash on Windows, status-line commands (instructions that update the state at the bottom of the terminal) used to be written with Windows backslashes, which Git Bash treated as escape characters (syntax used to mark special symbols), ruining the path and preventing the background Python hook from launching. Everything now uses portable forward slashes; a startup self-heal (a mechanism where the program automatically upgrades its own old configurations) process silently migrates your old commands, and running `--doctor` will also catch legacy formats to guide you through recovery. It's like an employee filing an expense report on a business trip — previously, only an old paper pass was accepted, and losing it would instantly halt the process, while writing slashes backward would jam the printer; now there's a backup option to verify identity using your current valid digital authorization, standardizes the form formatting, and automatically corrects any incorrectly filled old forms on the spot."
-            },
-            "original": "**Antigravity quota probing now reads the current Windows CLI OAuth credential**: when the legacy token file is missing or unusable, usage falls back read-only to the `gemini:antigravity` Windows Credential Manager entry. The quota request's user agent now also identifies the actual host platform instead of always claiming Darwin/arm64.\n**Claude Code quota collection now works with Git Bash on Windows**: status-line commands were written with Windows backslashes, but Claude Code runs them through Git Bash when it is installed, where those backslashes escape the path and prevent the Python hook from launching. New commands use portable forward slashes; startup self-heal migrates existing usage-owned commands, and `--doctor` identifies the legacy form and the recovery step."
-          }
-        ]
-      },
-      "badges": [
-        "new"
-      ]
-    },
-    {
-      "version": "0.28.2",
-      "raw": {
-        "version": "0.28.2",
-        "period": "2026-07-15",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-16",
-        "entries": [
-          "**Switching panels on Windows no longer risks a blank white window**: the panel-switch action reloaded the document synchronously from inside the pywebview JS-API callback, which could destroy the in-flight JavaScript Promise callback for that call and leave Edge WebView blank. The reload is now deferred until the bridge call has returned to JavaScript, with a pending-switch guard so rapid double-clicks recompute the target panel instead of reusing a stale one. The Windows PyInstaller bundle also now includes the status-line and session-hook source files that the setup and self-heal paths copy at runtime, which it previously omitted.",
-          "**The Windows tray window no longer flashes white regardless of theme**: pywebview's window background defaults to white, which bled through the frameless window's rounded corners (and any unpainted first frame) even when the active panel's CSS was rendering its dark variant. The window background now reads the system's light/dark theme setting and matches the panel's background color."
-        ]
-      },
-      "curated": {
-        "version": "0.28.2",
-        "period": "2026-07-15",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Windows 視窗切換不留白，也不再亮瞎眼",
-              "en": "Windows panel switching avoids blank screens and white flashes"
-            },
-            "body": {
-              "zh-TW": "在 Windows 上快速切換面板時，畫面不會再莫名其妙留白，也不會再閃現刺眼的白光了。以前在切換面板時，系統會在 pywebview（讓桌面程式內嵌顯示網頁畫面的套件）的 JS-API 回呼函式（callback，工作做完後系統自動呼叫回來的那段程式碼）還沒跑完前就急著重新載入畫面，這會把用來等候結果的 Promise（JavaScript 裡用來處理未來才會完成的工作的排隊號碼牌）給摧毀掉，導致 Edge WebView（在桌面程式裡嵌入網頁畫面的瀏覽器元件）卡在一片空白。而且，原本 pywebview 視窗的預設背景色死板地設為白色，就算你開了深色模式，在載入瞬間或圓角邊緣還是會閃瞎你的眼睛。現在它懂等橋樑溝通完畢才載入，還加上了防禦機制，就算你急躁地連點兩下，系統也會重新算出你最後想切去的那個目標面板，不會傻傻沿用已經過期的舊面板；同時視窗背景也會自動讀取你的系統深淺色主題。此外，Windows 的打包檔（PyInstaller bundle，把 Python 程式連同工具包壓成單一執行檔的打包方式）現在也補齊了先前遺漏的 status-line 與 session-hook 原始檔，讓安裝與自我修復流程在執行期能順利複製這些檔案。就像電視換台，以前轉台太快會卡在沒有訊號的白畫面，或者看恐怖片看到一半切台被突然閃現的白光亮瞎；現在不管你怎麼瘋狂轉台，畫面都順滑無比，並且保持在不刺眼的電影院模式。",
-              "en": "Switching panels rapidly on Windows won't leave you stranded on a blank white screen anymore, and the jarring white flashes are gone. Previously, a panel-switch action rudely reloaded the document before pywebview (a package that embeds web content within desktop apps) finished its JS-API callback (code automatically executed after a task completes), completely destroying the in-flight Promise (a JavaScript placeholder for a task that will finish in the future) and leaving the Edge WebView (the browser component embedded inside the desktop app) entirely blank. Furthermore, pywebview's default window background was hardcoded to white, bleeding blinding flashes through rounded corners or the first frame even if you were using a dark theme. Now, the reload patiently waits until the communication bridge has safely returned, with an extra pending-switch guard so rapid double-clicks correctly recalculate the final target panel instead of reusing an outdated locked one; additionally, the window properly reads your system's light/dark theme. Furthermore, the Windows package (PyInstaller bundle, a way to compress the Python program and tools into a single executable file) now includes the previously omitted status-line and session-hook source files, allowing the setup and self-heal paths to copy them correctly at runtime. It's like flipping channels on a TV—it used to get stuck on blinding static if you mashed the remote, or flash a bright white light before switching to your dark movie; now it changes channels buttery smooth and stays comfortably in dark theater mode."
-            },
-            "original": "**Switching panels on Windows no longer risks a blank white window**: the panel-switch action reloaded the document synchronously from inside the pywebview JS-API callback, which could destroy the in-flight JavaScript Promise callback for that call and leave Edge WebView blank. The reload is now deferred until the bridge call has returned to JavaScript, with a pending-switch guard so rapid double-clicks recompute the target panel instead of reusing a stale one. The Windows PyInstaller bundle also now includes the status-line and session-hook source files that the setup and self-heal paths copy at runtime, which it previously omitted.\n**The Windows tray window no longer flashes white regardless of theme**: pywebview's window background defaults to white, which bled through the frameless window's rounded corners (and any unpainted first frame) even when the active panel's CSS was rendering its dark variant. The window background now reads the system's light/dark theme setting and matches the panel's background color."
-          }
-        ]
-      },
-      "badges": [
-        "fix"
-      ]
-    },
-    {
-      "version": "0.28.1",
-      "raw": {
-        "version": "0.28.1",
-        "period": "2026-07-15",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-16",
-        "entries": [
-          "**Windows auto-detects the interface language**: with no `USAGE_LANG`/`TT_LANG`/`LANG` set, language detection only knew how to ask macOS (`NSLocale`) and always fell back to English on Windows. It now maps `GetUserDefaultUILanguage()` through `locale.windows_locale`, so a zh-TW / zh-CN / ja / ko Windows UI gets the matching interface out of the box. Environment variables still take precedence.",
-          "**mypy now runs on the Windows CI job too**: the `check-windows` job previously skipped type checking, which is how several Windows-only defects (including the tray-startup crash surface) went unnoticed. The platform-conditional code paths (`termios`/`msvcrt` key readers, `os.getuid`, `time.tzset`, pywebview's `Window | None`) are now typed so that `mypy .` is clean on both macOS and Windows.",
-          "**The Windows tray now actually starts**: importing the tray pulled in the `panels` package, whose `__init__` eagerly imported the PyObjC-backed `panels.web_panel`; on Windows this raised `ModuleNotFoundError: No module named 'objc'`, and because the TUI fallback in `main.py` only recognized a missing `wintray` module, the windowed build exited silently with nothing on screen. The panel registry now imports `web_panel` lazily inside `all_panels()` (macOS behavior unchanged), and the fallback degrades to the TUI whenever any module in the tray's import chain is missing, printing the missing module's name.",
-          "**The tray menu and JS bridge no longer break at startup**: pystray rejects menu actions whose lambda carries an extra defaulted positional parameter, so building the panel-switch submenu raised `ValueError` before the icon ever appeared; and pywebview serializes every public attribute of the `js_api` object into the JS bridge, so exposing the tray controller on it recursed through the WinForms window graph until the recursion limit. The panel-id binding is now keyword-only, and the bridge holds the controller in a private attribute.",
-          "**Project names derive correctly from POSIX-style cwds on Windows**: `usage_session_resume._project_from_cwd` and `adapters.claude.project_from_cwd` split paths on `os.sep` only, so a transcript cwd recorded with forward slashes (or a `C:/...`-style path) kept the whole path as the \"project\" on Windows. Both now normalize separators on Windows before splitting; POSIX behavior is unchanged, since backslashes are legal in POSIX filenames.",
-          "**The test suite collects and passes on Windows**: the `check-windows` CI job had been red since it was introduced. Five test modules that import PyObjC-backed code at module level are now skipped outside macOS via `collect_ignore`; timezone pinning that relied on `TZ` + `time.tzset()` (unavailable on Windows) now pins the conversion points directly; setup-hook tests no longer hardcode `/usr/bin/python3` or `/bin/sh`; and the Codex adapter/consistency tests now sandbox `ARCHIVED_SESSIONS_DIR` and the JSONL disk cache, which previously leaked real `~/.codex` history on any machine with usage data — regardless of OS.",
-          "**Encoded project-path decoding now works on Windows**: `project_from_encoded_path` reconstructed a project's real directory from its dash-encoded name by searching from the filesystem root, but a bare Windows `\\` has no drive letter and never matches a real path, so decoding always fell back to the raw encoded string. It now anchors at the drive root (e.g. `C:\\`) when the encoded name starts with one; POSIX behavior is unchanged."
-        ]
-      },
-      "curated": {
-        "version": "0.28.1",
-        "period": "2026-07-15",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Windows 介面語言自動偵測",
-              "en": "Windows interface language auto-detection"
-            },
-            "body": {
-              "zh-TW": "Windows 使用者現在打開程式，預設就會顯示你熟悉的介面語言，不用再自己手動去改設定了。以前如果沒有特別去設環境變數（environment variables，在系統底層預先塞給程式看的隱藏設定），系統只懂得去問 macOS 是什麼語言，在 Windows 上一律退回英文版。現在它學會了透過 `locale.windows_locale` 去查 Windows 的系統設定（也就是呼叫 `GetUserDefaultUILanguage()`），所以不管你的 Windows 是繁體中文（zh-TW）、簡體中文（zh-CN）、日文還是韓文，它一開箱就能配對到對應的語言。當然，如果你堅持要用環境變數指定，它還是會優先聽你的。就像走進國際連鎖店的台灣分店，以前店員不管三七二十一都先對你說英文，除非你胸前掛著「請講中文」的牌子；現在店員懂得看你在哪裡，一進門就直接用熟悉的母語招呼你。",
-              "en": "Windows users now get the user interface in their familiar system language right out of the box, without having to tweak any settings manually. Previously, if you didn't explicitly set environment variables (hidden configurations stuffed into the system before a program runs), the language detection only knew how to ask macOS (`NSLocale`) for the language and always awkwardly fell back to English on Windows. It now maps `GetUserDefaultUILanguage()` through `locale.windows_locale`, so whether your Windows UI is in zh-TW, zh-CN, ja, or ko, the app matches it instantly. Environment variables still take precedence if you want to override it. It's like walking into a global chain store's local branch—clerks used to greet everyone in English unless you wore a name tag requesting otherwise, but now they simply look at where they are and speak your native language the moment you walk in."
-            },
-            "original": "**Windows auto-detects the interface language**: with no `USAGE_LANG`/`TT_LANG`/`LANG` set, language detection only knew how to ask macOS (`NSLocale`) and always fell back to English on Windows. It now maps `GetUserDefaultUILanguage()` through `locale.windows_locale`, so a zh-TW / zh-CN / ja / ko Windows UI gets the matching interface out of the box. Environment variables still take precedence."
-          },
-          {
-            "title": {
-              "zh-TW": "Windows 系統匣終於能順利啟動",
-              "en": "The Windows tray finally starts perfectly"
-            },
-            "body": {
-              "zh-TW": "Windows 使用者現在可以正常從系統列（Windows 螢幕右下角的一排小圖示）打開這個程式，它不會再默默崩潰了。以前在 Windows 上啟動系統列時，背後的程式碼會因為去拉取 macOS 專用的 `objc` 模組而引發找不到模組的錯誤（ModuleNotFoundError）；且由於程式的備援機制／退回路徑（fallback，指某個功能用不了時自動切換到另一個能用的模式）只認得 `wintray` 這個模組不見，遇到 `objc` 缺席就直接當作沒事般安靜閃退。此外，建立切換面板的選單時，背後的 pystray 套件會因為遇到多餘的位置參數（positional parameter，依順序傳入的變數）而引發數值錯誤（ValueError）；且將控制器暴露給 JS bridge（讓網頁前端跟背後 Python 程式溝通的橋樑）時，因為 pywebview 會把所有公開屬性（public attributes）序列化，導致在 WinForms 視窗架構中產生無窮迴圈直到當機。現在模組會延遲到真的需要時才載入，且備援機制只要發現任何模組不見就會乖乖印出名字並退回文字介面（TUI），我們也藉由將 panel-id 改為限用關鍵字綁定（keyword-only binding）解決了選單參數錯誤，並將控制器改存為私有屬性（private attribute）終結了迴圈問題。就像一台原本只要某顆螺絲不對就一聲不吭死火的引擎，現在不但順暢發動，就算哪裡故障也會在儀表板上亮起明確的警告燈。",
-              "en": "Windows users can now successfully open the app from the system tray (the row of small icons in the bottom right of the Windows screen) without it silently crashing before it even appears. Previously, starting the tray on Windows inadvertently tried to import the macOS-exclusive `objc` module, raising a ModuleNotFoundError; since the app's fallback (a backup path that automatically switches to another available mode when a feature fails) only knew how to handle a missing `wintray` module, it just quietly aborted without showing any window. Furthermore, when building the panel-switching menu, pystray would reject the action due to an extra defaulted positional parameter (a variable passed by position), raising a ValueError; and when exposing the controller to the JS bridge (the communication link between the web frontend and Python backend), pywebview serialized every public attribute, which recursed through the WinForms window graph until hitting the limit. Now, the `objc` module is strictly loaded only when needed (lazy import), the fallback gracefully degrades to a text interface (TUI) while printing the exact missing module. The menu parameter bug is fixed by making the panel-id binding keyword-only, and the recursion loop is resolved by keeping the controller in a private attribute. It's like trying to start a car whose engine used to flood and die silently if a single unrelated part was missing; now the ignition purrs to life perfectly, and if something does break, it at least lights up a specific warning on the dashboard."
-            },
-            "original": "**The Windows tray now actually starts**: importing the tray pulled in the `panels` package, whose `__init__` eagerly imported the PyObjC-backed `panels.web_panel`; on Windows this raised `ModuleNotFoundError: No module named 'objc'`, and because the TUI fallback in `main.py` only recognized a missing `wintray` module, the windowed build exited silently with nothing on screen. The panel registry now imports `web_panel` lazily inside `all_panels()` (macOS behavior unchanged), and the fallback degrades to the TUI whenever any module in the tray's import chain is missing, printing the missing module's name.\n**The tray menu and JS bridge no longer break at startup**: pystray rejects menu actions whose lambda carries an extra defaulted positional parameter, so building the panel-switch submenu raised `ValueError` before the icon ever appeared; and pywebview serializes every public attribute of the `js_api` object into the JS bridge, so exposing the tray controller on it recursed through the WinForms window graph until the recursion limit. The panel-id binding is now keyword-only, and the bridge holds the controller in a private attribute."
-          },
-          {
-            "title": {
-              "zh-TW": "Windows 上的專案路徑不再顯示錯誤",
-              "en": "Windows project paths no longer display errors"
-            },
-            "body": {
-              "zh-TW": "在 Windows 系統裡，你的專案名稱終於不會再被程式讀錯了。Windows 的路徑寫法比較隨興，以前如果你的工作目錄（cwd）是用 POSIX-style cwds（指 Mac 或 Linux 上那種用正斜線 `/` 分隔資料夾的路徑格式，比如 `C:/...`）紀錄，或者用了 dash-encoded name（把斜線換成連字號以方便當作檔案名稱的格式），系統只懂得用 Windows 專屬的反斜線去切，結果就是把整串長長的路徑當成專案名稱，或者因為找不到只有反斜線的磁碟代號而放棄解碼。現在它學聰明了，在切開路徑前會先把正反斜線統一整理（normalize），並且知道要把代號鎖定在 `C:\\` 這種磁碟根目錄上，所以無論你用哪種格式都能完美還原正確的專案資料夾。就像郵差以前只要看到信封上用逗號代替換行，就會把整條街名連著人名當成一戶人家而送錯信；現在他們懂得先整理各種千奇百怪的地址寫法，準確把信件投遞到你的專案信箱裡。",
-              "en": "Project names and folder paths on Windows are no longer bizarrely misread by the app. Because Windows paths can be a bit messy, if your current working directory (cwd) was recorded using POSIX-style cwds (paths using forward slashes like `C:/...` typically seen on Mac or Linux) or if it used a dash-encoded name (a format that replaces slashes with hyphens to safely create filenames), the system stubbornly tried to split them strictly by Windows backslashes. This resulted in it keeping the entire long path string as the \"project name\" or completely failing to decode paths because a bare backslash lacks a drive letter. Now, it smartly normalizes all separators on Windows before splitting, and correctly anchors decoded paths to drive roots (like `C:\\`), restoring your actual project folder flawlessly. It's like a mail carrier who used to get utterly confused and fail to deliver your mail if your address was written with commas instead of standard line breaks; now they automatically clean up your address format in their head and drop the package at the correct house every time."
-            },
-            "original": "**Project names derive correctly from POSIX-style cwds on Windows**: `usage_session_resume._project_from_cwd` and `adapters.claude.project_from_cwd` split paths on `os.sep` only, so a transcript cwd recorded with forward slashes (or a `C:/...`-style path) kept the whole path as the \"project\" on Windows. Both now normalize separators on Windows before splitting; POSIX behavior is unchanged, since backslashes are legal in POSIX filenames.\n**Encoded project-path decoding now works on Windows**: `project_from_encoded_path` reconstructed a project's real directory from its dash-encoded name by searching from the filesystem root, but a bare Windows `\\` has no drive letter and never matches a real path, so decoding always fell back to the raw encoded string. It now anchors at the drive root (e.g. `C:\\`) when the encoded name starts with one; POSIX behavior is unchanged."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "fix",
-        "new"
-      ]
-    },
-    {
-      "version": "0.28.0",
-      "raw": {
-        "version": "0.28.0",
-        "period": "2026-07-15",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-15",
-        "entries": [
-          "**Full Windows support**: `usage` now runs natively on Windows, including the TUI, Claude Code status-line hook, and Codex history parsing.",
-          "**Windows system tray UI**: a dynamic tray icon shows the Claude quota percentage; its tooltip summarizes Claude and Codex windows. Left-click opens the same 11 HTML theme panels used on macOS through WebView2, while the right-click menu offers panel switching, refresh, launch at login, update checks, and quit.",
-          "**Portable Windows release**: GitHub Releases now include `usage-windows.zip`, containing `usage.exe` for unzip-and-run use. It requires the Microsoft Edge WebView2 Runtime, which is normally already present on Windows 10 and 11.",
-          "Windows packaging and CI now use PyInstaller and `windows-latest` for both checks and release artifacts. The optional `windows` extra installs pystray, pywebview, and Pillow; macOS-only PyObjC dependencies are guarded by a Darwin platform marker.",
-          "Status-line hook file locking and generated hook-command quoting are platform-aware, so they work on Windows as well as macOS."
-        ]
-      },
-      "curated": {
-        "version": "0.28.0",
-        "period": "2026-07-15",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Windows 全面支援：免安裝直接跑，還有專屬系統匣",
-              "en": "Full Windows support: Native portable release with a dedicated system tray"
-            },
-            "body": {
-              "zh-TW": "Windows 使用者現在能獲得與 Mac 同等級的完整體驗，不用再經過繁瑣的設定就能直接查看 AI 的使用額度了。這次更新讓 `usage` 原生地支援 Windows 系統，包含 TUI（文字使用者介面，沒有滑鼠按鈕、純靠鍵盤在黑底白字命令列裡操作的畫面）、Claude Code 的 status-line hook（狀態列掛鉤，一種能把自己掛在命令列提示字元旁邊、隨時吐出剩餘額度的小程式），以及 Codex 歷史紀錄的解析。你可以在系統右下角看到一個動態的常駐圖示，隨時顯示 Claude 額度百分比，滑鼠懸停還能看見 Claude 與 Codex 兩者的視窗摘要。左鍵點擊會透過 Windows 內建的 WebView2（微軟內建用來在一般軟體裡顯示網頁的底層引擎）開啟那 11 款華麗的 HTML 報告面板；右鍵選單則能切換面板、重新整理、設定開機自動啟動、檢查更新以及結束程式。如果你不想自己安裝環境，GitHub Releases 現在直接提供打包好的 `usage-windows.zip`，解壓縮點開 `usage.exe` 就能用（需有 Windows 10/11 通常已內建的 Microsoft Edge WebView2 Runtime）。背後為了這件事，開發團隊的 CI（持續整合，每次開發者交程式碼時，在雲端自動幫忙測試並打包成軟體的機器人流水線）改用 PyInstaller（一種能把需要環境設定的 Python 程式碼，連同工具包全部壓成一個單一執行檔的打包軟體）來製作發布檔，並把原本 Mac 專用的依賴套件隔開。同時，狀態列掛鉤在讀寫檔案時的鎖定機制與指令引號寫法，也都針對跨平台做了調整，確保兩邊都不會卡死。這就像是原本只在蘋果生態系發行的限定版精裝日曆，現在不但為 Windows 使用者重新開模做了一份，還直接升級成插電即用的免安裝電子版，並且附贈了一個隨時能看的精巧小時鐘釘在你的桌面上。",
-              "en": "Windows users can now enjoy a fully native, first-class experience for tracking AI quotas without jumping through complicated setup hoops. The `usage` tool now runs natively on Windows, fully supporting the TUI (text user interface, a screen operated purely by keyboard in the black-and-white command line without mouse buttons), the Claude Code status-line hook (a small widget that hooks itself next to your command prompt to spit out remaining quotas), and Codex history parsing. You'll find a dynamic system tray icon resting in your lower-right taskbar, displaying your Claude quota percentage; hovering over it summarizes your active windows. A left-click uses WebView2 (Microsoft's built-in engine for rendering web pages inside regular software) to launch the same 11 gorgeous HTML theme panels available on Mac, while a right-click gives you a menu to switch panels, refresh, set it to launch at login, check for updates, or quit. For those who hate setting up environments, GitHub Releases now offers a portable `usage-windows.zip` — just extract and double-click `usage.exe`. Under the hood, the CI (Continuous Integration, a robot pipeline in the cloud that automatically tests and packages the software whenever developers submit code) now uses PyInstaller (a packaging software that squashes environment-dependent Python code and its toolkits into a single executable) to build the release, smartly walling off Mac-specific dependencies. Additionally, the file-locking mechanics and command-quoting for the status-line hook have been made platform-aware so they run flawlessly on both operating systems. It's like a premium designer calendar that used to be a Mac-exclusive product — it hasn't just been remolded for Windows, it's been delivered as a fully assembled, plug-and-play digital edition that comes with a handy little clock permanently pinned to your desk."
-            },
-            "original": "**Full Windows support**: `usage` now runs natively on Windows, including the TUI, Claude Code status-line hook, and Codex history parsing.\n**Windows system tray UI**: a dynamic tray icon shows the Claude quota percentage; its tooltip summarizes Claude and Codex windows. Left-click opens the same 11 HTML theme panels used on macOS through WebView2, while the right-click menu offers panel switching, refresh, launch at login, update checks, and quit.\n**Portable Windows release**: GitHub Releases now include `usage-windows.zip`, containing `usage.exe` for unzip-and-run use. It requires the Microsoft Edge WebView2 Runtime, which is normally already present on Windows 10 and 11.\nWindows packaging and CI now use PyInstaller and `windows-latest` for both checks and release artifacts. The optional `windows` extra installs pystray, pywebview, and Pillow; macOS-only PyObjC dependencies are guarded by a Darwin platform marker.\nStatus-line hook file locking and generated hook-command quoting are platform-aware, so they work on Windows as well as macOS."
-          }
-        ]
-      },
-      "badges": [
-        "new"
       ]
     }
   ]

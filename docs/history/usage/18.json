@@ -5,6 +5,136 @@
   "pages": 23,
   "versions": [
     {
+      "version": "0.15.14",
+      "raw": {
+        "version": "0.15.14",
+        "period": "2026-06-07",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Claude Code quota no longer briefly drops to \"--\" when entering a new folder**: on the first status-line refresh of a new session, the data Claude Code sends may not yet include rate limits; the hook used to overwrite the status file wholesale with this incomplete data, wiping out the previously valid quota and briefly showing \"--\" plus \"send a message to sync your quota\" until you sent another message. The hook now preserves the existing complete quota when the incoming data is incomplete."
+        ]
+      },
+      "curated": {
+        "version": "0.15.14",
+        "period": "2026-06-07",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "進入新資料夾時，Claude Code 額度不再閃退變空白",
+              "en": "Entering a new folder no longer briefly drops Claude Code quota to a blank screen"
+            },
+            "body": {
+              "zh-TW": "現在進新資料夾開新對話，不用再擔心配額畫面突然白掉嚇你一跳了。以前當你剛進入一個新資料夾、開啟全新的 Claude Code 對話時，第一次傳回來的狀態資料可能還來不及帶上額度數字。這時候，負責更新狀態的程式會傻傻地把這份「缺件」的資料直接蓋過去，把你畫面上本來好好的配額洗白，變成空蕩蕩的「--」和一句「請發送一句訊息以同步配額」，直到你講下一句話才會恢復。現在它變聰明了，如果發現新來的資料少了額度，它會把舊的、完好的額度數字保留下來，不會再隨便洗掉。就像是訂閱報紙，以前如果今天的報紙漏印了股市版，送報生會把你昨天保留的股市版也直接抽走丟掉，害你無圖可看；現在他懂得把舊的那張留著，直到拿到今天完整的報紙再幫你換掉。",
+              "en": "You can now enter a new folder and start a fresh session without worrying about your quota screen suddenly blanking out and startling you. Previously, when you jumped into a new folder and started a fresh Claude Code session, the very first status update might not have the quota numbers ready yet. The update hook used to blindly overwrite your app state with this incomplete data, wiping out your perfectly valid quota and forcing the menu bar to flash a blank \"--\" along with a \"Send a message to sync\" prompt until you spoke again. Now it's smarter: if the new payload arrives missing its quota, it carefully preserves your existing valid numbers instead of blindly wiping them. It's like a newspaper delivery; previously, if today's paper was missing the financial section due to a printing error, the delivery driver would also confiscate yesterday's financial page from your desk, leaving you with nothing. Now they let you keep the old page until a complete edition arrives."
+            },
+            "original": "**Claude Code quota no longer briefly drops to \"--\" when entering a new folder**: on the first status-line refresh of a new session, the data Claude Code sends may not yet include rate limits; the hook used to overwrite the status file wholesale with this incomplete data, wiping out the previously valid quota and briefly showing \"--\" plus \"send a message to sync your quota\" until you sent another message. The hook now preserves the existing complete quota when the incoming data is incomplete."
+          }
+        ]
+      },
+      "badges": [
+        "fix"
+      ]
+    },
+    {
+      "version": "0.15.13",
+      "raw": {
+        "version": "0.15.13",
+        "period": "2026-06-06",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Estimated cost now recomputes after a pricing update**: a cost computed with fallback prices was written back and cached onto usage entries, so it was never recomputed once real prices loaded — leaving cost figures persistently off (mainly for entries without a source cost, e.g. Codex). The estimate is no longer written back, so it reflects updated prices immediately.",
+          "**Web panel no longer reloads endlessly when injection keeps failing**: if state injection failed repeatedly the panel would loop reloading; reloads per payload are now capped (WebContent-process crash recovery is unaffected)."
+        ]
+      },
+      "curated": {
+        "version": "0.15.13",
+        "period": "2026-06-06",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "成本估算在價格更新後自動校正，網頁面板不再無限重新整理",
+              "en": "Cost estimates correctly recalculate when prices update, and web panels avoid infinite reload loops"
+            },
+            "body": {
+              "zh-TW": "現在成本估算會自動追蹤最新價格，面板也不會再卡死在無限重整裡了。以前當系統剛啟動還沒抓到最新價格表時，會先用本機的預設價格幫你估算成本，但算完就把這個暫時的數字「寫死」在紀錄上，導致後來真正最新的價格表抓回來了，它也不會重算（這對 Codex 等不自帶價格的紀錄影響特別大）；現在它學會不寫死數字了，一拿到新價格就會立刻校正。另外，網頁面板在更新資料（state injection，也就是把最新數據塞進畫面的過程）時如果一直失敗，以前會陷入「失敗、重整、又失敗」的無限迴圈卡死；現在它知道同一個資料重試幾次後就該放棄，不會再死心眼地一直重整（但如果是負責畫面的程序真的死掉，它還是會幫你重新啟動）。就像你點菜時菜單還沒印好，店員先用口頭報價並直接寫死在帳單上，後來發現降價了也不改；現在他只會先用鉛筆寫，拿到最新菜單就馬上幫你重算。而且遇到打不開的抽屜，他也不會再傻傻地一直狂拉到天黑了。",
+              "en": "Cost estimates now automatically track live prices, and the web panels will no longer trap themselves in infinite reload loops. Previously, if the system estimated your cost using fallback prices before the live pricelist could be fetched, it would hard-code that temporary estimate into your local usage item. Even after the real prices downloaded, it refused to recalculate, causing chronically inaccurate cost estimates (especially for sources that don't embed their own costs, like Codex); it now smartly leaves the item alone, recalculating immediately whenever fresh prices arrive. Also, if the web panel repeatedly failed to update its data (state injection, the process of feeding fresh data into the UI), it used to trap itself in an infinite reload loop; it now gives up gracefully after a few tries with the same dataset (though it still auto-recovers if the actual rendering process crashes). It's like a waiter who jotted down an estimated price in pen while waiting for the new menu to be printed, and refused to adjust your bill when the actual prices came in lower; now they use a pencil and update it instantly. And when they face a jammed drawer, they no longer yank at it endlessly until the restaurant closes."
+            },
+            "original": "**Estimated cost now recomputes after a pricing update**: a cost computed with fallback prices was written back and cached onto usage entries, so it was never recomputed once real prices loaded — leaving cost figures persistently off (mainly for entries without a source cost, e.g. Codex). The estimate is no longer written back, so it reflects updated prices immediately.\n**Web panel no longer reloads endlessly when injection keeps failing**: if state injection failed repeatedly the panel would loop reloading; reloads per payload are now capped (WebContent-process crash recovery is unaffected)."
+          }
+        ]
+      },
+      "badges": [
+        "fix"
+      ]
+    },
+    {
+      "version": "0.15.12",
+      "raw": {
+        "version": "0.15.12",
+        "period": "2026-06-06",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Fixed a file-descriptor leak from Codex SQLite connections not being closed after reads (#30)**: reading Codex's `logs_2.sqlite` / `state_5.sqlite` only ended the transaction without actually closing the connection, accumulating open file descriptors over long runs. Connections are now properly closed after every read.",
+          "**Codex quota refresh is now applied before the history scan (#31)**: during background refresh, the Codex quota result is now applied to the main view synchronously before the project history scan runs, avoiding a brief display of stale quota."
+        ]
+      },
+      "curated": {
+        "version": "0.15.12",
+        "period": "2026-06-06",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Codex 額度更新不再慢半拍，背後也不再偷吃系統資源",
+              "en": "Codex quota updates are now instantly responsive and resource-friendly"
+            },
+            "body": {
+              "zh-TW": "你的 Codex 額度顯示現在更即時，電腦資源也不會再被偷偷吃掉了。當系統在背景重新抓取額度時，以前會等所有笨重的歷史紀錄都掃描完，才把最新的 Codex 額度貼上畫面，導致這中間畫面會短暫閃出過期的舊數字；現在它學會一拿到新額度就立刻送上畫面，不再慢半拍。另外，以前在讀取 Codex 的本機紀錄檔（SQLite 資料庫）時，只結束了動作卻沒把檔案關好，時間久了會累積一堆沒關的檔案通道、偷偷吃掉系統資源；現在每次讀完都會確實把門關上。就像是餐廳服務生以前要等整張清單的菜都做完才一次端上桌，現在有熱騰騰的菜就先上；而且收盤子時也不會再把推車丟在走道上擋路了。",
+              "en": "Your Codex quota display is now instantly responsive, and your computer's resources will no longer be quietly drained in the background. Previously, during a background refresh, the system would wait until the heavy project history scan completely finished before dispatching the fresh Codex quota to the UI, causing the screen to briefly flash a stale number. Now, the new quota is sent to the screen the exact second it's fetched. Additionally, when reading Codex's local history files (SQLite databases), the system used to finish the transaction but forget to explicitly close the file connection, slowly leaking file descriptors over time and quietly eating up system resources; it now strictly closes the door after every read. It's like a waiter who used to wait until an entire massive order was cooked before bringing out any food; now they bring out hot dishes immediately. Plus, they no longer leave empty carts cluttering the aisles after bussing tables."
+            },
+            "original": "**Fixed a file-descriptor leak from Codex SQLite connections not being closed after reads (#30)**: reading Codex's `logs_2.sqlite` / `state_5.sqlite` only ended the transaction without actually closing the connection, accumulating open file descriptors over long runs. Connections are now properly closed after every read.\n**Codex quota refresh is now applied before the history scan (#31)**: during background refresh, the Codex quota result is now applied to the main view synchronously before the project history scan runs, avoiding a brief display of stale quota."
+          }
+        ]
+      },
+      "badges": [
+        "fix"
+      ]
+    },
+    {
+      "version": "0.15.11",
+      "raw": {
+        "version": "0.15.11",
+        "period": "2026-06-06",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Web panel now recovers automatically after its render process crashes (#29)**: the WKWebView's web content process can be terminated on its own while the app itself keeps running, leaving the panel blank/grey until the whole app is restarted. The panel now detects content-process termination, reloads, and re-applies the last payload to recover; it also reloads and retries when JavaScript state injection fails."
+        ]
+      },
+      "curated": {
+        "version": "0.15.11",
+        "period": "2026-06-06",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "背景程序崩潰自動復原，面板不再變啞巴灰窗",
+              "en": "Panels now auto-recover from background crashes without getting stuck on gray screens"
+            },
+            "body": {
+              "zh-TW": "你的選單列面板現在有自動急救能力了。以前負責畫網頁面板的背景程序如果被 macOS 系統偷偷殺掉，面板就會變成一片死寂的深灰色空窗，只能把整個 App 重開才會好；現在程式只要偵測到畫布死掉，就會立刻重新載入面板，並把你上次看到的進度原封不動貼回去。萬一內部用來更新資料的機制（JavaScript state injection）一直失敗，它也會聰明地重新載入試試。就像店面的電子看板如果當機黑屏，以前只能等老闆隔天來拔插頭重開，現在它裡面裝了自動重啟裝置，黑屏瞬間就會自己重開並播回剛才的廣告。",
+              "en": "Your menu bar panels now have auto-resuscitation skills. Previously, if the background process responsible for drawing the web panel was quietly killed by macOS, the panel would become a dead, dark-gray void that required completely restarting the app to fix; now, the moment it detects the canvas has died, it automatically reloads the panel and seamlessly restores the exact state you were looking at. If the internal mechanism for updating data (JavaScript state injection) repeatedly fails, it will also smartly trigger a reload. It's like a storefront digital billboard that used to stay completely black after a crash until the owner came in the next day to pull the plug; now it has an auto-restart switch that instantly reboots and resumes the exact same ad the moment the screen goes dark."
+            },
+            "original": "**Web panel now recovers automatically after its render process crashes (#29)**: the WKWebView's web content process can be terminated on its own while the app itself keeps running, leaving the panel blank/grey until the whole app is restarted. The panel now detects content-process termination, reloads, and re-applies the last payload to recover; it also reloads and retries when JavaScript state injection fails."
+          }
+        ]
+      },
+      "badges": [
+        "new"
+      ]
+    },
+    {
       "version": "0.15.10",
       "raw": {
         "version": "0.15.10",
@@ -222,161 +352,6 @@
       },
       "badges": [
         "new"
-      ]
-    },
-    {
-      "version": "0.15.4",
-      "raw": {
-        "version": "0.15.4",
-        "period": "2026-06-03",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Panel load failures no longer degrade to a silent grey window**: when the popover's embedded web panel fails to load, it previously fell back to a blank dark window with no explanation. It now shows a native error view with the error detail and a GitHub report link, and logs navigation failures / render timeouts under `USAGE_DEBUG=1` for easier diagnosis."
-        ]
-      },
-      "curated": {
-        "version": "0.15.4",
-        "period": "2026-06-03",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "面板萬一當掉不再裝死，會直接告訴你哪裡出錯",
-              "en": "Panel crashes no longer play dead, telling you exactly what went wrong"
-            },
-            "body": {
-              "zh-TW": "萬一選單列的彈出面板（popover，顯示各項數據的小視窗）內嵌的網頁載入失敗，它不會再直接裝死不理你，或是留一片看不懂的空白灰畫面。現在它會換成一個原生的錯誤畫面，把具體的錯誤細節列出來，並附上一個能直接跳轉去回報問題的 GitHub 連結；如果你有另外設定 USAGE_DEBUG=1 這個環境變數（給進階使用者用的除錯開關），導覽失敗、畫面渲染逾時這些狀況還會被記錄下來，方便追查。這就像去銀行辦事，如果號碼牌機器壞了，以前它就直接黑畫面讓你傻站在那邊；現在它會在螢幕上顯示「機器故障，錯誤代碼 E-42」，還附上一張填好資訊、可以直接遞給維修人員的意見反映單。",
-              "en": "If the embedded web panel inside the popover (the small window showing your stats) fails to load, it no longer just silently freezes or leaves a blank grey window with no explanation. Now it shows a native error view listing the actual error detail, plus a GitHub link you can jump straight to for reporting the issue; if you separately set the USAGE_DEBUG=1 environment variable (an advanced debug switch), navigation failures and render timeouts also get logged for easier diagnosis. It's like going to the bank: if the ticket machine breaks, instead of just going dark and leaving you standing there confused, it now displays \"Machine error, code E-42\" on screen, complete with a pre-filled feedback slip you can hand straight to the technician."
-            },
-            "original": "**Panel load failures no longer degrade to a silent grey window**: when the popover's embedded web panel fails to load, it previously fell back to a blank dark window with no explanation. It now shows a native error view with the error detail and a GitHub report link, and logs navigation failures / render timeouts under `USAGE_DEBUG=1` for easier diagnosis."
-          }
-        ]
-      },
-      "badges": [
-        "fix"
-      ]
-    },
-    {
-      "version": "0.15.3",
-      "raw": {
-        "version": "0.15.3",
-        "period": "2026-06-02",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Codex quota no longer blanks out on refresh errors (#25)**: follow-up to #24. When the later refresh stage (history parsing) failed, the error state reset the Codex session/weekly rows to blank, overwriting the quota that had already been loaded at the start of the refresh. The error path now preserves those already-loaded Codex rows, so they no longer flash empty."
-        ]
-      },
-      "curated": {
-        "version": "0.15.3",
-        "period": "2026-06-02",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "資料刷新偶爾出錯時，Codex 額度不再閃成空白",
-              "en": "Codex quota no longer flashes blank when background refreshes hiccup"
-            },
-            "body": {
-              "zh-TW": "你的 Codex 額度顯示現在更穩定了，不會再時不時消失一瞬間。以前如果系統在背景讀取歷史用量時剛好遇到錯誤，它會連帶把已經順利讀好的 Codex 額度清空，讓你看到畫面閃一下變成空白；現在它懂得在出錯時保留已經抓到的好資料。就像看電視遇到訊號稍微不穩，以前會直接切成黑畫面，現在它會先凍結在最後一個清楚的畫面，等你沒察覺時訊號就恢復了。",
-              "en": "Your Codex quota display is much steadier now and won't randomly disappear for a split second. Previously, if the system hit a bump while reading your historical usage in the background, it would mistakenly wipe out the Codex quota it had already successfully fetched, making those rows flash blank; it now knows to hold onto the good data it already has when an error occurs. Like watching a streaming video that encounters a slight network hiccup — it used to just cut to a black screen, but now it freezes on the last clear frame until the signal quietly catches up."
-            },
-            "original": "**Codex quota no longer blanks out on refresh errors (#25)**: follow-up to #24. When the later refresh stage (history parsing) failed, the error state reset the Codex session/weekly rows to blank, overwriting the quota that had already been loaded at the start of the refresh. The error path now preserves those already-loaded Codex rows, so they no longer flash empty."
-          }
-        ]
-      },
-      "badges": [
-        "fix"
-      ]
-    },
-    {
-      "version": "0.15.2",
-      "raw": {
-        "version": "0.15.2",
-        "period": "2026-06-02",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Steadier background refresh**: file-change–triggered refreshes are now always marshalled to the main thread, and the refresh routine has an outer guard so it can't get stuck in a state where it never refreshes again.",
-          "**Lighter refresh when sessions pile up**: history change-detection narrowed from scanning all of `~/.claude` to the `~/.claude/projects` it actually reads; Codex recent-session enumeration now walks the dated folder structure and scans only what's needed (skipping hidden files like `.DS_Store`) instead of rglob-ing the whole tree on every refresh.",
-          "**No stall on first launch / offline**: the pricing-table download moved to the background; cost calculation always uses the local cache or built-in fallback first and auto-refreshes once the download lands. A long-running app also refreshes pricing in the background after the cache expires."
-        ]
-      },
-      "curated": {
-        "version": "0.15.2",
-        "period": "2026-06-02",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "對話再多也不拖慢電腦，背景更新再也不卡死",
-              "en": "Smoother background updates that won't bog down your machine no matter how much you chat"
-            },
-            "body": {
-              "zh-TW": "就算你累積了幾百個專案的對話，這套工具現在也不會拖慢你了。以前系統為了察覺歷史用量有沒有變，每次都會把所有資料夾從頭掃描一次，現在它學會了只盯著真正有用的範圍看，還懂得自動略過隱藏的系統垃圾檔。此外，我們幫背景更新機制加了一道保險，徹底解決了極少數情況下更新卡住、數字從此再也不動的怪問題。就像圖書館員以前為了找一本新書要把整間圖書館每一層樓全逛一遍，現在他知道直接走到特定書架巡視就好，而且再也不會迷路卡在書庫裡出不來。",
-              "en": "Even if you've piled up hundreds of chat sessions, the app won't drag your computer down anymore. Previously, to detect changes in your usage history, the system would aggressively scan every single folder top to bottom; now it smartly narrows its focus to only the relevant directories and safely skips hidden system junk files. We also wrapped the background refresh mechanism in a safety guard, completely eliminating a rare bug where updates could get permanently stuck, freezing your numbers forever. It's like a librarian who used to wander every floor of the building just to spot a single new arrival, but now knows exactly which shelf to check, and has a failsafe so they never get lost in the archives again."
-            },
-            "original": "**Steadier background refresh**: file-change–triggered refreshes are now always marshalled to the main thread, and the refresh routine has an outer guard so it can't get stuck in a state where it never refreshes again.\n**Lighter refresh when sessions pile up**: history change-detection narrowed from scanning all of `~/.claude` to the `~/.claude/projects` it actually reads; Codex recent-session enumeration now walks the dated folder structure and scans only what's needed (skipping hidden files like `.DS_Store`) instead of rglob-ing the whole tree on every refresh."
-          },
-          {
-            "title": {
-              "zh-TW": "離線或首次啟動不再卡頓，花費估算全自動跟上",
-              "en": "No more stalls on first launch or offline, and cost estimates catch up seamlessly"
-            },
-            "body": {
-              "zh-TW": "現在你打開 App 時，再也不用等它慢慢下載價格表了。以前在首次啟動或斷網時，系統為了估算成本，會卡在那裡硬等價格表下載完；現在它會先用本機記住的舊價格或內建的預設值頂著，把下載工作丟到背景默默進行，等抓完最新價格再自動幫你重新計算。就算你電腦一直開著，它也會在價格過期後自動幫你更新。就像去餐廳點菜，服務生不會因為網路連不上總公司就讓你站在門口乾等，而是先拿昨天的菜單讓你點，等連線恢復再幫你確認最新價錢。",
-              "en": "You no longer have to wait for the app to slowly download pricing tables when you open it. Previously, on a fresh launch or when completely offline, the system would aggressively stall the whole interface just to fetch AI pricing data for your cost estimates; it now instantly uses cached prices or built-in fallbacks while pushing the download to the background, and seamlessly recalculates your costs once the fresh data arrives. If you leave the app running for days, it even auto-updates the pricing out of sight when the cache expires. Like arriving at a restaurant with a broken internet connection—the waiter won't leave you standing at the door waiting for corporate to sync the register, but hands you yesterday's menu to get started, and quietly confirms the latest prices once they're back online."
-            },
-            "original": "**No stall on first launch / offline**: the pricing-table download moved to the background; cost calculation always uses the local cache or built-in fallback first and auto-refreshes once the download lands. A long-running app also refreshes pricing in the background after the cache expires."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "new"
-      ]
-    },
-    {
-      "version": "0.15.1",
-      "raw": {
-        "version": "0.15.1",
-        "period": "2026-06-02",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Codex quota shows fresher, more accurate numbers (#24)**: (1) the menu-bar Codex quota now updates at the very start of each refresh instead of waiting for the slower history pass; (2) SQLite and JSONL sources are merged per window (5-hour / weekly) instead of picking one whole source, so a just-hit 100% limit is no longer overwritten by an older 80% snapshot; (3) small usage shows a fractional percentage instead of rounding to 0%; (4) the refresh timer uses the configured interval instead of a hard-coded 300s; (5) FSEvents-triggered refreshes queue instead of being dropped while one is in flight; (6) if the Claude Code read fails mid-refresh, the already-loaded Codex percentage is preserved instead of flickering away.",
-          "**Stale \"🆕 update available\" badge no longer lingers after upgrading**: the cache cleanup previously ran only inside the update-check path, so the badge stuck until the app restarted; it now compares the installed version on every timer refresh and clears as soon as you're current."
-        ]
-      },
-      "curated": {
-        "version": "0.15.1",
-        "period": "2026-06-02",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Codex 額度顯示更精準，不再被舊資料吃掉",
-              "en": "Codex quota updates are instantly precise and stop overwriting themselves with stale data"
-            },
-            "body": {
-              "zh-TW": "你選單列上的 Codex 額度顯示現在會更新得更快也更準了。以前系統在匯整兩種不同來源的紀錄時，只要看到一份舊資料就會直接覆蓋掉剛出爐的新資料，導致你明明剛衝破 100% 額度，卻突然又倒退回 80%。現在它學會了分開核對每種額度的最新狀態，而且微小用量會精準顯示小數點，也不必再苦等歷史紀錄跑完才更新畫面。同時，系統改用可設定的重新整理間隔來取代寫死的 300 秒；檔案變動（FSEvents）觸發的重新整理現在會乖乖排隊而不是互相打斷；就算中途 Claude Code 讀取失敗，也會保留已經載入的 Codex 百分比而不是讓畫面閃一下又清空。就像你的悠遊卡原本每次感應都會被昨天搭車的舊紀錄覆蓋餘額，現在它終於學會以最新的扣款時間為準，連幾毛錢都能算得清清楚楚，而且逼卡瞬間就顯示餘額，不用再等機器跑半天。",
-              "en": "The Codex quota shown on your menu bar is now much fresher and more accurate. Previously, when the system merged two different data sources, it could accidentally let an older snapshot overwrite a brand-new update—meaning you might hit a 100% limit only to see it jump bizarrely back down to 80%. Now, it individually tracks the latest state for each quota, displays precise fractional percentages for small usage, and updates the UI instantly without waiting for the heavier history scans to finish. It also uses your configured refresh interval instead of a hard-coded 300 seconds. File-system (FSEvents) triggered refreshes now neatly queue up instead of dropping when one is in flight, and if reading Claude Code fails mid-refresh, the already-loaded Codex percentage is safely preserved instead of flickering away. It's like your subway card suddenly forgetting your last ride and showing yesterday's balance; now it strictly respects the newest timestamp, calculates every single cent accurately, and flashes the balance the moment you tap without making you wait for the machine to grind."
-            },
-            "original": "**Codex quota shows fresher, more accurate numbers (#24)**: (1) the menu-bar Codex quota now updates at the very start of each refresh instead of waiting for the slower history pass; (2) SQLite and JSONL sources are merged per window (5-hour / weekly) instead of picking one whole source, so a just-hit 100% limit is no longer overwritten by an older 80% snapshot; (3) small usage shows a fractional percentage instead of rounding to 0%; (4) the refresh timer uses the configured interval instead of a hard-coded 300s; (5) FSEvents-triggered refreshes queue instead of being dropped while one is in flight; (6) if the Claude Code read fails mid-refresh, the already-loaded Codex percentage is preserved instead of flickering away."
-          },
-          {
-            "title": {
-              "zh-TW": "更新完畢後，「可更新」標籤懂得乖乖消失",
-              "en": "The \"update available\" badge cleanly disappears the moment you upgrade"
-            },
-            "body": {
-              "zh-TW": "當你升級完這套工具後，選單列上煩人的「🆕 可更新」小標籤終於會自己消失了。以前因為系統只有在跑「檢查更新」那個動作時才會順便清掃狀態，導致你就算已經裝好最新版，那個標籤還是會死皮賴臉地掛在上面，直到你徹底把 App 關掉重開。現在系統每次例行重新整理時都會順便檢查一下你當前安裝的版本，只要發現你已經跟上最新進度，標籤就會立刻退場。就像包裹已經領走了，信箱上的「有掛號信」小紅燈就不會再一直亮著逼你去收信。",
-              "en": "After you upgrade the tool, that nagging \"🆕 update available\" badge on your menu bar will finally go away on its own. Previously, because the system only swept out the cache while actively checking the internet for new releases, the badge would stubbornly cling to your screen even after you had installed the latest version, forcing you to completely restart the app to clear it. Now, the system double-checks your currently installed version during every routine background tick, and drops the badge the moment it sees you're fully up to date. It's like the \"you have mail\" light on your mailbox finally knowing to turn off the moment you actually take the package out, instead of glaring at you all day."
-            },
-            "original": "**Stale \"🆕 update available\" badge no longer lingers after upgrading**: the cache cleanup previously ran only inside the update-check path, so the badge stuck until the app restarted; it now compares the installed version on every timer refresh and clears as soon as you're current."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "fix"
       ]
     }
   ]

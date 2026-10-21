@@ -5,6 +5,176 @@
   "pages": 23,
   "versions": [
     {
+      "version": "0.29.11",
+      "raw": {
+        "version": "0.29.11",
+        "period": "2026-08-01",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-08-02",
+        "entries": [
+          "**The report and the terminal's session list now show what each conversation was about.** Claude Code names every conversation and writes that name into its transcript. `usage` had been parsing those names all along and carrying them into the report payload, where the renderer ignored them — the snapshot fixture still read `\"Ignore in current renderer\"`. The HTML report gained a \"What you worked on\" section under the contribution heatmap, and the TUI's recent-session table gained a column, so three rows from the same project are no longer indistinguishable. Titles carry `data-mask`, so the existing project-name masking covers them before a report is shared. Sessions without a title stay blank rather than falling back to the project name, which would read as a title that isn't one.",
+          "**A rate-limited Antigravity quota probe now waits as long as the server asked, instead of retrying every five minutes.** That probe is the only external API call in the project. It and the token refresh both folded `HTTPError` into the same `except` clause as connection failures, so a 429 reached the caller as a bare `None` — the status code and the `Retry-After` header were discarded together, and the next cache expiry sent another request at a server that had already said to wait. Each now catches `HTTPError` separately, reads `Retry-After` in either the seconds or the HTTP-date form, and holds off until it elapses. A missing or unparseable header falls back to sixty seconds, and the delay is capped at an hour so an oversized value cannot strand the card.",
+          "**The last minute before a quota resets no longer reads \"0m\".** Under sixty seconds the countdown's minute arithmetic rounds to zero, and the already-expired case printed the same string, so one line meant both \"forty seconds left\" and \"the window has already turned\". The card now reads \"Reset imminent\", in all five languages. The fix sits at the call site rather than in the shared duration formatter, which also renders the \"will run out in\" half of the burn warning — changing it there would have produced \"will run out in reset imminent\"."
+        ]
+      },
+      "curated": {
+        "version": "0.29.11",
+        "period": "2026-08-01",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "報表與終端機看得出每段對話在忙什麼",
+              "en": "Reports and terminal lists now reveal what each conversation was about"
+            },
+            "body": {
+              "zh-TW": "同一個專案連開三段 Claude Code 對話，回頭看用量時，過去只能見到三列一模一樣的紀錄。現在 HTML 報表（網頁格式的報表）在貢獻熱圖下新增「你做了什麼」區塊，終端機的近期工作階段（session，一次開啟到結束的工作紀錄）清單也多了標題欄，能看出每段對話談過什麼。這些標題原本已由 Claude Code 寫進對話紀錄，usage 也讀到了，只有畫面沒顯示。分享報表前，標題會沿用既有的專案名稱遮罩；沒標題的工作階段維持空白，不會拿專案名冒充標題。像整理相簿時，原本三張都只寫「旅行」，現在終於有「登山」「吃飯」「回程」可辨。",
+              "en": "Three Claude Code conversations from the same project used to look identical when you checked usage later. The HTML report now adds a \"What you worked on\" section beneath the contribution heatmap, while the terminal's recent-session list gains a title column, so you can tell what each conversation covered. Claude Code had already named conversations and written those titles into transcripts; usage had carried them into report data, but the renderer left them hidden. Titles use the existing project-name masking before a report is shared. Untitled sessions remain blank instead of borrowing the project name and pretending it is a title. It is like sorting photos once labelled only \"trip\" and seeing \"hike,\" \"meal,\" and \"ride home.\""
+            },
+            "original": "**The report and the terminal's session list now show what each conversation was about.** Claude Code names every conversation and writes that name into its transcript. `usage` had been parsing those names all along and carrying them into the report payload, where the renderer ignored them — the snapshot fixture still read `\"Ignore in current renderer\"`. The HTML report gained a \"What you worked on\" section under the contribution heatmap, and the TUI's recent-session table gained a column, so three rows from the same project are no longer indistinguishable. Titles carry `data-mask`, so the existing project-name masking covers them before a report is shared. Sessions without a title stay blank rather than falling back to the project name, which would read as a title that isn't one."
+          },
+          {
+            "title": {
+              "zh-TW": "額度檢查會照要求等待，重設前一分鐘不再寫 0m",
+              "en": "Quota checks wait as requested, and the last minute no longer says 0m"
+            },
+            "body": {
+              "zh-TW": "Antigravity 的額度（可使用量上限）被伺服器要求晚點再查時，usage 現在會照指定時間等待。以前收到 429（請求太多）後，程式把狀態碼和 Retry-After（可再次嘗試前的等待時間）一起丟掉，快取（暫存查詢結果）一到期又每五分鐘重試。現在額度探測和 token（登入驗證用的令牌）更新都會另行處理 HTTPError（HTTP 回應錯誤），能讀秒數或 HTTP 日期格式的等待時間；缺值或無法解析時才等 60 秒，過大的值最多等一小時。倒數少於一分鐘不再寫「0m」，五種語言都改為「即將重設」，也不會污染「將在……耗盡」的另一種提示。像診所叫號，護士交代十分鐘後再來，就不會每五分鐘又跑去敲門；門快開時則會明講「快輪到了」。",
+              "en": "When the server tells usage to check an Antigravity quota later, it now waits for the time requested. Previously, a 429 response meant both the status code and Retry-After header were discarded, so an expired cache triggered another attempt every five minutes. The quota probe and token refresh now handle HTTPError (an HTTP response error) separately and can read a wait time written in seconds or as an HTTP date; a missing or unparseable value falls back to 60 seconds, and an oversized value is capped at one hour. The final minute before reset no longer says \"0m\" in the same way as an already expired quota. All five languages now say \"Reset imminent,\" and that wording stays out of the separate \"will run out in\" warning. It is like a clinic telling you to return in ten minutes instead of knocking again every five, then clearly saying your turn is next."
+            },
+            "original": "**A rate-limited Antigravity quota probe now waits as long as the server asked, instead of retrying every five minutes.** That probe is the only external API call in the project. It and the token refresh both folded `HTTPError` into the same `except` clause as connection failures, so a 429 reached the caller as a bare `None` — the status code and the `Retry-After` header were discarded together, and the next cache expiry sent another request at a server that had already said to wait. Each now catches `HTTPError` separately, reads `Retry-After` in either the seconds or the HTTP-date form, and holds off until it elapses. A missing or unparseable header falls back to sixty seconds, and the delay is capped at an hour so an oversized value cannot strand the card.\n**The last minute before a quota resets no longer reads \"0m\".** Under sixty seconds the countdown's minute arithmetic rounds to zero, and the already-expired case printed the same string, so one line meant both \"forty seconds left\" and \"the window has already turned\". The card now reads \"Reset imminent\", in all five languages. The fix sits at the call site rather than in the shared duration formatter, which also renders the \"will run out in\" half of the burn warning — changing it there would have produced \"will run out in reset imminent\"."
+          }
+        ]
+      },
+      "badges": [
+        "new",
+        "fix"
+      ]
+    },
+    {
+      "version": "0.29.10",
+      "raw": {
+        "version": "0.29.10",
+        "period": "2026-07-31",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-31",
+        "entries": [
+          "**Nothing changes on screen in this release — it is housekeeping on the menu bar code.** `menubar.py` had reached 2485 lines, creeping past 2000 for the third time after being split apart twice. The icon and alert helpers moved into a new `menubar_chrome.py`, and the state constructors joined `menubar_state.py`, taking the file down to 2230. Only module-level functions moved: PyObjC binds `AppDelegate` methods by selector name, so relocating one would silently stop the matching control from working. `_popover_size` was split rather than moved, because it ends in `NSMakeSize` and `menubar_state.py` has to stay importable without the ObjC runtime for its projections to be unit-testable — the arithmetic moved as `popover_dimensions()` and a three-line shell stayed behind.",
+          "**The growth policy behind that cleanup is now enforced by CI rather than by discipline.** `scripts/check_file_size.py` fails the build when a guarded file passes its ceiling. The rule had been written in CLAUDE.md all along; nothing checked it, and the file grew back twice. Lower a ceiling when a cut lands, never raise it to go green.",
+          "**CLAUDE.md's module map lists only modules with a gotcha.** Half its rows restated what opening the file would tell you, and three separate rows repeated the same stdlib-only constraint. It went from 24 rows to 12."
+        ]
+      },
+      "curated": {
+        "version": "0.29.10",
+        "period": "2026-07-31",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "看不見的整理：選單列程式分家，尺寸規則自動把關",
+              "en": "Invisible housekeeping: menu bar code gets divided up and size limits get enforced"
+            },
+            "body": {
+              "zh-TW": "這版選單列畫面不變，整理藏在牆裡。`menubar.py` 已膨脹到 2,485 行，第三次超過 2,000 行。圖示與警示的輔助程式搬到 `menubar_chrome.py`，狀態建立程式移至 `menubar_state.py`，主檔降至 2,230 行。只移動檔案直屬函式。PyObjC（讓 Python 接上 macOS Objective-C 的橋樑）靠 `AppDelegate` 的方法名稱連接控制項，搬動它會令對應控制項失靈；`_popover_size` 則拆成計算函式，留三行外殼，讓無 ObjC 執行環境的單元測試仍能跑。接著，CI（自動檢查流程）開始替檔案尺寸守門，超限就讓建置失敗；切割檔案時降上限，別為通過檢查抬高它。CLAUDE.md 的模組地圖從 24 列縮到 12 列，只留會踩雷的說明。像整理屋內管線，表面不變，日後維修不必再越鑿越大。",
+              "en": "Nothing new appears in the menu bar in this release; the work is behind the wall. `menubar.py` had grown to 2,485 lines and crossed 2,000 for the third time. Icon and alert helpers now live in `menubar_chrome.py`, while state constructors moved to `menubar_state.py`, bringing the original file down to 2,230 lines. Only file-level functions moved: PyObjC, the bridge between Python and macOS Objective-C, connects controls through `AppDelegate` method names, so moving one would silently break its control. `_popover_size` was split into a calculation function with a three-line shell left behind, keeping `menubar_state.py` testable without the ObjC runtime. CI, the automatic check run on changes, now fails a build when a guarded file exceeds its limit; after a cut, lower the limit rather than raising it to pass. CLAUDE.md's module map also shrank from 24 rows to 12, keeping only warnings that are not obvious from opening each module. It is like reorganizing plumbing: no new fixture appears, but later repairs need not keep breaking through a larger wall."
+            },
+            "original": "**Nothing changes on screen in this release — it is housekeeping on the menu bar code.** `menubar.py` had reached 2485 lines, creeping past 2000 for the third time after being split apart twice. The icon and alert helpers moved into a new `menubar_chrome.py`, and the state constructors joined `menubar_state.py`, taking the file down to 2230. Only module-level functions moved: PyObjC binds `AppDelegate` methods by selector name, so relocating one would silently stop the matching control from working. `_popover_size` was split rather than moved, because it ends in `NSMakeSize` and `menubar_state.py` has to stay importable without the ObjC runtime for its projections to be unit-testable — the arithmetic moved as `popover_dimensions()` and a three-line shell stayed behind.\n**The growth policy behind that cleanup is now enforced by CI rather than by discipline.** `scripts/check_file_size.py` fails the build when a guarded file passes its ceiling. The rule had been written in CLAUDE.md all along; nothing checked it, and the file grew back twice. Lower a ceiling when a cut lands, never raise it to go green.\n**CLAUDE.md's module map lists only modules with a gotcha.** Half its rows restated what opening the file would tell you, and three separate rows repeated the same stdlib-only constraint. It went from 24 rows to 12."
+          }
+        ]
+      },
+      "badges": [
+        "new"
+      ]
+    },
+    {
+      "version": "0.29.9",
+      "raw": {
+        "version": "0.29.9",
+        "period": "2026-07-29",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-30",
+        "entries": [
+          "**The panel can now be placed anywhere on screen**: it was an `NSPopover`, which AppKit anchors to the status item and dismisses the moment focus moves elsewhere, so where it sat was never yours to choose. It is now a borderless floating panel: drag it from any empty spot, and it reopens where you left it. It stays put when another app takes focus — a second click on the menu bar icon, or Escape, closes it. Rounded corners and the drop shadow came free with the popover and are now drawn by the window itself. Dragging travels over the existing JS bridge: an injected script reports a mousedown that landed outside any interactive or scrollable element, and the window hands the gesture to `performWindowDragWithEvent:` so the system drives it. Resizing pins the top-left corner, because a window's origin is its bottom-left and the panel would otherwise appear to jump every time its height tracked a fresh content measurement.",
+          "**The AI Talent Market panel no longer collapses into a squashed strip**: the panel intermittently opened at roughly the height of its own header, cutting off the team list. The dynamic content-height probe releases the layout's height constraints before measuring, and this panel builds its list as an absolutely positioned layer inside a `flex: 1` body — with the constraints released, that body collapsed to zero and the probe reported little more than the header, which the clamp then rounded up to the minimum panel height. Whether it happened came down to measurement timing, hence the intermittency. Panels now carry a switch for the probe, and this one — a fixed-height design that scrolls internally and never needed measuring — opts out.",
+          "**Dismissing the switch-panel menu no longer closes the panel**: opening \"Switch Panel\" and then clicking the panel itself, pressing Escape, or clicking away closed the whole panel. A transient popover was already gone by the time the menu took focus, so closing it was merely cleanup; the floating panel survives the menu, which turned the same cleanup into a mistouch that threw the panel away."
+        ]
+      },
+      "curated": {
+        "version": "0.29.9",
+        "period": "2026-07-29",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "面板能隨你擺放，切換視窗也不會消失",
+              "en": "Put the panel where you want, and keep it there"
+            },
+            "body": {
+              "zh-TW": "想把用量面板挪到螢幕邊角，現在直接拖曳空白處就行。它不再只能黏在選單列圖示旁、別的 app 取得焦點就收起，而是無邊框的浮動面板：放到哪裡，下次就從哪裡打開，圓角和陰影也照留著。檢查其他 app 時它仍待在原處；再按一次選單列圖示或按 Escape 才會關。拖曳不會搶走按鈕與捲動區的操作，內容高度變動時也固定左上角，因此不會像量尺從底端拉長般跳來跳去。",
+              "en": "Want the usage panel in a screen corner? Drag any empty spot on it. It is no longer a popover stuck to the menu-bar icon that vanishes when another app gets focus; it is a borderless floating panel that reopens where you left it, with its rounded corners and shadow intact. It stays put while you check another app, and closes only when you click the menu-bar icon again or press Escape. Dragging leaves buttons and scrollable areas alone, while resizing holds the top-left corner still so the panel does not jump like a ruler stretching from its bottom edge."
+            },
+            "original": "**The panel can now be placed anywhere on screen**: it was an `NSPopover`, which AppKit anchors to the status item and dismisses the moment focus moves elsewhere, so where it sat was never yours to choose. It is now a borderless floating panel: drag it from any empty spot, and it reopens where you left it. It stays put when another app takes focus — a second click on the menu bar icon, or Escape, closes it. Rounded corners and the drop shadow came free with the popover and are now drawn by the window itself. Dragging travels over the existing JS bridge: an injected script reports a mousedown that landed outside any interactive or scrollable element, and the window hands the gesture to `performWindowDragWithEvent:` so the system drives it. Resizing pins the top-left corner, because a window's origin is its bottom-left and the panel would otherwise appear to jump every time its height tracked a fresh content measurement."
+          },
+          {
+            "title": {
+              "zh-TW": "AI 人才市集面板不再縮成一條",
+              "en": "The AI Talent Market panel no longer squashes itself flat"
+            },
+            "body": {
+              "zh-TW": "AI 人才市集面板有時一打開只剩標題那一條，隊伍清單像被折進抽屜底部；現在不會了。問題不在資料消失，而是它量高度時暫時放開限制，內部採固定高度、自己捲動的清單剛好被量成零高；又因量測時間不同，才會時好時壞。新版讓各面板決定是否參加這個自動量測。人才市集本來就該固定高度、在裡面捲動，現在跳過自動量測，打開就能看到完整隊伍清單。",
+              "en": "The AI Talent Market panel sometimes opened as little more than its header, as if the team list had been folded into the bottom of a drawer. That list was not gone: while the app measured content height, it temporarily released layout constraints, and this fixed-height, internally scrolling list could collapse to zero. Timing made the failure intermittent. Panels can now opt out of that automatic measurement. AI Talent Market was always meant to keep a fixed height and scroll inside it, so it skips the measurement and opens with the full list visible."
+            },
+            "original": "**The AI Talent Market panel no longer collapses into a squashed strip**: the panel intermittently opened at roughly the height of its own header, cutting off the team list. The dynamic content-height probe releases the layout's height constraints before measuring, and this panel builds its list as an absolutely positioned layer inside a `flex: 1` body — with the constraints released, that body collapsed to zero and the probe reported little more than the header, which the clamp then rounded up to the minimum panel height. Whether it happened came down to measurement timing, hence the intermittency. Panels now carry a switch for the probe, and this one — a fixed-height design that scrolls internally and never needed measuring — opts out."
+          },
+          {
+            "title": {
+              "zh-TW": "切換面板選單收起時，不再連面板一起關",
+              "en": "Closing the Switch Panel menu no longer closes the panel too"
+            },
+            "body": {
+              "zh-TW": "點開「切換面板」選單後，想回去看面板卻把整張面板關掉的烏龍沒了。以前選單打開時，原本的彈出式選單已經消失；清理它的動作卻誤把浮動面板當成也該收掉的東西。因此你按 Escape、點面板或點到別處，選單消失的同時面板也消失。現在清理只會關選單，浮動面板仍會安穩地繼續留在原處，像收起工具抽屜旁的小選單，桌上的工作紙不會一起被掃走。",
+              "en": "The awkward moment when opening the “Switch Panel” menu made the whole panel disappear is gone. Previously, the temporary popover was already finished once the menu took focus, but its cleanup treated the floating panel as something to dismiss too. So pressing Escape, clicking the panel, or clicking elsewhere hid both the menu and the panel. Now cleanup closes only the menu. The floating panel stays, like folding away the little menu beside a tool drawer without sweeping the papers off your desk."
+            },
+            "original": "**Dismissing the switch-panel menu no longer closes the panel**: opening \"Switch Panel\" and then clicking the panel itself, pressing Escape, or clicking away closed the whole panel. A transient popover was already gone by the time the menu took focus, so closing it was merely cleanup; the floating panel survives the menu, which turned the same cleanup into a mistouch that threw the panel away."
+          }
+        ]
+      },
+      "badges": [
+        "new",
+        "fix",
+        "fix"
+      ]
+    },
+    {
+      "version": "0.29.8",
+      "raw": {
+        "version": "0.29.8",
+        "period": "2026-07-29",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-30",
+        "entries": [
+          "**The Windows panel no longer snaps back to the primary monitor on every panel switch**: dragging the popover onto a second display and then switching panel style (or theme) forced it right back onto the primary monitor. Windows' `SPI_GETWORKAREA` API only ever reports the *primary* monitor's work area, and the window was clamped against that single rectangle on every reposition regardless of which monitor it actually lived on — so a window dragged onto a secondary display got clamped straight back onto the primary one the next time the panel reloaded. Placement now looks up the work area of whichever monitor the window's current (or saved) position falls on via `MonitorFromPoint`/`GetMonitorInfoW`, so a window on a secondary display stays there across panel switches. A related issue on a single monitor is fixed alongside it: switching panels reset the remembered content height to `None`, so the window was briefly clamped against each panel's near-fullscreen placeholder height (`PANEL_HEIGHTS`) before its real height was measured, which could shove a dragged window toward the top of the screen; the previous panel's measured height is now kept as the transitional estimate instead."
+        ]
+      },
+      "curated": {
+        "version": "0.29.8",
+        "period": "2026-07-29",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "切換面板不再把視窗送回主螢幕",
+              "en": "Panel switching keeps your window on its monitor"
+            },
+            "body": {
+              "zh-TW": "你把 Usage 的面板（跳出的浮動小視窗）拖到第二台螢幕，換個面板樣式或主題後，它終於不會又跳回主螢幕。以前 Windows 只把主螢幕可用範圍交給程式，程式每次重新定位面板時便拿錯尺，硬把第二台螢幕上的視窗推回去；現在會依面板目前或記住的位置，找出它所在螢幕的可用範圍再定位，所以換樣式後仍留在原處。單螢幕也一併修好：面板切換時會暫留前一種樣式量到的高度，等真正高度測完，不再先用接近全螢幕的假高度把你拖好的位置往上擠。像搬家工人終於先看你住哪一棟，再把家具放回那一棟，而不是一律送回一樓。",
+              "en": "After you drag Usage's panel (a small floating pop-up) to a second monitor, switching its style or theme will finally leave it there. Windows had only handed the app the primary display's usable area, so each reposition used the wrong ruler and shoved the panel back onto the primary monitor. It now identifies the usable area for the display containing the panel's current or remembered position. On a single monitor, it also retains the previous style's measured height while the new one is measured, instead of briefly using a near-fullscreen placeholder that pushes your window upward. Like movers checking which building you live in before returning furniture, rather than always dumping it in the lobby."
+            },
+            "original": "**The Windows panel no longer snaps back to the primary monitor on every panel switch**: dragging the popover onto a second display and then switching panel style (or theme) forced it right back onto the primary monitor. Windows' `SPI_GETWORKAREA` API only ever reports the *primary* monitor's work area, and the window was clamped against that single rectangle on every reposition regardless of which monitor it actually lived on — so a window dragged onto a secondary display got clamped straight back onto the primary one the next time the panel reloaded. Placement now looks up the work area of whichever monitor the window's current (or saved) position falls on via `MonitorFromPoint`/`GetMonitorInfoW`, so a window on a secondary display stays there across panel switches. A related issue on a single monitor is fixed alongside it: switching panels reset the remembered content height to `None`, so the window was briefly clamped against each panel's near-fullscreen placeholder height (`PANEL_HEIGHTS`) before its real height was measured, which could shove a dragged window toward the top of the screen; the previous panel's measured height is now kept as the transitional estimate instead."
+          }
+        ]
+      },
+      "badges": [
+        "fix"
+      ]
+    },
+    {
       "version": "0.29.7",
       "raw": {
         "version": "0.29.7",
@@ -248,229 +418,6 @@
       "badges": [
         "fix",
         "new",
-        "new",
-        "new"
-      ]
-    },
-    {
-      "version": "0.29.1",
-      "raw": {
-        "version": "0.29.1",
-        "period": "2026-07-25",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-26",
-        "entries": [
-          "**Council participants can wear a persona from the AI Talent Market**: every seat now has a role picker next to its model picker, listing the specialists from your installed talent packs (contract review, front-end, security audit, and the rest). The role's expertise is injected as a prompt prefix, so the same CLI can sit in two seats wearing two different hats. Roles are grouped by talent pack in a collapsible picker — collapsed it shows only the pack names, so a 50-role list no longer scrolls off the screen. Role text is fetched from the talent-market CLI at runtime and is never bundled into usage itself.",
-          "**Five debate styles for a council**: pick the tone every participant takes from the second round on — constructive consensus-seeking, adversarial fault-finding, collaborative gap-filling, Socratic questioning of assumptions, or devil's advocate. The stance label each participant must open with is preserved under every style.",
-          "**Council consensus is counted, and can end the discussion early**: the stance labels participants open their rebuttals with are now tallied and shown above the summary. Turn on *end on consensus* and a discussion stops as soon as every participant in a round agrees, instead of burning through the rounds you budgeted for. A round where anyone failed to finish never counts as consensus.",
-          "**The moderator no longer sees who said what**: the transcript handed to the moderator is anonymized, so it cannot favor the answers its own CLI wrote. Participant names are restored before the summary reaches your screen and the exported Markdown, so you still read \"Claude argued…\" rather than \"Participant A argued…\". Participants' own words are passed through untouched — a discussion *about* Claude or Codex stays readable."
-        ]
-      },
-      "curated": {
-        "version": "0.29.1",
-        "period": "2026-07-25",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "替 Council 每個座位配一頂專業帽子",
-              "en": "Give every Council seat its own expert hat"
-            },
-            "body": {
-              "zh-TW": "同一場 Council（讓多個 AI 分座討論的功能）裡，現在能替每個座位挑不同專長。想請一位看合約、一位找網頁問題、另一位做安全檢查時，模型選擇器旁的角色選擇器會列出已安裝人才包裡的專家。角色（persona，先替 AI 戴上的專業帽子）會以提示詞前綴加入，所以同一個 CLI（從命令列啟動的工具）可在兩張椅子分別扮演兩種人。角色會按人才包分組並可收合，五十個選項也不會把畫面捲到找不到底。角色文字則在執行時向 talent-market CLI 取得，不會塞進 usage 本身；像替一場會議現場選角，每張椅子都能坐上合適的專家。",
-              "en": "In one Council (a feature where several AIs discuss an issue from separate seats), each seat can now take a different specialty. Need one person to review a contract, one to spot front-end trouble, and another to audit security? A role picker beside the model picker lists specialists from your installed talent packs. A persona (an expert hat placed on an AI before it speaks) is injected as a prompt prefix, so the same CLI (a tool launched from a command line) can wear two different hats in two seats. Roles are grouped by talent pack in a collapsible picker, keeping even 50 choices manageable. Their text is fetched from the talent-market CLI at runtime instead of bundled into usage: like casting a meeting, each chair gets the right specialist."
-            },
-            "original": "**Council participants can wear a persona from the AI Talent Market**: every seat now has a role picker next to its model picker, listing the specialists from your installed talent packs (contract review, front-end, security audit, and the rest). The role's expertise is injected as a prompt prefix, so the same CLI can sit in two seats wearing two different hats. Roles are grouped by talent pack in a collapsible picker — collapsed it shows only the pack names, so a 50-role list no longer scrolls off the screen. Role text is fetched from the talent-market CLI at runtime and is never bundled into usage itself."
-          },
-          {
-            "title": {
-              "zh-TW": "先決定辯論打法，同意就提早收場",
-              "en": "Choose a debate style, then stop once everyone agrees"
-            },
-            "body": {
-              "zh-TW": "一群 AI 反覆討論時，你可以先決定這場會議要當腦力激盪，還是挑錯大會。Council 從第二輪起可替每位參與者從五種辯論風格中選一種：找共識、挑漏洞、補缺口、蘇格拉底式追問假設，或唱反調的魔鬼代言人。無論選哪種，每人回應開頭的立場標籤都會保留，並統計在摘要上方。若打開 end on consensus（全員同意便停止的開關），某一輪人人標示同意時，討論會立刻結束，不會耗完原先預留輪數；只要有人沒完成該輪，便不算共識。像會議主席先訂好規則、再看全體舉牌，牌沒全舉起就不宣布散會。",
-              "en": "When a group of AIs keeps debating, you can now decide whether the meeting should brainstorm together or hunt for flaws. From round two onward, Council lets each participant take one of five debate styles: constructive consensus-seeking, adversarial fault-finding, collaborative gap-filling, Socratic questioning of assumptions, or devil's advocate. Whatever style you choose, the stance label opening each reply stays visible and is counted above the summary. Enable end on consensus (a switch that stops once everyone agrees), and the discussion ends as soon as every participant marks agreement in a round instead of using all budgeted rounds. If anyone fails to finish that round, it does not count. Like a chair setting meeting rules, then checking every raised hand before calling the room settled."
-            },
-            "original": "**Five debate styles for a council**: pick the tone every participant takes from the second round on — constructive consensus-seeking, adversarial fault-finding, collaborative gap-filling, Socratic questioning of assumptions, or devil's advocate. The stance label each participant must open with is preserved under every style.\n**Council consensus is counted, and can end the discussion early**: the stance labels participants open their rebuttals with are now tallied and shown above the summary. Turn on *end on consensus* and a discussion stops as soon as every participant in a round agrees, instead of burning through the rounds you budgeted for. A round where anyone failed to finish never counts as consensus."
-          },
-          {
-            "title": {
-              "zh-TW": "主持人看不到名字，結論更不偏袒",
-              "en": "Moderators no longer see names, keeping summaries impartial"
-            },
-            "body": {
-              "zh-TW": "要主持人替多個 AI 的意見下結論時，現在它先看不到發言者姓名。交給主持人的逐字稿（transcript，完整保留每句話的討論記錄）已匿名化，避免它偏愛自己那個 CLI（從命令列啟動的工具）寫出的答案。摘要送回你的畫面或匯出成 Markdown（能直接排版的純文字格式）前，名字會恢復，所以你仍會讀到「Claude 主張……」，而非「參與者 A」。只有說話者的標記被遮住，原話不會改動；即使討論題目正是 Claude 或 Codex，內容也照樣看得懂。這像盲飲評酒：評審先喝內容、不看酒標，公布結果時才告訴你是哪一瓶。",
-              "en": "When a moderator is asked to draw a conclusion from several AIs, it now sees the opinions before it sees their authors. The transcript (a record preserving every spoken line) handed to the moderator is anonymized, so it cannot favor answers written by its own CLI (a tool launched from a command line). Names return before the summary reaches your screen or is exported as Markdown (plain text that can carry formatting), so you still read “Claude argued...” rather than “Participant A.” Only author labels are hidden; the words themselves remain untouched, even when the discussion is about Claude or Codex. It is like a blind wine tasting: judges taste what is in the glass before learning its label."
-            },
-            "original": "**The moderator no longer sees who said what**: the transcript handed to the moderator is anonymized, so it cannot favor the answers its own CLI wrote. Participant names are restored before the summary reaches your screen and the exported Markdown, so you still read \"Claude argued…\" rather than \"Participant A argued…\". Participants' own words are passed through untouched — a discussion *about* Claude or Codex stays readable."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "new",
-        "new"
-      ]
-    },
-    {
-      "version": "0.29.0",
-      "raw": {
-        "version": "0.29.0",
-        "period": "2026-07-25",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-25",
-        "entries": [
-          "**AI Council**: a new menu-bar window that runs a multi-round discussion between Claude Code, Codex, and Antigravity (agy) on a topic you give it. Pick which CLIs join and which model each one uses (Opus / Sonnet / Haiku for Claude, Terra / Luna / Sol for Codex, a choice of Gemini models for Antigravity), set 1–5 rounds, and optionally have one participant write a closing summary as moderator. The setup panel collapses into a status bar once a discussion starts, so the transcript and summary panes get the full window height.",
-          "**Council cost stays visible before you commit to it**: the estimate shown before starting now includes a token total, not just a CLI-call count, and turns amber with a plain multiple-of-two-rounds comparison once 3+ rounds are selected — every extra round costs more than the last, since each participant re-reads the whole transcript so far.",
-          "**Council supports image attachments and an optional read-only project folder**: drag-and-drop or paste (Cmd+V) images into the topic box, and each participating CLI gets read access to them; a working directory can be attached so participants can reference real project files without write access."
-        ]
-      },
-      "curated": {
-        "version": "0.29.0",
-        "period": "2026-07-25",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "三個 AI 開圓桌會議，你給題目、指定誰上場",
-              "en": "AI Council: three CLIs debate your topic in rounds"
-            },
-            "body": {
-              "zh-TW": "要決定一件事，問一個 AI 只會得到一種說法。新的 AI Council 從選單列開一個視窗，讓 Claude Code、Codex 和 Antigravity 針對你出的題目輪流討論。你挑誰上場、各自用哪個模型（Claude 選 Opus、Sonnet 或 Haiku，Codex 選 Terra、Luna 或 Sol，Antigravity 選 Gemini 系列），再定 1 到 5 輪，還可以指派其中一位當主持人在最後寫總結。比方你在猶豫要不要把資料庫換掉，就把這題丟進去讓三邊互相質疑。討論一開始，設定面板會收合成一條狀態列，把整個視窗高度讓給逐字稿和總結。",
-              "en": "Ask one AI and you get one opinion. The new AI Council opens a menu-bar window where Claude Code, Codex and Antigravity discuss a topic you set, in rounds. You choose which ones take part and what model each runs (Opus, Sonnet or Haiku for Claude; Terra, Luna or Sol for Codex; a choice of Gemini models for Antigravity), set anywhere from one to five rounds, and can nominate one participant to act as moderator and write the closing summary. Weighing up whether to switch databases? Put the question in and let the three of them push back on each other. Once a discussion starts, the setup panel collapses into a status bar so the transcript and summary get the full window height."
-            },
-            "original": "**AI Council**: a new menu-bar window that runs a multi-round discussion between Claude Code, Codex, and Antigravity (agy) on a topic you give it. Pick which CLIs join and which model each one uses (Opus / Sonnet / Haiku for Claude, Terra / Luna / Sol for Codex, a choice of Gemini models for Antigravity), set 1–5 rounds, and optionally have one participant write a closing summary as moderator. The setup panel collapses into a status bar once a discussion starts, so the transcript and summary panes get the full window height."
-          },
-          {
-            "title": {
-              "zh-TW": "開會前先看得到帳單，第三輪起會亮黃燈",
-              "en": "See the council's bill before you start it"
-            },
-            "body": {
-              "zh-TW": "讓三個 AI 吵五輪聽起來很過癮，帳單卻不是線性成長。開始前的預估現在除了會呼叫幾次，還會直接告訴你要花掉多少文字單位，也就是實際計費的量。而且只要你把輪數拉到 3 輪以上，數字就會轉成琥珀色，並用「大約是兩輪的幾倍」這種講法提醒你。原因不難懂：每多一輪，每個參與者都得把前面所有人講過的話重新讀一次，讀的東西越堆越厚。像影印一本會議記錄，每加開一場會，下次要影印的頁數就比上次更多，不是多印一張而已。",
-              "en": "Letting three AIs argue for five rounds sounds fun, but the bill does not grow in a straight line. The estimate shown before you start now reports a token total — what you are actually billed on — rather than only a count of CLI calls. Push the round count to three or more and the figure turns amber, with a plain comparison against what two rounds would cost. The reason is simple: every extra round has each participant re-read everything said so far, and the transcript only gets thicker. Photocopying the minutes of a meeting works the same way — each additional session means more pages next time, not one more sheet."
-            },
-            "original": "**Council cost stays visible before you commit to it**: the estimate shown before starting now includes a token total, not just a CLI-call count, and turns amber with a plain multiple-of-two-rounds comparison once 3+ rounds are selected — every extra round costs more than the last, since each participant re-reads the whole transcript so far."
-          },
-          {
-            "title": {
-              "zh-TW": "把截圖和專案資料夾一起帶進會議室",
-              "en": "Bring screenshots and a read-only project folder into the room"
-            },
-            "body": {
-              "zh-TW": "光靠文字描述一張跑版的畫面，你自己都講不清楚。現在題目欄可以直接拖進圖片，或按 Cmd+V 貼上，參加討論的每個 CLI 都讀得到那張圖。你也可以掛上一個工作目錄，讓它們翻得到專案裡的真實檔案再發言，而不是憑空猜你的程式長什麼樣。這個目錄是唯讀的，它們看得到、改不動。像把設計稿和一整份卷宗帶進會議室發給大家，資料攤開讓人討論，但正本不會被誰順手改掉。",
-              "en": "Describing a broken layout in words defeats even the person looking at it. You can now drag images straight into the topic box or paste them with Cmd+V, and every participating CLI gets to read them. You can also attach a working directory so they can consult the real files in your project before speaking, instead of guessing at what your code looks like. That directory is read-only: they can see it, they cannot change it. It is like handing out the mockups and a full case file in a meeting room — the material is open for discussion, but nobody walks off having edited the original."
-            },
-            "original": "**Council supports image attachments and an optional read-only project folder**: drag-and-drop or paste (Cmd+V) images into the topic box, and each participating CLI gets read access to them; a working directory can be attached so participants can reference real project files without write access."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "new",
-        "new"
-      ]
-    },
-    {
-      "version": "0.28.21",
-      "raw": {
-        "version": "0.28.21",
-        "period": "2026-07-24",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-24",
-        "entries": [
-          "**Service-status banners for Claude Code, Claude API, and Codex API incidents.** `usage` reads the public Claude and Codex Statuspage.io status pages and shows an orange-red warning banner at the bottom of a panel only when an affected service has an outage or degraded performance. It never calls an LLM usage API.",
-          "**Service-status banners work across every panel with a footer.** Each panel uses warning colors matched to its own theme, and a banner for a tool is not shown when that tool's card is hidden.",
-          "**Service-status banner text is available in all five UI languages.** Antigravity is not supported because it has no usable public status page.",
-          "**Rate and status information now sit side by side in the footers of all eight themed panels.** They now match the default panel instead of being stacked vertically.",
-          "**Live usage-rate categories can distinguish heavy use again.** Heavy users previously remained permanently in Heavy because burn rate counted `cache_read`—a near-free prompt-cache reread that reflects conversation length rather than usage intensity—in its numerator. It now excludes `cache_read`, and the Idle / Normal / Active / Heavy thresholds have been recalibrated from 50 / 250 / 1000 to 500 / 2500 / 6000 tokens per minute.",
-          "**Popover height now accounts for the service-status banner.** When the banner appears, the panel grows enough to contain it instead of squeezing its content."
-        ]
-      },
-      "curated": {
-        "version": "0.28.21",
-        "period": "2026-07-24",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "服務出狀況時，面板會亮起警示燈",
-              "en": "A warning light now appears when a service is having trouble"
-            },
-            "body": {
-              "zh-TW": "你打開 usage 想看 Claude Code 的用量，卻懷疑回應變慢是自己額度用完，還是服務真的故障？現在有頁尾的面板，會在 Claude Code、Claude API 或 Codex API 發生中斷或效能降低時，底部亮起橘紅警示條。它讀的是各家公開的 Statuspage.io 狀態頁，不會呼叫 LLM 用量 API；所以這盞燈只告訴你服務是否出事，不會替你查 AI 用了多少。每個工具用各自面板的警示色，藏起工具卡時也不會冒出它的通知。五種介面語言都有文字說明。這像車上各自獨立的故障燈：引擎、煞車哪一處亮了就看哪一處，沒裝感測器的 Antigravity 則不會硬亮一顆假的燈。",
-              "en": "When usage feels slow, it can be hard to tell whether you hit a limit or the service itself is struggling. Panels with a footer now show an orange-red banner when Claude Code, the Claude API, or the Codex API has an outage or degraded performance. The banner reads each service's public Statuspage.io page; it never calls an LLM usage API, so it reports service health rather than your AI consumption. Each tool uses its own panel colors, and a hidden tool card produces no banner. The wording is available in all five interface languages. Think of separate dashboard lights in a car: the light tells you which fitted component has trouble. Antigravity has no usable public status page, so it does not pretend to have one."
-            },
-            "original": "**Service-status banners for Claude Code, Claude API, and Codex API incidents.** `usage` reads the public Claude and Codex Statuspage.io status pages and shows an orange-red warning banner at the bottom of a panel only when an affected service has an outage or degraded performance. It never calls an LLM usage API.\n**Service-status banners work across every panel with a footer.** Each panel uses warning colors matched to its own theme, and a banner for a tool is not shown when that tool's card is hidden.\n**Service-status banner text is available in all five UI languages.** Antigravity is not supported because it has no usable public status page."
-          },
-          {
-            "title": {
-              "zh-TW": "頁尾資訊改成並排，警示出現也不擠內容",
-              "en": "Footer details now sit side by side, with room for warnings"
-            },
-            "body": {
-              "zh-TW": "掃過八種主題面板時，現在更容易一眼同時看到用量速度和服務狀態。原本上下堆疊的兩項資訊，已改成和預設面板一致的左右並排；畫面像把兩張便條貼在同一排，而不是一張壓著一張。萬一服務警示條出現，面板也會自己長高，替它留出位置，不再把原有內容擠扁。就像電梯裡加了一則公告，電梯不會因此把樓層按鈕擠到看不清楚，而是多開一塊版面讓內容看清。",
-              "en": "Scanning the eight themed panels now makes it easier to see usage rate and service status at the same time. Those footer details used to be stacked vertically; they now sit side by side, matching the default panel, like two notes placed on one row instead of one covering the other. If a service-status banner appears, the panel also grows tall enough to give it space rather than squeezing the existing content. It is like adding a notice to an elevator without cramming the floor buttons out of sight: the cabin simply makes room."
-            },
-            "original": "**Rate and status information now sit side by side in the footers of all eight themed panels.** They now match the default panel instead of being stacked vertically.\n**Popover height now accounts for the service-status banner.** When the banner appears, the panel grows enough to contain it instead of squeezing its content."
-          },
-          {
-            "title": {
-              "zh-TW": "重度使用判定不再把快取重讀算進去",
-              "en": "Heavy-use labels stop counting cache rereads"
-            },
-            "body": {
-              "zh-TW": "明明只是接著同一段對話問問題，usage 卻一直把你標成 Heavy，現在這種誤判會少很多。用量速度會以每分鐘 token（AI 處理與計費的文字單位）分類成 Idle、Normal、Active、Heavy；先前計算 Heavy 時，把 `cache_read` 也算進使用量。`cache_read` 是提示快取（把已讀過內容暫存，重用時不用重新處理）的重讀，幾乎免費，主要反映對話有多長，不代表你用得多猛。現在它已被排除，門檻也從每分鐘 50／250／1000 調成 500／2500／6000 tokens。像健身房把你反覆看同一張課表當成運動量，當然會虛報；現在只計真正的訓練，標籤比較接近實際強度。",
-              "en": "If usage kept labeling you Heavy while you were only continuing one conversation, that false impression should now be much rarer. The live rate sorts activity into Idle, Normal, Active, and Heavy by tokens per minute—tokens are the units of text an AI processes and bills for. Previously, the Heavy calculation included `cache_read`, a nearly free reread of prompt-cache content that mainly reflects conversation length rather than intensity. That value is now excluded, and the thresholds have moved from 50 / 250 / 1000 to 500 / 2500 / 6000 tokens per minute. It is like a gym counting rereading the same workout sheet as exercise; now it counts the training itself, so the label better matches the effort."
-            },
-            "original": "**Live usage-rate categories can distinguish heavy use again.** Heavy users previously remained permanently in Heavy because burn rate counted `cache_read`—a near-free prompt-cache reread that reflects conversation length rather than usage intensity—in its numerator. It now excludes `cache_read`, and the Idle / Normal / Active / Heavy thresholds have been recalibrated from 50 / 250 / 1000 to 500 / 2500 / 6000 tokens per minute."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "new",
-        "new"
-      ]
-    },
-    {
-      "version": "0.28.20",
-      "raw": {
-        "version": "0.28.20",
-        "period": "2026-07-24",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-24",
-        "entries": [
-          "**Auto-start 5-hour Session stopped firing at all after its first ping.** 0.28.17 swapped the keeper's elapsed-time throttle for reset-boundary deduplication, which only holds up while the boundary keeps moving — and it doesn't. The ping runs `claude -p` headless, which never triggers Claude Code's statusLine hook, so `usage-status.json` goes on reporting the boundary that was already handled and the keeper wedges permanently. One machine went 23 hours with no auto-opened window while the cooldown-based Antigravity keeper kept working normally. The boundary check stays, since it is what catches a real rollover the moment it happens; a 5h5m cooldown is added alongside it as a second, independent way to re-arm once the payload has gone stale. Every existing gate is untouched, so a live window still never draws a spurious ping.",
-          "**Orphaned temp files piled up in `~/.usage/`.** Every atomic write unlinks its `mkstemp` file in a `finally` block, and that block never runs when the app is SIGKILLed or crashes mid-write. One install had collected 40 MB of them over twelve days, dominated by the large JSONL caches whose slow writes are the likeliest to be interrupted. Startup now sweeps `~/.usage` and its direct `*.d` children, deleting only regular files that match the `mkstemp` name shape and have gone untouched for 24 hours — long enough that a second usage process cannot lose a temp file it is still writing. Symlinks and directories are skipped no matter how well their name matches."
-        ]
-      },
-      "curated": {
-        "version": "0.28.20",
-        "period": "2026-07-24",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "5 小時工作階段會重新自動開啟",
-              "en": "Your 5-hour sessions can auto-start again"
-            },
-            "body": {
-              "zh-TW": "你靠自動功能守著 5 小時工作階段時，第一個提醒過後不會再整天沒動靜。先前它改用「跨過時段交界才提醒」的判斷，卻因為背景執行的 `claude -p` 不會觸發 statusLine（顯示在終端機最底下的狀態列）掛鉤，`usage-status.json` 一直留著已處理過的交界時間，於是自動功能永遠不再啟動。現在除了保留交界判斷來即時抓住真正換時段，也加上 5 小時 5 分鐘的冷卻計時；資料太舊時便重新準備下一次提醒。像鬧鐘既會在整點響，也有備用計時器；其中一個卡住，另一個仍會叫你起床。原本避免已開啟工作階段又亂提醒的關卡都還在。",
-              "en": "If you rely on automatic starts to watch a 5-hour session, it will no longer fall silent for the rest of the day after its first alert. The recent switch to detecting a session boundary got stuck because headless `claude -p` does not trigger the statusLine hook, leaving `usage-status.json` stuck on a boundary it had already handled. The boundary check remains, so a real rollover is still caught immediately, but a separate 5-hour-and-5-minute cooldown now rearms the alert once that record is stale. Think of an alarm clock with both a chime and a backup timer: if one gets stuck, the other still wakes you. All the existing checks that prevent an alert during a live session remain in place."
-            },
-            "original": "**Auto-start 5-hour Session stopped firing at all after its first ping.** 0.28.17 swapped the keeper's elapsed-time throttle for reset-boundary deduplication, which only holds up while the boundary keeps moving — and it doesn't. The ping runs `claude -p` headless, which never triggers Claude Code's statusLine hook, so `usage-status.json` goes on reporting the boundary that was already handled and the keeper wedges permanently. One machine went 23 hours with no auto-opened window while the cooldown-based Antigravity keeper kept working normally. The boundary check stays, since it is what catches a real rollover the moment it happens; a 5h5m cooldown is added alongside it as a second, independent way to re-arm once the payload has gone stale. Every existing gate is untouched, so a live window still never draws a spurious ping."
-          },
-          {
-            "title": {
-              "zh-TW": "異常中斷留下的暫存檔會自動清理",
-              "en": "Temporary files left by crashes now get cleaned up"
-            },
-            "body": {
-              "zh-TW": "程式在寫入資料時若突然當掉或被強制關閉，`~/.usage/` 裡留下的暫存檔現在會被收走，不會越堆越多。正常情況下，原子寫入（先寫好新檔再一次換上去，避免寫到一半壞掉）結束時會刪除 `mkstemp` 產生的檔案；但遇到 SIGKILL（作業系統立刻強制終止程式的訊號）或崩潰，清理步驟來不及跑。一台電腦曾在 12 天累積 40 MB，主要是寫得較慢的 JSONL 快取（把算過／查過的結果暫存起來直接用）。現在啟動時會掃描 `~/.usage/` 和它直接底下的 `*.d` 資料夾，只刪符合名稱、超過 24 小時未碰過的一般檔案；符號連結和資料夾一律不碰。像倉庫每天開門先清昨夜遺下的包材，仍在裝箱的貨不會被誤丟。",
-              "en": "If the app crashes or is forcibly stopped while saving data, its leftover temporary files in `~/.usage/` will now be cleared instead of piling up. An atomic write normally deletes the file made by `mkstemp` after safely putting the completed new file in place, but SIGKILL or a crash prevents that cleanup from running. One installation gathered 40 MB in 12 days, mostly from slower JSONL caches. On startup, Usage now checks `~/.usage/` and its immediate `*.d` children, deleting only ordinary files with the matching temporary-file name that have not been touched for 24 hours. Symlinks and directories are always left alone. It is like a warehouse clearing yesterday's packing scraps each morning without throwing away a box still being packed."
-            },
-            "original": "**Orphaned temp files piled up in `~/.usage/`.** Every atomic write unlinks its `mkstemp` file in a `finally` block, and that block never runs when the app is SIGKILLed or crashes mid-write. One install had collected 40 MB of them over twelve days, dominated by the large JSONL caches whose slow writes are the likeliest to be interrupted. Startup now sweeps `~/.usage` and its direct `*.d` children, deleting only regular files that match the `mkstemp` name shape and have gone untouched for 24 hours — long enough that a second usage process cannot lose a temp file it is still writing. Symlinks and directories are skipped no matter how well their name matches."
-          }
-        ]
-      },
-      "badges": [
         "new",
         "new"
       ]
