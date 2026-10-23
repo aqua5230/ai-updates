@@ -92,7 +92,7 @@ Curated content must accurately reflect the official entries. The `original` fie
 ## Automation
 
 - `daily.yml` runs daily, fetches official changelogs, opens review issues for newly discovered versions, builds generated feeds, and commits changed source and feed files.
-- `sync-usage.yml` runs when `ai_updates.json` changes on `main` and synchronizes that file to `aqua5230/usage`.
+- `sync-usage.yml` synchronized `ai_updates.json` to `aqua5230/usage` for apps older than 0.27. It has been disabled since 2026-10-16, so usage keeps its last synced copy; `gh workflow enable sync-usage.yml` resumes it.
 
 ## Related Project
 
@@ -100,7 +100,7 @@ Curated content must accurately reflect the official entries. The `original` fie
 
 ## Maintainer Notes
 
-`sync-usage.yml` requires a fine-grained personal access token named `USAGE_SYNC_TOKEN`.
+If re-enabled, `sync-usage.yml` requires a fine-grained personal access token named `USAGE_SYNC_TOKEN`.
 
 1. In GitHub, open **Settings → Developer settings → Personal access tokens → Fine-grained tokens**.
 2. Set the resource owner to `aqua5230`, choose **Only select repositories**, and select `aqua5230/usage`.

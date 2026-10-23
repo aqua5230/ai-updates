@@ -92,7 +92,7 @@ python3 scripts/sync_agy.py
 ## 自動化
 
 - `daily.yml` 每日執行，抓取官方 changelog、為新版本建立審核 issue、建立產出 feed，並提交變更的原文與 feed 檔案。
-- `sync-usage.yml` 在 `main` 上的 `ai_updates.json` 變更時執行，並將該檔案同步至 `aqua5230/usage`。
+- `sync-usage.yml` 原本把 `ai_updates.json` 同步至 `aqua5230/usage`，供 0.27 以前的舊版 app 讀取。2026-10-16 起停用，usage 保留最後一次同步的檔案；要恢復就跑 `gh workflow enable sync-usage.yml`。
 
 ## 相關專案
 
@@ -100,7 +100,7 @@ python3 scripts/sync_agy.py
 
 ## 維護者注意事項
 
-`sync-usage.yml` 需要名為 `USAGE_SYNC_TOKEN` 的 fine-grained personal access token。
+重新啟用時，`sync-usage.yml` 需要名為 `USAGE_SYNC_TOKEN` 的 fine-grained personal access token。
 
 1. 在 GitHub 開啟 **Settings → Developer settings → Personal access tokens → Fine-grained tokens**。
 2. 將 resource owner 設為 `aqua5230`，選擇 **Only select repositories**，並選取 `aqua5230/usage`。

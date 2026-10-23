@@ -7,7 +7,7 @@
 1. **每天自動**抓七個 AI 工具的官方 changelog 原文，逐版本存檔（永久歷史紀錄）。
 2. 提供一個 **GitHub Pages 靜態網頁**，顯示最新速報＋每工具的完整更新歷史，支援繁中與英文（2026-09-05 起只保留這兩語，見 commit `ef824751`）。
 3. 白話速報（繁中＋英文改寫）仍走「人審後合入」，不全自動——原文層每天自動更新，白話層審核後上。
-4. 合入後自動把 `ai_updates.json` **同步回 usage repo**（aqua5230/usage main），讓已發佈的舊版 app 繼續吃到新內容（app 讀 `https://raw.githubusercontent.com/aqua5230/usage/main/ai_updates.json`，schema 不能變）。
+4. 合入後自動把 `ai_updates.json` **同步回 usage repo**（aqua5230/usage main），讓已發佈的舊版 app 繼續吃到新內容（app 讀 `https://raw.githubusercontent.com/aqua5230/usage/main/ai_updates.json`，schema 不能變）。**2026-10-16 起停用**：每天的 bot commit 洗 usage main 歷史；usage 保留最後一次同步的檔案，舊版 app 讀到的內容停在那天，讀不到或過期都安全降級。
 5. 供 usage app 的「AI 更新日報」面板吃的每日 feed：`daily.json`——每工具最新幾個版本，有白話用白話、還沒審的用原文逐字（標 `curated: false`），保證每天自動有新內容。
 
 ## 七個工具與官方來源
@@ -34,7 +34,7 @@ ai-updates/
   scripts/build.py                       # data/ → ai_updates.json + docs/data.json
   scripts/sync_agy.py                    # 本機跑：agy changelog → data/raw/agy/
   .github/workflows/daily.yml            # 每日 cron：fetch → 有新版 build+commit＋開 issue 提醒
-  .github/workflows/sync-usage.yml       # ai_updates.json 變動時，用 PAT 推單檔到 aqua5230/usage
+  .github/workflows/sync-usage.yml       # ai_updates.json 變動時，用 PAT 推單檔到 aqua5230/usage（2026-10-16 起停用）
   drafts/                                # 網頁視覺草案（agy 產，選定後併入 docs/）
 ```
 
@@ -53,7 +53,7 @@ curated 內容由維護者離線撰寫與審核後合入；本 repo 只定義資
 
 - 新增「AI 更新日報」面板（更換面板選單）：吃本 repo 的 `daily.json`（raw URL＋本機快取），每天自動有新內容。
 - HTML 報告裡的 `_render_ai_updates_section` 區塊整個移除（功能獨立成面板＋網頁後，報告不再重複）。
-- `ai_updates.json` 同步回 usage repo 仍要做：**只為了已發佈的舊版 app**（它們還在渲染報告區塊）。
+- `ai_updates.json` 同步回 usage repo：**只為了已發佈的舊版 app**（它們還在渲染報告區塊）。2026-10-16 起停止。
 
 ## 網頁需求
 
