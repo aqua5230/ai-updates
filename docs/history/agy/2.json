@@ -5,6 +5,147 @@
   "pages": 8,
   "versions": [
     {
+      "version": "1.3.4",
+      "raw": {
+        "version": "1.3.4",
+        "period": "2026-10-13",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-10-13",
+        "entries": [
+          "Added a `--json` flag to `agy plugin list` for machine-readable output, and fixed the command showing only imported plugins: it now lists every installed plugin, including ones installed from a marketplace, with its version and whether it is enabled.",
+          "Changed `--model` and `/model` to accept a base model name without `--effort`: instead of failing with an error asking for `--effort`, the CLI now picks the model's default thinking level (the server's default for that model, otherwise medium, otherwise the lowest available).",
+          "Improved Remote Control so the browser's Settings modal opens for CLI sessions and shows the settings the CLI actually uses (project and global permissions, queued messages, AI credits, telemetry, and artifact review) instead of a notice that settings can't be changed in the browser, and `agy remote-control serve` sessions now use your saved `settings.json` and save changes made in the browser back to it.",
+          "Improved the `/model` picker for Business sign-in with a Google Cloud project on pay-as-you-go: third-party models your project can't access are now hidden instead of failing when you send a message.",
+          "Fixed long stalls when model requests fail repeatedly: the agent now waits at most 30 seconds between automatic retries instead of up to 4 minutes.",
+          "Fixed remote MCP servers that use OAuth signing you out after a temporary network failure, timeout, or server error; saved sign-ins are now cleared only when the server or its authorization server actually rejects them.",
+          "Fixed `--agent` silently running the default agent when the name matches no agent: headless `-p` runs now exit with code 1 and list the available agents, and interactive sessions show an `Agent Not Found` warning before falling back to the default agent.",
+          "Fixed combining `--print` with `--prompt-interactive` exiting with status 0 after reporting the conflict; it now exits with status 2 like other print-mode usage errors.",
+          "Fixed `/diff` showing `No uncommitted changes` in Git, Mercurial, and Jujutsu repositories configured to always color output, for example with `color.ui = always`.",
+          "Fixed `@conversation:` suggestions getting stuck on `Fetching matches for ...` when conversation search is slow; after 2 seconds the list now falls back to your local conversations.",
+          "Fixed the `Agents:` row in `/plugin` plugin details leaving out subagents a plugin declares in its root `agents.json`; it now lists every loaded agent by name instead of by its `agents/` folder name.",
+          "Fixed \"Always allow\" rules approved from a Remote Control browser session still applying after you removed them in the browser's rules editor or the shared tab of `/permissions`; these rules are now saved only to the shared `config.json`.",
+          "Fixed requests failing with `thinking_budget and thinking_level are not supported together` when signed in with Application Default Credentials and using a model that has a thinking level.",
+          "Fixed a conversation failing on every later request after the agent read a truncated or header-only WebM file; such files are now rejected when read instead of being attached."
+        ]
+      },
+      "curated": {
+        "version": "1.3.4",
+        "period": "2026-10-13",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "外掛與代理人清單完整列出，支援結構化輸出",
+              "en": "Complete Plugin and Agent Listings with Structured Output Support"
+            },
+            "body": {
+              "zh-TW": "當你安裝了許多擴充套件，想一次盤點目前啟用了哪些工具與專屬助理時，資訊常會顯示不全。⟦跟檢視樂團編制表一樣，以前只列出編制內樂手還漏寫客席聲部，現在連外聘演奏家與個別聲部名單都按正式姓名全數登載。⟧現在執行 `agy plugin list` 時新增了 `--json` 參數，能輸出方便程式解析的結構化資料。該指令不再只顯示手動匯入的套件，而是將從市集安裝的所有外掛、版本編號以及啟用狀態完整列出。在對話中輸入 `/plugin` 查看外掛詳情時，底下的代理人清單過去會漏掉在 `agents.json` 根目錄宣告的子代理人。這個問題已經修好，現在會依名稱完整顯示所有載入的代理人，不再只抓取資料夾名稱。",
+              "en": "When you have installed many extensions and want to inventory which tools and dedicated assistants are currently active all at once, the information is often incomplete. ⟦Like checking an orchestra roster that previously listed only permanent musicians and missed guest sections, the roster now records every visiting performer and individual section member under their official name.⟧ Running `agy plugin list` now adds a `--json` flag to output structured data for easy programmatic parsing. The command no longer displays only manually imported packages, but completely lists all plugins installed from the marketplace along with their version numbers and enabled status. When typing `/plugin` in a chat to view plugin details, the agent list below previously omitted subagents declared at the root of `agents.json`. This issue is now fixed, and all loaded agents are fully displayed by name instead of only grabbing directory names."
+            },
+            "original": "Added a `--json` flag to `agy plugin list` for machine-readable output, and fixed the command showing only imported plugins: it now lists every installed plugin, including ones installed from a marketplace, with its version and whether it is enabled.\nFixed the `Agents:` row in `/plugin` plugin details leaving out subagents a plugin declares in its root `agents.json`; it now lists every loaded agent by name instead of by its `agents/` folder name."
+          },
+          {
+            "title": {
+              "zh-TW": "模型切換省去思考參數，自動過濾無權限選項",
+              "en": "Model Switching Omits Thinking Parameters and Automatically Filters Unauthorized Options"
+            },
+            "body": {
+              "zh-TW": "想切換對話模型或調整推理解題深度時，以前常因為少打參數或選錯項目而卡住。⟦好比到餐廳點牛排，以前少交代熟度就無法送單，現在廚師會主動端出推薦熟度，點餐看板上也預先撤下沒供應的部位。⟧現在使用 `--model` 或 `/model` 指定模型時，可以直接填寫模型基礎名稱，不必強制加上 `--effort` 參數。系統會自動套用預設的思考層級（伺服器預設值，否則依序採用中等或最低層級），不再報錯中斷。若透過 Google Cloud 按量計費的商業帳號登入，選單會主動隱藏專案無權存取的第三方模型。另外使用應用程式預設憑證（ADC，讓本機直接取得雲端授權的機制）時，思考預算與思考層級衝突的報錯也已修復。",
+              "en": "When switching chat models or tuning reasoning depth, users often got stuck due to missing parameters or selecting invalid options. ⟦Think of ordering steak at a restaurant: previously, leaving out the doneness level prevented placing an order, but now the chef serves a recommended doneness automatically, and unavailable cuts are removed from the menu board in advance.⟧ When specifying a model with `--model` or `/model`, you can now enter just the base model name without being required to add the `--effort` flag. The system automatically applies a default thinking effort (the server default, or otherwise medium or lowest in order) without throwing an error and halting. If logged in through a Google Cloud pay-as-you-go commercial account, the menu proactively hides third-party models that the project has no permission to access. In addition, an error where thinking budgets conflicted with thinking effort when using Application Default Credentials (ADC, a mechanism allowing local environments to directly obtain cloud authorization) has also been fixed."
+            },
+            "original": "Changed `--model` and `/model` to accept a base model name without `--effort`: instead of failing with an error asking for `--effort`, the CLI now picks the model's default thinking level (the server's default for that model, otherwise medium, otherwise the lowest available).\nImproved the `/model` picker for Business sign-in with a Google Cloud project on pay-as-you-go: third-party models your project can't access are now hidden instead of failing when you send a message.\nFixed requests failing with `thinking_budget and thinking_level are not supported together` when signed in with Application Default Credentials and using a model that has a thinking level."
+          },
+          {
+            "title": {
+              "zh-TW": "遠端控制設定面板開放調整，權限刪除即時同步",
+              "en": "Remote Control Settings Panel Opened for Adjustments with Instant Permission Deletion Sync"
+            },
+            "body": {
+              "zh-TW": "出門在外用手機網頁查看終端機進度時，常常碰上偏好選項改不了、或是撤銷規則卻依然生效的窘境。⟦就像拿著平板遙控中央機房，以前面板只顯示無法修改，現在順手調整溫控或撤銷訪客門禁，實體主機的設定檔立刻同步更新。⟧瀏覽器遠端控制（Remote Control，讓使用者透過網頁介面操作終端機工作階段的功能）的設定面板現在已正式開放。視窗中會直接列出專案與全域權限、排隊訊息、AI 額度、遙測數據與工件審查等實際運作項目。透過 `agy remote-control serve` 啟動時會載入 `settings.json`，在網頁上的修改也會即時寫回本機。而在瀏覽器中核准的「永遠允許」規則，過去在規則編輯器或 `/permissions` 分頁移除後依然會繼續生效；現在規則只會存入共用的 `config.json`，移除後便立即失效。",
+              "en": "When checking terminal progress via a mobile browser while away, users often ran into dilemmas where preference options could not be changed or revoked rules remained in effect. ⟦Picture managing a central server room from a tablet: previously the panel only displayed settings without allowing modifications, but now adjusting climate control or revoking visitor access immediately syncs the configuration files on the physical host.⟧ The settings panel for browser Remote Control (a feature allowing users to operate terminal sessions through a web interface) is now officially open. The window directly lists active items such as project and global permissions, queued messages, AI quotas, telemetry data, and artifact reviews. Starting via `agy remote-control serve` loads `settings.json`, and changes made on the web page are immediately written back to the local machine. Previously, \"Always allow\" rules approved in the browser remained in effect even after being removed in the rule editor or on the `/permissions` tab. Rules are now stored exclusively in the shared `config.json`, becoming invalid immediately upon removal."
+            },
+            "original": "Improved Remote Control so the browser's Settings modal opens for CLI sessions and shows the settings the CLI actually uses (project and global permissions, queued messages, AI credits, telemetry, and artifact review) instead of a notice that settings can't be changed in the browser, and `agy remote-control serve` sessions now use your saved `settings.json` and save changes made in the browser back to it.\nFixed \"Always allow\" rules approved from a Remote Control browser session still applying after you removed them in the browser's rules editor or the shared tab of `/permissions`; these rules are now saved only to the shared `config.json`."
+          },
+          {
+            "title": {
+              "zh-TW": "指令參數錯誤不再靜默執行，明確回傳警告與狀態碼",
+              "en": "Command Flag Errors No Longer Run Silently, Returning Explicit Warnings and Exit Codes"
+            },
+            "body": {
+              "zh-TW": "在指令列啟動工具時，如果不小心打錯代理人名稱或組合了互相矛盾的參數，很容易因系統沒有明確阻止而產生誤解。⟦猶如車站剪票閘門，以前乘客拿錯票卡還會悄悄放行，現在若是無人自動驗票就立即亮紅燈攔截並列出可用票種，人工窗口也會先響起警告才做後續處置。⟧當使用 `--agent` 指定代理人卻拼錯名稱時，過去系統會默默改用預設代理人執行。現在無頭模式（headless，沒有終端機視覺畫面的執行模式）若搭配 `-p` 遇到名稱不符，會直接以狀態碼 1 結束並列出所有可用代理人。若在一般互動視窗遇到相同狀況，系統則會先顯示 `Agent Not Found` 警告才退回預設代理人。若將 `--print` 與 `--prompt-interactive` 混用，回報衝突後的退出狀態碼也已從原本代表成功的 0 改為狀態碼 2。",
+              "en": "When launching tools from the command line, accidentally mistyping an agent name or combining contradictory flags could easily cause confusion because the system did not clearly intervene. ⟦A station ticket turnstile illustrates this shift: where passenger cards with errors were once quietly let through, automated gates now instantly flash red, intercept entry, and list valid ticket types, while staffed booths sound a warning before taking further action.⟧ When specifying an agent using `--agent` with a misspelled name, the system previously fell back silently to the default agent. In headless mode (an execution mode without a visual terminal interface) combined with `-p`, encountering an unmatched name now exits directly with status code 1 and lists all available agents. Under the same condition in a standard interactive window, the system now displays an `Agent Not Found` warning before falling back to the default agent. When mixing `--print` with `--prompt-interactive`, the exit code after reporting the conflict has also been changed from 0 (which originally indicated success) to exit code 2."
+            },
+            "original": "Fixed `--agent` silently running the default agent when the name matches no agent: headless `-p` runs now exit with code 1 and list the available agents, and interactive sessions show an `Agent Not Found` warning before falling back to the default agent.\nFixed combining `--print` with `--prompt-interactive` exiting with status 0 after reporting the conflict; it now exits with status 2 like other print-mode usage errors."
+          },
+          {
+            "title": {
+              "zh-TW": "模型請求失敗重試間隔縮短，連線不順不再乾等",
+              "en": "Model Request Failure Retry Intervals Shortened to Eliminate Idling During Unstable Connections"
+            },
+            "body": {
+              "zh-TW": "當 AI 伺服器連線不穩或請求連續失敗時，以前終端機常常毫無反應。在模型請求遭遇連續失敗時，系統在自動重試之間的等待時間過去最長可達 4 分鐘，導致整個工作階段長時間停滯。這個問題現在已經修好，自動重試之間的等待間隔上限已縮短為最多 30 秒，減少連線異常時的乾等時間。",
+              "en": "When connections to AI servers are unstable or requests fail repeatedly, the terminal previously often became unresponsive. During consecutive model request failures, the system previously waited up to 4 minutes between automatic retries, leaving the entire session stalled for extended periods. This issue has now been resolved, and the upper limit for wait intervals between automatic retries has been shortened to at most 30 seconds, reducing idle waiting time during connection abnormalities."
+            },
+            "original": "Fixed long stalls when model requests fail repeatedly: the agent now waits at most 30 seconds between automatic retries instead of up to 4 minutes."
+          },
+          {
+            "title": {
+              "zh-TW": "遠端 MCP 登入憑證更穩定，網路暫時中斷不強制登出",
+              "en": "Remote MCP Login Credentials Stabilized to Prevent Forced Logout on Transient Network Drops"
+            },
+            "body": {
+              "zh-TW": "使用需要網頁授權的遠端外掛時，最怕網路稍有波動就被強制登出。當連線至使用 OAuth 驗證的遠端 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器時，過去只要遭遇短暫網路中斷、逾時或伺服器錯誤，系統就會清除登入資訊。現在只有在授權伺服器確實拒絕驗證時才會清除紀錄，短暫斷線不再需要重新登入。",
+              "en": "When using remote plugins that require web authorization, the biggest frustration was being forcibly logged out over minor network fluctuations. When connecting to a remote MCP (Model Context Protocol, a protocol allowing AI to connect to external tools) server that uses OAuth authentication, the system previously cleared login credentials whenever it encountered brief network interruptions, timeouts, or server errors. Now credentials are cleared only when the authorization server definitively rejects authentication, so brief disconnections no longer require logging in again."
+            },
+            "original": "Fixed remote MCP servers that use OAuth signing you out after a temporary network failure, timeout, or server error; saved sign-ins are now cleared only when the server or its authorization server actually rejects them."
+          },
+          {
+            "title": {
+              "zh-TW": "版本庫開啟彩色輸出時，比對指令不再誤報無變更",
+              "en": "Diff Command No Longer Falsely Reports No Changes When Repositories Enable Color Output"
+            },
+            "body": {
+              "zh-TW": "在對話中想查看程式碼修改進度時，終端機有時會明明有改動卻顯示一片空白。在 Git、Mercurial 或 Jujutsu 版本庫中輸入 `/diff` 查看變更時，若版本控制設定了強制彩色輸出（例如 `color.ui = always`），過去系統會誤判並顯示 `No uncommitted changes`。這個問題現在已經修好，即使環境開啟了色彩標記，指令也能正確讀取並顯示所有尚未提交的檔案修改。",
+              "en": "When attempting to review code modification progress during a conversation, the terminal sometimes displayed blank output even when modifications were present. When entering `/diff` to inspect changes in a Git, Mercurial, or Jujutsu repository, if version control was configured to force color output (such as `color.ui = always`), the system previously misinterpreted the output and displayed `No uncommitted changes`. This issue has now been resolved, so the command properly reads and displays all uncommitted file modifications even when color formatting is enabled in the environment."
+            },
+            "original": "Fixed `/diff` showing `No uncommitted changes` in Git, Mercurial, and Jujutsu repositories configured to always color output, for example with `color.ui = always`."
+          },
+          {
+            "title": {
+              "zh-TW": "歷史對話搜尋逾時自動降級，清單不再卡住等待",
+              "en": "Conversation History Search Automatically Fallbacks on Timeout Without Freezing the List"
+            },
+            "body": {
+              "zh-TW": "在輸入框打字引入舊對話時，如果搜尋速度變慢，游標常常會被卡在原地無法挑選。在終端機輸入 `@conversation:` 尋找過往對話時，若對話搜尋速度較慢，選單過去會一直卡在 `Fetching matches for ...` 的讀取畫面。這個問題現在已經修好，只要等候超過 2 秒，選單就會自動退回顯示本機儲存的歷史對話，不必再漫長乾等。",
+              "en": "When typing in the input box to reference an earlier conversation, slow searches often froze the cursor in place and prevented selection. When entering `@conversation:` in the terminal to search for past conversations, if the conversation lookup was slow, the menu previously stayed stuck on the `Fetching matches for ...` loading screen. This issue has now been resolved: after waiting more than 2 seconds, the menu automatically falls back to showing locally stored conversation history, eliminating the need to wait indefinitely."
+            },
+            "original": "Fixed `@conversation:` suggestions getting stuck on `Fetching matches for ...` when conversation search is slow; after 2 seconds the list now falls back to your local conversations."
+          },
+          {
+            "title": {
+              "zh-TW": "讀取殘缺影音檔直接拒絕，避免後續對話連鎖崩潰",
+              "en": "Incomplete Media Files Rejected Directly to Prevent Cascading Conversation Failures"
+            },
+            "body": {
+              "zh-TW": "讓代理人分析專案資料夾裡的媒體檔案時，若檔案未下載完整，可能導致後續整段交談全部報銷。當代理人讀取到內容不完整或只有標頭資訊的 WebM 影音檔案時，過去會將該檔案附加至工作階段中，導致後續的每一次對話請求全部發生錯誤。這個問題現在已經修好，系統在讀取到此類殘缺檔案時會直接拒絕載入，不再將損壞的附件帶入對話，確保後續操作能正常進行。",
+              "en": "When having an agent analyze media files in a project folder, an incompletely downloaded file could ruin the entire subsequent conversation. When an agent read a WebM media file that was incomplete or contained only header information, the system previously attached the file to the session, causing every subsequent conversation request to fail with an error. This issue has now been resolved: the system directly refuses to load such incomplete files and no longer brings corrupted attachments into the conversation, ensuring subsequent operations proceed normally."
+            },
+            "original": "Fixed a conversation failing on every later request after the agent read a truncated or header-only WebM file; such files are now rejected when read instead of being attached."
+          }
+        ]
+      },
+      "badges": [
+        "new",
+        "new",
+        "new",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix"
+      ]
+    },
+    {
       "version": "1.3.3",
       "raw": {
         "version": "1.3.3",
@@ -1043,90 +1184,6 @@
         "new",
         "perf",
         "new",
-        "fix"
-      ]
-    },
-    {
-      "version": "1.2.12",
-      "raw": {
-        "version": "1.2.12",
-        "period": "2026-09-27",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-09-27",
-        "entries": [
-          "Improved scrolling in the full-screen view: bursts of mouse-wheel or trackpad events are now coalesced before redrawing, which cuts CPU use and reduces scroll lag in long conversations and the artifact viewer",
-          "Improved `GEMINI_API_KEY` sessions to stop immediately when the Gemini API reports an exhausted daily quota, a project or billing-account spend cap, or depleted prepaid credits, instead of spending several minutes on retries that cannot succeed; short-lived per-minute rate limits are still retried",
-          "Fixed resuming a long conversation in `medium` or `low` verbosity taking many seconds and lagging while history replayed: earlier tool groups now appear already finished instead of each re-animating, and keys pressed during the replay no longer refresh a half-loaded transcript",
-          "Fixed the terminal or tab title changing to a string like `Ga=q,f=32,...` every time the CLI starts inside GNU `screen`, `tmux` (including iTerm2 `tmux -CC` tabs), or Zellij; the CLI no longer sends its image-support probe through a multiplexer, and `CLI_GRAPHICS=kitty` still forces image mode",
-          "Fixed Vim mode ignoring non-ASCII characters such as `é` or `中` after `r`, `f`, `F`, `t` and `T`, `fv` and `fV` in Visual mode leaving Visual mode instead of extending the selection, and `D`, `C`, or Visual `~`/`u`/`U` recording an empty undo step and clearing redo history when they changed nothing"
-        ]
-      },
-      "curated": {
-        "version": "1.2.12",
-        "period": "2026-09-27",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "全螢幕捲動效能升級，長對話與檢視器不再卡頓",
-              "en": "Smoother Full-Screen Scrolling Eliminates Stutter in Long Chats and Artifact Viewer"
-            },
-            "body": {
-              "zh-TW": "當你在全螢幕模式下翻閱篇幅很長的對話紀錄，或是打開產出物檢視器查閱內容時，快速滑動滾輪與觸控板變得十分滑順。以前手指快速滾動時，每一次細微的滾輪訊號都會立即觸發畫面重新繪製，不僅容易造成畫面卡頓，還會佔用大量處理器（CPU，電腦負責運算的核心）資源。現在系統會先將短時間內連續觸發的滑動事件合併整理，再一次性更新畫面，既降低了運算負擔，也消除了操作延遲。⟦如同收發室把同一時間寄達的零散信件整批捆好一次遞交，不必每來一張明信片就專程跑一趟辦公室。⟧",
-              "en": "Rapid scrolling with a mouse wheel or trackpad is now much smoother when browsing lengthy conversation histories or inspecting content in the artifact viewer in full-screen mode. Previously, every tiny scroll event triggered an immediate screen redraw during fast scrolling, which caused visual stutter and consumed heavy CPU resources. The system now batches scroll events triggered in rapid succession before updating the screen all at once, reducing computational overhead and eliminating lag. ⟦Picture a mailroom bundling scattered letters that arrive at the same time into a single delivery, rather than running to an office for every individual postcard.⟧"
-            },
-            "original": "Improved scrolling in the full-screen view: bursts of mouse-wheel or trackpad events are now coalesced before redrawing, which cuts CPU use and reduces scroll lag in long conversations and the artifact viewer"
-          },
-          {
-            "title": {
-              "zh-TW": "額度或預算耗盡立即停損，不再空等數分鐘重試",
-              "en": "Immediate Fail-Fast on Exhausted Quota or Budget Without Minutes of Retrying"
-            },
-            "body": {
-              "zh-TW": "使用金鑰 `GEMINI_API_KEY` 進行操作時，一旦帳戶額度見底，系統會立即中斷並回報，不再讓你乾等。以前只要遇到每日配額（quota，平台允許呼叫的使用上限）耗盡、專案或帳單達到支出上限，或是預付餘額扣光，程式仍會花費數分鐘持續重試不可能成功的連線。現在遇到這類確定無法解決的狀況會立刻中止工作階段。至於每分鐘呼叫次數超標這類短暫限制，仍會自動重試。⟦好比去自動販賣機買飲料，發現卡片餘額不足時機器會立刻提示餘額為零，而不是反覆吞吐卡片空轉好幾分鐘。⟧",
-              "en": "When operating with `GEMINI_API_KEY`, the system now halts immediately and reports the error once your account quota is exhausted, sparing you from waiting idly. Previously, when hitting daily quotas, project or billing spend limits, or running out of prepaid credits, the application would still spend several minutes retrying connections that could not possibly succeed. The session now terminates immediately upon encountering these permanently unresolvable conditions. Transient restrictions such as exceeding rate limits per minute will still be retried automatically. ⟦A vending machine immediately alerts you to a zero balance when your card lacks sufficient funds, rather than repeatedly ejecting and swallowing the card for minutes.⟧"
-            },
-            "original": "Improved `GEMINI_API_KEY` sessions to stop immediately when the Gemini API reports an exhausted daily quota, a project or billing-account spend cap, or depleted prepaid credits, instead of spending several minutes on retries that cannot succeed; short-lived per-minute rate limits are still retried"
-          },
-          {
-            "title": {
-              "zh-TW": "重新接續長對話瞬間載入，跳過重複動畫不再卡頓",
-              "en": "Instant Resumption for Long Sessions Skips Replay Animations Without Lag"
-            },
-            "body": {
-              "zh-TW": "當你打開先前篇幅很長的工作階段繼續提問時，畫面載入的速度變得俐落許多。以前在 `medium` 或 `low` 的詳細程度（verbosity，決定畫面要印出多少除錯與執行細節的設定）下恢復對話時，系統需要花上數秒重播所有歷史紀錄，造成操作延遲。現在先前執行完畢的工具會直接顯示為完成狀態，省去逐條重播動畫的時間。在載入過程中敲擊鍵盤，也不會再重新整理只載入到一半的對話紀錄。⟦就像翻開已寫好的會議紀錄，大家能直接從結論處接著討論，不必把每位發言者的發言逐字重唸一遍。⟧",
-              "en": "Loading feels much crisper when reopening a lengthy prior session to continue asking questions. Previously, resuming a conversation under `medium` or `low` verbosity required several seconds to replay entire histories, causing UI lag. Previously completed tools now render directly in their finished state, skipping sequential animation replays. Typing on the keyboard during loading also no longer refreshes a conversation history that has only partially loaded. ⟦Think of opening completed meeting minutes where everyone resumes discussion directly from the conclusion, without reading every attendee's remarks aloud word for word.⟧"
-            },
-            "original": "Fixed resuming a long conversation in `medium` or `low` verbosity taking many seconds and lagging while history replayed: earlier tool groups now appear already finished instead of each re-animating, and keys pressed during the replay no longer refresh a half-loaded transcript"
-          },
-          {
-            "title": {
-              "zh-TW": "終端機多工器標題不再亂碼，修復圖片探測干擾",
-              "en": "Terminal Multiplexer Titles Preserved Without Mojibake From Graphics Probing"
-            },
-            "body": {
-              "zh-TW": "在多窗格環境下啟動工具時，終端機與分頁的名稱終於能正常保留。以前在 GNU `screen`、`tmux`（包含 iTerm2 的 `tmux -CC` 分頁）或 Zellij 等環境中開啓命令列時，標題每次都會被改成 `Ga=q,f=32,...` 這類奇怪的字串。這是因為系統啟動時會發送圖片支援的探測訊號，因而干擾了終端機多工器（將終端視窗分割成多個獨立工作區的工具）。現在程式不再主動向多工器發送圖片探測指令。若你確定需要開啟圖片顯示，依然可透過設定 `CLI_GRAPHICS=kitty` 強制啟用。⟦彷彿廣播系統取消了開場時刺耳的測試音，螢幕面板上的節目名稱再也不會被測試訊號給干擾覆蓋。⟧",
-              "en": "Terminal and tab titles are now properly preserved when launching tools in multi-pane environments. Previously, opening the command line under GNU `screen`, `tmux` (including iTerm2 `tmux -CC` tabs), or Zellij altered window titles to strange strings like `Ga=q,f=32,...`. This occurred because the startup sequence sent graphics support probes, which interfered with terminal multiplexers. The program no longer sends graphics probes to multiplexers by default. If you still need image rendering, you can force it on by setting `CLI_GRAPHICS=kitty`. ⟦Like a broadcast system silencing its harsh opening test tone, the show title on the display panel is no longer scrambled by test signals.⟧"
-            },
-            "original": "Fixed the terminal or tab title changing to a string like `Ga=q,f=32,...` every time the CLI starts inside GNU `screen`, `tmux` (including iTerm2 `tmux -CC` tabs), or Zellij; the CLI no longer sends its image-support probe through a multiplexer, and `CLI_GRAPHICS=kitty` still forces image mode"
-          },
-          {
-            "title": {
-              "zh-TW": "Vim 模式多項修正，支援中文字元搜尋與選取復原",
-              "en": "Multiple Vim Mode Fixes Support Non-ASCII Character Search and Selection Undo"
-            },
-            "body": {
-              "zh-TW": "偏好使用 Vim 模式編輯指令與文字的讀者，現在輸入非英文字元或選取段落時順手許多。以前在 `r`、`f`、`F`、`t` 與 `T` 指令後輸入 `é` 或 `中` 等非 ASCII 字元（非英文字母與標準符號的文字）時會被直接忽略。在可視模式（Visual mode，反白選取文字的模式）下使用 `fv` 與 `fV` 會意外跳出選取，無法順利延伸範圍。當執行 `D`、`C` 或可視狀態下的 `~`、`u`、`U` 但沒有變動文字時，以前還會多記一筆空白復原紀錄並清空重做歷程。現在這些編輯問題都已修正完畢。⟦宛如操作高階文書軟體，跳躍搜尋中文字能精確定位，反白選取時不會無故中斷，就算誤觸沒有作用的按鍵也不會清空復原歷程。⟧",
-              "en": "Editing commands and text in Vim mode is now significantly smoother when typing non-English characters or selecting blocks. Previously, non-ASCII characters such as `é` or `中` were silently ignored after `r`, `f`, `F`, `t`, and `T` commands. Using `fv` and `fV` in Visual mode inadvertently exited the selection instead of extending the range. Furthermore, executing `D`, `C`, or Visual mode `~`, `u`, and `U` without modifying text recorded an empty undo entry and wiped the redo history. All of these editing glitches have now been resolved. ⟦Much like working in an advanced text editor, jumping to Chinese characters lands accurately, highlighting text does not abruptly cancel, and hitting ineffective keys will not wipe your redo history.⟧"
-            },
-            "original": "Fixed Vim mode ignoring non-ASCII characters such as `é` or `中` after `r`, `f`, `F`, `t` and `T`, `fv` and `fV` in Visual mode leaving Visual mode instead of extending the selection, and `D`, `C`, or Visual `~`/`u`/`U` recording an empty undo step and clearing redo history when they changed nothing"
-          }
-        ]
-      },
-      "badges": [
-        "perf",
-        "new",
-        "fix",
-        "fix",
         "fix"
       ]
     }
