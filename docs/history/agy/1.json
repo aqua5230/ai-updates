@@ -20,12 +20,71 @@
           "Fixed the `/browser` subagent not receiving the current page's snapshot when the selected page belongs to an isolated browser context, such as a page opened with `isolatedContext` or attached from an Incognito window."
         ]
       },
-      "curated": null,
+      "curated": {
+        "version": "1.4.10",
+        "period": "2026-10-29",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "串流輸出改用終端回捲，連線傳輸減少約七成位元組",
+              "en": "Streaming output switches to terminal scrollback, cutting transmitted bytes by about 70%"
+            },
+            "body": {
+              "zh-TW": "透過遠端連線指揮工具工作時，終端機逐字跑出長篇回覆常會遇到畫面卡頓與延遲。⟦如同傳真機連續吐出紙張，新內容推進時直接讓舊頁面順著捲紙滾入底槽，不必每印一行就把整面白板擦掉重描。⟧以往串流輸出在文字超出螢幕頂端時，總會重新繪製整個終端機畫面。現在超出螢幕頂部的行數會直接滾入終端機的回捲緩衝區（scrollback，往上滾動查看歷史紀錄的區域）。文字折行也改為一次寫入整串連續文字，讓寫入終端機的傳輸量減少約 70% 位元組。即使透過慢速的 SSH 連線（Secure Shell，加密遠端連線協定）操作，接收長篇回覆也能維持滑順流暢。",
+              "en": "When directing tools over a remote connection, watching a terminal print long replies word by word often runs into screen stutter and latency. ⟦Like a fax machine feeding paper continuously, incoming content lets older pages roll into the bottom tray along the paper feed instead of erasing and redrawing an entire whiteboard for every printed line.⟧ Previously, streaming output always repainted the entire terminal screen whenever text went past the top of the screen. Now, lines that scroll off the top of the screen scroll directly into the terminal's scrollback (an area for scrolling up to view history). Text wrapping also switches to writing whole runs of continuous text at a time, cutting the bytes written to the terminal by about 70%. Even when operating over a slow SSH connection (Secure Shell, an encrypted remote connection protocol), receiving long replies stays smooth and fluid."
+            },
+            "original": "Improved streaming of agent replies: lines that scroll off the top of the screen are now scrolled into your terminal's scrollback instead of repainting the whole screen, and text wrapping writes whole runs of text at a time, so streaming writes about 70% fewer bytes to the terminal and stays much smoother over slow SSH connections."
+          },
+          {
+            "title": {
+              "zh-TW": "互動介面開啟十五秒後，自動歸還啟動殘留記憶體",
+              "en": "Startup memory returned automatically fifteen seconds after interactive UI opens"
+            },
+            "body": {
+              "zh-TW": "開啟終端機工具並常駐在背景時，程式佔用的硬體資源往往會影響電腦的整體流暢度。⟦跟大型演出進場一樣，工作人員在開演前搬進大量裝箱工具，等到演出開始十五秒後，便把卸貨的推車撤出場館，將走道空間交還給大樓。⟧以往命令列介面在完成初始化後，載入過程所消耗的暫存記憶體會一直被工具佔用。現在只要互動式介面開啟 15 秒，工具就會主動把啟動階段殘留的約 100 MB 記憶體歸還給作業系統。如果你是透過列印模式，或是無頭模式（headless，沒有終端機視窗的執行模式）執行一次性指令，運作行為則不受影響。",
+              "en": "When opening a terminal tool and keeping it running in the background, the hardware resources consumed by the program often affect overall system responsiveness. ⟦In a large stage production setup, stagehands haul in stacks of boxed tools before showtime, and fifteen seconds after the performance begins, they wheel the unloading carts out of the venue to return aisle space to the building.⟧ Previously, after the command line interface finished initialization, the temporary memory consumed during the loading process remained occupied by the tool. Now, fifteen seconds after the interactive UI opens, the tool actively returns about 100 MB of memory left over from the startup phase to the operating system. If you run one-off commands through print mode or headless mode (an execution mode without a terminal window), operation remains unaffected."
+            },
+            "original": "Improved memory use shortly after startup: the CLI now returns about 100 MB of memory left over from startup to the operating system 15 seconds after the interactive UI opens; print and headless modes are unaffected."
+          },
+          {
+            "title": {
+              "zh-TW": "壓縮對話納入附加快照估算，子代理摘要保留上層任務",
+              "en": "Compacted conversations count attached snapshots, and subagent summaries preserve parent tasks"
+            },
+            "body": {
+              "zh-TW": "想要在長對話中執行 `/compact` 壓縮歷史紀錄，或是交由子代理分頭處理複雜專案，精簡上下文之餘更要確保資訊不漏失。⟦好比專案交接整理摘要，以前只計算備忘錄字數而漏算隨附圖表，助理甚至在精簡時忘記委託人編號；現在清單如實計入所有附件重量，並完整保留指派人交付的任務與最新叮嚀。⟧以前壓縮標記與 `/context` 顯示的壓縮後數值，只計算了純摘要本身。現在統計會納入摘要帶入下一輪提示的所有內容，包含早先的請求，以及產出物、子代理與執行中任務的快照，讓數值更貼近真實大小；標籤 `(N summary)` 則維持單獨標示純摘要。過去子代理在上下文經過壓縮後（包含使用 `/compact`），容易遺失上層代理指派的任務與上層 ID。現在子代理的摘要會保留原任務與上層識別碼，並留存上層代理最近 10 則訊息。",
+              "en": "When running `/compact` to compress history in long conversations or handing off complex projects to subagents, trimming context must never come at the cost of losing information. ⟦Picture a project handover briefing. Previously, staff counted only the memo words while overlooking attached diagrams, and the assistant even dropped the client ID when condensing notes. Now the manifest faithfully tallies the weight of all attachments while fully preserving the assigner's delegated task and latest reminders.⟧ Previously, the after-compaction size shown in the compaction marker and in `/context` counted only the pure summary itself. Now the tally includes everything the summary carries into the next prompt, such as your earlier requests along with artifact, subagent, and running-task snapshots, bringing the figure closer to the real size. The `(N summary)` label continues to show the summary alone. In the past, subagents often lost the task assigned by their parent agent and the parent ID after their context was compacted (including when using `/compact`). A subagent's summary now preserves the original task and parent ID, while keeping the parent agent's 10 most recent messages."
+            },
+            "original": "Improved the after-compaction size shown in the compaction marker and in `/context` to also count what the summary carries into the next prompt, such as your earlier requests and artifact, subagent, and running-task snapshots, so it is closer to the real size; the `(N summary)` label still shows the summary alone.\nFixed subagents losing the task their parent agent gave them, and the parent's ID, after their context was compacted, including with `/compact`; a subagent's summary now keeps the parent agent's 10 most recent messages."
+          },
+          {
+            "title": {
+              "zh-TW": "對話圖檔限制兩千像素並自動轉檔，避免超出請求上限",
+              "en": "Conversation images capped at 2000 pixels and converted automatically to avoid request limits"
+            },
+            "body": {
+              "zh-TW": "在對話中貼上多張高解析度截圖或照片時，送出請求常會因為資料量過大而遭到模型直接拒絕。⟦就像郵局寄送包裹，以前包裹只要尺寸超標或貼錯標籤就會直接退件；現在收件窗口會先幫超大包裹修剪體積，在不影響內容下把厚重包裝換成輕便紙袋，遇到標籤貼錯的信件也主動辨識放行。⟧現在輸入對話的圖片每邊最長會被限制在 2000 像素以內。體積較大的 PNG 圖片若轉為 JPEG 能明顯縮減大小，便會自動改以 JPEG 格式傳送。針對剪貼簿貼上的圖片或瀏覽器截圖，如果檔案本體是 JPEG 卻被標記成 PNG，工具也不會再因為型別不一致而拒絕請求。",
+              "en": "When pasting multiple high-resolution screenshots or photos into a conversation, sending requests often led to outright rejection by the model due to excessive payload size. ⟦At a postal parcel counter, packages exceeding dimensions or bearing mismatched labels were once returned immediately. Now, counter staff trim down oversized parcels first, swapping heavy packaging for lightweight mailers without altering the contents, and actively identify mislabeled letters to let them pass.⟧ Images entered into conversations are now capped at 2000 pixels per side. Large PNG images that become significantly smaller when converted to JPEG are now automatically sent in JPEG format. For images pasted from the clipboard or browser screenshots where the file is actually a JPEG but labeled PNG, the tool no longer rejects requests because of a mismatched type."
+            },
+            "original": "Fixed conversations with many or large images, such as screenshots or pasted images, being rejected for exceeding the model's request size limit: images are now capped at 2000 pixels per side and large PNGs are sent as JPEGs when that is much smaller, and an image saved as JPEG but labeled PNG, such as a pasted image or browser screenshot, is no longer rejected for a mismatched type."
+          },
+          {
+            "title": {
+              "zh-TW": "修復瀏覽器子代理在無痕與隔離視窗下遺漏頁面快照",
+              "en": "Fixed browser subagent missing page snapshots in Incognito and isolated contexts"
+            },
+            "body": {
+              "zh-TW": "如果請 `/browser` 子代理操作特定網頁，遇到以 `isolatedContext` 開啟的頁面或附加自無痕視窗（Incognito）等隔離環境，以前子代理會抓不到當前頁面的快照。這個問題已經修好，子代理現在能正常接收該頁面的快照資訊。",
+              "en": "When asking the `/browser` subagent to operate on a specific page that belongs to an isolated environment, such as a page opened with `isolatedContext` or attached from an Incognito window, the subagent previously failed to capture snapshots of the current page. This issue has been fixed, and the subagent now receives the page's snapshot information normally."
+            },
+            "original": "Fixed the `/browser` subagent not receiving the current page's snapshot when the selected page belongs to an isolated browser context, such as a page opened with `isolatedContext` or attached from an Incognito window."
+          }
+        ]
+      },
       "badges": [
         "perf",
         "perf",
         "new",
-        "fix",
         "fix",
         "fix"
       ]
