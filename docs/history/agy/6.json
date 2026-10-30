@@ -5,6 +5,159 @@
   "pages": 9,
   "versions": [
     {
+      "version": "1.1.15",
+      "raw": {
+        "version": "1.1.15",
+        "period": "2026-08-19",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-08-19",
+        "entries": [
+          "Added `--input-format stream-json` to print mode, which reads newline-delimited JSON prompts from stdin and runs one turn per message in a single conversation, so a driver can keep a session open.",
+          "Added a `rules:` key to markdown agent frontmatter, so an agent can name rule files directly instead of inheriting your whole rule tree; a rule named this way always applies.",
+          "Added plugin support for a top-level `rules.json`, so a plugin can declare the rule files it ships the same way it already declares its skills.",
+          "Added a more specific hint on the spinner line, which now names the tool call the agent is currently running.",
+          "Fixed the CLI aborting at startup on hosts that preload their own allocator through `LD_PRELOAD`, such as Cloud TPU VM images, where it died before the interface appeared.",
+          "Fixed personal accounts hitting a resource-exhausted error at startup when saved credentials were restored from the system keyring, and cut the repeated account checks that followed.",
+          "Fixed your billing project, and the license tier it selects, being lost when the CLI restarted and restored saved credentials from the system keyring.",
+          "Fixed a spurious \"Out of credits\" message for enterprise users signed in through Application Default Credentials.",
+          "Fixed the `/model` picker cutting off models, and its own header, on terminals too short to show every model; the list now scrolls.",
+          "Fixed the `/model` picker misaligning its columns for model names that are not plain ASCII, by measuring column widths in display cells rather than bytes.",
+          "Fixed the spinner line flickering to a generic label between quick tool calls.",
+          "Fixed streamed text corrupting non-ASCII characters into replacement characters, in both the interactive display and `--output-format stream-json` text deltas.",
+          "Fixed artifacts written into a subdirectory of a conversation's artifact directory, such as `scratch/`, never appearing in the artifact list.",
+          "Fixed reading a `.wav` file failing as an unsupported media type, by normalizing non-canonical MIME types such as `audio/wave` before they reach the model."
+        ]
+      },
+      "curated": {
+        "version": "1.1.15",
+        "period": "2026-08-19",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "串流 JSON 讓外部程式續用同一段對話",
+              "en": "Stream JSON keeps external programs in one conversation"
+            },
+            "body": {
+              "zh-TW": "你要讓外部程式連續把多筆問題交給 Antigravity 時，現在可在 print mode（把回答直接印出的模式）加上 `--input-format stream-json`。它會從 stdin（程式接收輸入的管道）讀取每行一筆 JSON 提示，每則訊息在同一段對話跑一回合。驅動程式可以讓這段工作階段一直開著，不必每筆都另起對話。⟦這像白板保留同一幅草圖；每次添上一筆，都接著同一份構想。⟧",
+              "en": "When an external program needs to send Antigravity a run of prompts, print mode can now take `--input-format stream-json`. It reads one newline-delimited JSON prompt from stdin for each turn in one conversation. A driver can keep that session open instead of starting a new conversation for every message. ⟦It is like keeping one sketch on a whiteboard: every new stroke continues the same idea.⟧"
+            },
+            "original": "Added `--input-format stream-json` to print mode, which reads newline-delimited JSON prompts from stdin and runs one turn per message in a single conversation, so a driver can keep a session open."
+          },
+          {
+            "title": {
+              "zh-TW": "代理與外掛可點名要套用的規則檔",
+              "en": "Agents and plugins can name rule files to apply"
+            },
+            "body": {
+              "zh-TW": "替代理安排規則時，可以在 Markdown agent frontmatter（檔案開頭的欄位區）直接加 `rules:`，列出要套用的規則檔。被這樣點名的規則一定會套用，不必再承接整棵 rule tree。外掛也能在最上層放 `rules.json`，宣告它隨附的規則檔，方式與既有 skill 宣告一致。⟦像交代新人只帶指定幾頁手冊，不必抱走整個資料櫃；外掛也把自帶手冊列在封面。⟧",
+              "en": "When setting rules for an agent, add `rules:` to its Markdown frontmatter and name rule files directly. A rule named there always applies, without inheriting whole rule tree. A plugin can also put `rules.json` at top level to declare rule files it ships, as it already declares skills. ⟦It is like giving new hire named handbook pages, not whole filing cabinet; plugin lists own pages on cover.⟧"
+            },
+            "original": "Added a `rules:` key to markdown agent frontmatter, so an agent can name rule files directly instead of inheriting your whole rule tree; a rule named this way always applies.\nAdded plugin support for a top-level `rules.json`, so a plugin can declare the rule files it ships the same way it already declares its skills."
+          },
+          {
+            "title": {
+              "zh-TW": "轉圈提示會顯示工具名稱，也不再跳回泛稱",
+              "en": "Spinner names tool call and stops reverting to generic label"
+            },
+            "body": {
+              "zh-TW": "代理正在跑工具時，轉圈那行現在會說出正在跑哪個 tool call（代理請工具執行的動作）。快速接連呼叫工具的空檔，它也不再閃回通用標籤。⟦像維修櫃台亮出目前經手人的名牌；換手很快時，名牌不會忽然變成沒名字的牌子。⟧這讓你能看懂代理此刻在忙什麼，而非只盯著一個轉圈符號。看著這行時，也不用猜它是否真的仍在處理工作，更加方便判讀。",
+              "en": "While agent runs tool, spinner line now names current tool call. It also no longer flickers back to generic label in gaps between quick tool calls. ⟦It is like repair desk showing name badge of person handling your job; fast handoffs do not turn badge into blank sign.⟧ You can see what agent is doing instead of only watching spinner."
+            },
+            "original": "Added a more specific hint on the spinner line, which now names the tool call the agent is currently running.\nFixed the spinner line flickering to a generic label between quick tool calls."
+          },
+          {
+            "title": {
+              "zh-TW": "預載記憶體配置元件的主機可正常開啟 CLI",
+              "en": "CLI starts on hosts that preload a memory allocator"
+            },
+            "body": {
+              "zh-TW": "有些主機會用 `LD_PRELOAD`（啟動前指定要載入程式庫的環境變數）。它會先載入自己的記憶體配置元件（allocator，決定程式如何取得記憶體）。CLI（在終端機裡操作的工具）以前會在介面出現前就中止，例如 Cloud TPU VM images。現在這類主機不會在啟動時把 CLI 擋在門外。⟦這像會場先裝上自家的插座轉接器；接待台終於能開門，而不是來客尚未進場就停電。⟧",
+              "en": "Some hosts use `LD_PRELOAD` to load own allocator before program starts. CLI used to abort before interface appeared on those hosts, including Cloud TPU VM images. CLI now starts on these hosts. ⟦It is like venue installing own plug adapter before doors open; reception desk can open rather than losing power before anyone enters.⟧"
+            },
+            "original": "Fixed the CLI aborting at startup on hosts that preload their own allocator through `LD_PRELOAD`, such as Cloud TPU VM images, where it died before the interface appeared."
+          },
+          {
+            "title": {
+              "zh-TW": "還原登入資料後，帳號與計費選擇不再遺失",
+              "en": "Restored sign-in data keeps account and billing choices"
+            },
+            "body": {
+              "zh-TW": "登入資料從系統 keyring（保存登入憑證的地方）還原時，個人帳號不再在啟動就撞上資源耗盡錯誤，後續重複的帳號檢查也減少。CLI 重新啟動後，計費專案與它選定的授權級別也會保留，不需因為重開工具再重新選擇，這些選擇會一起保留。⟦像舞台重啟時控制台載回上回特別選定的燈光設定，不會在一開場就反覆測試，也不會忘了原先選用的模式。⟧",
+              "en": "When saved credentials return from system keyring, personal accounts no longer hit resource-exhausted error at startup and repeated account checks are cut. After CLI restarts, billing project and license tier it selects also stay put. ⟦It is like a stage console reloading its chosen lighting setup after a restart: it does not repeatedly test at opening or forget selected mode.⟧"
+            },
+            "original": "Fixed personal accounts hitting a resource-exhausted error at startup when saved credentials were restored from the system keyring, and cut the repeated account checks that followed.\nFixed your billing project, and the license tier it selects, being lost when the CLI restarted and restored saved credentials from the system keyring."
+          },
+          {
+            "title": {
+              "zh-TW": "企業帳號不再誤報額度用完",
+              "en": "Enterprise accounts no longer get false out-of-credits alert"
+            },
+            "body": {
+              "zh-TW": "企業使用者若透過 Application Default Credentials（應用程式預設憑證）登入，現在不會再看到錯誤的「Out of credits」訊息。這一項修正處理的正是這個誤報。⟦像門口的餘額看板把有效通行證誤讀成餘額歸零；錯誤的「Out of credits」顯示現在不再出現。⟧登入時曾看見這個提示的企業使用者，現在不會再看到錯誤的「Out of credits」訊息。",
+              "en": "Enterprise users signed in through Application Default Credentials no longer see spurious \"Out of credits\" message. This update fixes that false alert. ⟦It is like balance sign at gate misreading valid pass as empty balance; spurious \"Out of credits\" message no longer appears.⟧ Enterprise users who saw this message no longer see spurious \"Out of credits\" message."
+            },
+            "original": "Fixed a spurious \"Out of credits\" message for enterprise users signed in through Application Default Credentials."
+          },
+          {
+            "title": {
+              "zh-TW": "矮終端機裡的模型清單能捲動，也對得齊欄位",
+              "en": "Model picker scrolls and aligns columns in short terminals"
+            },
+            "body": {
+              "zh-TW": "終端機高度不夠顯示全部模型時，`/model` 選擇器不再把模型或自己的標頭截掉，清單可以捲動。模型名稱含非 ASCII 字元時，欄位也改按顯示格數計寬度，不再按位元組數量算錯位置。⟦像書架太矮時改用可上下滑動的目錄，而且每本書名不論字形寬窄都排在同一欄。⟧你能看完整清單，也較容易讀對每列資訊，不必猜被截掉的模型或欄位內容。",
+              "en": "If terminal is too short to show every model, `/model` picker now scrolls instead of cutting off models or own header. For model names beyond plain ASCII, columns measure display cells rather than bytes and stay aligned. ⟦It is like short bookcase using scrollable catalog, with every title lined up in same column no matter character width.⟧ You can read whole list and each row more clearly."
+            },
+            "original": "Fixed the `/model` picker cutting off models, and its own header, on terminals too short to show every model; the list now scrolls.\nFixed the `/model` picker misaligning its columns for model names that are not plain ASCII, by measuring column widths in display cells rather than bytes."
+          },
+          {
+            "title": {
+              "zh-TW": "串流文字不再把非 ASCII 字元顯示成替代符號",
+              "en": "Streamed text preserves non-ASCII characters"
+            },
+            "body": {
+              "zh-TW": "回覆以串流方式一段段送出時，非 ASCII 字元以前可能被毀成替代字元。互動式畫面與 `--output-format stream-json` 的文字增量都受影響。現在兩處都會保留原來的字元，不會把讀到一半的文字換成看不懂的符號，內容可照原樣讀下去。⟦像傳真機把原稿的特殊字形壓成方塊；現在紙張送到兩個收件口時，都能留下原本的字。⟧",
+              "en": "When reply arrives as stream, non-ASCII characters used to become replacement characters. Both interactive display and text deltas from `--output-format stream-json` were affected. They now preserve original characters instead of changing text midstream into unreadable symbols. ⟦It is like fax machine crushing special letterforms into boxes; pages now retain original letters at both receiving slots.⟧"
+            },
+            "original": "Fixed streamed text corrupting non-ASCII characters into replacement characters, in both the interactive display and `--output-format stream-json` text deltas."
+          },
+          {
+            "title": {
+              "zh-TW": "對話產物放進子資料夾也會列出",
+              "en": "Conversation artifacts in subdirectories appear in list"
+            },
+            "body": {
+              "zh-TW": "對話產生的檔案若放在 artifact directory 的子資料夾，例如 `scratch/`，以前不會出現在 artifact list（產物清單）。artifact directory 是對話產物的存放處。現在這些子資料夾裡的產物也會被列出。⟦像把工作文件收入有標籤的內頁夾；清單終於會翻進內頁，而不是只數桌面最上層。⟧這讓放進 `scratch/` 的檔案能和其他對話產物一起找到。",
+              "en": "A file written under subdirectory of conversation artifact directory, such as `scratch/`, used to miss artifact list. Artifact directory stores conversation artifacts. Those artifacts now appear in list too. ⟦It is like filing work papers inside labeled inner folder; list now opens folder rather than counting only top of desk.⟧ Files in `scratch/` can be found with other conversation artifacts."
+            },
+            "original": "Fixed artifacts written into a subdirectory of a conversation's artifact directory, such as `scratch/`, never appearing in the artifact list."
+          },
+          {
+            "title": {
+              "zh-TW": "讀取 WAV 音檔時會先校正媒體類型",
+              "en": "WAV audio reads after media type normalization"
+            },
+            "body": {
+              "zh-TW": "讀取 `.wav` 音檔時，原本可能因不支援的媒體類型而失敗。現在會先正規化非標準的 MIME type（檔案內容類型標記），例如 `audio/wave`，再交給模型處理。⟦像收件人先把不合規的地址寫法改成郵局認得的格式，再把包裹送上分揀帶。⟧因此 `.wav` 不會只因標記寫法不同就被當成不支援的媒體，不會在中途被擋下。",
+              "en": "Reading `.wav` file could fail as unsupported media type. It now normalizes non-canonical MIME types such as `audio/wave` before they reach model. ⟦It is like clerk rewriting unusual address form into format post office recognizes before package reaches sorting belt.⟧ A `.wav` is not rejected only because type label uses different form."
+            },
+            "original": "Fixed reading a `.wav` file failing as an unsupported media type, by normalizing non-canonical MIME types such as `audio/wave` before they reach the model."
+          }
+        ]
+      },
+      "badges": [
+        "new",
+        "new",
+        "new",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix"
+      ]
+    },
+    {
       "version": "1.1.14",
       "raw": {
         "version": "1.1.14",
@@ -1187,117 +1340,6 @@
         "new",
         "new",
         "new",
-        "fix",
-        "new"
-      ]
-    },
-    {
-      "version": "1.1.5",
-      "raw": {
-        "version": "1.1.5",
-        "period": "2026-07-21",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-07-21",
-        "entries": [
-          "Added a `/effort` command to view and change the current model's reasoning effort, with a left/right timeline-gauge picker and a direct `/effort <level>` form so you can trade latency for depth on the fly.",
-          "Added an `--effort` flag to select a model's reasoning-effort variant when launching the CLI.",
-          "Added stable, user-facing model slugs that appear in the `/model` picker and are accepted by `--model`, so you can pin a specific model reliably across sessions.",
-          "Added a `model` option to custom agent frontmatter so an agent runs at a chosen model tier (such as `flash` or `pro`) when invoked as a subagent, defaulting to `inherit` (the parent's model).",
-          "Redesigned the `/model` picker to group models by their base model and choose reasoning effort from a timeline gauge navigable with Left and Right, and added an effort badge to the status line for models that expose multiple effort variants.",
-          "Improved the `/settings` (`/config`) panel by making it a bounded, scrollable list so it renders correctly in short terminals instead of overflowing, and stopped it from flickering when opening and closing dropdowns.",
-          "Improved background-task reliability by moving long-running work onto a shared lifecycle with deterministic startup and shutdown and panic-safe launching, so a failure in one background task no longer disrupts the session and pending analytics are flushed on exit instead of dropped.",
-          "Improved responsiveness of bursty background refreshes by coalescing rapid repeated triggers into a single run, cutting redundant work.",
-          "Fixed a crash when triggering Authenticate on a remote MCP server in the `/mcp` panel.",
-          "Fixed MCP tool results containing embedded resources being silently dropped, so text and inline media returned by MCP servers now surface in the conversation.",
-          "Fixed permission checks splitting a single command into a pipeline when an argument contained quoted shell metacharacters (such as `--grep=\"a|b\"`), which caused spurious permission prompts.",
-          "Fixed the file-view and file-search tools failing with invalid-UTF-8 errors when a multi-byte character was split at a truncation boundary.",
-          "Fixed a data race when collecting customization rules by guarding the shared structures.",
-          "Added support for stacking multiple leading slash commands in a single prompt, so a chain like `/plan /grill-me <prompt>` parses, activates, and renders every command in the order you typed them.",
-          "Improved scrolling in the `/diff` viewer so paging through a diff no longer jitters or pushes the status line off the screen when lines wrap or comments expand.",
-          "Fixed custom agents that declare `subagent: false` still appearing in the available-subagents list and being invocable as subagents.",
-          "Fixed headless (`-p` / `--print`) runs so they now honor persisted `settings.json` policies, including `permissions`, file access, sandbox mode, auto-execution, and artifact review.",
-          "Fixed `/btw` side-questions leaking into the conversation list as duplicate entries that carried the parent conversation's title.",
-          "Fixed the prompt to honor a custom Enter binding to `prompt.insert_newline`, so a remapped Enter inserts a newline instead of submitting.",
-          "Fixed eligibility error messages so the CLI shows the real reason again instead of defaulting to a generic \"unknown reason\"."
-        ]
-      },
-      "curated": {
-        "version": "1.1.5",
-        "period": "2026-07-21",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "模型選擇多了深淺旋鈕，也能替代理指定等級",
-              "en": "Model choice gains a depth dial and agent-specific tiers"
-            },
-            "body": {
-              "zh-TW": "趕著回覆訊息時，你會想要快；遇到棘手問題時，則願意多等一下換更深的推理。新的 `/effort` 指令把這個取捨做成時間軸儀表，可左右選擇，也能直接輸入等級；啟動 CLI 時則用 `--effort` 選定。`/model` 現在用穩定的 model slug（模型的固定代號）列出選項，跨工作階段也能可靠指定同一款模型。你替 custom agent（自訂代理，預先寫好工作規則的小幫手）加上 `model` 後，叫它當子代理時可跑 flash 或 pro；沒指定便沿用父代理。像相機不只選鏡頭，還能轉快門：快拍或細拍，由你在當下決定。",
-              "en": "When a reply is urgent, you want speed; when a problem is thorny, you may accept a wait for deeper reasoning. The new `/effort` command turns that tradeoff into a left/right timeline gauge, and also accepts a level directly; `--effort` makes the choice when launching the CLI. `/model` now shows stable model slugs, fixed names you can reliably reuse across sessions. A custom agent, a helper with prewritten instructions, can now declare its own `model`: as a subagent it can use a tier such as flash or pro, otherwise it inherits its parent’s model. It is like setting both a camera lens and shutter speed: choose quick or deliberate for task in front of you."
-            },
-            "original": "Added a `/effort` command to view and change the current model's reasoning effort, with a left/right timeline-gauge picker and a direct `/effort <level>` form so you can trade latency for depth on the fly.\nAdded an `--effort` flag to select a model's reasoning-effort variant when launching the CLI.\nAdded stable, user-facing model slugs that appear in the `/model` picker and are accepted by `--model`, so you can pin a specific model reliably across sessions.\nAdded a `model` option to custom agent frontmatter so an agent runs at a chosen model tier (such as `flash` or `pro`) when invoked as a subagent, defaulting to `inherit` (the parent's model).\nRedesigned the `/model` picker to group models by their base model and choose reasoning effort from a timeline gauge navigable with Left and Right, and added an effort badge to the status line for models that expose multiple effort variants."
-          },
-          {
-            "title": {
-              "zh-TW": "短終端機也看得清設定，檢視差異不再把畫面推歪",
-              "en": "Settings fit short terminals and diff viewing stays steady"
-            },
-            "body": {
-              "zh-TW": "筆電分割畫面時，設定清單不該像過長的海報從視窗底下溢出去。`/settings` 或 `/config` 現在是有邊界、可捲動的清單，開關下拉選單也不再閃爍。你查看程式修改處時，`/diff` 檢視器在換頁、長行折行或展開留言後，不會抖動，更不會把狀態列擠出螢幕。連輸入框也聽得懂你的重綁 Enter：若綁到 `prompt.insert_newline`，按下去會換行而非送出。這些改動像把凌亂書桌換成有抽屜的工作台；內容還是那些內容，手邊位置終於穩了。",
-              "en": "On a split laptop screen, a settings list should not spill below the window like an overlong poster. `/settings` and `/config` are now bounded, scrollable lists, and their dropdowns no longer flicker. While reviewing code changes, the `/diff` viewer no longer jitters or pushes the status line offscreen when you page, wrapped lines appear, or comments expand. The prompt also honors a remapped Enter: if it is bound to `prompt.insert_newline`, it inserts a line break instead of submitting. It is like replacing a messy desk with a workbench full of drawers: same tools, but they stay where your hands expect them."
-            },
-            "original": "Improved the `/settings` (`/config`) panel by making it a bounded, scrollable list so it renders correctly in short terminals instead of overflowing, and stopped it from flickering when opening and closing dropdowns.\nImproved scrolling in the `/diff` viewer so paging through a diff no longer jitters or pushes the status line off the screen when lines wrap or comments expand.\nFixed the prompt to honor a custom Enter binding to `prompt.insert_newline`, so a remapped Enter inserts a newline instead of submitting."
-          },
-          {
-            "title": {
-              "zh-TW": "背景工作不再一處失火、整場陪葬",
-              "en": "Background work becomes isolated, orderly, and less wasteful"
-            },
-            "body": {
-              "zh-TW": "讓 CLI 在背景慢慢更新資料時，最怕其中一件小事出錯，整個工作階段跟著亂掉。現在長時間背景任務共用同一套生命週期，啟動與關閉都有固定順序，啟動時也能安全面對 panic（程式遇到嚴重錯誤而中斷）；單一任務失敗不再拖垮整場，離開前待送的分析資料也會送完。短時間內連續觸發更新，則會合併成一次，少做重複工作。收集自訂規則時的 data race（多個工作同時碰同份資料造成結果不穩）也補上保護。像廚房把各道菜分到獨立爐火，並把連按三次的叫餐鈴合成一張單；一口鍋燒焦，不會讓整間餐廳停擺。",
-              "en": "When the CLI refreshes data in the background, one small failure should not scramble the whole session. Long-running background tasks now share one lifecycle, with deterministic start and shutdown and panic-safe launching; one failed task no longer disrupts the session, and pending analytics are flushed before exit. Several refresh triggers arriving in a burst are coalesced into one run instead of repeating work. A data race, where concurrent work touches shared data unpredictably, is also guarded while customization rules are collected. It is like giving each dish in a kitchen its own burner and turning three rapid bell rings into one order: one burnt pan does not close the restaurant."
-            },
-            "original": "Improved background-task reliability by moving long-running work onto a shared lifecycle with deterministic startup and shutdown and panic-safe launching, so a failure in one background task no longer disrupts the session and pending analytics are flushed on exit instead of dropped.\nImproved responsiveness of bursty background refreshes by coalescing rapid repeated triggers into a single run, cutting redundant work.\nFixed a data race when collecting customization rules by guarding the shared structures."
-          },
-          {
-            "title": {
-              "zh-TW": "MCP 登入不當機，伺服器回傳內容不再消失",
-              "en": "MCP authentication stays up and returned content reaches chat"
-            },
-            "body": {
-              "zh-TW": "你在 `/mcp` 面板替遠端 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器按 Authenticate 時，現在不會再把 CLI 按到當機。更重要的是，MCP 工具回傳的 embedded resources（嵌入式資源，文字或內嵌媒體等隨結果附上的內容）以前會被悄悄丟掉，現在會出現在對話裡。也就是說，接上外部工具後，登入這扇門能打開，工具端帶回來的說明或圖片也不會留在門外。像快遞站以前辦證時會關門，包裹裡附的文件還會被抽走；現在櫃台照常辦理，附檔也完整交到你手上。",
-              "en": "Pressing Authenticate for a remote MCP server in the `/mcp` panel no longer crashes the CLI. More importantly, embedded resources, extra text or inline media carried inside an MCP tool result, used to be silently discarded; they now appear in the conversation. In other words, once you connect an external tool through MCP, the authentication door opens and its explanation or image can come through with it. It is like a parcel counter that once shut down while checking your ID and removed documents from packages; now the counter stays open and every enclosure reaches your hands."
-            },
-            "original": "Fixed a crash when triggering Authenticate on a remote MCP server in the `/mcp` panel.\nFixed MCP tool results containing embedded resources being silently dropped, so text and inline media returned by MCP servers now surface in the conversation."
-          },
-          {
-            "title": {
-              "zh-TW": "指令判讀與檔案搜尋更耐髒資料，錯誤也說人話",
-              "en": "Command checks and file search handle awkward input more safely"
-            },
-            "body": {
-              "zh-TW": "你下 `--grep=\"a|b\"` 這類指令時，管線符號明明只是引號裡的參數，權限檢查卻曾誤以為你真要建立 pipeline（管線，把一個指令輸出交給下一個指令的串接），跳出多餘提示；現在能正確看懂。檢視或搜尋檔案時，若多位元字元剛好被截在中間，也不再因 invalid UTF-8 而失敗。資格不符時，CLI 也重新顯示真正原因，不再只說「unknown reason」。這像機場安檢終於會分辨行李標籤上的豎線和危險物，掃描到半截外文字也不會當成壞行李；拒絕登機時，還會告訴你缺的是哪份證件。",
-              "en": "With a command such as `--grep=\"a|b\"`, a pipe character inside a quoted argument is not a pipeline, a chain that passes one command’s output to another. Permission checks used to misread it and ask unnecessarily; now they interpret it correctly. File viewing and search also stop failing with invalid UTF-8 when a multibyte character is cut at a truncation boundary. And when you are not eligible, the CLI again shows the real reason rather than “unknown reason.” It is like airport screening that can distinguish a vertical mark on a luggage tag from a hazardous item, and can explain which document is missing when it cannot let you board."
-            },
-            "original": "Fixed permission checks splitting a single command into a pipeline when an argument contained quoted shell metacharacters (such as `--grep=\"a|b\"`), which caused spurious permission prompts.\nFixed the file-view and file-search tools failing with invalid-UTF-8 errors when a multi-byte character was split at a truncation boundary.\nFixed eligibility error messages so the CLI shows the real reason again instead of defaulting to a generic \"unknown reason\"."
-          },
-          {
-            "title": {
-              "zh-TW": "多指令能連著下，代理與無頭執行也各守界線",
-              "en": "Chained commands, agents, and headless runs now follow their intended rules"
-            },
-            "body": {
-              "zh-TW": "規劃完還想立刻請它挑毛病？現在同一句可排 `/plan /grill-me <prompt>`，每個開頭斜線指令會依輸入順序解析、啟用並顯示。custom agent 若明確寫 `subagent: false`，也不會再混進可呼叫的子代理清單。用 `-p` 或 `--print` 跑 headless（無頭模式，沒有終端機視窗／視覺介面的執行模式）時，已儲存的 `settings.json` 政策終於會生效，包括權限、檔案存取、sandbox mode（沙盒模式，把程式限制在安全範圍內的執行方式）、自動執行與成品審查。`/btw` 的岔題也不再複製成另一筆同標題對話。像火車站的轉乘牌：能依序換線，但標著不接客的月台不會被派車，沒有站務員的夜車仍照既定規則行駛。",
-              "en": "Finished planning and want an immediate critique? One prompt can now begin `/plan /grill-me <prompt>`; each leading slash command is parsed, activated, and displayed in typed order. A custom agent explicitly marked `subagent: false` no longer sneaks into the callable-subagent list. Headless runs, execution through `-p` or `--print` without a terminal window, now honor saved `settings.json` policies: permissions, file access, sandbox mode, auto-execution, and artifact review. A `/btw` side question also stops making a duplicate conversation with its parent’s title. It is like a station transfer board: you can change lines in order, closed platforms are not assigned trains, and an unattended night train still follows its rules."
-            },
-            "original": "Added support for stacking multiple leading slash commands in a single prompt, so a chain like `/plan /grill-me <prompt>` parses, activates, and renders every command in the order you typed them.\nFixed custom agents that declare `subagent: false` still appearing in the available-subagents list and being invocable as subagents.\nFixed headless (`-p` / `--print`) runs so they now honor persisted `settings.json` policies, including `permissions`, file access, sandbox mode, auto-execution, and artifact review.\nFixed `/btw` side-questions leaking into the conversation list as duplicate entries that carried the parent conversation's title."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "new",
-        "new",
-        "fix",
         "fix",
         "new"
       ]

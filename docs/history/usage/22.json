@@ -2,8 +2,81 @@
   "id": "usage",
   "name": "Usage",
   "page": 22,
-  "pages": 23,
+  "pages": 24,
   "versions": [
+    {
+      "version": "0.11.3",
+      "raw": {
+        "version": "0.11.3",
+        "period": "2026-05-25",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**Read-only CLI commands silently mutated user settings**: `usage daily` / `report` / `sessions` / `dashboard` and other read commands unconditionally called `setup()` or `update_hook()`, potentially writing to `~/.claude/settings.json` or `~/.codex/config.toml` on every invocation. Fix: only `setup` / `unsetup` mutate user settings; other commands now show a one-line \"Hook not installed. Run: usage setup\" hint when the hook isn't installed.",
+          "**Opus 4.6 / 4.7 cost was underestimated 3× on offline cold start**: `pricing.py`'s fallback table listed Opus as `5e-6 / 25e-6` (input / output per token), but the published Anthropic rate is `15e-6 / 75e-6`. Affected scenario: no pricing cache *and* LiteLLM live fetch fails. Users with network access or a cached price table are unaffected.",
+          "**`adapters/codex.py` sqlite connection leak**: `_load_thread_models()` wrapped the work in `try / except`, but `conn.close()` ran *after* `execute().fetchall()` — any exception in between left the connection dangling. Now uses `contextlib.closing()` to guarantee release.",
+          "**Mid-write crash could leave `~/.codex/config.toml` truncated**: `setup_hook.py`'s `_setup_codex` / `_unsetup_codex` used plain `write_text()`, so a crash or kill during setup could corrupt Codex config. Now uses `mkstemp + os.replace` atomic write, sharing a single module-private helper with Claude settings.",
+          "**`analyzer/cost.py` removed**: it was a weakened duplicate of `pricing.py` — bidirectional substring model matching (prone to misclassification), no cache TTL, and an SSL-cert-verification-disabled fallback when fetching the price table (a security concern for cost data). `analyzer/{aggregator,blocks,reporter}` now import `pricing.calculate_cost` directly; the latter accepts a `typing.Protocol` so both `history_loader.UsageEntry` and `adapters.types.UsageEntry` work. Net 76 lines of duplicate cost-calc code removed."
+        ]
+      },
+      "curated": {
+        "version": "0.11.3",
+        "period": "2026-05-25",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "唯讀指令不再亂動設定，離線時成本估算更精準",
+              "en": "Read-only commands stop mutating settings, and offline costs are accurate"
+            },
+            "body": {
+              "zh-TW": "這次修補了幾個背後運作的安全隱患。以前當你在終端機下達像 `usage report` 這種理應「只看資料不改東西」的唯讀指令時，系統卻會自作主張地在背後偷偷覆寫你的 Claude 或 Codex 設定檔，甚至如果執行到一半被強制關閉，還可能把你的設定檔截斷弄壞。現在它學乖了，唯讀指令絕對不會碰你的設定檔，而需要修改檔案的安裝流程也改成「原子寫入（atomic write）」——確保整份檔案寫完才替換，中途當機也不會留下半殘的廢檔。此外，針對在沒有網路又沒有價格快取的「離線冷啟動」情況，我們修正了內建的備用價格表，原本它把最新模型 Opus 4.6 的價格低估了 3 倍，現在斷網時也能幫你算出正確的花費。就像去圖書館借書，以前只是用電腦查個書目，系統卻會偷偷跑去改你的借閱密碼，而且遇到停電還可能把你的卡片消磁；現在它安守本分只查資料，並且不管圖書館有沒有連上網，查到的逾期罰金都保證正確無誤。",
+              "en": "We've patched several quiet hazards in how the system operates under the hood. Previously, when you ran terminal commands like `usage report` that were supposed to simply read data, the system would aggressively overwrite your Claude or Codex config files behind your back, and if the app was killed mid-write, it could completely ruin your configuration file. The app now behaves itself: read-only commands absolutely will not touch your settings, and the actual installation flows now use \"atomic writes\" — guaranteeing the entire file is safely written before swapping it in, leaving no broken files even if it crashes mid-way. Additionally, for \"offline cold starts\" (when you have no internet and no cached price table), we fixed the built-in fallback prices where the cost of the newest Opus 4.6 model was drastically underestimated by 3×. Now your cost estimates are accurate even completely offline. It's like using a library catalog computer: it used to secretly reset your PIN just because you searched for a book, and a power outage could erase your card; now it sticks to reading only, and tells you exactly the right late fees even when the library's internet is down."
+            },
+            "original": "**Read-only CLI commands silently mutated user settings**: `usage daily` / `report` / `sessions` / `dashboard` and other read commands unconditionally called `setup()` or `update_hook()`, potentially writing to `~/.claude/settings.json` or `~/.codex/config.toml` on every invocation. Fix: only `setup` / `unsetup` mutate user settings; other commands now show a one-line \"Hook not installed. Run: usage setup\" hint when the hook isn't installed.\n**Opus 4.6 / 4.7 cost was underestimated 3× on offline cold start**: `pricing.py`'s fallback table listed Opus as `5e-6 / 25e-6` (input / output per token), but the published Anthropic rate is `15e-6 / 75e-6`. Affected scenario: no pricing cache *and* LiteLLM live fetch fails. Users with network access or a cached price table are unaffected.\n**`adapters/codex.py` sqlite connection leak**: `_load_thread_models()` wrapped the work in `try / except`, but `conn.close()` ran *after* `execute().fetchall()` — any exception in between left the connection dangling. Now uses `contextlib.closing()` to guarantee release.\n**Mid-write crash could leave `~/.codex/config.toml` truncated**: `setup_hook.py`'s `_setup_codex` / `_unsetup_codex` used plain `write_text()`, so a crash or kill during setup could corrupt Codex config. Now uses `mkstemp + os.replace` atomic write, sharing a single module-private helper with Claude settings.\n**`analyzer/cost.py` removed**: it was a weakened duplicate of `pricing.py` — bidirectional substring model matching (prone to misclassification), no cache TTL, and an SSL-cert-verification-disabled fallback when fetching the price table (a security concern for cost data). `analyzer/{aggregator,blocks,reporter}` now import `pricing.calculate_cost` directly; the latter accepts a `typing.Protocol` so both `history_loader.UsageEntry` and `adapters.types.UsageEntry` work. Net 76 lines of duplicate cost-calc code removed."
+          }
+        ]
+      },
+      "badges": [
+        "new"
+      ]
+    },
+    {
+      "version": "0.11.2",
+      "raw": {
+        "version": "0.11.2",
+        "period": "2026-05-25",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-07-14",
+        "entries": [
+          "**`usage_cli.py` crashed on every first run** (thanks @will30-blockchain — [#7](https://github.com/aqua5230/usage/pull/7)): `setup(auto=True)` passed a non-existent keyword argument to `setup_hook.setup()`, causing a `TypeError` on any fresh install or after `unsetup`. Users who already had the hook installed were unaffected. Fix: drop the stale `auto=True` kwarg.",
+          "**Incremental JSONL parsing**: `history_loader` and `codex_loader` now maintain module-level mtime+size caches and skip re-parsing files whose content hasn't changed, significantly reducing per-refresh disk I/O.",
+          "**Parallel hook forwarding**: `usage_statusline_forwarder` now dispatches all hooks concurrently via `ThreadPoolExecutor`; a single slow or timing-out hook no longer stalls the others. Worst-case latency drops from `n × 5s` to `5s`.",
+          "**Multi-session write protection**: `usage_statusline.py`'s `save()` now acquires `fcntl.LOCK_EX` before writing, preventing concurrent Claude Code sessions from clobbering each other's data.",
+          "**Python path resolution**: `setup_hook` now uses `_find_system_python()` when building hook commands — preferring the bundled `.app` Python, then `/usr/bin/python3`, avoiding the broken Xcode stub that `shutil.which(\"python3\")` can resolve to after an Xcode update.",
+          "**FSEvents-driven UI refresh**: `menubar` now uses a CoreServices `FSEventStream` (via ctypes) to watch `~/.claude/`. Changes to `usage-status.json` trigger `_refresh()` immediately, cutting update latency from up to 60 seconds to milliseconds. `NSTimer` is demoted to a 300-second fallback; silently degrades to timer-only mode if CoreServices is unavailable."
+        ]
+      },
+      "curated": {
+        "version": "0.11.2",
+        "period": "2026-05-25",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "選單列反應快如閃電，背後運作更省力",
+              "en": "Lightning-fast menu bar updates with drastically reduced disk work"
+            },
+            "body": {
+              "zh-TW": "這次更新讓選單列上的數字更新變得瞬間到位。以前系統是靠一個呆呆的計時器，每隔一分鐘才去查一次你的用量有沒有變，所以常常會慢半拍；現在它學會了直接監聽作業系統的檔案變動事件（FSEvents），你一燒掉額度，畫面在幾毫秒內就會立刻跳動。不僅反應變快，背後讀資料也變得更省力：現在它只會去解析真正有變動的歷史紀錄，不再每次都把沒變的舊檔案重讀一遍，大幅減輕你硬碟的負擔。另外，如果你同時開了好幾個終端機視窗在跑 Claude，現在存檔時會自動排隊鎖上檔案（檔案鎖），不會再發生兩邊同時寫入把用量互相覆蓋的慘劇。這就像是餐廳的出菜系統，以前服務生每隔一分鐘才慢吞吞地進廚房看菜好了沒，現在廚房一出菜就會按鈴，服務生馬上把菜端走，而且大家端菜時絕不會再撞在一起把盤子摔碎了。",
+              "en": "The numbers on your menu bar will now update instantaneously. Previously, the system relied on a dumb timer that polled your usage once a minute, often lagging far behind reality. Now, it directly listens to your operating system's file events (FSEvents), so the moment you burn through some quota, the on-screen numbers twitch in milliseconds. Not only is it faster, but reading data behind the scenes is much lighter too: it now incrementally parses only the history files that have actually changed, saving your hard drive from redundantly reading identical old files over and over. Additionally, if you run multiple Claude Code sessions in different terminal windows, the system now uses file locks to make them line up politely when saving data, completely preventing them from clobbering each other's usage totals. It's like a restaurant's kitchen flow: waiters used to slowly poke their heads into the kitchen every minute to check for food, but now the kitchen rings a bell the millisecond a dish is ready — and the waiters no longer crash into each other dropping plates on their way out."
+            },
+            "original": "**`usage_cli.py` crashed on every first run** (thanks @will30-blockchain — [#7](https://github.com/aqua5230/usage/pull/7)): `setup(auto=True)` passed a non-existent keyword argument to `setup_hook.setup()`, causing a `TypeError` on any fresh install or after `unsetup`. Users who already had the hook installed were unaffected. Fix: drop the stale `auto=True` kwarg.\n**Incremental JSONL parsing**: `history_loader` and `codex_loader` now maintain module-level mtime+size caches and skip re-parsing files whose content hasn't changed, significantly reducing per-refresh disk I/O.\n**Parallel hook forwarding**: `usage_statusline_forwarder` now dispatches all hooks concurrently via `ThreadPoolExecutor`; a single slow or timing-out hook no longer stalls the others. Worst-case latency drops from `n × 5s` to `5s`.\n**Multi-session write protection**: `usage_statusline.py`'s `save()` now acquires `fcntl.LOCK_EX` before writing, preventing concurrent Claude Code sessions from clobbering each other's data.\n**Python path resolution**: `setup_hook` now uses `_find_system_python()` when building hook commands — preferring the bundled `.app` Python, then `/usr/bin/python3`, avoiding the broken Xcode stub that `shutil.which(\"python3\")` can resolve to after an Xcode update.\n**FSEvents-driven UI refresh**: `menubar` now uses a CoreServices `FSEventStream` (via ctypes) to watch `~/.claude/`. Changes to `usage-status.json` trigger `_refresh()` immediately, cutting update latency from up to 60 seconds to milliseconds. `NSTimer` is demoted to a 300-second fallback; silently degrades to timer-only mode if CoreServices is unavailable."
+          }
+        ]
+      },
+      "badges": [
+        "perf"
+      ]
+    },
     {
       "version": "0.11.1",
       "raw": {
@@ -305,70 +378,6 @@
       },
       "badges": [
         "new"
-      ]
-    },
-    {
-      "version": "0.6.9",
-      "raw": {
-        "version": "0.6.9",
-        "period": "2026-05-22",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**New \"Cloud Observation\" panel**: fifth built-in panel with a weather-station visual — light blue sky gradient, white cloud layers (with `feGaussianBlur` soft edges), pale contour lines, and translucent glass cards. Light overall tone, with `backdrop-filter` letting the clouds peek through. Adds i18n key `panel_cloud_observation` (all 5 languages)."
-        ]
-      },
-      "curated": {
-        "version": "0.6.9",
-        "period": "2026-05-22",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "新增雲圖觀測面板",
-              "en": "New Cloud Observation panel added"
-            },
-            "body": {
-              "zh-TW": "現在多了一款「雲圖觀測（Cloud Observation）」面板可以選了！它是我們的第五款內建面板，走的是氣象觀測站的風格——有著淡藍色的天空漸層、邊緣柔和的白色雲層，以及淡淡的等高線。整個介面採用清爽的淺色調，搭配半透明的玻璃卡片效果，讓背後的雲層能若隱若現透出來。就像是你的電腦桌面上開了一扇明亮的小窗戶，隨時都能看著外頭輕柔飄動的白雲。",
-              "en": "You can now choose the new \"Cloud Observation\" panel! It's our fifth built-in panel, featuring a weather-station visual style — a light blue sky gradient, white cloud layers with soft edges, and pale contour lines. The entire interface embraces a crisp, light tone with translucent glass cards, allowing the clouds behind to peek through subtly. It's like opening a bright little window right on your computer desktop, letting you watch the soft, drifting white clouds whenever you like."
-            },
-            "original": "**New \"Cloud Observation\" panel**: fifth built-in panel with a weather-station visual — light blue sky gradient, white cloud layers (with `feGaussianBlur` soft edges), pale contour lines, and translucent glass cards. Light overall tone, with `backdrop-filter` letting the clouds peek through. Adds i18n key `panel_cloud_observation` (all 5 languages)."
-          }
-        ]
-      },
-      "badges": [
-        "new"
-      ]
-    },
-    {
-      "version": "0.6.8",
-      "raw": {
-        "version": "0.6.8",
-        "period": "2026-05-22",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-07-14",
-        "entries": [
-          "**Fix .app launch failure when i18n.json is missing**: py2app now includes `i18n.json` in the resource list, and the menu bar / Web panel loaders prefer the `.app` bundle's `Contents/Resources/i18n.json` before falling back to source-tree paths, preventing the `FileNotFoundError` that broke v0.6.0+ launches."
-        ]
-      },
-      "curated": {
-        "version": "0.6.8",
-        "period": "2026-05-22",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "修正打包版 App 找不到多語系檔而崩潰的問題",
-              "en": "Fixed bundled app crashing due to a missing translation file"
-            },
-            "body": {
-              "zh-TW": "之前直接點擊安裝好的 App 啟動時，因為打包軟體漏掉了一份多語系檔（i18n.json），導致系統一開機就找不到檔案而直接閃退崩潰。現在我們把這份負責翻譯的檔案正確包進去了，而且系統也學會優先從 App 自己的肚子裡找檔案。就像是買了進口家電，以前箱子裡漏放了翻譯說明書，你一開機就完全無法使用；現在原廠已經把說明書乖乖塞進包裝盒，拿出來就能直接懂它的語言了。",
-              "en": "Previously, when launching the compiled App directly, a missing translation file (`i18n.json`) caused the system to panic and crash immediately on startup. We've now properly packed this responsible language file inside, and the system has learned to prioritize looking inside its own app bundle for it. It's like buying an imported appliance where the box used to be missing the translated manual, leaving you completely stuck on power-up; now the manufacturer has properly tucked the manual into the packaging so you can understand its language right out of the box."
-            },
-            "original": "**Fix .app launch failure when i18n.json is missing**: py2app now includes `i18n.json` in the resource list, and the menu bar / Web panel loaders prefer the `.app` bundle's `Contents/Resources/i18n.json` before falling back to source-tree paths, preventing the `FileNotFoundError` that broke v0.6.0+ launches."
-          }
-        ]
-      },
-      "badges": [
-        "fix"
       ]
     }
   ]
