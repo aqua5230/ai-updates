@@ -1,0 +1,50 @@
+{
+  "version": "1.4.11",
+  "period": "2026-10-30",
+  "items": [
+    {
+      "title": {
+        "zh-TW": "Google Cloud 登入支援自選計費模式，可挑 Gemini 訂閱制或隨用隨付",
+        "en": "Google Cloud sign-in now supports selecting a billing model, allowing a choice between a Gemini subscription or Pay As You Go"
+      },
+      "body": {
+        "zh-TW": "如果你習慣使用 Google Cloud 帳號登入工具來處理專案，現在帳號綁定的付款機制多了清楚的選擇步驟。⟦跟到電信門市挑選門號資費一樣，以前完成登記後無法自選計費管道，現在你能依使用習慣挑選固定月租，或是用多少算多少的預付扣額。⟧以往透過 Google Cloud 登入時，無法在登入流程中直接決定開銷型態。現在只要完成 Google Cloud 登入驗證，畫面便會跳出計費模式選項。你可以直接勾選 Gemini 訂閱制（Gemini subscription）。如果偏好用多少算多少，也能挑選隨用隨付（Pay As You Go，按實際用量付費）方案。這讓你在登入當下就能敲定計費規則，避免扣款方式與預算規劃產生出入。",
+        "en": "If you are used to signing into tools with a Google Cloud account to handle projects, the payment mechanism tied to your account now includes a clear selection step. ⟦Much like choosing a mobile plan at a telecom store, where you could not choose your billing channel after registering before, you can now pick a fixed monthly rate or pay-as-you-go prepaid credits based on your usage habits.⟧ Previously when signing in through Google Cloud, you could not decide your expense type directly in the sign-in flow. Now once Google Cloud sign-in authentication is complete, a billing model option appears on screen. You can directly select a Gemini subscription. If you prefer to pay for what you use, you can also select the Pay As You Go (paying only for what you use) plan. This lets you settle the billing rules right when signing in, preventing discrepancies between charges and budget plans."
+      },
+      "original": "Added a billing model choice after you sign in with Google Cloud, so you can pick either a Gemini subscription or Pay As You Go."
+    },
+    {
+      "title": {
+        "zh-TW": "PreInvocation 掛鉤支援終止對話，攔截提示詞並回傳警示",
+        "en": "PreInvocation hooks now support terminating turns to block prompts and return alerts"
+      },
+      "body": {
+        "zh-TW": "當你在工具中設定自動檢查機制來保護機密時，現在能在送出請求的最前線精準把關。⟦如同機場託運安檢的掃描輸送帶，以前發現行李夾帶違禁品往往難以在中途攔截，現在能在送進貨艙前立刻截停，並向旅客出示退件通知單。⟧在 `PreInvocation` 掛鉤（hook，特定事件發生時被觸發的小程式）中，現在新增了 `terminationBehavior` 設定項。只要掛鉤回傳 `\"terminate\"`，就能在呼叫模型之前中止當前對話，例如及時攔截包含機敏資料的提示詞。掛鉤還能同時注入 `errorMessage` 物件，當中的 `userMessage` 訊息只會直接顯示在你的終端機畫面上，絕不會傳送給模型。若是透過 `-p` 參數執行的非互動流程，遇到終止時也會以非零狀態碼結束退出。",
+        "en": "When configuring automated checks in the tool to protect confidential data, you can now maintain precise guardrails at the very front line of outgoing requests. ⟦Think of an airport baggage screening conveyor belt: whereas luggage containing contraband was previously hard to intercept midway, it can now be halted immediately before entering the cargo hold, presenting a return notice to the passenger.⟧ In `PreInvocation` hooks (small programs triggered by specific events), a new `terminationBehavior` setting has been added. As long as the hook returns `\"terminate\"`, it can stop the current turn before the model is called, such as blocking a prompt that contains sensitive data in time. The hook can also inject an `errorMessage` object at the same time, whose `userMessage` is shown directly on your terminal screen and is never sent to the model. If running a non-interactive flow via the `-p` flag, encountering a termination will also exit with a non-zero status code."
+      },
+      "original": "Added `terminationBehavior` to `PreInvocation` hooks: returning `\"terminate\"` stops the turn before the model is called, for example to block a prompt that contains sensitive data, and hooks can now inject an `errorMessage` whose `userMessage` is shown to you without being sent to the model, which also makes a `-p` run exit with a non-zero code."
+    },
+    {
+      "title": {
+        "zh-TW": "JSON 輸出新增 finished_reason，精確標記提早中斷原因",
+        "en": "JSON output adds finished_reason to accurately indicate why a turn ended early"
+      },
+      "body": {
+        "zh-TW": "當你撰寫自動化腳本呼叫工具時，程式往往需要判斷回傳內容究竟有沒有講完。⟦好比自動櫃員機列印的明細表，以前交易中斷只能看著螢幕發愣，現在明細會印出逾時未領、手動取消還是連線異常，順利完成時則不留多餘標註。⟧現在使用 `--output-format json` 或 `stream-json` 格式輸出時，回傳結果新增了 `finished_reason` 欄位。如果執行過程因為 `--print-timeout` 時間耗盡而只產生部分回覆，該欄位會標示為 `print_timeout`。若因使用者按下 `Ctrl+C` 等操作取消執行，則會記錄為 `interrupted`。遭遇其他執行失敗時，會代入 `error`。這讓外部腳本能立刻釐清回答是被截斷還是完整輸出，而當對話正常結束時，輸出結果會直接省略此欄位。",
+        "en": "When writing automated scripts to call the tool, programs often need to determine whether the returned content has finished speaking. ⟦An ATM receipt once left users staring at the screen during an interrupted transaction, but now prints whether it timed out, was manually canceled, or suffered a connection anomaly, leaving no extra notes when completed smoothly.⟧ Now when outputting with `--output-format json` or `stream-json`, a `finished_reason` field has been added to the returned results. If the execution produces only a partial response because `--print-timeout` expired, this field is marked as `print_timeout`. If the execution is canceled by user actions such as pressing `Ctrl+C`, it is recorded as `interrupted`. When encountering other execution failures, it is populated with `error`. This allows external scripts to immediately clarify whether an answer was cut off or output completely, while the field is omitted directly when the turn finishes normally."
+      },
+      "original": "Added a `finished_reason` field to the result of `--output-format json` and `stream-json` runs that says why a turn ended early, `print_timeout` when `--print-timeout` expired and the response is partial, `interrupted` when the run was canceled such as with `Ctrl+C`, or `error` for any other failure, so scripts can tell a cut-off answer from a complete one; the field is omitted when the turn finishes normally."
+    },
+    {
+      "title": {
+        "zh-TW": "外掛探索分頁支援分層收合，並修復 Claude 外掛匯入與 MCP 轉換",
+        "en": "The plugin Discover tab supports collapsible shelves, fixing Claude plugin imports and MCP conversions"
+      },
+      "body": {
+        "zh-TW": "當你想在工具中尋找或搬移外掛時，介面排版與轉換相容性現在都有了改善。⟦就像整理零件貨架，以前排面過長難以翻閱、外來套件也常因規格不符碰壁，現在分層收合清楚，規格也自動對齊。⟧在 `/plugin` 的 Discover 分頁中，每層架子只列出前 6 個外掛與展開列，並新增快捷操作：\n\n```text\n# 快速鍵操作\nCtrl+E                  # 展開或收合游標處架子\n[ / ]                   # 跳至上一個或下一個架子\n\n# 外掛匯入與 MCP 轉換\n\"type\": \"http\"          # 保留含 url 與 headers 的遠端伺服器\n.mcp.json               # 支援未含 mcpServers 包裹層的設定\n${CLAUDE_PLUGIN_ROOT}   # 自動展開為外掛安裝目錄\n```\n\n執行 `agy plugin import claude` 匯入 Claude Code 市集外掛時，不再誤報找不到擴充。現在會讀取安裝清單，並略過停用或單一專案專用的外掛。匯入時會保留遠端 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器與 `.mcp.json` 設定，若遇到舊版 SSE 等無法轉換的伺服器，會顯示警告而非回報為已安裝。",
+        "en": "When you want to search for or migrate plugins in the tool, interface layouts and conversion compatibility are now improved. ⟦Picture organizing a parts shelf: whereas excessively long displays were once cumbersome to browse and external packages frequently hit walls over mismatched specifications, shelves now collapse clearly into layers while specifications align automatically.⟧ In the Discover tab of `/plugin`, each shelf lists only its first 6 plugins along with an expand row, and introduces shortcut operations:\n\n```text\n# Shortcut operations\nCtrl+E                  # Expand or collapse the shelf under the cursor\n[ / ]                   # Jump to the previous or next shelf\n\n# Plugin import and MCP conversion\n\"type\": \"http\"          # Retain remote servers with url and headers\n.mcp.json               # Support configurations without an mcpServers wrapper\n${CLAUDE_PLUGIN_ROOT}   # Automatically expand to the plugin installation directory\n```\n\nWhen running `agy plugin import claude` to import Claude Code marketplace plugins, it no longer mistakenly reports that no extensions were found. It now reads the installation list, skipping disabled plugins or those dedicated to a single project. During import, remote MCP (Model Context Protocol, a protocol for connecting AI to external tools) servers and `.mcp.json` configurations are retained. If it encounters servers that cannot be converted, such as legacy SSE, it displays a warning instead of reporting them as installed."
+      },
+      "original": "Improved the `/plugin` Discover tab for long shelves: each shelf now shows its first 6 plugins followed by a `⋯ N more — enter to show` row, `Ctrl+E` expands or collapses the shelf under the cursor, and `[` and `]` jump to the previous or next shelf.\nFixed `agy plugin import claude` printing `No claude extensions found.` for plugins installed from a Claude Code marketplace: it now reads Claude Code's list of installed plugins, skipping plugins disabled in Claude Code's settings and plugins installed for a single project only, and imported plugins now keep their remote MCP servers (`\"type\": \"http\"` with `url` and `headers`) and servers from `.mcp.json` files without an `mcpServers` wrapper, expand `${CLAUDE_PLUGIN_ROOT}` to the installed plugin's directory, and list servers that can't be converted, such as ones using the legacy SSE transport, with a warning instead of reporting them as installed."
+    }
+  ]
+}
