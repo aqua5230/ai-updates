@@ -1452,47 +1452,142 @@
       "id": "agy",
       "name": "Antigravity",
       "latest": {
-        "version": "1.4.12",
+        "version": "1.5.0",
         "raw": {
-          "version": "1.4.12",
-          "period": "2026-10-31",
+          "version": "1.5.0",
+          "period": "2026-11-04",
           "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-          "fetched_at": "2026-10-31",
+          "fetched_at": "2026-11-04",
           "entries": [
-            "Added `\"optional\": true` for API key providers in a plugin's `auth.json`, for services that work without a key but raise rate limits with one: when you haven't set the key, the plugin's commands now see the variable as unset and make unauthenticated requests at the free rate limit, instead of failing with `401` errors or asking you to sign in.",
-            "Fixed Markdown tables in long streaming replies leaving misaligned borders and repeated text in your terminal scrollback: a table's rows now stay in the live view until the table is complete, so they reach scrollback with their final column widths."
+            "Added `acp` to `agy --help`: `agy acp` runs the CLI as an Agent Client Protocol (ACP) server over stdio, so editors can use it as their agent, with images and embedded file context in prompts, steering a running turn by sending another prompt, `default`, `accept-edits`, and `plan` session modes, `session/resume` restoring a session without replaying its history, each session keeping its own model and thinking level, and Google sign-in from a terminal with `agy acp --login` for editors connected over SSH or without a browser.",
+            "Added `--remote-agent` to `agy --help`, which runs the session's conversations on remote agents instead of this machine, where `--project` names a remote project by ID or name and otherwise conversations open in your default remote project; in these sessions `@`-mention completion now searches the remote agent's files, artifacts that can't be shown in the terminal get an `Open in browser` link, the header shows `remote workspace` instead of your local directory, the `/` menu no longer offers skills from this machine, and the Remote tab in `/config` shows the conversation's own permission preset when it has one.",
+            "Added local projects to `/projects`, so in a local session you can list your projects with the current one marked, create one from a name and a set of folders given as absolute, `~`, or workspace-relative paths, rename a project or change its folders, and switch to a project, which adds its folders to the workspace and starts a new conversation.",
+            "Added sign-in for a partner plugin's MCP servers when you install it from `/plugin`, with a `Connect <plugin>` screen for each server that opens its sign-in page (`Esc` skips), a `⚠ needs sign-in` marker and a `Sign-in:` row for the plugin in the Installed tab, and the third-party developer tools notice for partner plugins at the end of the Discover list, in a plugin's details, and after `agy plugin install` or `/plugin install`.",
+            "Added a built-in `${HOME}` variable to plugin `sidecar.json` templates, so a sidecar can name paths under the user's home directory in `workspaceUris` and `accessGrants`, such as `file://${HOME}/worktrees`; a sidecar argument named `HOME` still takes precedence.",
+            "Changed headless `-p` runs without `--print-timeout` to wait for background tasks to finish, where they previously stopped them after a hidden 30-minute limit and exited with success; when `--print-timeout` cuts a turn short, the run now exits with code `3`, prints an `AGY_ERROR` line naming the tasks it terminated, and writes a `[agy] print timeout after ...` line to stderr.",
+            "Changed `/btw` side questions to be able to call tools, such as reading files or searching, showing each call live in the `/btw` card and a `Called N tools` summary once the answer is done, while any tool call that would ask for permission is denied automatically; this fixes side questions failing with an empty-response error when the model wanted to use a tool.",
+            "Changed the `no flickering (altscreen)` option under `Rendering Mode` in `/config` to `full screen (altscreen)`; the saved setting is unchanged.",
+            "Improved the error for a stdio MCP server whose command isn't installed, which now says, for example, `\"uvx\" is not installed or not on PATH, install it or set \"command\" to its full path` instead of a raw `executable file not found in $PATH` error.",
+            "Improved Auto mode's review of commands that would leave the terminal sandbox so it times out and asks less often on safe commands, such as uploads that don't request a review, stopping a job the agent started, installing or removing packages from a registry, and removing files that can be restored from version control.",
+            "Fixed `/diff` drawing an empty `↕ ···` fold divider at the top of new files and of edits starting at line 1, where nothing was folded away, and fixed undo in the prompt bringing back a message you had already sent, and undo in `!` shell or `:` search mode bringing back prompt text that `Enter` would then run as a command or search.",
+            "Fixed conversations using a `GEMINI_API_KEY` re-sending a prompt forever when the API's safety filter blocks it, which now ends the turn with a content-filter message, and the `pro` and `flash` subagents on that connection running models two generations older instead of Gemini 4 Argon and Gemini 3.8 Flash.",
+            "Fixed certain models failing a turn on rate-limit (`429`) and server (`5xx`) errors instead of retrying them, now honoring the server's `Retry-After` header, and fixed plugin auto-upgrades of a plugin installed under a different folder name, such as after a rename, writing to a new folder and retrying on every startup instead of updating the existing folder in place."
           ]
         },
         "curated": {
-          "version": "1.4.12",
-          "period": "2026-10-31",
+          "version": "1.5.0",
+          "period": "2026-11-04",
           "items": [
             {
               "title": {
-                "zh-TW": "外掛的 API 金鑰可以設成選填",
-                "en": "Plugin API Keys Can Now Be Optional"
+                "zh-TW": "支援 ACP 協定，讓編輯器直接調用 agy 擔任代理",
+                "en": "Support ACP so editors can use agy directly as an agent"
               },
               "body": {
-                "zh-TW": "你剛裝好一個串接網路服務的外掛，想先試試基本功能，手邊卻還沒申請帳號。現在外掛作者可以在外掛的 `auth.json` 裡，把某個 API 金鑰（向線上服務證明身分的存取密碼）提供者標記成選填，做法是在那一項加上 `\"optional\": true`。它適用於不用金鑰也能用、但附上金鑰能提高限流（服務限制單位時間內請求次數的機制）門檻的服務。\n\n標成選填後，你還沒設定金鑰時，外掛指令會把存放金鑰的那個變數當成未設定，直接以免費的限流額度發出未驗證請求。以前同樣的情況會出現 `401` 錯誤，或跳出要你登入的畫面。⟦跟逛公立展覽館一樣，以前入口一律要看會員證，沒帶就被擋在門外；現在沒登記的訪客也能領普通號碼牌入場，出示會員卡則能換到更多參觀名額。⟧",
-                "en": "You've just installed a plugin that connects to an online service and want to try the basics, but you haven't signed up for an account yet. Plugin authors can now mark an API key (an access password that proves your identity to an online service) provider as optional in the plugin's `auth.json` by adding `\"optional\": true` to that entry. It is meant for services that work without a key but raise rate limits (caps on how many requests you can send per unit of time) when you have one.\n\nOnce a key is optional and you haven't set it, the plugin's commands see the variable holding the key as unset and make unauthenticated requests at the free rate limit. Before, the same situation failed with `401` errors or asked you to sign in. ⟦Think of a public exhibition hall: the entrance used to demand a membership card and turned away anyone without one; now walk-in visitors can take a regular ticket and enter, while members who show their card get a larger visiting allowance.⟧"
+                "zh-TW": "在慣用的程式碼編輯器中撰寫專案時，若想讓 AI 代理深度融入編輯流程，現在指令列新增了 `agy acp`。⟦好比請一位專屬秘書直接坐進辦公室，以前需要在不同視窗來回複製截圖與檔案，現在編輯器能透過標準輸入輸出直接交代任務。⟧它以 Agent Client Protocol（ACP，讓編輯器連接代理的協定）運作，支援在提問中附帶圖片與檔案內文。你甚至能在回答中途再次送出提示來即時修正方向。每個工作階段都支援獨立的模型與思考深度，並提供 `default`、`accept-edits` 與 `plan` 三種模式。透過 `session/resume` 能直接恢復工作階段而無須重播歷史紀錄。若編輯器運行在沒有瀏覽器的遠端主機，只要執行 `agy acp --login` 即可在終端機完成 Google 登入。",
+                "en": "When writing code in your everyday editor, the command line now adds `agy acp` to weave AI agents deeper into your editing workflow. ⟦Picture hiring a dedicated assistant to sit right inside your office. Where you once had to copy screenshots and files back and forth between windows, the editor now assigns tasks directly over standard input and output.⟧ It runs on the Agent Client Protocol (ACP, a protocol for connecting editors to agents), supporting images and embedded file context in prompts. You can even steer a running turn by sending another prompt mid-answer to adjust course on the fly. Each session supports an independent model and thinking level, providing three modes: `default`, `accept-edits`, and `plan`. Through `session/resume`, you can restore a session directly without replaying its history. If your editor runs on a remote host without a browser, simply running `agy acp --login` lets you complete Google sign-in from the terminal."
               },
-              "original": "Added `\"optional\": true` for API key providers in a plugin's `auth.json`, for services that work without a key but raise rate limits with one: when you haven't set the key, the plugin's commands now see the variable as unset and make unauthenticated requests at the free rate limit, instead of failing with `401` errors or asking you to sign in."
+              "original": "Added `acp` to `agy --help`: `agy acp` runs the CLI as an Agent Client Protocol (ACP) server over stdio, so editors can use it as their agent, with images and embedded file context in prompts, steering a running turn by sending another prompt, `default`, `accept-edits`, and `plan` session modes, `session/resume` restoring a session without replaying its history, each session keeping its own model and thinking level, and Google sign-in from a terminal with `agy acp --login` for editors connected over SSH or without a browser."
             },
             {
               "title": {
-                "zh-TW": "串流中的長表格完成後才進捲動紀錄，邊框不再歪斜",
-                "en": "Streamed Tables Now Reach Scrollback Only When Complete"
+                "zh-TW": "新增 `--remote-agent` 參數，將對話交由遠端代理執行",
+                "en": "Add `--remote-agent` flag to run conversations on remote agents"
               },
               "body": {
-                "zh-TW": "在終端機收到很長的回覆時，如果裡面有 Markdown 表格，往上翻常會看到版面亂掉。以前在串流（模型一邊生成一邊即時顯示）輸出時，表格列太早被推進捲動紀錄，也就是往上翻看得到的舊畫面，結果留下歪斜的邊框和重複的文字。現在表格各列會先留在即時畫面，等整張表格完成，才用最終欄寬推進捲動紀錄，往上翻就不會再看到錯位。",
-                "en": "When you get a long reply in the terminal that contains a Markdown table, scrolling up often showed a broken layout. Before, while streaming (showing output in real time as the model generates it), table rows reached your terminal scrollback too early, leaving misaligned borders and repeated text. Now a table's rows stay in the live view until the table is complete, then reach scrollback with their final column widths, so scrolling up no longer shows the misalignment."
+                "zh-TW": "當本機電腦效能吃緊或需要專用運算環境時，你可以把任務分派到雲端主機。⟦如同把手頭工作委派給遠端辦公室的同事，以前所有檔案與流程都綁在自己的桌機上，現在工作改由遠端環境執行。⟧啟動時加上 `--remote-agent` 即可將工作階段的對話移至遠端代理執行，搭配 `--project` 能指定遠端專案名稱或識別碼，未指定時則進入預設專案。在這類工作階段中，鍵入 `@` 補齊會搜尋遠端檔案，終端機無法顯示的產出物會提供 `Open in browser` 連結。介面頂端會改為顯示 `remote workspace`，斜線選單不再提供本機技能，在 `/config` 的 Remote 分頁也會顯示該對話專屬的權限預設。",
+                "en": "When your local machine runs short on power or demands a dedicated computing environment, you can offload tasks to a cloud host. ⟦Think of delegating tasks to a coworker in a remote office. Where every file and process was once tied to your local desktop, the work now runs inside a remote environment.⟧ Adding `--remote-agent` at startup runs the session's conversations on remote agents, while `--project` lets you specify a remote project name or ID, defaulting to your primary project when omitted. In these sessions, `@`-mention completion searches the remote files, and artifacts that cannot be displayed in the terminal provide an `Open in browser` link. The header changes to display `remote workspace`, the slash menu no longer offers local skills, and the Remote tab in `/config` displays the conversation's own permission preset."
               },
-              "original": "Fixed Markdown tables in long streaming replies leaving misaligned borders and repeated text in your terminal scrollback: a table's rows now stay in the live view until the table is complete, so they reach scrollback with their final column widths."
+              "original": "Added `--remote-agent` to `agy --help`, which runs the session's conversations on remote agents instead of this machine, where `--project` names a remote project by ID or name and otherwise conversations open in your default remote project; in these sessions `@`-mention completion now searches the remote agent's files, artifacts that can't be shown in the terminal get an `Open in browser` link, the header shows `remote workspace` instead of your local directory, the `/` menu no longer offers skills from this machine, and the Remote tab in `/config` shows the conversation's own permission preset when it has one."
+            },
+            {
+              "title": {
+                "zh-TW": "`/projects` 支援本機專案，自由建立並快速切換工作區",
+                "en": "`/projects` adds local project support to create and switch workspaces"
+              },
+              "body": {
+                "zh-TW": "在日常開發中頻繁切換不同專案目錄時，反覆尋找路徑往往令人手忙腳亂。⟦跟工作桌上的專案資料夾一樣，以前每次切換任務都要手動重新挑選相關文件，現在只要抽換整份收納夾，所有目錄便整組就位並開啟全新筆記。⟧現在本機工作階段的 `/projects` 指令支援完整的本機專案管理。你能列出專案清單並查看目前項目標記，也能依名稱與一組資料夾建立專案。資料夾路徑支援絕對路徑、波浪號 `~` 或工作區相對路徑。專案隨時可重新命名或修改資料夾；切換專案時，終端機會將其資料夾加入工作區並開啟新對話。",
+                "en": "When constantly switching between project directories during daily development, hunting down paths over and over can easily get chaotic. ⟦Consider how project binders work on an office desk. Where switching tasks once meant hand-picking related documents each time, swapping out the entire binder puts all directories in place at once and opens a brand-new notepad.⟧ The `/projects` command in local sessions now supports full local project management. You can list your projects with the current one marked, or create one from a name and a set of folders. Folder paths accept absolute paths, tildes `~`, or workspace-relative paths. Projects can be renamed or have their folders modified at any time; switching projects adds their folders to the workspace and starts a new conversation."
+              },
+              "original": "Added local projects to `/projects`, so in a local session you can list your projects with the current one marked, create one from a name and a set of folders given as absolute, `~`, or workspace-relative paths, rename a project or change its folders, and switch to a project, which adds its folders to the workspace and starts a new conversation."
+            },
+            {
+              "title": {
+                "zh-TW": "外掛與 MCP 設定體驗升級：引導登入、家目錄路徑與清楚的缺少指令提示",
+                "en": "Enhanced plugin and MCP setup: guided sign-in, home directory paths, and clearer missing command errors"
+              },
+              "body": {
+                "zh-TW": "在終端機透過外掛連接各類服務時，授權與環境設定現在更直覺。從 `/plugin` 安裝合作夥伴外掛時，若包含 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器，會跳出 `Connect <外掛名稱>` 畫面引導登入，按 `Esc` 可略過。已安裝分頁也會標示 `⚠ needs sign-in`。Discover 清單與安裝後也會顯示第三方開發者工具提醒。\n\n外掛的 `sidecar.json` 範本新增內建 `${HOME}` 變數，方便在 `workspaceUris` 與 `accessGrants` 指定家目錄路徑，同名參數優先採用。\n\n啟動 stdio MCP 伺服器若找不到指令，錯誤訊息會明確提示如 `uvx` 未安裝或不在 PATH 中，提醒安裝或指定完整路徑，不再只丟出找不到執行檔代碼。",
+                "en": "When connecting to services through plugins in the terminal, authorization and environment configuration are now much more intuitive. Installing a partner plugin from `/plugin` that includes an MCP (Model Context Protocol, a protocol for connecting AI to external tools) server now brings up a `Connect <plugin>` screen to guide sign-in, which `Esc` can skip. The Installed tab also displays a `⚠ needs sign-in` marker. Third-party developer tools notices now appear at the end of the Discover list and after installation.\n\nPlugin `sidecar.json` templates add a built-in `${HOME}` variable, making it easy to name paths under the home directory in `workspaceUris` and `accessGrants`, while arguments with the same name take precedence.\n\nWhen launching a stdio MCP server fails because its command is missing, the error message now clearly points out that, for instance, `uvx` is not installed or not on PATH, reminding you to install it or set a full path instead of just reporting a raw missing executable error."
+              },
+              "original": "Added sign-in for a partner plugin's MCP servers when you install it from `/plugin`, with a `Connect <plugin>` screen for each server that opens its sign-in page (`Esc` skips), a `⚠ needs sign-in` marker and a `Sign-in:` row for the plugin in the Installed tab, and the third-party developer tools notice for partner plugins at the end of the Discover list, in a plugin's details, and after `agy plugin install` or `/plugin install`.\nAdded a built-in `${HOME}` variable to plugin `sidecar.json` templates, so a sidecar can name paths under the user's home directory in `workspaceUris` and `accessGrants`, such as `file://${HOME}/worktrees`; a sidecar argument named `HOME` still takes precedence.\nImproved the error for a stdio MCP server whose command isn't installed, which now says, for example, `\"uvx\" is not installed or not on PATH, install it or set \"command\" to its full path` instead of a raw `executable file not found in $PATH` error."
+            },
+            {
+              "title": {
+                "zh-TW": "無頭模式完整等待背景工作，逾時明確退出並回報錯誤",
+                "en": "Headless mode waits fully for background tasks, exiting with explicit errors on timeout"
+              },
+              "body": {
+                "zh-TW": "編寫自動化腳本以無頭模式（沒有視覺介面的執行模式）透過 `-p` 執行任務時，背景工作不再被暗中掐斷。⟦就像貨運站處理包裹，以前即使後台還有貨物在裝箱，時間一到就當作全部送達並提早收工；現在會確實等待所有背景工作做完才結束，若因倒數截止而中途喊停，也會留下錯誤紀錄並標明未完成的任務。⟧在未指定 `--print-timeout` 的情況下，執行時不再有隱藏的 30 分鐘限制並自動視為成功，而是會持續等待背景工作全部做完。若設定了 `--print-timeout` 且中途切斷，程式會改以退出碼 `3` 結束。它會印出標明終止任務名稱的 `AGY_ERROR` 行，並在標準錯誤輸出寫入 `[agy] print timeout after ...` 紀錄。",
+                "en": "When writing automation scripts to run tasks via `-p` in headless mode (an execution mode without a visual interface), background tasks are no longer quietly cut off. ⟦Imagine a shipping depot processing parcels. Where workers previously called it a day and assumed all deliveries succeeded the moment the clock ran out even with items still being packed in the back, the system now genuinely waits for every background task to wrap up, leaving an error log that flags incomplete tasks if cut short by a countdown.⟧ Without `--print-timeout` specified, runs no longer enforce a hidden 30-minute limit and exit with success, but instead keep waiting for all background tasks to finish. If `--print-timeout` is set and cuts a turn short, the program now exits with code `3`. It prints an `AGY_ERROR` line naming the terminated tasks and writes a `[agy] print timeout after ...` record to standard error."
+              },
+              "original": "Changed headless `-p` runs without `--print-timeout` to wait for background tasks to finish, where they previously stopped them after a hidden 30-minute limit and exited with success; when `--print-timeout` cuts a turn short, the run now exits with code `3`, prints an `AGY_ERROR` line naming the tasks it terminated, and writes a `[agy] print timeout after ...` line to stderr."
+            },
+            {
+              "title": {
+                "zh-TW": "`/btw` 支援調用工具，查檔搜尋即時顯示並自動略過權限詢問",
+                "en": "`/btw` gains tool calling to search and read files live while auto-denying permission prompts"
+              },
+              "body": {
+                "zh-TW": "在長篇對話中想插話向 AI 打聽某個檔案細節時，直接輸入 `/btw` 就能發問而不打斷主線。⟦彷彿在開會中向身旁的速記員咬耳朵，以前他只能憑腦中印象悄聲回答，想翻閱文件就會卡住；現在他能快速查閱檔案再給出答覆，但只要動作需要額外簽核就會主動放棄。⟧現在 `/btw` 插話提問具備調用工具的能力，能直接讀取檔案或搜尋資訊。執行的每個動作都會即時呈現在卡片中，回答完成後會顯示 `Called N tools` 的調用次數摘要。凡是需要向你請求權限的工具操作一律會被自動拒絕。這項修正解決了先前模型想調用工具時，因無法處理而跳出空白回應錯誤的問題。",
+                "en": "When you want to interject and ask the AI about a file detail during a long conversation, entering `/btw` lets you ask without interrupting the main thread. ⟦The experience mirrors whispering to a stenographer beside you in a meeting. Where they previously could only whisper back from memory and froze whenever checking documents was required, they can now quickly consult files before replying, automatically stepping back if an action demands extra sign-off.⟧ Asking side questions with `/btw` now has the ability to call tools, letting it directly read files or search for information. Each executed action appears live inside the card, followed by a `Called N tools` summary once the answer finishes. Any tool operation that would ask you for permission is denied automatically. This fix resolves an issue where the model threw an empty-response error when trying to use tools it could not handle."
+              },
+              "original": "Changed `/btw` side questions to be able to call tools, such as reading files or searching, showing each call live in the `/btw` card and a `Called N tools` summary once the answer is done, while any tool call that would ask for permission is denied automatically; this fixes side questions failing with an empty-response error when the model wanted to use a tool."
+            },
+            {
+              "title": {
+                "zh-TW": "Auto 模式放寬安全指令審查，減少不必要的授權確認",
+                "en": "Auto mode relaxes review for safe commands to reduce unnecessary confirmations"
+              },
+              "body": {
+                "zh-TW": "啟用 Auto 模式讓代理自主執行多步驟任務時，原本頻繁跳出的確認詢問常打斷工作節奏。⟦有如經驗豐富的辦公室警衛，以前即使是倒垃圾或收發已登記的常規包裹，每隔一會兒都要敲門請你簽字；現在面對常態且安全的動作，他給自己設了時限，也少來敲你的門。⟧針對即將離開終端機沙盒的指令，Auto 模式的審查現在會逾時，對安全指令也更少跳出詢問。這些被認可的安全動作包含：未要求審查的上傳作業、終止代理自行啟動的任務、從套件庫安裝或移除套件，以及刪除後續可透過版本控制復原的檔案。這讓你能在確保安全的前提下，更順暢地讓代理獨立完成任務。",
+                "en": "When enabling Auto mode to let the agent independently run multi-step tasks, frequent confirmation prompts used to break your workflow. ⟦An experienced office security guard illustrates the shift well. Where he previously knocked on your door for signatures every few minutes even for taking out trash or logging routine deliveries, he now sets a time limit for standard, safe tasks and knocks far less often.⟧ For commands that would leave the terminal sandbox, Auto mode review now times out and prompts less often for safe commands. These approved safe actions include uploads that do not request review, stopping tasks the agent started itself, installing or removing packages from a registry, and deleting files that can later be restored through version control. This lets you allow the agent to complete tasks independently and smoothly while preserving safety."
+              },
+              "original": "Improved Auto mode's review of commands that would leave the terminal sandbox so it times out and asks less often on safe commands, such as uploads that don't request a review, stopping a job the agent started, installing or removing packages from a registry, and removing files that can be restored from version control."
+            },
+            {
+              "title": {
+                "zh-TW": "終端機介面調整：選單選項更名為全螢幕，修復 diff 摺疊線與復原鍵錯誤",
+                "en": "Terminal UI adjustments: full screen menu rename, diff fold divider fixes, and undo key fixes"
+              },
+              "body": {
+                "zh-TW": "在終端機檢視檔案差異或切換輸入模式時，幾處顯示與按鍵操作細節獲得了修正。在 `/config` 的 `Rendering Mode` 中，原本名為 `no flickering (altscreen)` 的選項已更名為 `full screen (altscreen)`，已儲存設定維持不變。\n\n修復 `/diff` 在新檔案或從第 1 行修改時，會在最上方繪製多餘且無摺疊內容的 `↕ ···` 空白摺疊線。另外修復在輸入框按復原鍵會喚回已送出訊息，以及在 `!` Shell 或 `:` 搜尋模式按復原會叫回文字並在按 `Enter` 後誤跑指令或搜尋的問題。⟦就像在通訊軟體打草稿，按復原鍵只會抹掉剛打的字，絕不會把你五分鐘前早就發出去的舊訊息又撈回來重傳。⟧",
+                "en": "When inspecting file differences or switching input modes in the terminal, several display and keystroke details have been refined. In `/config` under `Rendering Mode`, the previous `no flickering (altscreen)` option has been renamed. It is now called `full screen (altscreen)`, while saved settings remain unchanged.\n\nFixed `/diff` drawing an empty `↕ ···` fold divider at the top of new files and edits starting at line 1, where nothing was folded away. In addition, fixed pressing undo in the prompt bringing back already-sent messages, as well as undo in `!` Shell or `:` search mode restoring text that `Enter` would then accidentally run as a command or search. ⟦Drafting a message in a chat app follows the same principle: pressing undo should only erase the words you just typed, never resurrecting an old message you already sent five minutes ago to transmit again.⟧"
+              },
+              "original": "Changed the `no flickering (altscreen)` option under `Rendering Mode` in `/config` to `full screen (altscreen)`; the saved setting is unchanged.\nFixed `/diff` drawing an empty `↕ ···` fold divider at the top of new files and of edits starting at line 1, where nothing was folded away, and fixed undo in the prompt bringing back a message you had already sent, and undo in `!` shell or `:` search mode bringing back prompt text that `Enter` would then run as a command or search."
+            },
+            {
+              "title": {
+                "zh-TW": "修復模型連線與外掛更新問題：安全過濾死循環、錯誤重試與更新路徑",
+                "en": "Fix model connection and plugin update bugs: safety filter loops, error retries, and upgrade paths"
+              },
+              "body": {
+                "zh-TW": "使用外部金鑰連接模型或讓外掛自動升級時，先前幾處例外處理的缺陷已獲得修正。使用 `GEMINI_API_KEY` 連線時，若觸發 API 安全過濾機制，過去會陷入無限重送提示的死循環，現在會顯示內容過濾訊息並結束該輪對話；該連線下的 `pro` 與 `flash` 子代理先前誤用落後兩代的老模型，現已修正為 Gemini 4 Argon 與 Gemini 3.8 Flash。\n\n特定模型遇到速率限制（`429`）與伺服器 `5xx` 錯誤時不再直接失敗，現在會依據伺服器的 `Retry-After` 標頭自動重試。\n\n若外掛安裝於不同名稱的資料夾（例如重新命名後），過去每次啟動都會寫入新目錄並重試更新，現在已修正為在現有資料夾就地更新。⟦跟整修老房子一樣，施工隊會認準原址就地翻新，不再因為招牌換了就每次都跑到空地另外蓋一間新屋。⟧",
+                "en": "When connecting to models with external keys or letting plugins upgrade automatically, several previous exception-handling flaws have been resolved. When connecting with a `GEMINI_API_KEY`, triggering API safety filters previously caused an endless loop of re-sending prompts. The turn now ends with a content-filter message. On that same connection, `pro` and `flash` subagents previously ran models two generations older, which has now been corrected to Gemini 4 Argon and Gemini 3.8 Flash.\n\nInstead of failing outright on rate-limit (`429`) and server `5xx` errors, certain models now retry automatically based on the server's `Retry-After` header.\n\nFor plugins installed under a different folder name, such as after a rename, startup previously wrote to a new directory and retried upgrading every time. This has now been fixed to update the existing folder in place. ⟦Renovating an old house works the same way. The construction crew commits to renovating right on the original site, rather than running off to an empty lot to build an entirely new house every time the sign changes.⟧"
+              },
+              "original": "Fixed conversations using a `GEMINI_API_KEY` re-sending a prompt forever when the API's safety filter blocks it, which now ends the turn with a content-filter message, and the `pro` and `flash` subagents on that connection running models two generations older instead of Gemini 4 Argon and Gemini 3.8 Flash.\nFixed certain models failing a turn on rate-limit (`429`) and server (`5xx`) errors instead of retrying them, now honoring the server's `Retry-After` header, and fixed plugin auto-upgrades of a plugin installed under a different folder name, such as after a rename, writing to a new folder and retrying on every startup instead of updating the existing folder in place."
             }
           ]
         },
         "badges": [
           "new",
+          "new",
+          "new",
+          "new",
+          "new",
+          "new",
+          "new",
+          "fix",
           "fix"
         ]
       },
