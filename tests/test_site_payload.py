@@ -260,7 +260,7 @@ def test_english_pages_and_language_links(
     assert 'zh-TW title' not in en
     assert 'zh-TW body' not in en
     assert 'aria-label="Page path"' in en
-    assert 'Released: 2026-07-25' in en
+    assert 'Released: <time datetime="2026-07-25">2026-07-25</time>' in en
     assert 'aria-label="Version navigation"' in en
     assert 'aria-label="Back to top" title="Back to top"' in en
     assert "Back to interactive view" in en

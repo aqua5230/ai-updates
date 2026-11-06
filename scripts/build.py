@@ -756,6 +756,7 @@ PAGE_CSS = """\
     h1{margin:0;font:500 var(--fs-xl)/1.3 var(--font-ui);font-weight:300}
     .version-heading{font-family:var(--font-ui);font-size:clamp(3rem,3rem,3rem);font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-0.03em}
     .release-period{margin:.75rem 0 0;color:var(--muted-color);font:400 var(--fs-xs)/1.5 var(--font-ui);line-height:1.5}
+    .release-period time{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
     .language-section{margin:0 0 2.5rem}
     .language-section>h2{margin:0 0 1rem;font:500 var(--fs-lg)/1.5 var(--font-ui);color:var(--muted-color)}
     .language-section:lang(en)>h2{letter-spacing:.06em}
@@ -771,9 +772,10 @@ PAGE_CSS = """\
     .badge-perf{background:var(--badge-bg);color:var(--muted-color);border:1px solid currentColor}
     .log-item-title{margin:0;text-wrap:pretty;flex-basis:100%;font-family:var(--font-ui);font-size:var(--fs-xl);font-weight:600;line-height:1.4;color:var(--text-bright)}
     .log-item-title:lang(en){letter-spacing:normal}
-    .log-lead-text{margin:0 0 .5rem;font:400 var(--fs-md)/1.7 var(--font-ui);color:var(--text-color);white-space:pre-line;font-family:var(--font-ui);font-size:var(--fs-md);font-weight:400;line-height:1.75}
+    .log-lead-text{margin:0;font:400 var(--fs-md)/1.7 var(--font-ui);color:var(--text-color);white-space:pre-line;font-family:var(--font-ui);font-size:var(--fs-md);font-weight:400;line-height:1.75}
     .log-prose-text{margin:.5rem 0 0;white-space:pre-line;color:var(--text-color);font-size:var(--fs-md);font-weight:400;line-height:1.75}
     .log-prose-text:first-of-type{margin-top:0;color:var(--text-color)}
+    .log-lead-text + .log-prose-text,.log-prose-text + .log-prose-text{margin-top:.5rem}
     code{font:var(--fs-sm)/1.5 var(--font-mono);overflow-wrap:anywhere;word-break:break-word;line-height:1.5;font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:400;background:var(--inline-code-fill);border:1px solid var(--inline-code-border);color:var(--accent-color);border-radius:5px;padding:2px 6px}
     pre{max-width:100%;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
     .log-code-block{max-width:100%;margin:.75rem 0 0;padding:.75rem;overflow-x:auto;color:var(--text-color);background:var(--code-bg);border:0;border-radius:10px;font:var(--fs-sm)/1.5 var(--font-mono);font-family:var(--font-mono)}
@@ -810,7 +812,7 @@ PAGE_CSS = """\
     }
     @media (max-width:480px){
 
-    .page-shell{width:min(100% - 1.5rem,46rem);padding:1.5rem 0 4rem}
+    .page-shell{width:min(100% - 2rem,46rem);padding:1.5rem 0 4rem}
     .page-header{padding-bottom:1.5rem;margin-bottom:2.5rem;border-bottom:0}
     .language-section{margin-bottom:2rem}
     .log-item-title{flex-basis:100%}
@@ -1003,7 +1005,7 @@ def _render_static_page(
   {GOATCOUNTER_SCRIPT}
 </head>
 <body>
-  <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="{'Page path' if english else '頁面路徑'}"><ol><li><a href="{SITE_URL}">AI Updates</a></li><li><a href="{SITE_URL}#{tool_id}">{escape(name)}</a></li><li aria-current="page">{escape(version_name)}</li></ol></nav><h1 class="version-heading">{escape(name)} {escape(version_name)}</h1><p class="release-period">{'Released: ' if english else '發布日期：'}{escape(period)}</p></header><main>{language_sections}</main><footer><nav aria-label="{'Version navigation' if english else '版本導覽'}"><a href="{SITE_URL}#{tool_id}/{version_name}">{'Back to interactive view' if english else '回到互動版'}</a>{previous_link}{next_link}{language_link}</nav></footer></div><button class="back-to-top" id="back-to-top" type="button" aria-label="{'Back to top' if english else '回到頂端'}" title="{'Back to top' if english else '回到頂端'}" hidden><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+  <div class="page-shell"><header class="page-header"><nav class="breadcrumb" aria-label="{'Page path' if english else '頁面路徑'}"><ol><li><a href="{SITE_URL}">AI Updates</a></li><li><a href="{SITE_URL}#{tool_id}">{escape(name)}</a></li><li aria-current="page">{escape(version_name)}</li></ol></nav><h1 class="version-heading">{escape(name)} {escape(version_name)}</h1><p class="release-period">{'Released: ' if english else '發布日期：'}<time datetime="{_period_end_date(period)}">{escape(period)}</time></p></header><main>{language_sections}</main><footer><nav aria-label="{'Version navigation' if english else '版本導覽'}"><a href="{SITE_URL}#{tool_id}/{version_name}">{'Back to interactive view' if english else '回到互動版'}</a>{previous_link}{next_link}{language_link}</nav></footer></div><button class="back-to-top" id="back-to-top" type="button" aria-label="{'Back to top' if english else '回到頂端'}" title="{'Back to top' if english else '回到頂端'}" hidden><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
   <script>const backToTop=document.getElementById("back-to-top"),reducedMotion=matchMedia("(prefers-reduced-motion: reduce)");function updateBackToTop(){{backToTop.hidden=scrollY<=innerHeight*2}}addEventListener("scroll",updateBackToTop,{{passive:true}});updateBackToTop();backToTop.addEventListener("click",()=>scrollTo({{top:0,behavior:reducedMotion.matches?"auto":"smooth"}}));</script>
 </body>
 </html>
