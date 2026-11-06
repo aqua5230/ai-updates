@@ -23,6 +23,20 @@ def test_parse_claude_changelog_fixture() -> None:
     ]
 
 
+def test_parse_markdown_changelog_stops_at_non_version_heading() -> None:
+    text = """## 1.2.0
+- Shipped one feature.
+- Fixed one bug.
+
+## Migration notes
+- This is guidance, not a release entry.
+"""
+
+    assert fetch.parse_markdown_changelog(text) == [
+        ("1.2.0", ["Shipped one feature.", "Fixed one bug."])
+    ]
+
+
 def test_parse_keepachangelog_stops_at_non_version_heading() -> None:
     text = """## [1.2.3] - 2026-07-13
 - Shipped one feature.

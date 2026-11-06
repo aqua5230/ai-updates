@@ -38,7 +38,7 @@ GROK_CHANGELOG_URL = "https://x.ai/changelog/build"
 GROK_READER_URL = f"https://r.jina.ai/{GROK_CHANGELOG_URL}"
 MUSE_CHANGELOG_URL = "https://dev.meta.ai/docs/muse-code/changelog"
 MUSE_VERSION = re.compile(r"^\d+(\.\d+)+$")
-VERSION_HEADING = re.compile(r"^##\s+\[?[vV]?([^\]\s]+)\]?(?:\s|$)")
+VERSION_HEADING = re.compile(r"^##\s+\[?[vV]?(\d[^\]\s]*)\]?(?:\s|$)")
 KEEPACHANGELOG_HEADING = re.compile(
     r"^##\s+\[([^\]]+)\]\s*-\s*(\d{4}-\d{2}-\d{2})\s*$"
 )
