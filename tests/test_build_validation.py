@@ -241,7 +241,7 @@ def test_build_uses_period_end_date_for_static_metadata(
     sitemap = (tmp_path / "docs" / "sitemap.xml").read_text(encoding="utf-8")
     assert '"datePublished": "2026-07-11"' in page
     assert "<lastmod>2026-07-11</lastmod>" in sitemap
-    assert "發布日期：2026-07-08 ~ 07-11" in page
+    assert '發布日期：<time datetime="2026-07-11">2026-07-08 ~ 07-11</time>' in page
 
 
 def test_badge_treats_reverted_lines_as_fixes() -> None:
