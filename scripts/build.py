@@ -745,7 +745,7 @@ PAGE_CSS = """\
     a{color:var(--link-color)}
     a:focus-visible,summary:focus-visible{outline:2px solid var(--accent-color);outline-offset:3px;border-radius:3px}
     .page-shell{width:min(100% - 2rem,46rem);margin:0 auto;padding:4rem 0 5rem;overflow-wrap:anywhere;word-break:break-word;position:relative;z-index:1}
-    .page-header{padding:0 0 2rem;border-bottom:0;margin-bottom:2.5rem}
+    .page-header{padding:0 0 1.5rem;border-bottom:0;margin-bottom:2rem}
     .breadcrumb{margin:0 0 .5rem;font:500 var(--fs-xs)/1.5 var(--font-ui);line-height:1.5}
     .breadcrumb ol{display:flex;flex-wrap:wrap;align-items:center;margin:0;padding:0;list-style:none}
     .breadcrumb li{display:flex;align-items:center;min-height:var(--control-sm);color:var(--muted-color)}
@@ -776,6 +776,7 @@ PAGE_CSS = """\
     .log-prose-text{margin:.5rem 0 0;white-space:pre-line;color:var(--text-color);font-size:var(--fs-md);font-weight:400;line-height:1.75}
     .log-prose-text:first-of-type{margin-top:0;color:var(--text-color)}
     .log-lead-text + .log-prose-text,.log-prose-text + .log-prose-text{margin-top:.5rem}
+    .log-item-card code:not(pre code){display:inline-block;max-width:100%;vertical-align:baseline;white-space:normal}
     code{font:var(--fs-sm)/1.5 var(--font-mono);overflow-wrap:anywhere;word-break:break-word;line-height:1.5;font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:400;background:var(--inline-code-fill);border:1px solid var(--inline-code-border);color:var(--accent-color);border-radius:5px;padding:2px 6px}
     pre{max-width:100%;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
     .log-code-block{max-width:100%;margin:.75rem 0 0;padding:.75rem;overflow-x:auto;color:var(--text-color);background:var(--code-bg);border:0;border-radius:10px;font:var(--fs-sm)/1.5 var(--font-mono);font-family:var(--font-mono)}
@@ -813,7 +814,7 @@ PAGE_CSS = """\
     @media (max-width:480px){
 
     .page-shell{width:min(100% - 2rem,46rem);padding:1.5rem 0 4rem}
-    .page-header{padding-bottom:1.5rem;margin-bottom:2.5rem;border-bottom:0}
+    .page-header{padding-bottom:1rem;margin-bottom:2rem;border-bottom:0}
     .language-section{margin-bottom:2rem}
     .log-item-title{flex-basis:100%}
     .log-code-block{padding:.65rem;font:var(--fs-sm)/1.5 var(--font-mono);border-radius:10px;border:0;background:var(--code-bg);font-family:var(--font-mono)}
