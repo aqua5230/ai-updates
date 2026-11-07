@@ -1460,128 +1460,117 @@
       "id": "agy",
       "name": "Antigravity",
       "latest": {
-        "version": "1.5.2",
+        "version": "1.5.3",
         "raw": {
-          "version": "1.5.2",
-          "period": "2026-11-06",
+          "version": "1.5.3",
+          "period": "2026-11-07",
           "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-          "fetched_at": "2026-11-06",
+          "fetched_at": "2026-11-07",
           "entries": [
-            "Added skills from the cloud plugins you connected with `/plugin` to `--remote-agent` sessions, so they now appear in the `/` menu and can be typed at the start of a message, `/skills` lists them grouped by plugin under `Remote agent skills`, and `/skills reload` lists them again.",
-            "Changed the default for macOS Option-key shortcuts such as `alt+m`, which now work out of the box without setting Option to act as Alt in your terminal, where previously pressing them did nothing or typed a character such as `µ`; set `AGY_CLI_MAC_OPTION_AS_ALT=0` to go back to the old behavior.",
-            "Changed `--dangerously-skip-permissions` so commands on the built-in list of protected commands are no longer approved automatically and go through the usual checks, while every other command still runs without asking.",
-            "Changed `--dangerously-skip-permissions` and plugin agents set to auto-allow so they no longer approve terminal commands or file access outside the workspace when your Gemini Enterprise administrator requires those to be reviewed, and headless runs now deny such requests instead.",
-            "Changed the prompt shown when the agent asks for access to a file outside the workspace, which now reads `Allow access to this file?` and offers to always allow or deny that one path for the conversation or in `settings.json`, instead of turning on access to everything outside the workspace.",
-            "Improved `agy -p` runs so they no longer make a background model request to generate a conversation title that print mode never shows.",
-            "Improved Remote Control connections, which now retry a brief network or server error while setting up a new connection instead of dropping it.",
-            "Improved `agy plugin validate` so an unknown field under `extensions[\"com.google.antigravity\"]` in `plugin.json` is reported as a warning that the field is ignored instead of an error, and the plugin's other extension settings are still checked.",
-            "Improved protection against malicious plugins: `agy plugin` import, install, uninstall, enable, and disable now reject plugin names that are not safe file names with `invalid plugin name`, and refuse to write outside the plugins folder or through symbolic links, so an imported plugin can no longer overwrite other configuration files such as `mcp_config.json`.",
-            "Improved protection against untrusted repositories: plugins and skills listed in a workspace's `.agents/plugins.json` or `.agents/skills.json` now load only from inside the workspace or its repository root, and entries that point elsewhere through absolute paths, `../`, or symbolic links are skipped.",
-            "Fixed subagents stalling for about 60 seconds on file permissions under `--dangerously-skip-permissions`, so reads and writes outside the workspace now go through without a prompt, and headless `-p` runs with the flag no longer wait on any remaining interaction, while your explicit deny rules still apply.",
-            "Fixed signing in to an MCP server that uses OAuth failing with `Invalid PKCE code_verifier` when the server reconnected during sign-in, such as when `/mcp` reloaded servers or a new turn started, so the sign-in link you already opened keeps working.",
-            "Fixed MCP tools that declare their own `explanation`, `toolSummary`, `toolAction`, or `waitForPreviousTools` parameter receiving calls without that argument, so the value the model sends now reaches the tool.",
-            "Fixed the agent re-running a failed turn in a rapid loop when messages were queued at the moment it hit an error, so queued messages now wait for your next message.",
-            "Fixed the `/` menu listing the commands and skills of a default agent instead of those of the agent the session actually runs, so in `agy acp` sessions it now shows that session's agent, including a custom agent's commands.",
-            "Fixed adding PDFs, other binary files, or files larger than about 8 MB to a remote project from `/projects` in `--remote-agent` sessions, which failed and now upload successfully.",
-            "Fixed voice dictation in Chinese and Japanese showing a space between every character in the live draft before the final transcript arrived, and fullwidth Latin words losing the spaces between them."
+            "Added each subagent's model next to its name in the subagent rows above the prompt and in `/agents` (hidden on narrow terminals), with the full model and effort in a subagent's detail view, and a `model` field on each `subagents` entry in the status line JSON; `/agents` now shows a single `Tip: Press enter on a subagent to view details.` line instead of repeating `[view details]` on every row.",
+            "Added the `PLUGIN_ROOT` and `PLUGIN_DATA` environment variables to hook commands that come from a plugin, pointing to the plugin's folder and its persistent data folder, so plugin hooks can use files bundled with the plugin and keep state between runs; `agy plugin validate` no longer warns that these variables are not set for hooks.",
+            "Changed the error shown when Vertex AI reports that the selected model does not exist or that your Google Cloud project cannot use it, which now reads `The requested model was not found, or your project does not have access to it.` instead of the raw API error.",
+            "Improved the plugin sign-in screen in `/plugin`, which now indents the sign-in link like the surrounding text and sets it apart with a blank line, no longer underlines trailing blank space in wrapped links, and uses the plugin's display name from `plugin.json`, such as `Canva` instead of `canva`.",
+            "Improved `agy plugin validate` so the `category` field in `plugin.json` is accepted instead of reported as an unknown field, with a warning only when it is not a non-empty string.",
+            "Improved auto-generated conversation titles, which now keep abbreviations and acronyms from your request as written instead of guessing what they stand for.",
+            "Fixed `agy plugin uninstall`, `agy plugin enable`, `agy plugin disable`, and uninstalling from `/plugin` failing for plugins installed as symbolic links, such as plugins installed from Antigravity, or for plugins whose names contain spaces or symbols such as `c++-tools`, and `agy plugin list` shows symlinked plugins again.",
+            "Fixed agent turns failing with `http2: timeout awaiting response headers` when the model took more than 60 seconds to start responding, which are now retried.",
+            "Fixed every model request failing with a 404 error when an enterprise model gateway URL ended in `/v1beta`, even though the model list loaded; a trailing `/v1beta` in the gateway URL is now ignored.",
+            "Fixed the agent's requests to sign in to a plugin being dropped from the conversation, so when a plugin needs a sign-in the CLI now shows a line such as `⚠ The <plugin> plugin needs you to sign in. Open /plugin to sign in.`",
+            "Fixed the agent's file tools mishandling text that is not UTF-8, mostly on Windows: reading a UTF-16 or legacy code-page file now returns its text instead of treating it as binary, edits keep a file's UTF-8 byte order mark or UTF-16 encoding, and PowerShell scripts (`.ps1`, `.psm1`, `.psd1`) with non-ASCII text are written with a UTF-8 byte order mark so Windows PowerShell 5.1 reads them correctly.",
+            "Fixed a message sent during a turn with the `Send Immediately` queued-messages mode briefly disappearing from the conversation and reappearing when it arrived just as the turn ended.",
+            "Fixed hooks receiving a placeholder or empty model name when the session uses a custom model, so hooks now get the name of the model actually in use.",
+            "Fixed files larger than the remote read limit being silently cut off in `--remote-agent` sessions, which now load in full up to 20 MiB and report an error above that instead of showing partial content.",
+            "Fixed `agy acp` sessions exiting before the agent backend finished shutting down when the client closed the connection, which could interrupt saving conversation data.",
+            "Fixed a security issue where a command run in the terminal sandbox could change environment state later loaded by persistent terminal commands run outside the sandbox, and hardened persistent terminal IDs against path traversal.",
+            "Fixed garbled characters in tool-call summaries when the CLI shortens file paths that contain non-ASCII characters.",
+            "Fixed paths that share a prefix with your home directory, such as `/home/alice` when your home is `/home/al`, showing with a mangled `~` prefix in the `/context` file list and the keybindings reset hint."
           ]
         },
         "curated": {
-          "version": "1.5.2",
-          "period": "2026-11-06",
+          "version": "1.5.3",
+          "period": "2026-11-07",
           "items": [
             {
               "title": {
-                "zh-TW": "遠端代理支援雲端擴充技能，放寬專案大檔上傳限制",
-                "en": "Remote agents support cloud plugin skills, lifting upload limits on large project files"
+                "zh-TW": "子代理列出運作模型，詳細畫面可查思考力度",
+                "en": "Subagents List Their Running Models, and Detail Views Show Thinking Effort"
               },
               "body": {
-                "zh-TW": "如果你習慣透過 `--remote-agent` 在遠端主機執行代理任務，常需要搭配外掛技能或上傳規格書等參考資料。現在透過 `/plugin` 連線的雲端擴充套件技能，已經正式支援遠端代理工作階段。這些技能會直接顯示在斜線選單中，在訊息開頭輸入就能直接呼叫。輸入 `/skills` 會依套件分組列在遠端代理技能清單，輸入 `/skills reload` 即可重新整理。⟦跟出海科考的探險船連線一樣，以前通訊受限，既無法調用總部的專家工具箱，傳送高解析海圖還會被中斷；現在遠端船隻能隨時掛載雲端技能，大型觀測檔也能順暢送達。⟧從 `/projects` 新增 PDF、二進位檔案或大於約 8 MB 的檔案到遠端專案時，過去容易上傳失敗，現在都能順利完成上傳。",
-                "en": "If you often run agent tasks on remote hosts with `--remote-agent`, you frequently need plugin skills or have to upload reference materials like specification documents. Cloud plugin skills connected via `/plugin` are now officially supported in remote agent sessions. These skills appear directly in the `/` menu and can be called by typing them at the start of a message. Running `/skills` lists them grouped by plugin under `Remote agent skills`, and running `/skills reload` refreshes the list. ⟦Much like staying in touch with an offshore research expedition, where limited communications once blocked access to headquarters' specialist toolkits and broke transfers of high-resolution nautical charts, the remote vessel can now attach cloud skills anytime and large observation files arrive smoothly.⟧ When adding PDFs, binary files, or files larger than about 8 MB from `/projects` to a remote project, uploads previously failed often, but now complete successfully."
+                "zh-TW": "當你在對話中啟用多個子代理分工時，能一眼看清每位助理背後運作的模型。現在輸入框上方的子代理清單與 `/agents` 列表中，代理名稱旁會直接標註所使用的模型，遇到寬度較窄的終端機則會自動隱藏。⟦就像瀏覽球隊的出賽名單，以前名牌上只印球員名字，看不出誰是主力；現在名字旁直接列出階級，點開詳情還能掌握每位選手的投入程度。⟧進入子代理詳細檢視畫面，還能查看完整模型名稱與思考力度設定。如果你透過 status line（顯示在終端機最底下的狀態列）讀取 JSON 資料，每筆 `subagents` 項目也補上了 `model` 欄位。`/agents` 列表不再每行重複顯示 `[view details]`，改在下方顯示單行 `Tip: Press enter on a subagent to view details.` 提示。",
+                "en": "When delegating tasks to multiple subagents in a conversation, you can immediately see the model running behind each assistant. In the subagent rows above the prompt and in `/agents`, the model in use is now marked directly next to each agent's name, and it is automatically hidden on narrow terminals. ⟦Think of checking a team roster where placards previously showed only player names without revealing starters; now each name displays their tier, and opening details reveals each player's level of effort.⟧ Entering a subagent's detail view also lets you see the full model name and effort setting. If you read JSON data through the status line (the status bar displayed at the bottom of the terminal), a `model` field has also been added to each `subagents` entry. The `/agents` list no longer repeats `[view details]` on every row, instead displaying a single `Tip: Press enter on a subagent to view details.` line below."
               },
-              "original": "Added skills from the cloud plugins you connected with `/plugin` to `--remote-agent` sessions, so they now appear in the `/` menu and can be typed at the start of a message, `/skills` lists them grouped by plugin under `Remote agent skills`, and `/skills reload` lists them again.\nFixed adding PDFs, other binary files, or files larger than about 8 MB to a remote project from `/projects` in `--remote-agent` sessions, which failed and now upload successfully."
+              "original": "Added each subagent's model next to its name in the subagent rows above the prompt and in `/agents` (hidden on narrow terminals), with the full model and effort in a subagent's detail view, and a `model` field on each `subagents` entry in the status line JSON; `/agents` now shows a single `Tip: Press enter on a subagent to view details.` line instead of repeating `[view details]` on every row."
             },
             {
               "title": {
-                "zh-TW": "macOS 的 Option 快捷鍵開箱即用，免額外修改終端機設定",
-                "en": "macOS Option-key shortcuts work out of the box without extra terminal configuration"
+                "zh-TW": "外掛掛鉤支援專屬目錄，驗證工具接納分類欄位",
+                "en": "Plugin Hooks Gain Dedicated Directories, and Validation Accepts Category Field"
               },
               "body": {
-                "zh-TW": "在 Mac 上使用命令列時，想按下 `alt+m` 等組合鍵往往會遇到按鍵無反應或打出特殊符號的困擾。macOS 版本的 Option 組合鍵預設行為迎來更新。以前在終端機裡按 Option 鍵快捷鍵時，若沒有事先把 Option 鍵設定為 Alt 鍵，按下後可能毫無反應，或者直接打出 `µ` 等特殊字元；現在這些快捷鍵開箱就能直接生效，不再需要手動修改終端機偏好設定。⟦像使用新買的遊戲鍵盤一樣，以前得先自行修改按鍵映射才能讓特殊功能鍵生效，現在接上主機就能直接辨識預設捷徑。⟧如果你仍偏好原有的輸入行為，把環境變數 `AGY_CLI_MAC_OPTION_AS_ALT=0` 這個設定設為 0，就會回到舊行為，終端機便維持舊有的按鍵對應規則。",
-                "en": "When using the command line on a Mac, pressing key combinations such as `alt+m` often led to no response or typed unexpected special characters. The default behavior for Option-key combinations on macOS has been updated. Previously, when pressing Option-key shortcuts in your terminal without configuring Option to act as Alt beforehand, pressing them did nothing or directly typed special characters such as `µ`; now these shortcuts work right out of the box without manually changing terminal preferences. ⟦Picture plugging in a newly bought gaming keyboard: previously, you had to reconfigure key mappings yourself before special function keys worked, but now connecting it to the computer immediately recognizes default shortcuts.⟧ If you still prefer the original input behavior, setting the environment variable `AGY_CLI_MAC_OPTION_AS_ALT=0` will return to the old behavior, keeping your terminal's previous key mapping rules."
+                "zh-TW": "開發或客製化外掛時，掛鉤程式現在能精準存取自身檔案並取得運作資訊。來自外掛的掛鉤（hook，特定事件發生時被觸發的小程式）指令，現在新增了 `PLUGIN_ROOT` 與 `PLUGIN_DATA` 兩個環境變數，分別指向外掛所在的目錄與會保留資料的目錄，方便掛鉤使用隨附檔案並在多次執行間保留狀態。執行 `agy plugin validate` 時，不會再針對掛鉤未設定這兩個變數發出警告。\n\n執行 `agy plugin validate` 檢查時，`plugin.json` 設定檔內的 `category` 分類欄位已被正式接納，不再誤報為未知欄位，僅在內容不是非空字串時提出警告。在工作階段使用自訂模型時，過去掛鉤常收到預留位置或空名稱，現在會確實取得當前運作的模型名稱。",
+                "en": "When developing or customizing plugins, hook programs can now accurately access their own files and retrieve runtime information. Hook commands coming from a plugin now add the `PLUGIN_ROOT` and `PLUGIN_DATA` environment variables, pointing respectively to the plugin's folder and its persistent data folder. This allows hooks (small programs triggered by specific events) to use bundled files and preserve state across runs. Running `agy plugin validate` no longer warns that these variables are not set for hooks.\n\nWhen running `agy plugin validate`, the `category` field in the `plugin.json` configuration file is now officially accepted instead of reported as an unknown field, with a warning issued only when it is not a non-empty string. When using a custom model in a session, hooks previously often received a placeholder or empty name, but they now reliably receive the name of the model actually in use."
               },
-              "original": "Changed the default for macOS Option-key shortcuts such as `alt+m`, which now work out of the box without setting Option to act as Alt in your terminal, where previously pressing them did nothing or typed a character such as `µ`; set `AGY_CLI_MAC_OPTION_AS_ALT=0` to go back to the old behavior."
+              "original": "Added the `PLUGIN_ROOT` and `PLUGIN_DATA` environment variables to hook commands that come from a plugin, pointing to the plugin's folder and its persistent data folder, so plugin hooks can use files bundled with the plugin and keep state between runs; `agy plugin validate` no longer warns that these variables are not set for hooks.\nImproved `agy plugin validate` so the `category` field in `plugin.json` is accepted instead of reported as an unknown field, with a warning only when it is not a non-empty string.\nFixed hooks receiving a placeholder or empty model name when the session uses a custom model, so hooks now get the name of the model actually in use."
             },
             {
               "title": {
-                "zh-TW": "跳過權限模式增設安全防線，保護高風險指令並排除子代理停頓",
-                "en": "Permission-skipping mode adds safety guardrails, protecting high-risk commands and resolving subagent stalls"
+                "zh-TW": "外掛管理支援符號連結，登入畫面與提示排版整齊",
+                "en": "Plugin Management Supports Symlinks, Tidying Sign-In Screens and Prompts"
               },
               "body": {
-                "zh-TW": "當你啟用 `--dangerously-skip-permissions` 參數跑自動化任務時，高風險操作與工作區邊界有了更清楚的防線。⟦類似拿著快速通行證進出廠區，以前只要出示證件就能進入所有庫房；現在特定管制區與管理規定仍需查驗，但一般走道上的隨行助理不再被警衛無端攔下盤查。⟧該模式不再自動放行內建清單中的受保護指令，這些指令會恢復一般審核，其餘指令仍照常免詢問執行。若企業管理員要求工作區外的指令或檔案存取必須經過審查，`--dangerously-skip-permissions` 與設為自動放行的外掛代理都不會跳過；無頭模式（headless，沒有終端機視覺介面的執行模式）則會直接拒絕此類請求。子代理在此模式下存取工作區外檔案時，先前會卡頓約 60 秒、卡在檔案權限上，現在讀寫均可直接通行，搭配 `-p` 也不再停頓，自訂的明確拒絕規則仍維持有效。",
-                "en": "When you enable `--dangerously-skip-permissions` to run automated tasks, high-risk operations and workspace boundaries have clearer guardrails. ⟦Think of how a fast pass works in a factory facility: previously, flashing your badge opened every storeroom, but now restricted zones and governance policies still require verification while accompanying assistants in common corridors are no longer needlessly stopped by guards.⟧ The mode no longer automatically approves commands on the built-in protected list, which now return to normal review, while other commands continue to run without asking. If enterprise administrators require commands or file access outside the workspace to be reviewed, neither `--dangerously-skip-permissions` nor plugin agents set to auto-allow will bypass those checks. In addition, headless mode (running without a terminal visual interface) now directly denies such requests. When subagents accessed files outside the workspace in this mode, they previously stalled for about 60 seconds on file permissions; both reads and writes now proceed directly without prompting, runs with `-p` no longer pause, and custom explicit deny rules remain in effect."
+                "zh-TW": "在終端機安裝、停用或登入各類外掛時，介面排版與特殊路徑的支援都補齊了。如果外掛以符號連結（symlink，指向另一個位置的捷徑檔）方式安裝，或名稱含有空格與符號，過去執行 `agy plugin uninstall`、`agy plugin enable`、`agy plugin disable` 或從 `/plugin` 移除時常會失敗，現在均已修復，且 `agy plugin list` 能重新列出符號連結外掛。\n\n在 `/plugin` 登入畫面中，登入連結會正常縮排並以空行隔開，折行不再替結尾空白加底線，名稱也會改採 `plugin.json` 的顯示名稱。當外掛需要登入時，請求不會再從對話消失，終端機會提示 `⚠ The <plugin> plugin needs you to sign in. Open /plugin to sign in.`。",
+                "en": "When installing, disabling, or signing in to plugins in the terminal, interface layouts and support for special paths are now fully rounded out. If a plugin was installed as a symbolic link (a shortcut pointing to another location) or has a name containing spaces or symbols, running `agy plugin uninstall`, `agy plugin enable`, `agy plugin disable`, or uninstalling from `/plugin` previously often failed; these issues are now fixed, and `agy plugin list` displays symlinked plugins again.\n\nIn the `/plugin` sign-in screen, sign-in links are now properly indented and set apart with a blank line, wrapped links no longer underline trailing blank space, and names use the display name from `plugin.json`. When a plugin requires a sign-in, requests are no longer dropped from the conversation, and the terminal displays a line such as `⚠ The <plugin> plugin needs you to sign in. Open /plugin to sign in.`."
               },
-              "original": "Changed `--dangerously-skip-permissions` so commands on the built-in list of protected commands are no longer approved automatically and go through the usual checks, while every other command still runs without asking.\nChanged `--dangerously-skip-permissions` and plugin agents set to auto-allow so they no longer approve terminal commands or file access outside the workspace when your Gemini Enterprise administrator requires those to be reviewed, and headless runs now deny such requests instead.\nFixed subagents stalling for about 60 seconds on file permissions under `--dangerously-skip-permissions`, so reads and writes outside the workspace now go through without a prompt, and headless `-p` runs with the flag no longer wait on any remaining interaction, while your explicit deny rules still apply."
+              "original": "Improved the plugin sign-in screen in `/plugin`, which now indents the sign-in link like the surrounding text and sets it apart with a blank line, no longer underlines trailing blank space in wrapped links, and uses the plugin's display name from `plugin.json`, such as `Canva` instead of `canva`.\nFixed `agy plugin uninstall`, `agy plugin enable`, `agy plugin disable`, and uninstalling from `/plugin` failing for plugins installed as symbolic links, such as plugins installed from Antigravity, or for plugins whose names contain spaces or symbols such as `c++-tools`, and `agy plugin list` shows symlinked plugins again.\nFixed the agent's requests to sign in to a plugin being dropped from the conversation, so when a plugin needs a sign-in the CLI now shows a line such as `⚠ The <plugin> plugin needs you to sign in. Open /plugin to sign in.`"
             },
             {
               "title": {
-                "zh-TW": "存取工作區外的檔案改為單一授權，不再一次開放全部目錄",
-                "en": "File access outside the workspace switches to single-path authorization, ending broad directory exposure"
+                "zh-TW": "企業模型閘道修復路徑錯誤，模型逾時自動重試",
+                "en": "Enterprise Model Gateways Fix Path Errors, and Model Timeouts Auto-Retry"
               },
               "body": {
-                "zh-TW": "碰到代理需要讀取工作區外部的特定設定檔時，提示視窗不再要求你交出整個外部目錄的控制權。代理請求存取工作區外的檔案時，確認提示會明確顯示 `Allow access to this file?`。你可以針對當前指定的單一路徑，選擇在本次對話中永遠允許或拒絕，或將設定直接寫進 `settings.json`；系統不會再因為單一檔案的請求，就一口氣開放工作區外所有檔案的存取權限。⟦好比向大樓管理員借鑰匙，以前只要借用單一辦公室，就得把整棟大樓的門禁全面解鎖；現在管理員只會精準發放你指名那間會議室的感應卡，離開後其餘房間依然安全上鎖。⟧這讓你在引用公用設定或全域工具時，既能放心放行特定文件，又不必擔心整個硬碟門戶大開。",
-                "en": "When an agent needs to read a specific configuration file outside the workspace, the prompt window no longer asks you to surrender control over the entire external directory. When an agent requests access to a file outside the workspace, the confirmation prompt clearly displays `Allow access to this file?`. You can choose to always allow or deny that single path for the current conversation, or write the setting directly into `settings.json`; the system will no longer open access to all files outside the workspace just because of a single file request. ⟦Consider borrowing keys from a building manager: whereas requesting a single office once required opening up access across the entire building, the manager now issues a keycard solely for your designated conference room, leaving all other rooms securely locked.⟧ When referencing shared configurations or global tools, this lets you confidently approve specific documents without worrying about leaving your entire hard drive wide open."
+                "zh-TW": "連線至雲端模型或企業內部閘道時，網路延遲與路徑設定常影響對話能否順利展開。⟦宛如撥打跨國總機電話，以前只要線路忙線超過一分鐘就被直接切斷，分機號碼多帶斜線還會轉到空號；現在遇上線路延遲會自動重撥，轉接號碼多打尾碼也會自動校正接通。⟧當模型超過 60 秒才開始回傳標頭時，代理不會再以 `http2: timeout awaiting response headers` 中斷失敗，而是會主動重試。若企業模型閘道（gateway）網址結尾帶有 `/v1beta`，系統會自動忽略該後綴，避免請求全數回傳 404 錯誤。透過 Vertex AI 呼叫模型時，若模型不存在或專案無權限，錯誤訊息改以 `The requested model was not found, or your project does not have access to it.` 取代原始 API 報錯。",
+                "en": "When connecting to cloud models or enterprise internal gateways, network latency and path configurations often affect whether conversations start smoothly. ⟦Picture dialing an international switchboard where lines busy for over a minute were abruptly disconnected and an extra slash in the extension forwarded to a dead line; now line delays trigger an automatic redial, and accidental trailing suffixes in the extension are corrected to connect.⟧ When a model takes more than 60 seconds to begin returning response headers, agent turns no longer fail with `http2: timeout awaiting response headers` and are retried instead. If an enterprise model gateway URL ends in `/v1beta`, the system automatically ignores that suffix to prevent every request from failing with a 404 error. When calling models through Vertex AI, if the requested model does not exist or your project lacks permissions, the error message now displays `The requested model was not found, or your project does not have access to it.` instead of the raw API error."
               },
-              "original": "Changed the prompt shown when the agent asks for access to a file outside the workspace, which now reads `Allow access to this file?` and offers to always allow or deny that one path for the conversation or in `settings.json`, instead of turning on access to everything outside the workspace."
+              "original": "Changed the error shown when Vertex AI reports that the selected model does not exist or that your Google Cloud project cannot use it, which now reads `The requested model was not found, or your project does not have access to it.` instead of the raw API error.\nFixed agent turns failing with `http2: timeout awaiting response headers` when the model took more than 60 seconds to start responding, which are now retried.\nFixed every model request failing with a 404 error when an enterprise model gateway URL ended in `/v1beta`, even though the model list loaded; a trailing `/v1beta` in the gateway URL is now ignored."
             },
             {
               "title": {
-                "zh-TW": "修復指令選單與多任務循環錯誤，並強化遠端連線重試機制",
-                "en": "Fixed command menus and queued message retry loops, and strengthened remote connection retries"
+                "zh-TW": "對話標題保留英文縮寫，送出排隊訊息不再閃爍消失",
+                "en": "Conversation Titles Keep Abbreviations, and Queued Messages No Longer Flicker Away"
               },
               "body": {
-                "zh-TW": "日常切換各類執行模式與操控通道時，幾處影響操作流暢度的小毛病現在都已獲得改善。\n\n使用 `agy -p` 執行單次輸出時，不再於背景發送模型請求來生成終端機根本不會顯示的對話標題，省下多餘的模型等待與消耗。\n\n建立遠端控制連線時，若在建立初期遇上短暫的網路波動或伺服器抖動，會主動重新嘗試連線，不再直接中斷離開。\n\n代理執行出錯當下若剛好有排隊中的訊息，先前會陷入連續瘋狂重試的迴圈，現在這些排隊訊息會暫停並等待你的下一道指令。\n\n在 `agy acp` 工作階段中，斜線選單修正為列出當前工作階段代理的指令與技能，自訂代理的專屬工具也能正常顯示，不再誤列預設代理的選項。\n\n以前在這些情境下容易遇到連線驟斷或無效重試，現在各類執行模式都能穩定收尾。",
-                "en": "Several small issues that affected operational smoothness when switching across execution modes and control channels have now been resolved.\n\nRunning single outputs with `agy -p` no longer makes a background model request to generate a conversation title that the terminal never shows, saving redundant model waits and resource usage.\n\nWhen establishing Remote Control connections, encountering brief network fluctuations or server jitter during initial setup now triggers automatic retries instead of immediately dropping the connection.\n\nIf messages were queued at the moment the agent encountered an error, the agent previously entered a rapid retry loop, but those queued messages now pause and wait for your next command.\n\nIn `agy acp` sessions, the `/` menu has been corrected to list the commands and skills of the agent running the session, properly displaying custom agents' dedicated tools instead of mistakenly listing the default agent's options.\n\nWhere sudden disconnections or futile retry loops once occurred in these scenarios, various execution modes now conclude cleanly and reliably."
+                "zh-TW": "日常使用對話視窗交辦任務時，文字顯示與歷史紀錄保存變得更為可靠。現在自動產生的對話標題，會依你在提問中輸入的原樣保留英文簡寫與首字母縮寫，不再自行猜測並展開全名。\n\n當你使用立即送出（Send Immediately）排隊訊息模式時，若在上一輪剛好結束的瞬間送出訊息，過去常在對話中短暫消失又重新出現，這個問題已經修好。\n\n如果你透過 `agy acp` 連線工作階段，過去當用戶端切斷連線時，常在代理後端關閉前過早退出，容易打斷對話紀錄的儲存；這個問題已經修好，對話資料不會再因此在儲存途中被打斷。",
+                "en": "When assigning tasks in daily conversation windows, text display and history retention have become more reliable. Auto-generated conversation titles now preserve abbreviations and acronyms as originally written in your request, without guessing and expanding their full names.\n\nWhen using the `Send Immediately` queued-messages mode, sending a message right as the previous turn ended previously caused it to briefly disappear and reappear in the conversation; this issue is now resolved.\n\nIf you connect to sessions via `agy acp`, client disconnections previously caused sessions to exit prematurely before the agent backend finished shutting down, which could easily interrupt saving conversation history; this issue is now fixed so conversation data is no longer cut short during saving."
               },
-              "original": "Improved `agy -p` runs so they no longer make a background model request to generate a conversation title that print mode never shows.\nImproved Remote Control connections, which now retry a brief network or server error while setting up a new connection instead of dropping it.\nFixed the agent re-running a failed turn in a rapid loop when messages were queued at the moment it hit an error, so queued messages now wait for your next message.\nFixed the `/` menu listing the commands and skills of a default agent instead of those of the agent the session actually runs, so in `agy acp` sessions it now shows that session's agent, including a custom agent's commands."
+              "original": "Improved auto-generated conversation titles, which now keep abbreviations and acronyms from your request as written instead of guessing what they stand for.\nFixed a message sent during a turn with the `Send Immediately` queued-messages mode briefly disappearing from the conversation and reappearing when it arrived just as the turn ended.\nFixed `agy acp` sessions exiting before the agent backend finished shutting down when the client closed the connection, which could interrupt saving conversation data."
             },
             {
               "title": {
-                "zh-TW": "擴充套件防範惡意路徑穿越，阻擋符號連結並放寬欄位驗證",
-                "en": "Plugins guard against malicious path traversal, blocking symbolic links and relaxing field validation"
+                "zh-TW": "檔案工具支援舊版編碼頁，遠端讀取上限放寬至 20 MiB",
+                "en": "File Tools Support Legacy Code Pages, and Remote Read Limit Expands to 20 MiB"
               },
               "body": {
-                "zh-TW": "從外部下載社群擴充套件或開啟陌生的專案儲存庫時，外掛的檔案操作與載入範圍受到更嚴密的防護。⟦如同租借公共置物櫃，以前可能藉由暗道打通鄰近隔間；現在置物櫃加裝防護鋼板，嚴禁穿透到其他櫃位，標籤格式不符也只會貼上警告而非直接退件。⟧`agy plugin` 的各項指令會拒絕不安全的套件名稱並回報 `invalid plugin name`，且禁止寫入套件資料夾外或透過符號連結（symlink，指向另一個位置的捷徑檔）寫入，防止惡意套件覆寫 `mcp_config.json` 等設定檔。工作區內的 `.agents/plugins.json` 與 `.agents/skills.json` 限制僅能從工作區或儲存庫內部載入，以絕對路徑、`../` 或捷徑指向外部的項目一律略過。而 `agy plugin validate` 遇到未知欄位時改為發出警告並略過，其餘擴充設定照常檢查。",
-                "en": "When downloading community plugins from external sources or opening unfamiliar repositories, plugin file operations and loading boundaries are now more tightly protected. ⟦Public storage lockers provide a useful parallel: where hidden passages might once have broken through adjacent compartments, lockers now feature steel reinforcement plates that strictly prevent breaches into neighboring units, while nonconforming label formats merely receive a warning rather than outright rejection.⟧ Commands under `agy plugin` reject unsafe plugin names with `invalid plugin name`, and refuse to write outside the plugins folder or through symbolic links (shortcut files pointing to another location), preventing malicious plugins from overwriting configuration files such as `mcp_config.json`. Items listed in a workspace's `.agents/plugins.json` or `.agents/skills.json` are restricted to load only from within the workspace or repository root, and entries pointing externally via absolute paths, `../`, or shortcuts are skipped. In addition, when `agy plugin validate` encounters unknown fields, it now emits a warning and skips them while checking remaining extension settings normally."
+                "zh-TW": "當代理在不同系統間讀取程式碼或路徑時，非標準編碼與長路徑常引發解析異常。在 Windows 環境下，檔案工具讀取 UTF-16 與傳統編碼頁文字時不再誤判為二進位檔，編輯時也會保留 UTF-16 編碼或既有的 UTF-8 位元組順序記號（BOM）。寫入含非 ASCII 字元的 PowerShell 腳本時也會加上 UTF-8 BOM，讓 Windows PowerShell 5.1 能正確讀取。\n\n使用 `--remote-agent` 遠端工作階段時，超過讀取限制的檔案不再被悄悄截斷，最高可完整讀取 20 MiB，超過上限則明確報錯。此外，工具呼叫摘要縮短非 ASCII 路徑時已修正亂碼，路徑與家目錄前綴重疊時也不再於 `/context` 清單顯示損壞的 `~` 符號。",
+                "en": "When the agent reads code or paths across different systems, non-standard encodings and long paths often trigger parsing anomalies. On Windows, file tools reading UTF-16 and legacy code-page text no longer misidentify files as binary, and edits preserve UTF-16 encoding or existing UTF-8 byte order marks (BOMs). Writing PowerShell scripts containing non-ASCII characters also attaches a UTF-8 BOM so that Windows PowerShell 5.1 can read them properly.\n\nIn `--remote-agent` remote sessions, files exceeding the read limit are no longer silently truncated, loading fully up to 20 MiB and reporting a clear error above that limit. In addition, garbled characters have been fixed when tool-call summaries shorten paths containing non-ASCII characters, and paths sharing a prefix with your home directory no longer show a broken `~` symbol in the `/context` list."
               },
-              "original": "Improved `agy plugin validate` so an unknown field under `extensions[\"com.google.antigravity\"]` in `plugin.json` is reported as a warning that the field is ignored instead of an error, and the plugin's other extension settings are still checked.\nImproved protection against malicious plugins: `agy plugin` import, install, uninstall, enable, and disable now reject plugin names that are not safe file names with `invalid plugin name`, and refuse to write outside the plugins folder or through symbolic links, so an imported plugin can no longer overwrite other configuration files such as `mcp_config.json`.\nImproved protection against untrusted repositories: plugins and skills listed in a workspace's `.agents/plugins.json` or `.agents/skills.json` now load only from inside the workspace or its repository root, and entries that point elsewhere through absolute paths, `../`, or symbolic links are skipped."
+              "original": "Fixed the agent's file tools mishandling text that is not UTF-8, mostly on Windows: reading a UTF-16 or legacy code-page file now returns its text instead of treating it as binary, edits keep a file's UTF-8 byte order mark or UTF-16 encoding, and PowerShell scripts (`.ps1`, `.psm1`, `.psd1`) with non-ASCII text are written with a UTF-8 byte order mark so Windows PowerShell 5.1 reads them correctly.\nFixed files larger than the remote read limit being silently cut off in `--remote-agent` sessions, which now load in full up to 20 MiB and report an error above that instead of showing partial content.\nFixed garbled characters in tool-call summaries when the CLI shortens file paths that contain non-ASCII characters.\nFixed paths that share a prefix with your home directory, such as `/home/alice` when your home is `/home/al`, showing with a mangled `~` prefix in the `/context` file list and the keybindings reset hint."
             },
             {
               "title": {
-                "zh-TW": "MCP 協定修復 OAuth 重新連線錯誤，並完整傳遞工具自訂參數",
-                "en": "MCP protocol fixes OAuth reconnection errors and delivers custom tool parameters intact"
+                "zh-TW": "隔離終端機沙盒環境狀態，強化連線識別碼安全性",
+                "en": "Terminal Sandbox State Is Isolated, Hardening Connection ID Security"
               },
               "body": {
-                "zh-TW": "透過 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）連接伺服器並使用 OAuth 登入時，授權流程與工具溝通現在更加可靠。⟦宛如在線上商城完成多步驟結帳，以前只要分頁在中途重新整理，先前建立的付款金鑰就會失效；現在重整後仍能沿用原本的交易憑證，填寫的寄送備註也能完整送達系統。⟧過去登入採用 OAuth 的 MCP 伺服器時，若因 `/mcp` 重新載入或開啟新對話而重新連線，常會跳出 `Invalid PKCE code_verifier` 錯誤；現在原本打開的登入連結依然有效。若 MCP 工具宣告了 `explanation`、`toolSummary`、`toolAction` 或 `waitForPreviousTools` 參數，先前呼叫常漏傳這些引數，現在模型發送的數值都能確實送達工具。",
-                "en": "When connecting to servers via MCP (Model Context Protocol, an open standard connecting AI models to external tools) and signing in with OAuth, authorization workflows and tool communications are now significantly more reliable. ⟦Imagine completing a multi-step checkout at an online storefront: previously, refreshing the tab midway invalidated the established payment key; now the original transaction credentials remain valid after a refresh, and custom shipping notes reliably reach the system.⟧ When signing in to an MCP server that uses OAuth, if a reconnection occurred due to `/mcp` reloading servers or starting a new turn, an `Invalid PKCE code_verifier` error previously appeared; now the originally opened sign-in link remains valid. Furthermore, if an MCP tool declared its own `explanation`, `toolSummary`, `toolAction`, or `waitForPreviousTools` parameters, calls previously omitted these arguments, but values sent by the model now reach the tool intact."
+                "zh-TW": "當你在終端機沙盒中執行不受信任的指令時，本機環境的隔離防護變得更為嚴密。⟦如同在密閉防護艙內試驗原料，以前艙內殘留的氣體可能滲漏到外部常態作業區，控制台識別碼也缺乏防護；現在內部操作徹底阻斷外洩，終端編號也強化防禦以防止越區穿透。⟧過去在終端機沙盒（sandbox，隔離執行指令的受限環境）內執行的指令，曾可能改動環境狀態，導致沙盒外部執行的常駐終端機指令載入受污染的設定。這個安全問題已經修好，沙盒內的狀態變更不會再影響外部終端機。常駐終端機的連線識別碼也針對路徑遍歷（path traversal）加強了防護。",
+                "en": "When running untrusted commands in a terminal sandbox, local environment isolation becomes significantly tighter. ⟦Like testing raw materials inside a sealed containment chamber where residual gases once leaked into routine work areas outside while console IDs lacked protection, internal operations now thoroughly block leaks and terminal numbers are fortified against cross-zone traversal.⟧ Commands run inside the terminal sandbox (an isolated, restricted environment for running commands) previously could alter environment state, causing persistent terminal commands run outside the sandbox to load contaminated configurations. This security issue has been resolved, so state changes inside the sandbox no longer affect external terminals. Connection IDs for persistent terminals have also been hardened against path traversal."
               },
-              "original": "Fixed signing in to an MCP server that uses OAuth failing with `Invalid PKCE code_verifier` when the server reconnected during sign-in, such as when `/mcp` reloaded servers or a new turn started, so the sign-in link you already opened keeps working.\nFixed MCP tools that declare their own `explanation`, `toolSummary`, `toolAction`, or `waitForPreviousTools` parameter receiving calls without that argument, so the value the model sends now reaches the tool."
-            },
-            {
-              "title": {
-                "zh-TW": "修復中日語音輸入字元間距，全形英文字詞空格不再遺失",
-                "en": "Fixed Chinese and Japanese voice dictation character spacing, preserving spaces between fullwidth Latin words"
-              },
-              "body": {
-                "zh-TW": "使用中文或日文進行語音輸入時，即時聽寫草稿的字元間隔現在顯示得更加自然。以前在最終辨識結果送達前，中文與日文的即時草稿會在每個字元之間硬塞一個空格，而全形英文字詞彼此之間的正常空格反而會無故消失。這個問題已經修復，現在草稿能維持連續排版，全形英文字詞間的空格也能正確保留。",
-                "en": "When using voice dictation in Chinese or Japanese, character spacing in live dictation drafts now appears much more natural. Previously, before the final transcript arrived, live drafts in Chinese and Japanese inserted an unwanted space between every character, while normal spaces between fullwidth Latin words vanished without cause. This issue has been resolved: drafts now maintain continuous typography, and spaces between fullwidth Latin words are correctly preserved."
-              },
-              "original": "Fixed voice dictation in Chinese and Japanese showing a space between every character in the live draft before the final transcript arrived, and fullwidth Latin words losing the spaces between them."
+              "original": "Fixed a security issue where a command run in the terminal sandbox could change environment state later loaded by persistent terminal commands run outside the sandbox, and hardened persistent terminal IDs against path traversal."
             }
           ]
         },
         "badges": [
-          "new",
           "new",
           "new",
           "new",
@@ -2339,130 +2328,75 @@
       "id": "usage",
       "name": "Usage",
       "latest": {
-        "version": "0.34.13",
+        "version": "0.34.15",
         "raw": {
-          "version": "0.34.13",
-          "period": "2026-11-06",
+          "version": "0.34.15",
+          "period": "2026-11-07",
           "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-          "fetched_at": "2026-11-06",
+          "fetched_at": "2026-11-07",
           "entries": [
-            "**Choose quota-alert thresholds from the menu.** \"Usage Alert Notifications\" is now a submenu on macOS and in the Windows tray: an on/off switch plus 50/70/80/90/95% checkmarks. A threshold added below current usage waits for the next real crossing instead of firing at once.",
-            "**The menu tells you when macOS notification permission is off.** An item opens Notification settings, so alerts that would never arrive no longer look enabled.",
-            "**The classic panel is cleaner.** Card titles and project numbers are quieter so percentages and red alerts stand out, the color bar on the left of each card is gone, and the compact layout (four or more quota cards) also tightens the projects card and footer.",
-            "**Codex's \"updated … ago\" label is no longer a warning.** Codex has no live report, so an older reading is normal; every panel theme and the Claude Code side pane now show it in muted text without ⚠. Antigravity keeps its warning, since an old value there means a fetch failed.",
-            "**\"Session\" reads \"5 hours\" in Traditional Chinese, Simplified Chinese, Japanese and Korean.**",
-            "**Beginner mode stops hinting words you type yourself.** If a term such as PR or commit appears in your own message, it no longer comes back as a hint. Asking what a word means (\"launchd 是什麼\") does not count, and marking the term as not understood in the history pane brings it back.",
-            "**After switching Claude accounts with `/login`, the quota reminder no longer reports the previous account's quota as yours.** A new session reuses the last known numbers until its first reply; the status line hook now records which session observed them, and the quota reminder ignores numbers from another session.",
-            "**The quota reminder no longer repeats the same Antigravity warning in one conversation.** Antigravity's reset time drifts by up to a minute between readings, which looked like a new quota window.",
-            "**An older copy of usage no longer downgrades the hooks a newer one installed.** Self-repair used to reinstall any hook whose version differed, so two copies could keep swapping it; it now only upgrades.",
-            "**The Muse quota card no longer spends a model call on every refresh.** With Muse 1.4.13 or later, usage reads the allowance from `muse usage --json`, which runs no model. Older Muse versions, or a window with no reading yet, still fall back to the one-line `muse exec` check.",
-            "**Session handoffs only list commits and edits that succeeded.** A commit rejected by a pre-commit hook or a failed edit no longer shows as done, and `!` shell commands are no longer listed as your last request.",
-            "**Status-line and launch-at-login switches no longer fail silently.** The status-line switch is on only for usage's own hook, a failed install says so, and a refused launch-at-login registration shows the reason.",
-            "**Session hooks are repaired even when another tool owns the Claude status line.** The quota reminder also says when a tool's numbers are an hour or more old and the window may have reset.",
-            "**Quitting the app stops a hung `muse usage` check.**"
+            "**The Antigravity Gemini weekly quota keeps updating on networks that only allow traffic through a proxy.** The pre-launch check from 0.34.14 connected to Google directly, so behind a proxy it always looked offline and the CLI never ran. A configured HTTPS proxy now counts as online; a bare `NO_PROXY` setting still runs the check.",
+            "**The offline check can no longer hold up a refresh when DNS hangs after a wake.** Its 3-second limit now covers the name lookup, not just the connection.",
+            "**The Antigravity auto-start window keeper now follows the Gemini quota, whichever model group the card shows.** It always sends its message to a Gemini model, but decided from the displayed group, so with Claude/GPT or Argon selected it started the window at the wrong time or never.",
+            "**The Gemini weekly quota no longer jumps into the 5-hour row in its last five hours.** When usage falls back to Google's model list, a weekly limit close to its reset was mistaken for a 5-hour one.",
+            "**Signing in to Antigravity again takes effect on the next refresh.** After Google rejected the sign-in, usage kept retrying the rejected token for up to an hour.",
+            "**A damaged Antigravity quota cache no longer hides the card for good.** An unreadable cache file is now moved to `~/.usage/quarantine/` and the quota is fetched fresh.",
+            "**On Windows, the taskbar countdown starts and clears promptly with the panel closed.** It could lag up to five minutes when a quota filled or reset between refreshes."
           ]
         },
         "curated": {
-          "version": "0.34.13",
-          "period": "2026-11-06",
+          "version": "0.34.15",
+          "period": "2026-11-07",
           "items": [
             {
               "title": {
-                "zh-TW": "額度提醒可直接勾選通知門檻",
-                "en": "Choose quota alert thresholds directly from the menu"
+                "zh-TW": "代理網路正常更新額度，喚醒網址查詢不再拖住刷新",
+                "en": "Quotas Update Normally over Proxy Networks, Wake-Up URL Queries No Longer Stall Refreshes"
               },
               "body": {
-                "zh-TW": "請 AI 幫忙改報告時，想提早知道額度快用完，可以先到選單挑提醒的百分比。⟦烤箱以前只有提醒開關，現在可以選好要在哪個刻度響鈴；把提醒刻度設在目前讀數以下，也不會補響，而是等下次真的跨過才提醒。⟧\n\nmacOS 與 Windows 系統匣（集中顯示常駐程式圖示的區域）的「用量提醒通知」改成子選單，裡面有總開關，以及 50／70／80／90／95% 的勾選項目。新加的門檻若低於目前用量，會等下一次實際跨過才通知。\n\nmacOS 的通知權限若已關閉，選單也會說明，並提供直接開啟通知設定的項目。以前可能看見提醒已開啟，實際卻收不到通知，現在能從選單看出是哪裡沒放行。",
-                "en": "When asking AI to help revise a report, you can choose alert percentages from the menu to get an early warning that your quota is running low. ⟦The oven used to have only an alert switch; now you can choose the mark where it rings. Setting the alert mark below the current reading does not make it ring retroactively—it waits until the next actual crossing.⟧\n\n“Usage Alert Notifications” is now a submenu on macOS and in the Windows tray (the area that groups icons for background apps). It includes an on/off switch and checkmarks for 50/70/80/90/95%. A newly added threshold below current usage waits until the next actual crossing before notifying you.\n\nIf macOS notification permission is off, the menu explains this and offers an item that opens Notification settings directly. Previously, alerts could look enabled even though notifications could not arrive; now the menu shows where permission is missing."
+                "zh-TW": "在特定企業內網工作時，你可能需要透過代理伺服器（替電腦轉發對外請求的中介伺服器）連上外部網路。v0.34.14 新增的啟動前檢查會直接連線 Google，導致走代理的環境總被判定成離線，造成工具無法執行。現在只要設定好 HTTPS 代理就會視為連線成功，每週額度也能正常更新，僅設定 `NO_PROXY` 時則照常檢查。⟦宛若大樓警衛核對訪客，以前只認正門直達通道，走接駁車通道就被當成缺席，翻閱名冊卡住時還會堵住入口；現在認可接駁登記，查名冊的時間也計入等待上限。⟧電腦睡眠喚醒若遇到網域名稱查詢卡住，原本 3 秒的上限現在連同查網址的時間一併計算，不再拖住資料刷新。",
+                "en": "When working on certain corporate intranets, you might need to connect to external networks through a proxy server (an intermediary server forwarding outbound requests for a computer). The pre-launch check added in v0.34.14 connected directly to Google, which caused environments behind a proxy to always be judged offline and prevented tools from running. Now, configuring an HTTPS proxy counts as a successful connection and weekly quotas update normally, while setting only `NO_PROXY` continues to run the check as before. ⟦Think of a building security guard checking visitors who previously only recognized the direct front entrance, treated anyone arriving via shuttle bus as absent, and clogged the gate whenever flipping through the guest registry stalled; now shuttle check-ins are recognized, and registry lookup time counts toward the waiting limit.⟧ If a domain name query hangs when waking from computer sleep, the original 3-second limit now includes the URL lookup time as well, no longer stalling data refreshes."
               },
-              "original": "**Choose quota-alert thresholds from the menu.** \"Usage Alert Notifications\" is now a submenu on macOS and in the Windows tray: an on/off switch plus 50/70/80/90/95% checkmarks. A threshold added below current usage waits for the next real crossing instead of firing at once.\n**The menu tells you when macOS notification permission is off.** An item opens Notification settings, so alerts that would never arrive no longer look enabled."
+              "original": "**The Antigravity Gemini weekly quota keeps updating on networks that only allow traffic through a proxy.** The pre-launch check from 0.34.14 connected to Google directly, so behind a proxy it always looked offline and the CLI never ran. A configured HTTPS proxy now counts as online; a bare `NO_PROXY` setting still runs the check.\n**The offline check can no longer hold up a refresh when DNS hangs after a wake.** Its 3-second limit now covers the name lookup, not just the connection."
             },
             {
               "title": {
-                "zh-TW": "classic 面板把額度重點留給百分比與紅色警示",
-                "en": "The classic panel puts quota percentages and red alerts first"
+                "zh-TW": "自動開窗改依 Gemini 額度判斷，切換其他模型組不再誤判時機",
+                "en": "Auto-Start Window Keeper Now Follows Gemini Quota, Switching Model Groups No Longer Misjudges Timing"
               },
               "body": {
-                "zh-TW": "打開 usage 想確認還能用多少額度，最需要先找到的是百分比與警示。classic 面板現在淡化卡片名稱與專案數字，讓百分比和紅色警示突出，卡片左側的色條也拿掉了。\n\n當額度卡有四張以上，精簡版面會連專案卡與底部一起收緊，不只縮小額度卡本身。繁中、簡中、日文與韓文介面裡，原本的「Session」工作階段標籤也改成「5 小時」，直接寫出這欄代表的時間範圍。\n\n⟦像整理一張貼滿彩色標籤的家用帳單，以前標題、編號和應繳金額都搶著吸引目光；現在收起裝飾、淡化旁支資訊，把目光留給要確認的數字。⟧",
-                "en": "When you open usage to check how much quota remains, percentages and alerts are what you need to find first. The classic panel now tones down card titles and project numbers so percentages and red alerts stand out, and removes the color bar on the left of each card.\n\nWith four or more quota cards, the compact layout also tightens the projects card and footer, instead of shrinking only the quota cards themselves. In the Traditional Chinese, Simplified Chinese, Japanese and Korean interfaces, the “Session” label now reads “5 hours,” directly stating the time span this field represents.\n\n⟦Think of tidying a household bill covered in colorful labels: the title, reference number and amount due used to compete for attention. Now the decorations are put away and secondary details toned down, leaving your attention on the numbers you need to check.⟧"
+                "zh-TW": "當你開啟 Antigravity 的自動保持開窗功能時，背後機制會依照額度狀態決定觸發視窗的時間點。⟦跟工廠派車載貨一樣，司機固定駕駛卡車，調度員以前卻看展示架上的小客車油表決定發車，導致在錯的時間出發或乾脆不出勤；現在改看卡車的油量，不再算錯發車時機。⟧該功能一律向 Gemini 模型送出訊息，以前卻依照卡片上目前顯示的模型組來判斷額度。當你選取了 Claude、GPT 或 Argon 模型組時，開窗機制便會在錯誤的時間啟動，甚至完全不開窗。現在開窗判定已經改為直接追蹤 Gemini 的額度，無論介面切換到哪一個模型組，都不會再錯過時機。",
+                "en": "When you enable Antigravity's auto-start window keeper feature, the underlying mechanism determines when to trigger a window based on quota status. ⟦Picture a factory dispatching freight trucks: the driver always operates a truck, but dispatchers previously checked the fuel gauge of a sedan on display to schedule trips, leading to departures at the wrong time or no runs at all; now they monitor the truck's fuel level, no longer miscalculating dispatch timing.⟧ This feature always sends messages to a Gemini model, but previously evaluated quota based on whichever model group the card currently displayed. When you selected the Claude, GPT, or Argon model group, the window mechanism would start at the wrong time or never open at all. Now the windowing decision directly tracks Gemini's quota, so whichever model group the interface switches to, it will no longer miss the timing."
               },
-              "original": "**The classic panel is cleaner.** Card titles and project numbers are quieter so percentages and red alerts stand out, the color bar on the left of each card is gone, and the compact layout (four or more quota cards) also tightens the projects card and footer.\n**\"Session\" reads \"5 hours\" in Traditional Chinese, Simplified Chinese, Japanese and Korean.**"
+              "original": "**The Antigravity auto-start window keeper now follows the Gemini quota, whichever model group the card shows.** It always sends its message to a Gemini model, but decided from the displayed group, so with Claude/GPT or Argon selected it started the window at the wrong time or never."
             },
             {
               "title": {
-                "zh-TW": "Codex 的舊讀數不再掛上警告符號",
-                "en": "Older Codex readings no longer carry a warning symbol"
+                "zh-TW": "Antigravity 額度誤歸類與快取異常已修復，重新登入下一次刷新生效",
+                "en": "Antigravity Quota Misclassification and Cache Anomalies Fixed, Signing In Again Takes Effect on Next Refresh"
               },
               "body": {
-                "zh-TW": "看到 Codex 額度旁寫著「…前更新」，不必光憑這行字就認定讀取出了問題。⟦車站以前把定時公布的時刻表也貼上故障警告，乘客容易誤會；現在把正常的更新時間留作註記，只有該更新卻沒取得資料時才掛警示。⟧\n\nCodex 沒有即時回報，讀數舊一點是正常情況。usage 現在把所有面板主題，以及 Claude Code 側邊面板裡的這個標籤，都改成灰字，並拿掉 ⚠ 符號。你仍看得到資料多久前更新，只是不再被當成異常。\n\nAntigravity 的警告則保留，因為它的舊值代表抓取失敗。兩者雖然都可能顯示較早的數字，背後原因不同，畫面也跟著分開處理。",
-                "en": "Seeing “updated … ago” beside your Codex quota does not, by itself, mean something went wrong with the reading. ⟦A station used to put fault warnings even on timetables published at regular intervals, confusing passengers. Now normal update times stay as notes, and a warning appears only when data was due but could not be obtained.⟧\n\nCodex has no live report, so a slightly older reading is normal. Across all panel themes and in the Claude Code side pane, usage now shows this label in muted text without the ⚠ symbol. You can still see how long ago the data was updated; it is simply no longer treated as a problem.\n\nAntigravity keeps its warning because an old value there means a fetch failed. Both may show older numbers, but the reasons differ, and the display now treats them separately."
+                "zh-TW": "平常查看 Antigravity 的配額時，資料歸類與本機狀態的異常現在都已修正。當 usage 讀取 Google 模型清單作為備援（原本方式行不通時改用的替代方案）時，快要重置的 Gemini 週額度在最後五小時內，過去會被誤認成 5 小時額度而跳到錯的欄位，現在已經不再跳列。\n\n當 Google 拒絕登入時，先前 usage 會拿同一張被拒的授權令牌（驗證身分的存取記號）重複嘗試最長達一小時。現在重新登入 Antigravity 之後，下一次刷新就會直接套用新憑證。\n\n如果本機的額度快取（暫存查詢結果的檔案）發生損壞，過去會讓卡片永久消失。讀不了的檔案現在會自動移至 `~/.usage/quarantine/` 隔離，並重新抓取全新額度。",
+                "en": "When checking Antigravity quotas, anomalies in data classification and local state have now been fixed. When usage reads Google's model list as a fallback (an alternative used when the primary method fails), a Gemini weekly quota close to reset was previously mistaken for a 5-hour quota in its final five hours and jumped into the wrong row, which no longer happens.\n\nWhen Google rejected a sign-in, usage previously kept retrying with the same rejected authorization token (an access credential used to verify identity) for up to an hour. Now after signing in to Antigravity again, the next refresh applies the new credentials directly.\n\nIf the local quota cache (a file temporarily storing query results) was corrupted, it previously caused the card to disappear permanently. Unreadable files are now automatically moved to `~/.usage/quarantine/` for quarantine, and fresh quotas are fetched."
               },
-              "original": "**Codex's \"updated … ago\" label is no longer a warning.** Codex has no live report, so an older reading is normal; every panel theme and the Claude Code side pane now show it in muted text without ⚠. Antigravity keeps its warning, since an old value there means a fetch failed."
+              "original": "**The Gemini weekly quota no longer jumps into the 5-hour row in its last five hours.** When usage falls back to Google's model list, a weekly limit close to its reset was mistaken for a 5-hour one.\n**Signing in to Antigravity again takes effect on the next refresh.** After Google rejected the sign-in, usage kept retrying the rejected token for up to an hour.\n**A damaged Antigravity quota cache no longer hides the card for good.** An unreadable cache file is now moved to `~/.usage/quarantine/` and the quota is fetched fresh."
             },
             {
               "title": {
-                "zh-TW": "新手模式會略過你已主動使用的詞",
-                "en": "Beginner mode skips terms you already use yourself"
+                "zh-TW": "Windows 面板關閉時，工作列倒數即時出現與消失",
+                "en": "On Windows, Taskbar Countdown Appears and Clears Promptly with Panel Closed"
               },
               "body": {
-                "zh-TW": "已經會在訊息裡談 PR 或 commit，卻還一直收到這些詞的解釋，提示就有點多餘了。⟦家教以前只照生字表反覆講解，現在會留意學生自己用出的詞；不過學生開口問意思，仍然算在求教，不會被當成已經學會。⟧\n\n新手模式現在會略過出現在你自己訊息裡的術語，例如 PR（請別人審查並合併修改的請求）不再回來當提示。commit（把一批修改存成版本紀錄）也適用這個規則。\n\n但你若是在問「launchd 是什麼」，這類詢問詞義的訊息不算已經會用，仍可收到解釋。若略過的詞其實還不懂，也能在歷史面板把它標成「不懂」，讓它重新回到提示裡。",
-                "en": "If you already discuss PRs or commits in your messages, repeated explanations of those terms can feel unnecessary. ⟦A tutor used to explain words repeatedly just by following a vocabulary list; now the tutor notices words the student uses independently. But asking what a word means still counts as seeking help, rather than proof that the student has learned it.⟧\n\nBeginner mode now skips terms that appear in your own messages. For example, PR (a request for others to review and merge changes) no longer returns as a hint. The same rule applies to commit (saving a set of changes as a version record).\n\nBut asking “What is launchd?” does not count as already knowing how to use the term, so you can still receive an explanation. If you do not actually understand a skipped term, you can mark it as not understood in the history pane to bring it back into the hints."
+                "zh-TW": "在 Windows 上使用工作列圖示掌握進度時，即使沒打開面板也能即時看見倒數狀態。⟦就像錄音室門外的提示燈號，以前房門關著時，門外燈號更新總慢半拍；現在開關一切換，門外的提示燈立刻同步亮起或熄滅。⟧以前當額度在兩次刷新之間剛好用滿或重置時，只要面板（顯示詳細額度的快顯視窗）處於關閉狀態，工作列上的倒數計時最多會慢五分鐘才更新。現在這項延遲已經修正，即使面板沒有保持開啟，工作列倒數也會在額度用滿或重置的瞬間即時出現與消失。",
+                "en": "When using the taskbar icon on Windows to track progress, you can now see the countdown status promptly even without opening the panel. ⟦Just as with an indicator light outside a recording studio, updates to the light lagged behind whenever the studio door stayed closed; now the moment a switch flips, the outside indicator turns on or off in lockstep.⟧ Previously, when a quota happened to fill or reset between two refreshes, as long as the panel (a popover window displaying detailed quotas) remained closed, the taskbar countdown could take up to five minutes to update. This delay has now been fixed, so even if the panel is not kept open, the taskbar countdown appears and clears promptly the moment a quota fills or resets."
               },
-              "original": "**Beginner mode stops hinting words you type yourself.** If a term such as PR or commit appears in your own message, it no longer comes back as a hint. Asking what a word means (\"launchd 是什麼\") does not count, and marking the term as not understood in the history pane brings it back."
-            },
-            {
-              "title": {
-                "zh-TW": "額度提醒不再認錯帳號或重複報警",
-                "en": "Quota reminders no longer mix up accounts or repeat warnings"
-              },
-              "body": {
-                "zh-TW": "換了 Claude 帳號，卻收到上一個帳號的額度提醒，很容易搞不清楚自己還能用多少。以前用 `/login` 換帳號後，新工作階段（這次對話的執行期間）在第一則回覆前，會沿用上次已知的數字。\n\n狀態列 hook（掛鉤，特定事件發生時被觸發的小程式）現在會記下是哪個對話讀到這些數字。額度提醒會忽略來自其他對話的讀數，避免把上一個帳號的額度算到你頭上。\n\nAntigravity 的重置時間在不同讀取之間，最多會飄動一分鐘，以前因此被誤認為新的額度窗口。現在同一個對話不會再重複同一則警告。\n\n⟦值班員以前會把前位住客的帳單交給新住客，也會把同一張催繳單重送；現在先核對收件對象，也認得已經送過的通知。⟧",
-                "en": "Switching Claude accounts and then receiving a quota reminder for the previous account can make it hard to tell how much you have left. Previously, after switching accounts with `/login`, a new session (the running period of this conversation) reused the last known numbers until its first reply.\n\nThe status line hook (a small program triggered by specific events) now records which conversation observed those numbers. Quota reminders ignore readings from other conversations, avoiding attributing the previous account’s quota to you.\n\nAntigravity’s reset time can drift by up to a minute between readings, which previously made it look like a new quota window. The same warning now no longer repeats within one conversation.\n\n⟦An attendant used to hand the previous guest’s bill to a new guest and deliver the same payment reminder again. Now the attendant checks the recipient first and recognizes notices already delivered.⟧"
-              },
-              "original": "**After switching Claude accounts with `/login`, the quota reminder no longer reports the previous account's quota as yours.** A new session reuses the last known numbers until its first reply; the status line hook now records which session observed them, and the quota reminder ignores numbers from another session.\n**The quota reminder no longer repeats the same Antigravity warning in one conversation.** Antigravity's reset time drifts by up to a minute between readings, which looked like a new quota window."
-            },
-            {
-              "title": {
-                "zh-TW": "usage 自動修復與開關狀態不再互相打架",
-                "en": "usage self-repair and switch states no longer clash"
-              },
-              "body": {
-                "zh-TW": "電腦裡留著不同版本的 usage，或 Claude 狀態列已交給別的工具，原本都可能讓自動修復出岔。hook（掛鉤，特定事件發生時被觸發的小程式）以前只要版本不同就重裝，兩份 usage 可能來回替換它。現在只會升級，舊版不會把新版裝好的降回去。\n\n狀態列開關只有在使用 usage 自己的 hook 時才顯示開啟。安裝失敗會明說，登入時啟動若被系統拒絕，也會顯示原因。\n\n即使別的工具掌管 Claude 狀態列，對話工作階段相關的 hook 仍會自我修復。某個工具的額度數字若已一小時以上沒更新，提醒也會說明額度窗口可能已重置。你能分清楚是開關沒設成功，還是眼前的數字已經過時。",
-                "en": "Keeping different versions of usage on your computer, or letting another tool manage the Claude status line, could previously cause self-repair to go wrong. A hook (a small program triggered by specific events) used to be reinstalled whenever its version differed, so two copies of usage could keep replacing it. Now self-repair only upgrades; an older version will not downgrade what a newer version installed.\n\nThe status-line switch shows as on only when usage’s own hook is in use. Failed installations are stated explicitly, and if the system refuses launch-at-login registration, the reason is shown too.\n\nHooks related to conversation sessions still repair themselves even when another tool manages the Claude status line. If a tool’s quota numbers have not updated for an hour or more, the reminder also explains that the quota window may have reset. You can tell whether a switch failed to take effect or the numbers in front of you are outdated."
-              },
-              "original": "**An older copy of usage no longer downgrades the hooks a newer one installed.** Self-repair used to reinstall any hook whose version differed, so two copies could keep swapping it; it now only upgrades.\n**Status-line and launch-at-login switches no longer fail silently.** The status-line switch is on only for usage's own hook, a failed install says so, and a refused launch-at-login registration shows the reason.\n**Session hooks are repaired even when another tool owns the Claude status line.** The quota reminder also says when a tool's numbers are an hour or more old and the window may have reset."
-            },
-            {
-              "title": {
-                "zh-TW": "Muse 額度檢查減少模型呼叫，卡住也能隨 app 結束",
-                "en": "Muse quota checks use fewer model calls and stop with the app if stuck"
-              },
-              "body": {
-                "zh-TW": "只是重新整理額度卡，也會花掉模型呼叫，等於查用量本身還在增加用量。Muse 1.4.13 以上現在改讀 `muse usage --json` 的額度結果，這個查詢不會執行模型，因此額度卡不再每次重新整理都呼叫模型。\n\n舊版 Muse，或還沒有讀數的額度窗口，仍會採用備援方式，退回原本的一行 `muse exec` 檢查。省下模型呼叫有版本與讀數條件，並不是所有情況都取消舊方法。\n\n若 `muse usage` 檢查卡住，結束 app 時也會一併停掉它。\n\n⟦查水費以前得先開水龍頭測試，現在能直接讀水表；還讀不到水表時才沿用舊辦法，離開時也會關掉卡住的測試。⟧",
-                "en": "Even refreshing a quota card used to spend a model call, meaning that checking usage itself added to usage. With Muse 1.4.13 or later, usage now reads quota results from `muse usage --json`. This query runs no model, so the quota card no longer calls a model on every refresh.\n\nOlder Muse versions, or quota windows with no reading yet, still use a fallback: the original one-line `muse exec` check. Saving model calls depends on the version and available readings; the old method has not been removed in every situation.\n\nIf a `muse usage` check gets stuck, quitting the app stops it too.\n\n⟦Checking the water bill used to require turning on the tap for a test; now you can read the water meter directly. The old method is used only when the meter cannot yet be read, and any stuck test is shut off when you leave.⟧"
-              },
-              "original": "**The Muse quota card no longer spends a model call on every refresh.** With Muse 1.4.13 or later, usage reads the allowance from `muse usage --json`, which runs no model. Older Muse versions, or a window with no reading yet, still fall back to the one-line `muse exec` check.\n**Quitting the app stops a hung `muse usage` check.**"
-            },
-            {
-              "title": {
-                "zh-TW": "對話交接只把成功的修改列為完成",
-                "en": "Conversation handoffs mark only successful changes as done"
-              },
-              "body": {
-                "zh-TW": "把工作交給下一段對話時，最怕交接內容說已經做好，實際檔案卻沒改成。現在工作階段（這次對話的執行期間）交接時，只把成功的修改列為完成。這些修改包括 commit（把修改存成版本紀錄）與編輯。\n\n如果 commit 被 pre-commit hook（儲存版本前觸發的檢查小程式）擋下，或編輯失敗，都不會再被寫成已完成。用 `!` 執行的 shell（接收並執行文字指令的程式）指令，也不會再被當成你上一個需求。\n\n⟦接班紀錄以前把送修申請當成修好，也把旁邊的操作便條當成客人委託；現在只在完工欄記下成功的工作，操作便條也不再冒充委託內容。⟧",
-                "en": "When handing work over to the next conversation, a major concern is a handoff saying something is done when the files were never successfully changed. Session (the running period of this conversation) handoffs now mark only successful changes as done. These include commits (saving changes as a version record) and edits.\n\nIf a commit is blocked by a pre-commit hook (a small checking program triggered before saving a version), or an edit fails, it is no longer recorded as completed. Commands run with `!` in a shell (a program that accepts and runs text commands) are also no longer treated as your last request.\n\n⟦Shift handover records used to count a repair request as a completed repair and mistake an operating note beside it for a customer request. Now only successful work goes in the completed column, and operating notes no longer pass for customer requests.⟧"
-              },
-              "original": "**Session handoffs only list commits and edits that succeeded.** A commit rejected by a pre-commit hook or a failed edit no longer shows as done, and `!` shell commands are no longer listed as your last request."
+              "original": "**On Windows, the taskbar countdown starts and clears promptly with the panel closed.** It could lag up to five minutes when a quota filled or reset between refreshes."
             }
           ]
         },
         "badges": [
-          "new",
-          "new",
           "fix",
           "new",
-          "fix",
-          "fix",
           "fix",
           "new"
         ]

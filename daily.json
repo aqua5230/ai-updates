@@ -1239,61 +1239,84 @@
           "period": "2026-11-07",
           "items": [
             {
+              "title": {
+                "zh-TW": "子代理列出運作模型，詳細畫面可查思考力度",
+                "en": "Subagents List Their Running Models, and Detail Views Show Thinking Effort"
+              },
+              "body": {
+                "zh-TW": "當你在對話中啟用多個子代理分工時，能一眼看清每位助理背後運作的模型。現在輸入框上方的子代理清單與 `/agents` 列表中，代理名稱旁會直接標註所使用的模型，遇到寬度較窄的終端機則會自動隱藏。⟦就像瀏覽球隊的出賽名單，以前名牌上只印球員名字，看不出誰是主力；現在名字旁直接列出階級，點開詳情還能掌握每位選手的投入程度。⟧進入子代理詳細檢視畫面，還能查看完整模型名稱與思考力度設定。如果你透過 status line（顯示在終端機最底下的狀態列）讀取 JSON 資料，每筆 `subagents` 項目也補上了 `model` 欄位。`/agents` 列表不再每行重複顯示 `[view details]`，改在下方顯示單行 `Tip: Press enter on a subagent to view details.` 提示。",
+                "en": "When delegating tasks to multiple subagents in a conversation, you can immediately see the model running behind each assistant. In the subagent rows above the prompt and in `/agents`, the model in use is now marked directly next to each agent's name, and it is automatically hidden on narrow terminals. ⟦Think of checking a team roster where placards previously showed only player names without revealing starters; now each name displays their tier, and opening details reveals each player's level of effort.⟧ Entering a subagent's detail view also lets you see the full model name and effort setting. If you read JSON data through the status line (the status bar displayed at the bottom of the terminal), a `model` field has also been added to each `subagents` entry. The `/agents` list no longer repeats `[view details]` on every row, instead displaying a single `Tip: Press enter on a subagent to view details.` line below."
+              },
               "original": "Added each subagent's model next to its name in the subagent rows above the prompt and in `/agents` (hidden on narrow terminals), with the full model and effort in a subagent's detail view, and a `model` field on each `subagents` entry in the status line JSON; `/agents` now shows a single `Tip: Press enter on a subagent to view details.` line instead of repeating `[view details]` on every row."
             },
             {
-              "original": "Added the `PLUGIN_ROOT` and `PLUGIN_DATA` environment variables to hook commands that come from a plugin, pointing to the plugin's folder and its persistent data folder, so plugin hooks can use files bundled with the plugin and keep state between runs; `agy plugin validate` no longer warns that these variables are not set for hooks."
+              "title": {
+                "zh-TW": "外掛掛鉤支援專屬目錄，驗證工具接納分類欄位",
+                "en": "Plugin Hooks Gain Dedicated Directories, and Validation Accepts Category Field"
+              },
+              "body": {
+                "zh-TW": "開發或客製化外掛時，掛鉤程式現在能精準存取自身檔案並取得運作資訊。來自外掛的掛鉤（hook，特定事件發生時被觸發的小程式）指令，現在新增了 `PLUGIN_ROOT` 與 `PLUGIN_DATA` 兩個環境變數，分別指向外掛所在的目錄與會保留資料的目錄，方便掛鉤使用隨附檔案並在多次執行間保留狀態。執行 `agy plugin validate` 時，不會再針對掛鉤未設定這兩個變數發出警告。\n\n執行 `agy plugin validate` 檢查時，`plugin.json` 設定檔內的 `category` 分類欄位已被正式接納，不再誤報為未知欄位，僅在內容不是非空字串時提出警告。在工作階段使用自訂模型時，過去掛鉤常收到預留位置或空名稱，現在會確實取得當前運作的模型名稱。",
+                "en": "When developing or customizing plugins, hook programs can now accurately access their own files and retrieve runtime information. Hook commands coming from a plugin now add the `PLUGIN_ROOT` and `PLUGIN_DATA` environment variables, pointing respectively to the plugin's folder and its persistent data folder. This allows hooks (small programs triggered by specific events) to use bundled files and preserve state across runs. Running `agy plugin validate` no longer warns that these variables are not set for hooks.\n\nWhen running `agy plugin validate`, the `category` field in the `plugin.json` configuration file is now officially accepted instead of reported as an unknown field, with a warning issued only when it is not a non-empty string. When using a custom model in a session, hooks previously often received a placeholder or empty name, but they now reliably receive the name of the model actually in use."
+              },
+              "original": "Added the `PLUGIN_ROOT` and `PLUGIN_DATA` environment variables to hook commands that come from a plugin, pointing to the plugin's folder and its persistent data folder, so plugin hooks can use files bundled with the plugin and keep state between runs; `agy plugin validate` no longer warns that these variables are not set for hooks.\nImproved `agy plugin validate` so the `category` field in `plugin.json` is accepted instead of reported as an unknown field, with a warning only when it is not a non-empty string.\nFixed hooks receiving a placeholder or empty model name when the session uses a custom model, so hooks now get the name of the model actually in use."
             },
             {
-              "original": "Changed the error shown when Vertex AI reports that the selected model does not exist or that your Google Cloud project cannot use it, which now reads `The requested model was not found, or your project does not have access to it.` instead of the raw API error."
+              "title": {
+                "zh-TW": "外掛管理支援符號連結，登入畫面與提示排版整齊",
+                "en": "Plugin Management Supports Symlinks, Tidying Sign-In Screens and Prompts"
+              },
+              "body": {
+                "zh-TW": "在終端機安裝、停用或登入各類外掛時，介面排版與特殊路徑的支援都補齊了。如果外掛以符號連結（symlink，指向另一個位置的捷徑檔）方式安裝，或名稱含有空格與符號，過去執行 `agy plugin uninstall`、`agy plugin enable`、`agy plugin disable` 或從 `/plugin` 移除時常會失敗，現在均已修復，且 `agy plugin list` 能重新列出符號連結外掛。\n\n在 `/plugin` 登入畫面中，登入連結會正常縮排並以空行隔開，折行不再替結尾空白加底線，名稱也會改採 `plugin.json` 的顯示名稱。當外掛需要登入時，請求不會再從對話消失，終端機會提示 `⚠ The <plugin> plugin needs you to sign in. Open /plugin to sign in.`。",
+                "en": "When installing, disabling, or signing in to plugins in the terminal, interface layouts and support for special paths are now fully rounded out. If a plugin was installed as a symbolic link (a shortcut pointing to another location) or has a name containing spaces or symbols, running `agy plugin uninstall`, `agy plugin enable`, `agy plugin disable`, or uninstalling from `/plugin` previously often failed; these issues are now fixed, and `agy plugin list` displays symlinked plugins again.\n\nIn the `/plugin` sign-in screen, sign-in links are now properly indented and set apart with a blank line, wrapped links no longer underline trailing blank space, and names use the display name from `plugin.json`. When a plugin requires a sign-in, requests are no longer dropped from the conversation, and the terminal displays a line such as `⚠ The <plugin> plugin needs you to sign in. Open /plugin to sign in.`."
+              },
+              "original": "Improved the plugin sign-in screen in `/plugin`, which now indents the sign-in link like the surrounding text and sets it apart with a blank line, no longer underlines trailing blank space in wrapped links, and uses the plugin's display name from `plugin.json`, such as `Canva` instead of `canva`.\nFixed `agy plugin uninstall`, `agy plugin enable`, `agy plugin disable`, and uninstalling from `/plugin` failing for plugins installed as symbolic links, such as plugins installed from Antigravity, or for plugins whose names contain spaces or symbols such as `c++-tools`, and `agy plugin list` shows symlinked plugins again.\nFixed the agent's requests to sign in to a plugin being dropped from the conversation, so when a plugin needs a sign-in the CLI now shows a line such as `⚠ The <plugin> plugin needs you to sign in. Open /plugin to sign in.`"
             },
             {
-              "original": "Improved the plugin sign-in screen in `/plugin`, which now indents the sign-in link like the surrounding text and sets it apart with a blank line, no longer underlines trailing blank space in wrapped links, and uses the plugin's display name from `plugin.json`, such as `Canva` instead of `canva`."
+              "title": {
+                "zh-TW": "企業模型閘道修復路徑錯誤，模型逾時自動重試",
+                "en": "Enterprise Model Gateways Fix Path Errors, and Model Timeouts Auto-Retry"
+              },
+              "body": {
+                "zh-TW": "連線至雲端模型或企業內部閘道時，網路延遲與路徑設定常影響對話能否順利展開。⟦宛如撥打跨國總機電話，以前只要線路忙線超過一分鐘就被直接切斷，分機號碼多帶斜線還會轉到空號；現在遇上線路延遲會自動重撥，轉接號碼多打尾碼也會自動校正接通。⟧當模型超過 60 秒才開始回傳標頭時，代理不會再以 `http2: timeout awaiting response headers` 中斷失敗，而是會主動重試。若企業模型閘道（gateway）網址結尾帶有 `/v1beta`，系統會自動忽略該後綴，避免請求全數回傳 404 錯誤。透過 Vertex AI 呼叫模型時，若模型不存在或專案無權限，錯誤訊息改以 `The requested model was not found, or your project does not have access to it.` 取代原始 API 報錯。",
+                "en": "When connecting to cloud models or enterprise internal gateways, network latency and path configurations often affect whether conversations start smoothly. ⟦Picture dialing an international switchboard where lines busy for over a minute were abruptly disconnected and an extra slash in the extension forwarded to a dead line; now line delays trigger an automatic redial, and accidental trailing suffixes in the extension are corrected to connect.⟧ When a model takes more than 60 seconds to begin returning response headers, agent turns no longer fail with `http2: timeout awaiting response headers` and are retried instead. If an enterprise model gateway URL ends in `/v1beta`, the system automatically ignores that suffix to prevent every request from failing with a 404 error. When calling models through Vertex AI, if the requested model does not exist or your project lacks permissions, the error message now displays `The requested model was not found, or your project does not have access to it.` instead of the raw API error."
+              },
+              "original": "Changed the error shown when Vertex AI reports that the selected model does not exist or that your Google Cloud project cannot use it, which now reads `The requested model was not found, or your project does not have access to it.` instead of the raw API error.\nFixed agent turns failing with `http2: timeout awaiting response headers` when the model took more than 60 seconds to start responding, which are now retried.\nFixed every model request failing with a 404 error when an enterprise model gateway URL ended in `/v1beta`, even though the model list loaded; a trailing `/v1beta` in the gateway URL is now ignored."
             },
             {
-              "original": "Improved `agy plugin validate` so the `category` field in `plugin.json` is accepted instead of reported as an unknown field, with a warning only when it is not a non-empty string."
+              "title": {
+                "zh-TW": "對話標題保留英文縮寫，送出排隊訊息不再閃爍消失",
+                "en": "Conversation Titles Keep Abbreviations, and Queued Messages No Longer Flicker Away"
+              },
+              "body": {
+                "zh-TW": "日常使用對話視窗交辦任務時，文字顯示與歷史紀錄保存變得更為可靠。現在自動產生的對話標題，會依你在提問中輸入的原樣保留英文簡寫與首字母縮寫，不再自行猜測並展開全名。\n\n當你使用立即送出（Send Immediately）排隊訊息模式時，若在上一輪剛好結束的瞬間送出訊息，過去常在對話中短暫消失又重新出現，這個問題已經修好。\n\n如果你透過 `agy acp` 連線工作階段，過去當用戶端切斷連線時，常在代理後端關閉前過早退出，容易打斷對話紀錄的儲存；這個問題已經修好，對話資料不會再因此在儲存途中被打斷。",
+                "en": "When assigning tasks in daily conversation windows, text display and history retention have become more reliable. Auto-generated conversation titles now preserve abbreviations and acronyms as originally written in your request, without guessing and expanding their full names.\n\nWhen using the `Send Immediately` queued-messages mode, sending a message right as the previous turn ended previously caused it to briefly disappear and reappear in the conversation; this issue is now resolved.\n\nIf you connect to sessions via `agy acp`, client disconnections previously caused sessions to exit prematurely before the agent backend finished shutting down, which could easily interrupt saving conversation history; this issue is now fixed so conversation data is no longer cut short during saving."
+              },
+              "original": "Improved auto-generated conversation titles, which now keep abbreviations and acronyms from your request as written instead of guessing what they stand for.\nFixed a message sent during a turn with the `Send Immediately` queued-messages mode briefly disappearing from the conversation and reappearing when it arrived just as the turn ended.\nFixed `agy acp` sessions exiting before the agent backend finished shutting down when the client closed the connection, which could interrupt saving conversation data."
             },
             {
-              "original": "Improved auto-generated conversation titles, which now keep abbreviations and acronyms from your request as written instead of guessing what they stand for."
+              "title": {
+                "zh-TW": "檔案工具支援舊版編碼頁，遠端讀取上限放寬至 20 MiB",
+                "en": "File Tools Support Legacy Code Pages, and Remote Read Limit Expands to 20 MiB"
+              },
+              "body": {
+                "zh-TW": "當代理在不同系統間讀取程式碼或路徑時，非標準編碼與長路徑常引發解析異常。在 Windows 環境下，檔案工具讀取 UTF-16 與傳統編碼頁文字時不再誤判為二進位檔，編輯時也會保留 UTF-16 編碼或既有的 UTF-8 位元組順序記號（BOM）。寫入含非 ASCII 字元的 PowerShell 腳本時也會加上 UTF-8 BOM，讓 Windows PowerShell 5.1 能正確讀取。\n\n使用 `--remote-agent` 遠端工作階段時，超過讀取限制的檔案不再被悄悄截斷，最高可完整讀取 20 MiB，超過上限則明確報錯。此外，工具呼叫摘要縮短非 ASCII 路徑時已修正亂碼，路徑與家目錄前綴重疊時也不再於 `/context` 清單顯示損壞的 `~` 符號。",
+                "en": "When the agent reads code or paths across different systems, non-standard encodings and long paths often trigger parsing anomalies. On Windows, file tools reading UTF-16 and legacy code-page text no longer misidentify files as binary, and edits preserve UTF-16 encoding or existing UTF-8 byte order marks (BOMs). Writing PowerShell scripts containing non-ASCII characters also attaches a UTF-8 BOM so that Windows PowerShell 5.1 can read them properly.\n\nIn `--remote-agent` remote sessions, files exceeding the read limit are no longer silently truncated, loading fully up to 20 MiB and reporting a clear error above that limit. In addition, garbled characters have been fixed when tool-call summaries shorten paths containing non-ASCII characters, and paths sharing a prefix with your home directory no longer show a broken `~` symbol in the `/context` list."
+              },
+              "original": "Fixed the agent's file tools mishandling text that is not UTF-8, mostly on Windows: reading a UTF-16 or legacy code-page file now returns its text instead of treating it as binary, edits keep a file's UTF-8 byte order mark or UTF-16 encoding, and PowerShell scripts (`.ps1`, `.psm1`, `.psd1`) with non-ASCII text are written with a UTF-8 byte order mark so Windows PowerShell 5.1 reads them correctly.\nFixed files larger than the remote read limit being silently cut off in `--remote-agent` sessions, which now load in full up to 20 MiB and report an error above that instead of showing partial content.\nFixed garbled characters in tool-call summaries when the CLI shortens file paths that contain non-ASCII characters.\nFixed paths that share a prefix with your home directory, such as `/home/alice` when your home is `/home/al`, showing with a mangled `~` prefix in the `/context` file list and the keybindings reset hint."
             },
             {
-              "original": "Fixed `agy plugin uninstall`, `agy plugin enable`, `agy plugin disable`, and uninstalling from `/plugin` failing for plugins installed as symbolic links, such as plugins installed from Antigravity, or for plugins whose names contain spaces or symbols such as `c++-tools`, and `agy plugin list` shows symlinked plugins again."
-            },
-            {
-              "original": "Fixed agent turns failing with `http2: timeout awaiting response headers` when the model took more than 60 seconds to start responding, which are now retried."
-            },
-            {
-              "original": "Fixed every model request failing with a 404 error when an enterprise model gateway URL ended in `/v1beta`, even though the model list loaded; a trailing `/v1beta` in the gateway URL is now ignored."
-            },
-            {
-              "original": "Fixed the agent's requests to sign in to a plugin being dropped from the conversation, so when a plugin needs a sign-in the CLI now shows a line such as `⚠ The <plugin> plugin needs you to sign in. Open /plugin to sign in.`"
-            },
-            {
-              "original": "Fixed the agent's file tools mishandling text that is not UTF-8, mostly on Windows: reading a UTF-16 or legacy code-page file now returns its text instead of treating it as binary, edits keep a file's UTF-8 byte order mark or UTF-16 encoding, and PowerShell scripts (`.ps1`, `.psm1`, `.psd1`) with non-ASCII text are written with a UTF-8 byte order mark so Windows PowerShell 5.1 reads them correctly."
-            },
-            {
-              "original": "Fixed a message sent during a turn with the `Send Immediately` queued-messages mode briefly disappearing from the conversation and reappearing when it arrived just as the turn ended."
-            },
-            {
-              "original": "Fixed hooks receiving a placeholder or empty model name when the session uses a custom model, so hooks now get the name of the model actually in use."
-            },
-            {
-              "original": "Fixed files larger than the remote read limit being silently cut off in `--remote-agent` sessions, which now load in full up to 20 MiB and report an error above that instead of showing partial content."
-            },
-            {
-              "original": "Fixed `agy acp` sessions exiting before the agent backend finished shutting down when the client closed the connection, which could interrupt saving conversation data."
-            },
-            {
+              "title": {
+                "zh-TW": "隔離終端機沙盒環境狀態，強化連線識別碼安全性",
+                "en": "Terminal Sandbox State Is Isolated, Hardening Connection ID Security"
+              },
+              "body": {
+                "zh-TW": "當你在終端機沙盒中執行不受信任的指令時，本機環境的隔離防護變得更為嚴密。⟦如同在密閉防護艙內試驗原料，以前艙內殘留的氣體可能滲漏到外部常態作業區，控制台識別碼也缺乏防護；現在內部操作徹底阻斷外洩，終端編號也強化防禦以防止越區穿透。⟧過去在終端機沙盒（sandbox，隔離執行指令的受限環境）內執行的指令，曾可能改動環境狀態，導致沙盒外部執行的常駐終端機指令載入受污染的設定。這個安全問題已經修好，沙盒內的狀態變更不會再影響外部終端機。常駐終端機的連線識別碼也針對路徑遍歷（path traversal）加強了防護。",
+                "en": "When running untrusted commands in a terminal sandbox, local environment isolation becomes significantly tighter. ⟦Like testing raw materials inside a sealed containment chamber where residual gases once leaked into routine work areas outside while console IDs lacked protection, internal operations now thoroughly block leaks and terminal numbers are fortified against cross-zone traversal.⟧ Commands run inside the terminal sandbox (an isolated, restricted environment for running commands) previously could alter environment state, causing persistent terminal commands run outside the sandbox to load contaminated configurations. This security issue has been resolved, so state changes inside the sandbox no longer affect external terminals. Connection IDs for persistent terminals have also been hardened against path traversal."
+              },
               "original": "Fixed a security issue where a command run in the terminal sandbox could change environment state later loaded by persistent terminal commands run outside the sandbox, and hardened persistent terminal IDs against path traversal."
-            },
-            {
-              "original": "Fixed garbled characters in tool-call summaries when the CLI shortens file paths that contain non-ASCII characters."
-            },
-            {
-              "original": "Fixed paths that share a prefix with your home directory, such as `/home/alice` when your home is `/home/al`, showing with a mangled `~` prefix in the `/context` file list and the keybindings reset hint."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "1.5.2",
@@ -2353,50 +2376,102 @@
           "period": "2026-11-07",
           "items": [
             {
-              "original": "**The Antigravity Gemini weekly quota keeps updating on networks that only allow traffic through a proxy.** The pre-launch check from 0.34.14 connected to Google directly, so behind a proxy it always looked offline and the CLI never ran. A configured HTTPS proxy now counts as online; a bare `NO_PROXY` setting still runs the check."
+              "title": {
+                "zh-TW": "代理網路正常更新額度，喚醒網址查詢不再拖住刷新",
+                "en": "Quotas Update Normally over Proxy Networks, Wake-Up URL Queries No Longer Stall Refreshes"
+              },
+              "body": {
+                "zh-TW": "在特定企業內網工作時，你可能需要透過代理伺服器（替電腦轉發對外請求的中介伺服器）連上外部網路。v0.34.14 新增的啟動前檢查會直接連線 Google，導致走代理的環境總被判定成離線，造成工具無法執行。現在只要設定好 HTTPS 代理就會視為連線成功，每週額度也能正常更新，僅設定 `NO_PROXY` 時則照常檢查。⟦宛若大樓警衛核對訪客，以前只認正門直達通道，走接駁車通道就被當成缺席，翻閱名冊卡住時還會堵住入口；現在認可接駁登記，查名冊的時間也計入等待上限。⟧電腦睡眠喚醒若遇到網域名稱查詢卡住，原本 3 秒的上限現在連同查網址的時間一併計算，不再拖住資料刷新。",
+                "en": "When working on certain corporate intranets, you might need to connect to external networks through a proxy server (an intermediary server forwarding outbound requests for a computer). The pre-launch check added in v0.34.14 connected directly to Google, which caused environments behind a proxy to always be judged offline and prevented tools from running. Now, configuring an HTTPS proxy counts as a successful connection and weekly quotas update normally, while setting only `NO_PROXY` continues to run the check as before. ⟦Think of a building security guard checking visitors who previously only recognized the direct front entrance, treated anyone arriving via shuttle bus as absent, and clogged the gate whenever flipping through the guest registry stalled; now shuttle check-ins are recognized, and registry lookup time counts toward the waiting limit.⟧ If a domain name query hangs when waking from computer sleep, the original 3-second limit now includes the URL lookup time as well, no longer stalling data refreshes."
+              },
+              "original": "**The Antigravity Gemini weekly quota keeps updating on networks that only allow traffic through a proxy.** The pre-launch check from 0.34.14 connected to Google directly, so behind a proxy it always looked offline and the CLI never ran. A configured HTTPS proxy now counts as online; a bare `NO_PROXY` setting still runs the check.\n**The offline check can no longer hold up a refresh when DNS hangs after a wake.** Its 3-second limit now covers the name lookup, not just the connection."
             },
             {
-              "original": "**The offline check can no longer hold up a refresh when DNS hangs after a wake.** Its 3-second limit now covers the name lookup, not just the connection."
-            },
-            {
+              "title": {
+                "zh-TW": "自動開窗改依 Gemini 額度判斷，切換其他模型組不再誤判時機",
+                "en": "Auto-Start Window Keeper Now Follows Gemini Quota, Switching Model Groups No Longer Misjudges Timing"
+              },
+              "body": {
+                "zh-TW": "當你開啟 Antigravity 的自動保持開窗功能時，背後機制會依照額度狀態決定觸發視窗的時間點。⟦跟工廠派車載貨一樣，司機固定駕駛卡車，調度員以前卻看展示架上的小客車油表決定發車，導致在錯的時間出發或乾脆不出勤；現在改看卡車的油量，不再算錯發車時機。⟧該功能一律向 Gemini 模型送出訊息，以前卻依照卡片上目前顯示的模型組來判斷額度。當你選取了 Claude、GPT 或 Argon 模型組時，開窗機制便會在錯誤的時間啟動，甚至完全不開窗。現在開窗判定已經改為直接追蹤 Gemini 的額度，無論介面切換到哪一個模型組，都不會再錯過時機。",
+                "en": "When you enable Antigravity's auto-start window keeper feature, the underlying mechanism determines when to trigger a window based on quota status. ⟦Picture a factory dispatching freight trucks: the driver always operates a truck, but dispatchers previously checked the fuel gauge of a sedan on display to schedule trips, leading to departures at the wrong time or no runs at all; now they monitor the truck's fuel level, no longer miscalculating dispatch timing.⟧ This feature always sends messages to a Gemini model, but previously evaluated quota based on whichever model group the card currently displayed. When you selected the Claude, GPT, or Argon model group, the window mechanism would start at the wrong time or never open at all. Now the windowing decision directly tracks Gemini's quota, so whichever model group the interface switches to, it will no longer miss the timing."
+              },
               "original": "**The Antigravity auto-start window keeper now follows the Gemini quota, whichever model group the card shows.** It always sends its message to a Gemini model, but decided from the displayed group, so with Claude/GPT or Argon selected it started the window at the wrong time or never."
             },
             {
-              "original": "**The Gemini weekly quota no longer jumps into the 5-hour row in its last five hours.** When usage falls back to Google's model list, a weekly limit close to its reset was mistaken for a 5-hour one."
+              "title": {
+                "zh-TW": "Antigravity 額度誤歸類與快取異常已修復，重新登入下一次刷新生效",
+                "en": "Antigravity Quota Misclassification and Cache Anomalies Fixed, Signing In Again Takes Effect on Next Refresh"
+              },
+              "body": {
+                "zh-TW": "平常查看 Antigravity 的配額時，資料歸類與本機狀態的異常現在都已修正。當 usage 讀取 Google 模型清單作為備援（原本方式行不通時改用的替代方案）時，快要重置的 Gemini 週額度在最後五小時內，過去會被誤認成 5 小時額度而跳到錯的欄位，現在已經不再跳列。\n\n當 Google 拒絕登入時，先前 usage 會拿同一張被拒的授權令牌（驗證身分的存取記號）重複嘗試最長達一小時。現在重新登入 Antigravity 之後，下一次刷新就會直接套用新憑證。\n\n如果本機的額度快取（暫存查詢結果的檔案）發生損壞，過去會讓卡片永久消失。讀不了的檔案現在會自動移至 `~/.usage/quarantine/` 隔離，並重新抓取全新額度。",
+                "en": "When checking Antigravity quotas, anomalies in data classification and local state have now been fixed. When usage reads Google's model list as a fallback (an alternative used when the primary method fails), a Gemini weekly quota close to reset was previously mistaken for a 5-hour quota in its final five hours and jumped into the wrong row, which no longer happens.\n\nWhen Google rejected a sign-in, usage previously kept retrying with the same rejected authorization token (an access credential used to verify identity) for up to an hour. Now after signing in to Antigravity again, the next refresh applies the new credentials directly.\n\nIf the local quota cache (a file temporarily storing query results) was corrupted, it previously caused the card to disappear permanently. Unreadable files are now automatically moved to `~/.usage/quarantine/` for quarantine, and fresh quotas are fetched."
+              },
+              "original": "**The Gemini weekly quota no longer jumps into the 5-hour row in its last five hours.** When usage falls back to Google's model list, a weekly limit close to its reset was mistaken for a 5-hour one.\n**Signing in to Antigravity again takes effect on the next refresh.** After Google rejected the sign-in, usage kept retrying the rejected token for up to an hour.\n**A damaged Antigravity quota cache no longer hides the card for good.** An unreadable cache file is now moved to `~/.usage/quarantine/` and the quota is fetched fresh."
             },
             {
-              "original": "**Signing in to Antigravity again takes effect on the next refresh.** After Google rejected the sign-in, usage kept retrying the rejected token for up to an hour."
-            },
-            {
-              "original": "**A damaged Antigravity quota cache no longer hides the card for good.** An unreadable cache file is now moved to `~/.usage/quarantine/` and the quota is fetched fresh."
-            },
-            {
+              "title": {
+                "zh-TW": "Windows 面板關閉時，工作列倒數即時出現與消失",
+                "en": "On Windows, Taskbar Countdown Appears and Clears Promptly with Panel Closed"
+              },
+              "body": {
+                "zh-TW": "在 Windows 上使用工作列圖示掌握進度時，即使沒打開面板也能即時看見倒數狀態。⟦就像錄音室門外的提示燈號，以前房門關著時，門外燈號更新總慢半拍；現在開關一切換，門外的提示燈立刻同步亮起或熄滅。⟧以前當額度在兩次刷新之間剛好用滿或重置時，只要面板（顯示詳細額度的快顯視窗）處於關閉狀態，工作列上的倒數計時最多會慢五分鐘才更新。現在這項延遲已經修正，即使面板沒有保持開啟，工作列倒數也會在額度用滿或重置的瞬間即時出現與消失。",
+                "en": "When using the taskbar icon on Windows to track progress, you can now see the countdown status promptly even without opening the panel. ⟦Just as with an indicator light outside a recording studio, updates to the light lagged behind whenever the studio door stayed closed; now the moment a switch flips, the outside indicator turns on or off in lockstep.⟧ Previously, when a quota happened to fill or reset between two refreshes, as long as the panel (a popover window displaying detailed quotas) remained closed, the taskbar countdown could take up to five minutes to update. This delay has now been fixed, so even if the panel is not kept open, the taskbar countdown appears and clears promptly the moment a quota fills or resets."
+              },
               "original": "**On Windows, the taskbar countdown starts and clears promptly with the panel closed.** It could lag up to five minutes when a quota filled or reset between refreshes."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "0.34.14",
           "period": "2026-11-07",
           "items": [
             {
+              "title": {
+                "zh-TW": "Windows 工作列額度標籤顯示恢復倒數，滿額即時掌握剩餘時間",
+                "en": "Windows taskbar quota label displays recovery countdown to track remaining time when full"
+              },
+              "body": {
+                "zh-TW": "當你在 Windows 上專注編寫專案，把 AI 額度用到上限時，不必再反覆點開面板確認何時能繼續。以前系統匣選定的服務在 5 小時或本週額度達到 100% 時，工作列上的標籤只會停留在 `100%`。現在達到滿額後，標籤會改用滿額代表色直接顯示剩餘恢復時間（例如 `Claude: 2h55m`），與 macOS 選單列的顯示方式一致。⟦停車場門口的車位看板以前只亮著客滿紅燈，駕駛得搖下車窗詢問才知何時有空位；現在滿額時直接切換為預估等待時間，即使閘門關著也持續倒數。⟧在時間倒數期間，就算面板處於關閉狀態，標籤也會在每個輪詢週期照常更新。",
+                "en": "When you are focused on writing a project on Windows and reach your AI quota limit, you no longer need to repeatedly open the panel to check when you can continue. Previously, when the tray's selected service hit 100% of its 5-hour or weekly quota, the label on the taskbar simply stayed at `100%`. Now once the quota is reached, the label switches to the full-quota color to directly show the remaining recovery time (for example `Claude: 2h55m`), matching how the macOS menu bar displays it. ⟦A parking lot display sign previously only stayed lit with a red full light, forcing drivers to roll down their windows to ask when a spot would open; now it switches directly to an estimated wait time when full, continuing to count down even while the gate remains closed.⟧ During the countdown, the label still updates every polling cycle even when the panel is closed."
+              },
               "original": "**The Windows taskbar quota label counts down to recovery.** When the tray provider's 5-hour or weekly window hits 100%, the label shows the time left (for example `Claude: 2h55m`) in the full-quota color instead of `100%`, matching the macOS menu bar. While it counts down, the label refreshes every interval even with the panel closed."
             },
             {
-              "original": "**Antigravity no longer opens a Google sign-in page in your browser after the Mac wakes from sleep.** Right after a wake the network is often still down, and the Antigravity CLI treated the failed token refresh as \"not logged in\", opening one new sign-in tab each time. usage now skips the CLI while Google's sign-in server is unreachable, and after a failed CLI check it waits 30 minutes before launching it again instead of retrying on every refresh, which also covers an expired sign-in or captive-portal Wi-Fi. The quota card keeps showing the last reading meanwhile. Thanks to @teddy123434 for the report and fix (#297, #301)."
+              "title": {
+                "zh-TW": "Antigravity 睡眠喚醒不再狂開登入頁，切換模型組也各自記錄通知",
+                "en": "Antigravity sleep wake no longer opens repeated sign-in pages, while switching model groups tracks notifications separately"
+              },
+              "body": {
+                "zh-TW": "如果常讓 Mac 進入睡眠，或是經常在面板切換模型組，兩處惱人的誤判提示現在都不會再跳出。剛喚醒時網路常常尚未就緒，以前 Antigravity CLI（終端機指令列工具）更新授權令牌失敗就當成未登入，每次刷新都多開一個登入分頁。現在連不上 Google 登入伺服器時先略過 CLI；檢查失敗後等 30 分鐘再啟動，登入過期或 Wi-Fi 需先開網頁登入時也適用，額度卡則沿用上次的數字。切換模型組也不再共用狀態。以前從用完的 Gemini 切到 Argon 會誤發額度恢復，切回又通知已用完；現在 macOS 與 Windows 都各自記錄。⟦進出管制實驗室時，門禁系統以前在主機離線時會狂響補登警報，換用不同門禁卡也把舊紀錄拿來亂按鈴；現在離線時先安靜等待，不同清單也各自記錄。⟧",
+                "en": "If you frequently put your Mac to sleep or often switch model groups in the panel, two annoying false-positive prompts will no longer appear. Right after waking, the network is often not yet ready, and previously the Antigravity CLI (a terminal command-line tool) treated a failed token refresh as being not logged in, opening an extra sign-in tab on every refresh. Now it skips the CLI when unable to reach Google's sign-in server; after a failed check, it waits 30 minutes before launching again, which also applies to expired sign-ins or Wi-Fi requiring web login, while the quota card continues to use the previous numbers. Switching model groups also no longer shares state. Previously, switching from a depleted Gemini group to Argon would falsely notify that quota had recovered, and switching back would notify again that it was used up; now macOS and Windows each track them separately. ⟦When accessing a restricted lab, the access control system previously blared re-registration alarms whenever the host was offline, and rang false bells with old records when switching access cards; now it waits quietly while offline, and records different lists separately.⟧"
+              },
+              "original": "**Antigravity no longer opens a Google sign-in page in your browser after the Mac wakes from sleep.** Right after a wake the network is often still down, and the Antigravity CLI treated the failed token refresh as \"not logged in\", opening one new sign-in tab each time. usage now skips the CLI while Google's sign-in server is unreachable, and after a failed CLI check it waits 30 minutes before launching it again instead of retrying on every refresh, which also covers an expired sign-in or captive-portal Wi-Fi. The quota card keeps showing the last reading meanwhile. Thanks to @teddy123434 for the report and fix (#297, #301).\n**Switching the Antigravity card between model groups no longer sends false notifications.** The notifier kept one state for all groups, so moving from a used-up Gemini group to Argon read as a reset (\"quota is back\") and moving back sent \"used up\" again. Each model group now keeps its own state on macOS and Windows."
             },
             {
-              "original": "**Switching the Antigravity card between model groups no longer sends false notifications.** The notifier kept one state for all groups, so moving from a used-up Gemini group to Argon read as a reset (\"quota is back\") and moving back sent \"used up\" again. Each model group now keeps its own state on macOS and Windows."
-            },
-            {
+              "title": {
+                "zh-TW": "報表補齊 Codex 歷史細項，八月以前對話紀錄重現卡片分布",
+                "en": "Reports backfill Codex historical details to restore card distributions for conversations before August"
+              },
+              "body": {
+                "zh-TW": "翻閱用量報表追蹤歷史消耗時，八月以前的詳細分佈現在也能正常查閱。以前較舊的帳本只儲存每日總量，導致卡片與工具分佈只能從 2026-08-01 開始顯示，即使熱度圖有更早的紀錄也無法查看細項。現在這些日子會從 Codex 本機的對話資料庫補齊一次，按照日期、模型與專案進行整理。無法歸屬的 token（AI 處理與計費的文字單位）會直接顯示為「unknown」，不會任意猜成 Claude。補回的資料不含金額，統一計入「沒有價格資料」。⟦氣象觀測站補建歷史圖表時，以前老檔案只記下每日總雨量，分類圖只能從八月畫起；現在從儀器本機日誌單次補齊數據，無法辨識的數值直接記為未註明，絕不隨意猜成其他測站。⟧",
+                "en": "When browsing usage reports to track historical consumption, detailed breakdowns prior to August can now also be viewed normally. Previously, older ledger days stored only daily totals, causing card and tool breakdowns to display only from 2026-08-01, even though the heatmap had earlier records. Now these days are backfilled once from Codex's local thread database, organized by date, model, and project. Unattributable tokens (the text units AI processes and bills for) are displayed directly as \"unknown\" rather than arbitrarily guessed as Claude. Backfilled data carries no monetary cost and is uniformly counted under \"no pricing data\". ⟦Think of a weather station reconstructing historical charts: old archives previously only recorded daily total rainfall, leaving breakdown charts able to start only from August; now data is backfilled once from local instrument logs, with unidentifiable readings directly recorded as unspecified and never casually guessed as other stations.⟧"
+              },
               "original": "**Reports show Codex detail for days before August 2026 again.** Older ledger days kept only a daily total, so cards and the tool breakdown started at 2026-08-01 while the heatmap went further back. Those days are now filled once from Codex's local thread database by date, model and project; tokens that cannot be attributed show as \"unknown\", and nothing is guessed as Claude. Backfilled tokens carry no cost and count as \"no pricing data\"."
             },
             {
+              "title": {
+                "zh-TW": "上游檢查腳本不再把內部狀態欄位誤報為上游新欄位",
+                "en": "Upstream check script no longer falsely reports internal status field as new upstream field"
+              },
+              "body": {
+                "zh-TW": "平時透過本機腳本追蹤上游服務的變更時，欄位檢查的提示現在更乾淨。以前執行 `scripts/check_upstream.py` 檢查上游狀態時，usage 內部的 `_rate_limits_session_id` 狀態欄位，會被檢查工具誤當成上游服務新推出的欄位而跳出警示。現在不再將它誤報為上游新欄位。⟦圖書館採購組核對新書目錄時，以前常把館員寫在頁邊的借閱註記當成出版社推出的全新書目；現在不再把那筆註記當成新書目。⟧",
+                "en": "When tracking upstream service changes through local scripts, field check alerts are now cleaner. Previously, when running `scripts/check_upstream.py` to inspect upstream status, usage's internal `_rate_limits_session_id` status field was mistaken by the check tool for a newly introduced upstream field, triggering a warning. It is now no longer falsely reported as a new upstream field. ⟦Picture a library acquisitions team checking a new book catalog: previously, borrowing notes scribbled in page margins by staff were often mistaken for brand-new titles released by publishers; now that annotation is no longer treated as a new entry.⟧"
+              },
               "original": "`scripts/check_upstream.py` no longer reports usage's own `_rate_limits_session_id` status field as a new upstream field."
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "0.34.13",
