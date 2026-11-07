@@ -5,6 +5,58 @@
   "pages": 24,
   "versions": [
     {
+      "version": "0.34.15",
+      "raw": {
+        "version": "0.34.15",
+        "period": "2026-11-07",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-11-07",
+        "entries": [
+          "**The Antigravity Gemini weekly quota keeps updating on networks that only allow traffic through a proxy.** The pre-launch check from 0.34.14 connected to Google directly, so behind a proxy it always looked offline and the CLI never ran. A configured HTTPS proxy now counts as online; a bare `NO_PROXY` setting still runs the check.",
+          "**The offline check can no longer hold up a refresh when DNS hangs after a wake.** Its 3-second limit now covers the name lookup, not just the connection.",
+          "**The Antigravity auto-start window keeper now follows the Gemini quota, whichever model group the card shows.** It always sends its message to a Gemini model, but decided from the displayed group, so with Claude/GPT or Argon selected it started the window at the wrong time or never.",
+          "**The Gemini weekly quota no longer jumps into the 5-hour row in its last five hours.** When usage falls back to Google's model list, a weekly limit close to its reset was mistaken for a 5-hour one.",
+          "**Signing in to Antigravity again takes effect on the next refresh.** After Google rejected the sign-in, usage kept retrying the rejected token for up to an hour.",
+          "**A damaged Antigravity quota cache no longer hides the card for good.** An unreadable cache file is now moved to `~/.usage/quarantine/` and the quota is fetched fresh.",
+          "**On Windows, the taskbar countdown starts and clears promptly with the panel closed.** It could lag up to five minutes when a quota filled or reset between refreshes."
+        ]
+      },
+      "curated": null,
+      "badges": [
+        "new",
+        "fix",
+        "new",
+        "fix",
+        "new",
+        "fix",
+        "new"
+      ]
+    },
+    {
+      "version": "0.34.14",
+      "raw": {
+        "version": "0.34.14",
+        "period": "2026-11-07",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-11-07",
+        "entries": [
+          "**The Windows taskbar quota label counts down to recovery.** When the tray provider's 5-hour or weekly window hits 100%, the label shows the time left (for example `Claude: 2h55m`) in the full-quota color instead of `100%`, matching the macOS menu bar. While it counts down, the label refreshes every interval even with the panel closed.",
+          "**Antigravity no longer opens a Google sign-in page in your browser after the Mac wakes from sleep.** Right after a wake the network is often still down, and the Antigravity CLI treated the failed token refresh as \"not logged in\", opening one new sign-in tab each time. usage now skips the CLI while Google's sign-in server is unreachable, and after a failed CLI check it waits 30 minutes before launching it again instead of retrying on every refresh, which also covers an expired sign-in or captive-portal Wi-Fi. The quota card keeps showing the last reading meanwhile. Thanks to @teddy123434 for the report and fix (#297, #301).",
+          "**Switching the Antigravity card between model groups no longer sends false notifications.** The notifier kept one state for all groups, so moving from a used-up Gemini group to Argon read as a reset (\"quota is back\") and moving back sent \"used up\" again. Each model group now keeps its own state on macOS and Windows.",
+          "**Reports show Codex detail for days before August 2026 again.** Older ledger days kept only a daily total, so cards and the tool breakdown started at 2026-08-01 while the heatmap went further back. Those days are now filled once from Codex's local thread database by date, model and project; tokens that cannot be attributed show as \"unknown\", and nothing is guessed as Claude. Backfilled tokens carry no cost and count as \"no pricing data\".",
+          "`scripts/check_upstream.py` no longer reports usage's own `_rate_limits_session_id` status field as a new upstream field."
+        ]
+      },
+      "curated": null,
+      "badges": [
+        "new",
+        "fix",
+        "fix",
+        "new",
+        "fix"
+      ]
+    },
+    {
       "version": "0.34.13",
       "raw": {
         "version": "0.34.13",
@@ -539,70 +591,6 @@
       "badges": [
         "new",
         "new",
-        "new"
-      ]
-    },
-    {
-      "version": "0.34.5",
-      "raw": {
-        "version": "0.34.5",
-        "period": "2026-10-21",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-10-21",
-        "entries": [
-          "**The Muse card shows a used-up 5-hour window even when Muse sends no numbers.** Once the window runs out, Muse usually refuses the quota check with a \"Subscription quota exhausted\" error that only says when the window resets. The card now shows the window as 100% with that reset time. The error has no weekly figure, so the weekly percentage stays from the last reading and the card keeps its \"last checked\" badge."
-        ]
-      },
-      "curated": {
-        "version": "0.34.5",
-        "period": "2026-10-21",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Muse 額度用完即使未給數字，卡片也會標示 5 小時已用滿",
-              "en": "Cards mark the 5-hour quota as full even when Muse provides no numbers upon exhaustion"
-            },
-            "body": {
-              "zh-TW": "當你連續使用 Muse 處理工作時，一旦額度耗盡，往往會想確認何時才能繼續。以往 5 小時額度一用完，Muse 通常會直接拒絕額度查詢，只拋出「Subscription quota exhausted」錯誤訊息並告知重置時間，導致卡片拿不到具體數字。⟦跟運動場地的租借機一樣，以前名額一被搶光，票機只印出額滿通知與下一場時間，看板卻因抓不到剩餘數值而沒能更新；現在螢幕會直接標示目前時段已全滿，並貼上下次開放進場的時刻。⟧現在卡片遇到這種狀況，會主動把 5 小時額度顯示為 100%，並附上該重置時間。因為這項錯誤回報裡沒有週額度數字，所以卡片上的週額度百分比會沿用上次的讀數，卡片也保留「上次查詢」的時間提示，讓你在等待額度恢復時依然能掌握先前的用量狀態。",
-              "en": "When you use Muse continuously for work, you often want to confirm when you can resume once your quota runs out. Previously, as soon as the 5-hour quota was exhausted, Muse would typically reject quota queries outright, only throwing a \"Subscription quota exhausted\" error message alongside the reset time, leaving the card without concrete numbers. ⟦Much like a sports venue reservation kiosk, where the ticket machine previously printed only a full notice and the next session time once slots filled up, leaving the display unupdated because it could not fetch the remaining count, the screen now directly marks the current slot as completely full and displays the time for the next admission.⟧ Now when encountering this situation, the card proactively displays the 5-hour quota at 100% and attaches that reset time. Because this error response contains no weekly quota figures, the weekly quota percentage on the card retains its previous reading, and the card also preserves its \"last checked\" badge, allowing you to keep track of prior usage status while waiting for the quota to recover."
-            },
-            "original": "**The Muse card shows a used-up 5-hour window even when Muse sends no numbers.** Once the window runs out, Muse usually refuses the quota check with a \"Subscription quota exhausted\" error that only says when the window resets. The card now shows the window as 100% with that reset time. The error has no weekly figure, so the weekly percentage stays from the last reading and the card keeps its \"last checked\" badge."
-          }
-        ]
-      },
-      "badges": [
-        "new"
-      ]
-    },
-    {
-      "version": "0.34.4",
-      "raw": {
-        "version": "0.34.4",
-        "period": "2026-10-21",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-10-21",
-        "entries": [
-          "**The Muse card stays current after a 5-hour window runs out.** Muse reports an exhausted window as more than 100% used (for example 104%), and `usage` threw those readings away. The card kept the last reading under 100% with a stale-age badge until the window reset; it now shows the window as full."
-        ]
-      },
-      "curated": {
-        "version": "0.34.4",
-        "period": "2026-10-21",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Muse 的 5 小時額度用完後持續更新，用量卡片顯示已用滿",
-              "en": "Muse continues updating after 5-hour quota is exhausted, with usage card showing full"
-            },
-            "body": {
-              "zh-TW": "平時頻繁使用 Muse 協作時，如果額度見底，你可能會打開 `usage` 查看剩餘狀況與重置時間。⟦跟看停車場入口的剩餘車位看板一樣，以前場內車輛停滿甚至超額借停時，計數器因為讀到破表數字而停止刷新，螢幕凍結在用滿前一刻並掛著過期提示；現在就算車位全滿，看板也會持續更新並清楚顯示客滿。⟧Muse 在 5 小時額度耗盡時，回報的使用率常會超過 100%（例如 104%）。以前 `usage` 會直接把這種大於 100% 的讀數丟掉。這導致卡片一直停留在低於 100% 的最後一次讀數，並掛著過期標籤（stale-age badge，標示資料多久未更新的標籤），直到 5 小時週期重置。現在卡片在 5 小時額度用完後仍會持續刷新，並清楚標示為已用滿，方便你隨時掌握最新狀態。",
-              "en": "When frequently collaborating with Muse, if your quota runs low, you might open `usage` to check the remaining status and reset time. ⟦Think of the vacancy board at a parking lot entrance. Previously, when the lot was full or even overfilled with parked cars, the counter stopped updating because it read an off-the-charts number, freezing the screen right before full capacity with an expired notice. Now, even when all spaces are full, the board continues to update and clearly displays that the lot is full.⟧ Muse exhausts its 5-hour quota, the reported usage often exceeds 100% (such as 104%). Previously, `usage` would directly discard readings greater than 100%. This caused the card to remain stuck at the last reading below 100% with a stale-age badge (a label indicating how long data has not been updated) until the 5-hour cycle reset. Now, the card continues to refresh after the 5-hour quota is exhausted and clearly indicates that it is full, making it easy for you to track the latest status at any time."
-            },
-            "original": "**The Muse card stays current after a 5-hour window runs out.** Muse reports an exhausted window as more than 100% used (for example 104%), and `usage` threw those readings away. The card kept the last reading under 100% with a stale-age badge until the window reset; it now shows the window as full."
-          }
-        ]
-      },
-      "badges": [
         "new"
       ]
     }
