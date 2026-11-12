@@ -29,20 +29,106 @@
           "Fixed editing project rules with `/permissions` clearing the marker that records the project's permission rules as already migrated, which made the Antigravity app migrate them again and could drop `command(...)` allow rules when the sandbox is on."
         ]
       },
-      "curated": null,
+      "curated": {
+        "version": "1.5.6",
+        "period": "2026-11-12",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "蜂群儀表板加入蜂王與動態蜂卡，終端機即時呈現分工狀態",
+              "en": "Swarm Dashboard Adds Queen Bee and Animated Cards for Real-Time Status in Terminal"
+            },
+            "body": {
+              "zh-TW": "你在終端機使用蜂群模式讓多位代理人協同解決問題時，常需要確認每位成員到底是在待命中還是忙碌運作。輸入 `/swarm board` 開啟儀表板，頂端標頭現在新增了蜂王標誌，成員名冊（`Roster`）裡的每位在線成員旁也都會標上 🐝 符號。⟦就像看體育賽事的分組計分板一樣，以前名牌只有靜態文字，誰在場上跑動得逐行確認；現在看板頂端直接掛上代表隊長的標誌，正在跑動的隊員卡片還會動態拍翅，視窗夠大的黑白螢幕也會呈現像素點陣圖。⟧如果你的終端機支援 Kitty 圖像協定（例如 Kitty 或 Ghostty），每位成員都會顯示一張專屬的彩色小蜂卡，只要該成員正在處理工作，卡片上的小蜜蜂就會拍動翅膀。在 tmux 等其他終端機中，只要視窗大小達到 60×35 以上，標頭也會以像素畫呈現蜂王。",
+              "en": "When using swarm mode in the terminal to collaborate with multiple agents on solving problems, you often need to check whether each member is on standby or actively working. Opening the dashboard with `/swarm board`, the header now adds a queen bee emblem, and each live member in the roster (`Roster`) is marked with a 🐝 symbol. ⟦Picture a sports tournament scoreboard: rosters previously showed only static text and required checking line by line to see who was active on the field, whereas the board now mounts a captain emblem at the top, active team members' cards dynamically flap their wings, and sufficiently large monochrome screens render pixel art.⟧ In terminals supporting the Kitty graphics protocol, such as Kitty and Ghostty, each member displays a dedicated colored bee card that flaps its wings whenever that member is working. In other terminals including tmux, the header also renders the queen as pixel art whenever the window size is at least 60×35."
+            },
+            "original": "Added the swarm's queen bee to the `/swarm board` header and a 🐝 beside each live member in the `Roster`; in terminals with Kitty graphics, such as Kitty and Ghostty, each member gets its own colored bee card that flaps while that member is working, and other terminals, including tmux, show the queen as pixel art when the window is at least 60×35."
+          },
+          {
+            "title": {
+              "zh-TW": "停止掛鉤新增延續狀態欄位，避免測試檢查陷入無限迴圈",
+              "en": "Stop Hooks Add Continuation State Field to Prevent Test Checks from Looping Infinitely"
+            },
+            "body": {
+              "zh-TW": "當你替代理人設定了自訂的自動化檢查，要求它在結束任務前必須先跑完測試時，很容易因為重複觸發而卡在同一個環節。現在停止掛鉤（Stop hook，在準備結束任務時觸發的小程式）的 JSON 輸入中，新增了名為 `continuation_active` 的布林值欄位。⟦跟出差報帳的審核單一樣，以前審核員每次看到單據就要求補齊發票，代理人補件後再次送審又被同一條規定攔下；現在單據上蓋有處理中的戳記，審核員確認已在跑流程就不會重複退件。⟧當代理人已經在處理先前停止掛鉤所要求的延續任務時，這個欄位會標記為 `true`。這樣一來，像是「收尾前先跑測試」這類掛鉤就能直接辨識出自己先前已經提出過請求，不會在代理人跑完測試準備收工時再次發動攔截，徹底避免了無窮迴圈。",
+              "en": "When you configure custom automated checks for an agent requiring it to run tests before finishing a task, repeated triggers can easily get it stuck in the same step. The JSON input of Stop hooks (small programs triggered when preparing to finish a task) now includes a boolean field named `continuation_active`. ⟦Think of an expense reimbursement approval sheet: auditors previously demanded missing receipts every time they saw a form, stopping the agent again under the exact same rule after supplements were submitted; now the sheet is stamped as in-progress, so auditors confirm the workflow is already underway and avoid repeated rejections.⟧ This field is marked as `true` while the agent is already working on a continuation requested by an earlier Stop hook. As a result, hooks such as \"run the tests before finishing\" can directly recognize that they have already made the request and avoid intercepting again when the agent finishes tests and prepares to wrap up, completely preventing infinite loops."
+            },
+            "original": "Added a `continuation_active` field to the JSON input of Stop hooks, which is `true` while the agent is already working on a continuation an earlier Stop hook requested, so a hook such as \"run the tests before finishing\" can tell it has already asked and avoid looping."
+          },
+          {
+            "title": {
+              "zh-TW": "企業模型閘道支援推理複用，原生工具呼叫與長文字輸出更穩",
+              "en": "Enterprise Model Gateway Supports Reasoning Reuse with Reliable Native Tool Calls and Long Output"
+            },
+            "body": {
+              "zh-TW": "在企業環境中透過私有閘道串接外部模型時，管理員常需要確保自訂模型能順利呼叫工具並完整輸出長文字。\n\n管理員設定中的模型清單（`models.list[]`）新增了 `supportsThoughtCirculation` 選項，讓閘道背後的非 Gemini 模型可複用先前輪次的推理內容，未設定時維持預設。\n\n過去部分透過閘道提供的模型缺少原生工具宣告，導致無法可靠呼叫工具。現在閘道目錄中的所有模型，包含環境變數 `AGY_LLM_GATEWAY_MODELS` 列出的項目，都會帶上原生工具宣告。\n\n自訂 Gemini 模型過去輸出會在 8,192 個 token（AI 處理與計費的文字單位）處截斷。現在預設放寬為與內建模型相同的 65,535 個上限，若明確指定 `maxOutputTokens` 則優先採用。",
+              "en": "When connecting external models through a private gateway in enterprise environments, administrators often need to ensure custom models invoke tools reliably and output long texts completely.\n\nThe model list in admin settings (`models.list[]`) adds a `supportsThoughtCirculation` option so organizations can let non-Gemini models behind an enterprise model gateway reuse reasoning from earlier turns, keeping the model default when unset.\n\nPreviously, some models served through an enterprise model gateway lacked native tool declarations, preventing the agent from calling tools reliably. Every model in the gateway catalog, including items listed in the environment variable `AGY_LLM_GATEWAY_MODELS`, now carries native tool declarations.\n\nCustom Gemini models previously cut off output at 8,192 tokens (text units for AI processing and billing). They now default to the same 65,535-token limit as built-in models, with an explicitly specified `maxOutputTokens` still taking precedence."
+            },
+            "original": "Added a `supportsThoughtCirculation` option to admin-managed model entries (`models.list[]` in admin settings), so organizations can let non-Gemini models behind an enterprise model gateway reuse their reasoning from earlier turns; when it is unset, the model's default applies.\nFixed some models served through an enterprise model gateway being sent requests without native tool declarations, which kept the agent from calling tools reliably; every model in the gateway's catalog, including models listed in `AGY_LLM_GATEWAY_MODELS`, now gets native tool calls.\nFixed custom Gemini models served through an enterprise model gateway or an admin model list, such as tuned models, cutting off long edits and file writes at 8,192 output tokens; they now default to the same 65,535-token output limit as built-in Gemini models, and an explicit admin `maxOutputTokens` value still takes precedence."
+          },
+          {
+            "title": {
+              "zh-TW": "Auto 模式放寬安全讀取審查，查詢公開資料與公鑰不再反覆確認",
+              "en": "Auto Mode Relaxes Safe Read Reviews to Eliminate Repeated Prompts for Public Data and Keys"
+            },
+            "body": {
+              "zh-TW": "當你開啟 Auto 模式讓代理人自動跑指令時，若指令需要離開終端機沙盒，常會因為嚴苛的審查機制而頻繁跳出確認。⟦好比圖書館閱覽室的安檢關卡，以前讀者翻閱架上的公開報刊或出示借書證，都要被當作調閱珍本檔案逐次簽核；現在公開資料與名片快速放行，只有私人借閱卡與外帶藏書依舊維持嚴格查驗。⟧現在安全讀取顯著減少打擾：讀取 GitHub API、向既有複本拉取進度或下載 `raw.githubusercontent.com` 等單檔，不再檢查儲存庫熱門度、年齡與發布狀態，但完整複製時依然保留。數字開頭的主機名稱不再被誤判為 IP 位址。讀取 `~/.ssh/config`、`known_hosts`、`authorized_keys` 或公鑰（`*.pub`）不再視為機密，但私鑰依舊防護，傳送任何 `.ssh` 檔案至外部仍一律阻擋。",
+              "en": "When you enable Auto mode to let the agent run commands automatically, commands needing to leave the terminal sandbox often trigger frequent confirmation prompts due to strict review mechanisms. ⟦Consider a security checkpoint in a library reading room: readers browsing open periodicals on shelves or showing library passes previously faced item-by-item sign-offs as if requesting rare archival records, but now public data and name cards are cleared quickly while private borrowing cards and book checkouts still undergo strict inspection.⟧ Safe reads now significantly reduce interruptions: reading the GitHub API, fetching updates into an existing clone, or downloading single files such as `raw.githubusercontent.com` URLs no longer triggers repository popularity, age, or release checks, though full cloning still retains them. Host names starting with a digit are no longer misidentified as IP addresses. Reading `~/.ssh/config`, `known_hosts`, `authorized_keys`, or public keys (`*.pub`) is no longer treated as reading secrets, while private keys remain protected and sending any `.ssh` file externally is still blocked across the board."
+            },
+            "original": "Improved Auto mode's review of commands that would leave the terminal sandbox so it asks less often on safe reads: GitHub API reads, fetches into an existing clone, and single-file downloads such as `raw.githubusercontent.com` URLs no longer get the repository popularity, age, and release checks that cloning a repository still gets, host names that start with a digit are no longer mistaken for IP addresses, and reading `~/.ssh/config`, `known_hosts`, `authorized_keys`, or public keys (`*.pub`) is no longer treated as reading secrets, while private keys still are and sending any `.ssh` file elsewhere is still blocked."
+          },
+          {
+            "title": {
+              "zh-TW": "外掛管理健全驗證與安裝交易機制，完整載入技能並阻擋危險檔案",
+              "en": "Plugin Management Hardens Validation and Atomic Installs to Load Skills Completely and Block Unsafe Files"
+            },
+            "body": {
+              "zh-TW": "開發或安裝第三方外掛時，路徑配置不當或安裝中斷常會導致功能缺失或殘留損壞檔案。\n\n執行 `agy plugin validate` 時，若掛鉤（特定事件觸發的小程式）指令使用舊版未設定的 `${PLUGIN_ROOT}` 或 `$PLUGIN_ROOT`，會警告並建議改用相對路徑，僅在 `--strict` 時判為失敗。\n\n執行 `agy plugin install` 現在會安裝並載入 Claude Code 外掛在 `\"skills\"` 欄位宣告的技能資料夾，若路徑遺失、無技能或指向外部則在摘要警告。\n\n安裝與 `agy plugin import` 匯入改採一次切換，失敗會還原舊版，並拒絕含指向外部的符號連結（指向外掛外的捷徑檔）、FIFO 或裝置檔的外掛。若指令檔名無法當成技能目錄名則以警告略過，不再中斷匯入。",
+              "en": "When developing or installing third-party plugins, improper path configurations or interrupted installations often cause missing features or leftover damaged files.\n\nRunning `agy plugin validate` now warns and suggests using relative paths when a hook (a small program triggered by a specific event) command uses `${PLUGIN_ROOT}` or `$PLUGIN_ROOT` unset in older versions, failing validation only under `--strict`.\n\nRunning `agy plugin install` now installs and loads skill folders declared in the `\"skills\"` field of Claude Code plugins, warning in the install summary about listed paths that are missing, contain no skills, or point outside the plugin.\n\nInstalls and imports via `agy plugin import` now switch files all at once, restoring the previous version on failure and refusing plugins containing FIFOs, device files, or symlinks pointing outside the plugin (shortcut files pointing outside the plugin). If a command filename cannot be used as a skill folder name, it is skipped with a warning instead of aborting the import."
+            },
+            "original": "Improved `agy plugin validate` to warn when a plugin hook command uses `${PLUGIN_ROOT}` or `$PLUGIN_ROOT`, which older CLI versions do not set, and to suggest a relative path instead, since hooks already run in the plugin's folder; the warning fails validation only with `--strict`.\nFixed `agy plugin install` ignoring the skill folders that a Claude Code plugin lists in the `\"skills\"` field of its manifest; those skills are now installed and loaded, and the install summary warns about listed paths that are missing, contain no skill, or point outside the plugin.\nFixed `agy plugin install` and `agy plugin import` leaving a half-copied plugin that still loaded as enabled when an install failed partway; installs are now swapped in all at once and the previous version is restored on failure, plugins containing symlinks that point outside the plugin, FIFOs, or device files are refused, and a command whose file name cannot be used as a skill folder name is skipped with a warning instead of failing the import."
+          },
+          {
+            "title": {
+              "zh-TW": "憑證帳號支援 Auto 模式，修正無沙盒系統重複審批與權限重置",
+              "en": "Credential Accounts Support Auto Mode While Fixing Sandbox Reprompts and Permission Resets"
+            },
+            "body": {
+              "zh-TW": "當你在團隊環境中設定專案權限或使用特定憑證登入時，常會受限於帳號分類或因為環境相容性而遭遇重複提示。\n\n透過應用程式預設憑證（`AGY_ADC_AUTH`）登入的 Google Cloud 按量帳號已比照一般按量帳號開放 Auto 模式。Gemini Enterprise 帳號則維持管理員設定，包含 `unsandboxed(...)` 拒絕與詢問規則，不提供 Auto 模式。\n\n若在缺乏原生沙盒的環境（例如 Windows 主機或停用使用者命名空間的 Linux）強制開啟沙盒，過去會重複提示與報錯，現在指令經審核一次即可執行。\n\n修正使用 `/permissions` 編輯專案規則時會清除遷移標記的錯誤，避免應用程式重複遷移並在開啟沙盒時遺失 `command(...)` 允許規則。",
+              "en": "When configuring project permissions in team environments or signing in with specific credentials, users are often restricted by account tiers or encounter duplicate prompts due to environment compatibility.\n\nPay-as-you-go Google Cloud accounts signing in with Application Default Credentials (`AGY_ADC_AUTH`) now have Auto mode available on par with standard pay-as-you-go accounts. Gemini Enterprise accounts keep following admin-controlled settings, including their `unsandboxed(...)` deny and ask rules, and are not offered Auto mode.\n\nIf sandbox mode is enforced in environments lacking an OS sandbox, such as Windows hosts or Linux with user namespaces disabled, commands previously triggered duplicate approval prompts and sandbox errors but now run after asking for review once.\n\nFixed an issue where editing project rules with `/permissions` cleared the marker recording permission rules as already migrated, preventing the app from migrating them again and dropping `command(...)` allow rules when the sandbox is enabled."
+            },
+            "original": "Changed pay-as-you-go Google Cloud accounts that sign in with Application Default Credentials (`AGY_ADC_AUTH`) to use the same permission settings as other pay-as-you-go accounts, which makes Auto mode available to them; Gemini Enterprise accounts keep following their organization's admin-controlled permission settings, including their `unsandboxed(...)` deny and ask rules, and are not offered Auto mode.\nFixed duplicate approval prompts and sandbox errors for organizations that enforce sandbox mode on machines without an OS sandbox, such as some Windows hosts or Linux with user namespaces disabled; commands now ask for review once and then run.\nFixed editing project rules with `/permissions` clearing the marker that records the project's permission rules as already migrated, which made the Antigravity app migrate them again and could drop `command(...)` allow rules when the sandbox is on."
+          },
+          {
+            "title": {
+              "zh-TW": "復原與重做操作正確保留游標，不再跳至輸入列末端",
+              "en": "Undo and Redo Preserve Cursor Position Instead of Jumping to Input End"
+            },
+            "body": {
+              "zh-TW": "在終端機輸入較長的提示詞時，如果打錯字想要復原修改，游標的停留位置會直接影響編輯節奏。以前在輸入列中執行復原或重做，包含在 Vim 模式下按下 `u` 鍵，游標都會不由分說地直接跳到整串輸入內容的最末端，害你必須手動按鍵移回修改處。現在這個問題已經修好，游標在復原或重做後會正確回到剛才進行編輯的位置。",
+              "en": "When entering longer prompts in the terminal, where the cursor lands after undoing typos directly impacts editing flow. Previously, performing undo or redo in the input prompt—including pressing `u` in Vim mode—inevitably jumped the cursor straight to the very end of the input string, forcing you to manually navigate back to the edited spot. This issue has now been fixed, and the cursor correctly returns to where the undone or redone edit was made."
+            },
+            "original": "Fixed undo and redo in the prompt, including `u` in Vim mode, moving the cursor to the end of the input; the cursor now returns to where the undone or redone edit was made."
+          },
+          {
+            "title": {
+              "zh-TW": "修復蜂群面板跳離問題，並校正協同主控回覆與連線連結",
+              "en": "Fixed Swarm Board Exits and Corrected Coordinator Replies and Board Links"
+            },
+            "body": {
+              "zh-TW": "在蜂群模式中穿梭於儀表板與個別成員的對話紀錄時，操作順暢度與主控代理人的回覆品質息息相關。\n\n過去從 `/swarm board` 儀表板按下 `o` 鍵開啟成員對話後，按下 `esc` 鍵會直接掉出面板並回到終端機提示字元。現在按下 `esc` 會正確返回儀表板，並完整保留你先前的選取項目、篩選條件、焦點窗格與縮放比例。\n\n在協同主控（coordinator）方面，過去被退回重讀已讀過的留言時，有時會回傳單行敷衍語句而非真實回答，這項錯誤已經修好。主控在後續輪次也不再提供命令列打不開的 `sidecar://` 連結，而是正確引導使用 `/swarm board`。同時，以 `agy -p` 在無頭模式（headless，沒有視覺介面的執行模式）啟動蜂群時，也不會再指向無頭環境無法開啟的儀表板。",
+              "en": "When navigating between the dashboard and individual member conversations in swarm mode, operational smoothness and coordinator reply quality are closely linked.\n\nPreviously, pressing `esc` in a swarm member's conversation opened from `/swarm board` with `o` dropped you back at the terminal prompt. Pressing `esc` now correctly returns to the board, preserving your previous selection, filter, focused pane, and zoom.\n\nFor the coordinator, an issue where being sent back to re-read board posts it had already read sometimes produced a one-line filler reply instead of a real answer has been fixed. The coordinator also no longer offers `sidecar://` board links that the CLI cannot open instead of `/swarm board` on later turns. Additionally, runs with `agy -p` that start a swarm in headless mode (an execution mode without a visual interface) will no longer point to the dashboard, which cannot be opened in a headless environment."
+            },
+            "original": "Fixed pressing `esc` in a swarm member's conversation opened from `/swarm board` with `o` dropping you back at the prompt; it now returns to the board with the same selection, filter, focused pane, and zoom.\nFixed a swarm coordinator sometimes ending its turn with a one-line filler reply instead of its real answer after being sent back to re-read board posts it had already read, fixed a coordinator offering a `sidecar://` board link that the CLI cannot open instead of `/swarm board` on later turns of a swarm, and fixed `agy -p` runs that start a swarm pointing you to `/swarm board`, which headless runs cannot open."
+          }
+        ]
+      },
       "badges": [
         "new",
         "new",
         "new",
         "new",
         "new",
-        "new",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
         "fix",
         "fix",
         "fix"
