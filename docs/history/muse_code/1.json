@@ -145,105 +145,269 @@
           "Resuming a long session that has many subagents and no saved context checkpoint is faster, because checking each subagent log for a checkpoint no longer parses every record"
         ]
       },
-      "curated": null,
+      "curated": {
+        "version": "1.4.14",
+        "period": "2026-11-12",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "查詢工作階段連線狀態，清楚標記目前操控者與開立來源",
+              "en": "Query session connection status with clear labels for active controller and opener"
+            },
+            "body": {
+              "zh-TW": "當你在多個終端機視窗或不同工具之間切換，容易搞不清楚特定對話正被哪端控制。⟦就像大型會議室門口的電子簽到看板，誰正握著麥克風發言、上一位交接者是誰，以及這場分組討論由哪個主會議指派，全都清清楚楚列在螢幕上。⟧現在讀取工作階段時，會透過 `driveHolder` 標記目前哪位客戶端正在即時操控。呼叫 `session/read`、`session/list` 或喚醒結果時，也會顯示 `resumedByClient` 記錄最後是誰重新連線。透過 `session/start` 建立新對話時，可帶入 `previousSessionId` 記錄它接替了哪場舊對話。若由主對話開立背景工作者，相關清單與指令 `muse session-message list --json` 也會附上 `spawnedBy` 標籤，每一列都會告訴你，是哪個工作階段開立了這個背景工作者。",
+              "en": "When switching between multiple terminal windows or different tools, it is easy to lose track of which side currently controls a specific conversation. ⟦Picture an electronic sign-in board outside a large conference room that clearly displays on screen who holds the microphone, who handed it off last, and which main meeting assigned this breakout discussion.⟧ Now when reading a session, `driveHolder` marks which client is driving it in real time. Calling `session/read`, `session/list`, or resume results also shows `resumedByClient` to record who reconnected last. When starting a new conversation via `session/start`, you can pass `previousSessionId` to record which old conversation it replaces. If a main conversation opens a background worker, related lists and the `muse session-message list --json` command also attach a `spawnedBy` tag, so every row tells you which session opened that background worker."
+            },
+            "original": "`session/read` shows which connected client currently drives a session (`driveHolder`, the holder's `initialize` name and version; absent when nobody live holds it)\n`session/read`, `session/list` and the `session/resume` result show which client last resumed a session over the wire (`resumedByClient`, the resuming connection's `initialize` name and version, recorded durably on the resume marker)\n`session/start` accepts an optional `previousSessionId` that records which session the new one replaces, even when that session no longer exists\n`session/list`, `session/read` and the `session/resume` result show which session opened a worker session (`spawnedBy`: the opening session's id plus optional project and thread labels, recorded once when the worker's first session starts)\n`session/start` accepts an optional `spawnedBy` (the opening session's id plus optional project and thread labels); the host records it once as the new session's opener and serves it back as `spawnedBy` on `session/list`, `session/read` and `session/resume`\n`muse session-message list --json` rows carry `spawnedBy`, the session that opened each listed worker session (its id plus optional project and thread labels), read from the same session index `session/list` serves"
+          },
+          {
+            "title": {
+              "zh-TW": "權限設定檔精細管制通訊插座，審批卡片揭示判斷原因",
+              "en": "Permission profiles finely control sockets as approval cards show judgment reasons"
+            },
+            "body": {
+              "zh-TW": "執行需要存取本機服務的指令時，權限設定檔現在能針對路徑個別允許、提示或拒絕通訊插座（Unix socket）連線。⟦宛如海關檢查哨的查驗清單，以往碰上特殊貨品只能放行或扣留，現在能逐項要求出示許可，遇到疑慮時也會在申報單上打勾註記原因，杜絕隨手蓋章通關。⟧如果 Docker 插座連線被沙盒阻擋，會直接說明阻擋原因與解除方式；重啟工作階段後也會持續維持提示。在審批流程中，當審批評判員決定轉交給你裁決時，審批卡片會在指令下方加註一行簡短理由，降低反射性放行高風險操作的機率。若啟動時帶入 `--yolo` 卻受到嚴格設定檔限制，開場會明列實際生效的模式。中途切換至無限制模式時也能即時同步，沙盒內的 Linux 指令更禁止竄改 `/proc/sys` 底下的核心設定。",
+              "en": "When running commands that need access to local services, permission profiles can now allow, prompt, or deny connections to a Unix socket (a local inter-process communication channel) per path. ⟦Think of a customs checkpoint inspection list: where special goods used to only be cleared or held, inspectors can now demand permits item by item and check off reasons on the declaration form when in doubt, preventing rubber-stamp clearance.⟧ If a Docker socket connection is blocked by the sandbox, it directly explains the reason for the block and how to lift it; prompts also persist after restarting a session. In the approval flow, when the approval judge decides to escalate to you for a ruling, the approval card adds a short line of reasoning below the command, reducing the chance of reflexively approving high-risk operations. If `--yolo` is passed at startup but restricted by a strict profile, the opening lists the mode that actually takes effect. Switching to Unrestricted mode mid-session also syncs in real time, and Linux commands inside the sandbox are prohibited from tampering with kernel settings under `/proc/sys`."
+            },
+            "original": "Permission profiles can now allow, prompt for, or deny Unix-socket access per path, and a refused Docker socket connection explains the sandbox block with the way out\nStartup names the effective approval mode when `--yolo` was requested but a restrictive permission profile took effect\nWhen the approval judge escalates to you instead of deciding, the approval card now shows the judge's reason as one short line under the command, so a risky request is harder to approve by reflex\nPermission profiles that prompt before socket access keep prompting after a session is reopened, and opening such a session requires the latest app version\nSecurity: Sandboxed Linux commands can no longer rewrite kernel helper settings under `/proc/sys`, even when Muse itself runs as root\nMuse is told when the permission mode changes mid-session, so it stops insisting it is still on the launch mode after switching to Unrestricted"
+          },
+          {
+            "title": {
+              "zh-TW": "對話紀錄權限損壞時自動安全降級，嚴防越權執行",
+              "en": "Automatic safe downgrade on damaged chat permission history prevents unauthorized execution"
+            },
+            "body": {
+              "zh-TW": "當歷史紀錄因中斷而缺少部分權限變更時，重新開啟工作階段不再暗中丟失拒絕規則。⟦好比金融金庫的防盜鎖紀錄紙本受損，保全系統不會直接解除大門管制，而是強制切換成最高安全層級的唯讀防護，確認權限無誤前絕不放行。⟧在終端機應用中，若歷史在上次變更後遺失紀錄，系統會自動比對預設值與尚存設定檔，取兩者中範圍較嚴格者降級重設，或直接退回唯讀模式並跳出警告，無法安全重設時則拒絕喚醒。帶有 `--permission-profile` 等權限旗標的對話，若遺失紀錄會改套用明確指定的權限並作廢受損前的授權。舊版應用無法打開曾重設權限的對話，需更新後開啟。在 `muse serve` 中，若主機無法備妥自動審查員，會清楚回報審查員不可用，而非模糊的內部錯誤。",
+              "en": "When history lacks some permission changes due to an interruption, reopening a session no longer silently drops deny rules. ⟦At a bank vault with damaged lock-log paper records, the security system does not drop gate controls; instead, it forces a switch to the highest read-only protection level and refuses entry until permissions are verified.⟧ In the terminal app, if history lost a record after the last change, the system automatically compares the default and the surviving profile, resets by downgrading to the stricter of the two, or falls back directly to read-only mode with a warning, and refuses to resume if it cannot safely reset. Conversations with permission flags such as `--permission-profile` that lost records instead apply the explicitly specified permissions and invalidate grants from before the damage. Older app versions cannot open conversations whose permissions were reset and require an update to open. In `muse serve`, if the host cannot prepare the automated reviewer, it clearly reports that the reviewer is unavailable instead of returning a vague internal error."
+            },
+            "original": "An older Muse build cannot open a chat whose permissions were reset because part of its saved permission history was lost or damaged; update the app to open it (other chats are unaffected)\nA session with a lost permission change now refuses to resume when its safe permission reset cannot be enforced, instead of opening with silently dropped Deny rules\n`muse serve` refuses to reopen a session whose automated reviewer this host cannot prepare with the `permission_profile_reviewer_unavailable` reason instead of a generic internal error\nIn the terminal app, resuming a chat whose saved history lost a record after your last permission change (without a permission flag) now reopens it with a reset to the narrower of the default and your surviving profile — or to `:read-only` when the two are crossed — and a warning, instead of refusing it; a resume with no safely-resettable profile is still refused\nIn the terminal app, resuming a chat whose saved history lost a record with a permission flag (for example --permission-profile or --sandbox-network) now applies your chosen permissions as the `lost_record_reset` commit that drops pre-loss grants (after the reset, or in its place when the reset is not allowed), and one warning that your chosen permissions apply. A pick the retained managed pin refuses, or a reset `:read-only` cannot be shown never wider than both profiles, still refuses with no reset and no warning"
+          },
+          {
+            "title": {
+              "zh-TW": "喚醒對話可自訂模型覆寫，支援最高推論力度預設全開",
+              "en": "Resumed chats allow custom model overrides with max reasoning effort on by default"
+            },
+            "body": {
+              "zh-TW": "喚醒先前封存的對話時，現在可在 `session/resume` 傳入選填的 `modelId`，直接覆寫對話原本固定的模型設定。⟦恰似專業調音台換上新音訊軌道，演出者既能為個別樂器指定專屬效果器，又能讓主聲道預設發揮最高解析力，中途插入新設備時也能即時亮起對應旋鈕。⟧有紀錄選取模型的對話，重新載入時會精確維持你選定的模型，不再跳回預設值。支援最高推論力度的模型，若未手動指定力度，將預設直接啟用最大推論力度。設定檔列出的模型，現在可為提醒與審核另外指派獨立的背景模型。若在未登入狀態下貼上 API 金鑰，`/model` 選單會立刻列出對應的模型清單，不必重新啟動工具。",
+              "en": "When resuming a previously archived conversation, you can now pass an optional `modelId` to `session/resume` to directly override the conversation's originally fixed model setting. ⟦Like swapping in a new audio track on a professional mixing console, performers can assign dedicated effects to individual instruments while letting the main channel deliver maximum resolution by default, and plugging in new gear mid-set lights up the corresponding knobs immediately.⟧ Conversations with a recorded model selection precisely keep your chosen model upon reload instead of jumping back to the default. Models that support maximum reasoning effort will enable maximum reasoning effort by default if no effort is manually specified. Models listed in the settings file can now assign a separate background model for reminders and reviews. If you paste an API key while logged out, the `/model` menu immediately lists the corresponding models without restarting the tool."
+            },
+            "original": "`session/resume` accepts an optional `modelId` that overrides the retained model for that resume — over a stamped label or pin — and recovers an otherwise-unresolved label binding\nSettings-listed models can name a separate background model for reminders and reviews\nModels that support max reasoning effort now use it by default when you have not chosen an effort, including future models\nResumed sessions with a recorded selection keep the model you selected instead of switching to a default\nPasting an API key into a logged-out session now shows the contributor models in /model immediately, instead of only after a restart"
+          },
+          {
+            "title": {
+              "zh-TW": "嚴格遵守輸出格式要求，複查結果濃縮為精簡回報",
+              "en": "Strict adherence to output format requirements with condensed verification reports"
+            },
+            "body": {
+              "zh-TW": "當你指定將計畫存入檔案並限制對話回覆的內容時，工具現在會老實寫入檔案，並僅依約定回傳對話內容。⟦仿照建築設計驗收的備忘錄，主要圖面整齊劃一，欄位放不下的細節轉成邊欄清單，複驗完工只需在末尾蓋上一句合格摘要，不再整份合約重複誦讀。⟧要求概覽、比較或特定格式時，回答不再硬塞置頂結論摘要，只有報告自身工作成果時才會以核心發現開頭。在表格中比較多個項目時，表格放不下的補充細節會拆成短段落或清單。給出最終回答後的二次檢查，成果只以一兩句話精要陳述，不重講整段回答。同一個對話中已回答過的問題不再重複詢問；在同一個工作階段延續開發新功能時，不會再一開始就拋出失敗的測試，且回報的瑕疵依然具備防退步測試。",
+              "en": "When you specify saving a plan to a file and restrict what the chat reply should contain, the tool now faithfully writes to the file and returns only the agreed chat content. ⟦Following an architectural inspection memo, the main drawings stay uniform, details that do not fit in the table columns move to a sidebar list, and re-inspection sign-off only stamps a brief pass summary at the end instead of reciting the entire contract again.⟧ When you ask for an overview, comparison, or specific format, replies no longer force a top conclusion summary; only reports on the tool's own work lead with the key finding. When comparing multiple items in a table, supplementary details that do not fit in the table are split into short paragraphs or lists. A double-check after giving a final answer states the outcome concisely in a sentence or two without repeating the whole reply. Questions already answered in the same conversation are not asked again; when continuing to build new features in the same session, it no longer starts by throwing a failing test, while reported bugs still get regression tests."
+            },
+            "original": "New features in a project the agent built earlier in the same session no longer start with a failing test, and reported bugs still get a regression test\nWhen an answer compares several things in a table, the detail that does not fit the table now comes as short paragraphs or list items instead of one long block per item\nWhen Muse Code double-checks its work after giving a final answer, it now reports the result of the check in a sentence or two instead of repeating or extending the answer\nWhen you ask for a plan in a file and say what the chat reply should contain, Muse Code saves the plan and replies only as you asked\nOverviews, explanations, comparisons, and answers in a format you asked for no longer open with a top-finding line; reports on work Muse Code did still lead with the main finding\nAgent no longer repeats a question you already answered in the same conversation"
+          },
+          {
+            "title": {
+              "zh-TW": "遊戲與 3D 技能導入美術分工，多輪盲審讓成像貼近參考圖",
+              "en": "Game and 3D skills add art direction and multi-round blind reviews for closer renders"
+            },
+            "body": {
+              "zh-TW": "透過完整企劃書製作遊戲時，內建的 `browser-game` 技能現在會分派美術總監子代理，邊寫程式邊產出素材並收納於遊戲資料夾，隨後由評審進行 3 輪試玩打分。⟦猶如微型動畫製片廠，美術總監負責繪製資產，三組測試員輪番試玩評分，算圖階段更參照參考草圖多輪盲審校正，導演一喊卡便能立刻剎車停機。⟧當提供參考圖片時，Blender 技能會啟動盲審與修正迴圈，盡可能以工作流程執行，使算圖成果貼近範例。在 `game-3d-visuals` 技能執行管線期間，若輸入停止或換方向，它會停下背景階段；說「打開檔案」會直接開啟檔案而不必乾等，一般的致謝短語則讓流程正常推進。",
+              "en": "When building a game from a complete design document, the built-in `browser-game` skill now dispatches an art-director subagent (a dedicated helper) to produce assets alongside coding and store them in the game folder, followed by 3 playtest scoring rounds by reviewers. ⟦Inside a miniature animation studio, the art director draws assets while three test groups take turns playing and scoring, and rendering runs multi-round blind reviews against reference sketches while halting immediately the moment the director yells cut.⟧ When a reference image is provided, the Blender skill starts a blind-review and fix loop, running as a workflow where possible, so renders match the example more closely. During a `game-3d-visuals` skill pipeline run, if you ask it to stop or change course, it halts the background stage; saying \"open it\" opens the file directly without waiting, while ordinary thank-you phrases let the flow continue normally."
+            },
+            "original": "The built-in `browser-game` skill builds games from long design documents with an art-director subagent, which makes the art and ships it in the game folder while the game is built, then runs three critic rounds that play and review the game; short game requests stay light\nWhen a task gives a reference image, the Blender skill now runs a required critic loop of blind reviews and fixes, as a workflow where available, so renders match the reference more closely\nThe `game-3d-visuals` skill now stops its pipeline loop when you ask it to stop, open the file or change course: \"open it\" opens the file (or says it is not ready yet) instead of waiting for the running stage, and a comment such as \"thanks\" lets the pipeline continue\nWhen you tell the `game-3d-visuals` skill to stop or exit while its pipeline runs, it now also stops the running background stage (unless you ask it not to call any tools), and a stage that finishes after you stopped no longer starts the next one"
+          },
+          {
+            "title": {
+              "zh-TW": "Python 技能優先調用預編譯套件，技能清單支援模糊檢索",
+              "en": "Python skill prioritizes prebuilt packages while skill list supports fuzzy lookup"
+            },
+            "body": {
+              "zh-TW": "安裝 Python 相依套件時，`python-env` 技能現在會優先嘗試專案或使用者指定的容器映像檔、Conda 頻道或預先編譯的套件檔（wheel），避免直接從原始碼耗時編譯。⟦跟進五金材料行取貨一樣，架上有現成組件就直接領取，不必非得在工坊親自切削金屬，型錄放不下時也能報出關鍵字讓店員調貨。⟧模型自行載入的內建技能，現在會使用模型介面提供的正確名稱呼叫工具，防止因命名不一致而調用失敗。當安裝的技能數量超出啟動清單的顯示上限時，代理依然能透過名稱或說明的片段關鍵字，檢索並載入未列在首頁清單中的擴充技能。",
+              "en": "When installing Python dependencies, the `python-env` skill now first tries a container image, Conda channel, or wheel (a ready-to-install Python package file) specified by the project or user, avoiding time-consuming compilation from source. ⟦A trip to a hardware supply store works the same way: when ready-made components sit on the shelf, you grab them instead of machining metal in the workshop, and if the catalog cannot fit everything, you call out keywords so the clerk can pull the item from stock.⟧ Built-in skills loaded by the model on its own now call tools using the exact names offered by the model interface, preventing invocation failures from naming mismatches. When the number of installed skills exceeds the startup list display limit, the agent can still look up and load extension skills omitted from the main list using partial keywords from their name or description."
+            },
+            "original": "The built-in `python-env` skill tries a container image, conda channel or prebuilt wheels that the user or the project names before compiling a dependency from source\nBuilt-in skills the model loads on its own now name tools the way the model is offered them, so it calls them by the right name\nWhen more skills are installed than the startup skill list can show, the agent can still find the ones left out by looking one up with part of its name or description"
+          },
+          {
+            "title": {
+              "zh-TW": "恢復原生 MP4 與 MOV 影片讀取，多媒體工作階段標題更易辨識",
+              "en": "Native MP4 and MOV video reading restored with clearer multimedia session titles"
+            },
+            "body": {
+              "zh-TW": "當你將影像或影音檔案交給模型分析時，支援的模型現在恢復直接讀取原生 MP4 與 MOV 格式影片。⟦看齊放映室的播映系統，只要放映機能解碼就直接播放膠捲，中途換成不支援影像的設備也不會卡死，片名更直接採用放映標題而非報關單據。⟧即使先前讀取過影片，後續切換到不支援影片的模型、提供者或停用影像設定，工作階段依然能正常延續而不被阻擋。由外部應用程式開立對話時，其標題與首則提示預覽會直接採用使用者看見的提示文字，不再出現整段原始 JSON 資料；以技能或純圖片開場的對話，也會以具體顯示文字或 `[Image 1]` 命名。",
+              "en": "When you pass image or video files to a model for analysis, supported models now resume directly reading native MP4 and MOV videos. ⟦Matching a screening room's projection system, the projector plays the film reel directly whenever it can decode it, switching mid-show to equipment without video support never stalls playback, and the marquee uses the actual movie title rather than customs paperwork.⟧ Even if a video was read earlier, switching later to a model, provider, or setting that does not support video lets the session continue normally without being blocked. When an external app starts a conversation, its title and first-prompt preview directly use the prompt text as shown to the user instead of displaying raw JSON blocks; conversations starting with a skill or image-only input are also named with their display text or `[Image 1]`."
+            },
+            "original": "Restore native MP4 and MOV video reading for supported models\nSessions with an earlier video read keep working when the current model, provider or video setting can't send that video\nA session started by another app now takes its title and first-prompt preview from the prompt as it was shown, not the app's wrapper text, so it no longer appears with raw JSON as its name; a session that starts with a skill or image is titled by its display form (its typed form, or [Image 1] for an image-only start)"
+          },
+          {
+            "title": {
+              "zh-TW": "支援刪除工作樹自動重建，修復 tmux 狀態回報與 Windows 終端體驗",
+              "en": "Deleted worktrees rebuild automatically alongside tmux status and Windows terminal fixes"
+            },
+            "body": {
+              "zh-TW": "當你喚醒先前工作階段卻發現工作樹（worktree，Git 讓同一專案平行開多份副本的功能）已被刪除時，只要來源儲存庫已受信任，即使主機沒有可強制執行的建立沙盒，也會自動重新建立該工作樹；未受信任的儲存庫仍會拒絕。⟦如同野外工作站重啟設備，若既有分支遭意外移除，只要母基地受信任就會就地重新搭建，控制台狀態燈號也會即時同步給遠端監視器。⟧在 tmux 環境中，工具能主動廣播運作狀態，方便外部終端掌握進度。在 Windows 系統中，沙盒指令在使用者資料夾內會正確將工作區當作起點，相對路徑不再誤對應至安裝目錄；傳統主控台中按 Ctrl+V 能正常貼上文字，對話分支時也不再出現寫入錯誤。執行 `/feedback` 回報問題時，畫面會預先標註工作階段紀錄容量與修剪提示。",
+              "en": "When you resume a prior session and find its worktree (a Git feature that lets one project keep multiple parallel working copies) was deleted, it automatically recreates that worktree as long as the source repository is already trusted, even on hosts without an enforceable creation sandbox; untrusted repositories still refuse. ⟦Restarting gear at a field station works much the same way: if an existing outpost was accidentally removed, it is rebuilt on the spot as long as the home base is trusted, and console status lights sync immediately to remote monitors.⟧ Inside tmux, the tool proactively broadcasts its running status so external terminals can track progress. On Windows, sandboxed commands inside your user folder properly start in the workspace so relative paths no longer misresolve to the install directory; pressing Ctrl+V in classic consoles pastes text normally, and branching a conversation no longer hits write errors. When running `/feedback` to report an issue, the screen previews the session record size and notes when it will be trimmed."
+            },
+            "original": "Inside tmux, Muse now reports its program status (OSC 7501) without waiting for the terminal to answer, so iTerm2's tmux integration (`tmux -CC`) shows whether a session is working, waiting for you, or done; a client that attaches later sees it once the attach resizes the window or the status next changes\n`/feedback` shows how big the session record is before you agree to attach it, and notes when it will be trimmed\nOn Windows, sandboxed shell commands now start in the workspace when it is inside your user folder, so relative paths no longer resolve under the PowerShell install folder\nOn Windows, Ctrl+V pastes copied text into the prompt in consoles that pass the key to Muse, such as the classic PowerShell window, instead of reporting that no image could be attached\nResuming a session whose worktree was deleted now recreates it on hosts without an enforceable creation sandbox when you already trust the source repository; untrusted repositories still refuse\nBranching a conversation on Windows no longer fails with a write error"
+          },
+          {
+            "title": {
+              "zh-TW": "伺服模式預設集支援持久生效，詳細回報對話分支錯誤",
+              "en": "Server mode presets persist across logins with detailed conversation branching errors"
+            },
+            "body": {
+              "zh-TW": "以伺服端架構部署背景服務時，`muse serve --preset` 現在能完整套用預設集的提示詞與執行環境設定。⟦恰如郵件伺服器的派工設定，開機時指定好投遞範本與過濾規則，登入後依然貫徹到底，若派送信件失敗也會寫明卡在哪個路徑與系統代碼，不再只丟下一句傳送失敗。⟧除了支援由 `-c` 載入的自訂設定外，啟動時選定的預設集在使用者登入後也會持續保留。當透過 `muse serve` 分支對話因工作階段檔案寫入失敗而中斷時，錯誤訊息會指明失敗的具體步驟、路徑種類及作業系統原始代碼，不再只拋出抽象字眼。在 Linux 環境下建立對話分支不再因檔案建立時間問題而碰壁。連線初始化時，若客戶端名稱超出 64 個字元將明確回絕。應用程式若遭停用，會明確回傳伺服端原因，不再盲目要求重新登入。",
+              "en": "When deploying background services with a server architecture, `muse serve --preset` now fully applies the preset's prompts and runtime environment settings. ⟦Imagine a mail server's dispatch configuration: delivery templates and filtering rules set at boot stay enforced after login, and any failed delivery spells out the exact path and system code where it stalled instead of merely saying send failed.⟧ In addition to supporting custom configs loaded via `-c`, the preset chosen at startup persists after user login. When branching a conversation via `muse serve` fails because a session file could not be written, the error message names the specific failed step, path kind, and raw operating-system error code instead of throwing only a vague label. Creating a conversation branch on Linux no longer hits file birth time errors. During connection initialization, a client name exceeding 64 characters is explicitly rejected. If the app is deactivated, it clearly returns the server reason instead of blindly prompting to log in again."
+            },
+            "original": "`muse serve --preset` applies the preset's prompts and run settings, accepts presets defined with `-c`, and keeps the preset chosen at startup after login\nWhen branching a conversation through `muse serve` fails because a session file could not be written, the error now names the step that failed, the kind of path and the operating-system error instead of only `WriteFailed`\n`initialize` now refuses a `clientInfo.name` longer than 64 characters, with the same `invalidParams` error a malformed name already gets\nForking a chat with `muse serve` on Linux works again instead of failing with \"file birth time is unavailable\"\nA deactivated Muse Code app now names the server reason instead of telling the user to log in again"
+          },
+          {
+            "title": {
+              "zh-TW": "伺服端異常中斷安全復原，未完操作不再私自執行",
+              "en": "Safe server crash recovery stops unfinished actions from running on their own"
+            },
+            "body": {
+              "zh-TW": "伺服器若無預警當機重開，先前的未竟事務現在能安全清理。⟦就像工廠控制台在跳電重啟後，先前掛在半空中的加工指令一律先重設關閉，不會擅自動手運轉機台，新進的交接事項也會確實送達值班人員手中。⟧在 `muse serve` 異常退出後喚醒工作階段，中斷前正在執行的任務不會再顯示為進行中。對於當機前等待審批的工具呼叫，重啟後不會重複彈出詢問，更不會私自逕行執行；中斷的呼叫會直接結案，模型再次調用時才走正常審批。協調通道喚醒後若畫面需要時間重繪，交接摘要與回答依然能確實送達，不再陷入沉寂。若在運作期間刪除 `session-index.db` 索引檔，清單不會損壞或崩潰，會以現有檔案重新建立。透過工作階段協定建立旁軌對話時，也不再偶發回報對話已被占用。",
+              "en": "When the server crashes and restarts unexpectedly, any unfinished work from before is now cleaned up safely. ⟦A factory console after a power trip resets and cancels any mid-air machining commands on restart instead of running the equipment on its own, while new handover notes still reach the on-duty operator.⟧ Resuming a session after `muse serve` exits unexpectedly no longer shows tasks from the interrupted run as still in progress. Tool calls that were waiting for approval before the crash no longer prompt again or run on their own after a restart; interrupted calls are closed out and go through normal approval only if the model invokes them again. When a coordinator lane takes a moment to redraw after waking, its handover brief and answers still arrive reliably instead of going silent. Deleting the `session-index.db` index file while running no longer breaks the list or crashes the app, and the index is rebuilt from existing files. Opening a side chat over the session protocol also no longer intermittently reports that the session is already in use."
+            },
+            "original": "Resuming a `muse serve` session after Muse Code exited unexpectedly no longer shows the interrupted run's work as still in progress\nAfter a crash, `muse serve` no longer asks again about tool calls that were waiting for approval and no longer runs an approved call by itself; the interrupted calls are closed and a call the model makes again gets the normal permission check\nA resumed coordinator lane whose session takes a moment to redraw now still receives its handover brief and answers, instead of going silent\nDeleting `session-index.db` while Muse Code runs no longer makes the session list fail or crashes the app; the index is rebuilt with fresh files\nOpening a side chat over the session protocol no longer intermittently reports the new session is already in use"
+          },
+          {
+            "title": {
+              "zh-TW": "工作流程強化中斷復原，正確釋放未用容量保留",
+              "en": "Stronger Workflow crash recovery releases unused capacity reservations"
+            },
+            "body": {
+              "zh-TW": "長時間跑自動化工作流程（Workflow）時，中斷後的接續與資源管理更為嚴密。⟦宛如自動化物流倉儲的軌道調度，搬運車遇到故障重開機時會主動退還佔用的通道額度，按下暫停鈕後立刻凍結動作，絕不會在停機後又偷偷吐出貨物。⟧在流程執行當下關閉應用程式或 `muse serve`，重新開啟後會重新儲存歷史紀錄。更正遺失的流程名稱後，背景工作狀態在重啟後依然保留；若在流程剛好完工時按下暫停，狀態會老實保持暫停，不再多報完工。重啟後復原的子流程會自動釋放未使用的容量保留，發生衝突時給出清晰的重啟錯誤；以相同指令識別碼重試跳過或執行時會返回原結果。在 Windows 上已儲存的工作流程能正常自本機指令稿路徑執行，舊版工作階段不再提供流程功能，建議建立新工作階段使用。",
+              "en": "Long-running automated Workflows now handle resumption and resource management more tightly after an interruption. ⟦Automated warehouse rail dispatch works the same way: when a shuttle faults and reboots, it gives back its reserved lane quota, and pressing pause freezes motion immediately so nothing slips out after a stop.⟧ Closing the app or `muse serve` while a Workflow is running now saves history again once reopened. After correcting a missing Workflow name, background work status survives a restart, and pausing a Workflow right as it finishes keeps its status paused without also reporting completion. Child Workflows recovered after a restart automatically release unused capacity reservations and return a clear restart error on conflicts, while retrying a skip or run with the same command ID returns the original result. Saved Workflows run properly from local script paths on Windows, and older sessions no longer offer Workflow support, so starting a new session is recommended."
+            },
+            "original": "Resuming a session saved by an older version no longer offers Workflow; start a new session to use it\nBackground work status survives a restart after correcting a missing Workflow name\nA chat in the app or `muse serve` that was closed while a workflow was running saves its history again after it is reopened\nA Workflow paused just as it finishes now stays paused, instead of also reporting a finished result after the pause\nSaved Workflows can run again from their local script paths on Windows\nRetrying a workflow child skip or retry with the same command id after a restart returns its original result; chats whose checkpoint holds such a result require a compatible app update, and older versions cannot open them\nRecovered Workflow children release unused capacity reservations, and conflicting attempts get a clear restart error"
+          },
+          {
+            "title": {
+              "zh-TW": "要求主代理閱讀完整流程報告，保留長篇背景工作復原指引",
+              "en": "Main agent reads full Workflow reports and keeps long-run recovery guidance"
+            },
+            "body": {
+              "zh-TW": "當工作流程產出長篇報告時，若預覽畫面被系統自動縮短，主代理現在會先被要求調閱完整的報告內容，再對你做出回答。⟦好比專案負責人審閱結案簡報，目錄頁雖然只放精簡要點，但拍板定案前必須調閱完整附件，突發狀況的排除步驟也整頁留存，不會因為頁面摺疊而遺漏。⟧即使預覽經過裁減，完整的工作流程報告依然維持可讀性，長篇背景工作結果中的錯誤復原指引也會完整保留。遇到未知的流程結果引用時保持原樣不變；修正了指令與當前工作階段不符的問題。若工作流程中的代理經歷頻繁跳過或重試超過 128 次，工作階段在壓縮歷史後仍會正常存檔，確保後續隨時能從該檢查點接續。",
+              "en": "When a Workflow produces a long report whose preview is shortened automatically, the main agent is now instructed to read the full report before answering you. ⟦Much like a project lead reviewing a closing deck, the summary slide shows only highlights, yet the full appendix is pulled before making a call and troubleshooting steps stay intact on their own page instead of getting lost in collapsed sections.⟧ Complete Workflow reports remain readable even when their preview is trimmed, and error recovery guidance in long background results stays intact. Unknown Workflow result references are left unchanged, and a mismatch between instructions and the current session has been fixed. If agents in a Workflow are skipped or retried more than 128 times, the session still saves its history after compaction so you can resume from that checkpoint anytime."
+            },
+            "original": "Fixed workflow instructions that did not match the current session\nA session saves its history again when it compacts after a Workflow's agents were skipped or retried more than 128 times, so it can be resumed from that point\nKeep unknown Workflow result references unchanged\nComplete Workflow reports remain readable when their preview is shortened\nKeep recovery guidance intact in long background Workflow results\nTell the main agent to read complete Workflow reports before answering from a shortened preview"
+          },
+          {
+            "title": {
+              "zh-TW": "背景工作完成即時喚醒對話，狀態清單精簡識別碼",
+              "en": "Finished background tasks wake chats immediately with cleaner status IDs"
+            },
+            "body": {
+              "zh-TW": "當主對話正在等待耗時的背景工作時，現在背景任務一旦完成或產出資料，就會立刻自動喚醒等待中的工作階段，不必等你手動輸入打斷。⟦猶如餐廳後廚完成特製餐點，取餐鈴響起時前台立刻主動通知顧客，不必等客人親自走到櫃台詢問，螢幕看板也只顯示簡短取餐號碼，不再塞滿長串內部訂單條碼。⟧即使早先的喚醒訊號偶發遺失，完工事件依然能成功促發喚醒。從 `/tasks` 停止剛好完成的背景工作或監視器時，會立刻登記停止，不再空等 30 秒後被拋棄。查詢工作狀態時，標題與卡片僅顯示一次短識別碼，清單優先展示項目標籤而非原始 JSON。即便背景指令遭遇紀錄錯誤，其執行結果仍會保留在歷史中；跨越多次歷史壓縮持續運作的背景任務，重新開啟對話時也不會被誤判為無效。",
+              "en": "When the main chat is waiting on a long background task, the waiting session now wakes automatically as soon as the task finishes or produces output, without waiting for your manual input. ⟦Once a restaurant kitchen finishes a special order, the pager buzzes so the counter alerts the guest right away instead of making them walk up to ask, and the display board shows only a short pickup number rather than a long internal order barcode.⟧ Even if an earlier wake signal is lost, the completion event still triggers a wake. Stopping a background task or monitor from `/tasks` right as it finishes now records the stop immediately instead of dropping it after a 30-second wait. Work status checks show a short ID once across the header and card, and listings prefer item labels over raw JSON. Background command results stay in history even after a recording error, and background tasks that keep running across multiple compactions are no longer marked invalid when you reopen the chat."
+            },
+            "original": "A session waiting on a finished background task now wakes when the task finishes instead of staying stuck until you intervene\nStopping a background task or Monitor from `/tasks` just as it finishes now records the stop right away instead of dropping it after a 30-second wait\nBackground task output now wakes a waiting session instead of staying queued until you intervene\nA finished background task now wakes a waiting session even when an earlier wake was lost\nWork status checks now show a short work ID once instead of repeating the full ID in the header and the status card, and listing background work shows item labels when present (else a short work ID) instead of raw JSON\nPreserve background command results in session history after a recording error\nA background task that keeps running through several compactions no longer shows as invalid after you reopen the chat"
+          },
+          {
+            "title": {
+              "zh-TW": "父代理支援讀取子代理完整回覆，終止任務確實等待背景清理",
+              "en": "Parent agents read full subagent replies and wait for background cleanup"
+            },
+            "body": {
+              "zh-TW": "母代理調用子代理處理獨立工作時，現在可以直接讀取子代理完整的最終回答。⟦就像專案主管調閱外派調查員的調查手冊，現在能一次看完整本報告，不必為了閱讀後半段又派出第二位助理，收到撤隊指令時也必須等現場人員確實撤離才能回報結案。⟧以前系統只能讀取前 512 個字元，常導致母代理為了讀取剩餘內容而無端增開額外代理。當取消、強制封裝或停止仍在清理背景工作的子代理時，不會再提早虛報完畢，取消會等背景結束才回報，停止期間會明確回應正在停止中。子代理執行失敗時會忠實保留具體錯誤原因；重啟子代理對話時能保留早先產生的回覆；當機後復原的客戶端不會將已收尾的子代理顯示為執行中，並將編輯區標為唯讀以防送出被拒請求。",
+              "en": "When a parent agent delegates independent work to a subagent, it can now read the subagent's entire final reply directly. ⟦Rather than sending a second assistant just to fetch the back half of a field investigator's notebook, a project manager can read the whole report at once, and a stand-down order closes out only after the field team has actually cleared out.⟧ Previously only the first 512 characters were readable, which often caused parent agents to spawn extra agents just to read the rest. Cancelling, force-sealing, or stopping a subagent that is still cleaning up background work no longer reports done early; cancel waits for background work to finish, and stop explicitly reports that it is stopping in the meantime. Subagent failures preserve the specific error reason, reopening a subagent chat keeps earlier replies, and a client recovered after a crash no longer shows finished subagents as running while marking the composer read-only to prevent rejected sends."
+            },
+            "original": "Cancelling, force-sealing or stopping a subagent whose own background work is still being killed no longer reports it done early: the result arrives once that work has ended, a cancel that cannot finish yet fails with a typed error naming the task, a stop answers `stopping` until then and is recorded once the jobs are dead\nPreserve the specific failure reason when a subagent fails\nReopening a subagent chat keeps replies from earlier work\nA parent agent can now read a subagent's whole final answer instead of only its first 512 characters, so it no longer spawns extra agents just to read the rest\nAfter a crash, a resumed client's subagent rows no longer show a recovered child as running, and its child-view composer correctly reports the thread as read-only instead of attempting a send the host rejects"
+          },
+          {
+            "title": {
+              "zh-TW": "強化子代理跨重啟連線與歸屬權限，長目標對話壓縮更輕快",
+              "en": "Subagents stay connected across restarts with lighter goal compaction"
+            },
+            "body": {
+              "zh-TW": "執行需要分派子代理的長篇 `/goal` 對話時，重啟檢查點不再背負開工以來的所有瑣碎步驟，體積更小且喚醒更迅速。⟦恰如工地現場的班長名冊，即使總部重啟或工作日誌重新裝訂，派駐在各區的工班隊長依然保有完整的聯絡管道與指揮權，交班紀錄也不用把開工第一天的大小瑣事全數背在身上。⟧在對話經過壓縮後，向先前啟動的子代理指派後續任務或等待回應，不會再因執行過 Shell 指令或缺少所有權而回報失蹤。由 `/goal` 啟動的子代理在自我壓縮時會正確存檔以供接續；因重啟中斷的子代理通訊紀錄，會在母對話喚醒時自動重讀。在配置 MCP（讓 AI 連接外部工具的協定）的環境下，伺服器重啟前完成的子代理能順利接收後續任務；使用 `tbh exec --session-id` 喚醒對話時，也不會再弄丟子代理關聯。",
+              "en": "In long `/goal` sessions that dispatch subagents, restart checkpoints no longer carry every minor step from the start, making them smaller and faster to wake. ⟦Compare it to a construction site foreman roster: even if headquarters restarts or the site log is rebound, section leads keep their communication lines and authority intact without hauling every tiny detail from day one in the handover notes.⟧ After a conversation is compacted, sending follow-up tasks to or waiting on previously started subagents no longer reports them missing due to prior shell commands or missing ownership. Subagents started from `/goal` save properly when self-compacting so they can resume, and subagent transcripts cut off by a restart are reread automatically when the parent chat wakes. With MCP (a protocol that connects AI to external tools) configured, subagents that finished before a server restart can receive follow-up tasks smoothly, and waking a chat with `tbh exec --session-id` no longer drops subagent links."
+            },
+            "original": "Long `/goal` sessions that start sub-agents keep their resume checkpoints small and resume quickly, instead of carrying every step since the first sub-agent started\nA follow-up task sent to a subagent that finished before `muse serve` restarted no longer stops before reaching the model when MCP servers are configured\nA sub-agent started from a `/goal` chat saves its history again when it compacts, so it can be resumed from that point\nAfter resuming a compacted session, follow-ups and waits on a subagent no longer fail once a shell command ran after the compaction\nA subagent's transcript that a restart cut off reads again as soon as its parent session resumes, with no action on the subagent\nResuming a compacted session with `tbh exec --session-id` keeps its subagents, so following up with, waiting on or checking a subagent no longer reports it missing\nAfter a resumed session, following up with a subagent started before the conversation was compacted works again instead of failing the subagent with a missing ownership error"
+          },
+          {
+            "title": {
+              "zh-TW": "歷史壓縮完整保留常駐指令，折疊早期紀錄避免重複重播",
+              "en": "Compaction preserves standing duties verbatim and collapses older history"
+            },
+            "body": {
+              "zh-TW": "對話太長觸發上下文壓縮時，交接摘要現在會逐字保留常駐待命的操作觸發條件與完整指令，例如「獲得審批即刻啟動機器人」，防止關鍵指令在摘要過程中被淡化忽略。⟦仿照航海日誌的階段性結算，舊航程濃縮成單一封存捲軸，但遇敵反擊的標準作業準則逐字抄寫在現役手冊上，不必每翻一頁就重複推敲前文。⟧透過 `muse serve` 重新開啟壓縮後的工作階段，早期歷史會整齊收納為單一折疊項目，不認識該項目的客戶端會顯示備援文字，後面直接銜接最新進展，不再從頭重播一遍。超長工作階段壓縮時不再卡死；背景摘要若失敗或容量超標，系統不會每輪白花額度重算，改等內容明顯增長後才再次嘗試。若技能內容在壓縮時被帶走，提醒機制會在有需要時重新提供該技能，自動備忘錄也不再重複抄錄使用者訊息。",
+              "en": "When a long conversation triggers context compaction, handover summaries now keep standing operational triggers and exact commands verbatim—such as starting a bot once approval arrives—so key instructions are not watered down or overlooked. ⟦A ship's log settles each leg the same way: past voyages are rolled into a single archive scroll, while standard combat procedures are copied word for word into the active manual so nobody has to re-read earlier pages on every turn.⟧ Reopening a compacted session through `muse serve` neatly folds earlier history into a single collapsed item—clients that do not recognize it display fallback text—followed directly by recent progress instead of replaying from the beginning. Very long sessions no longer stall during compaction, and if a background summary fails or exceeds capacity, the system stops spending quota every turn and waits until the conversation grows noticeably before retrying. If a skill's content is summarized away during compaction, the reminder offers that skill again when needed, and automatic history notes no longer copy preserved user messages repeatedly."
+            },
+            "original": "Reopening a compacted session through `muse serve` (`session/read`, or `session/resume` when it returns inline or snapshot history) now shows the earlier conversation as one collapsed earlierHistory item holding the checkpoint's recent messages, followed by what came after, instead of replaying history from before the checkpoint. Clients that do not know the item kind show its fallback line\nWhen a background context summary fails or is too large to use, Muse Code no longer pays for a new one every turn; it retries only after the conversation has grown well past the failed attempt, including after the session is reopened\nVery long sessions no longer stall while compacting a conversation too large to summarize at once\nCompaction avoids copying preserved user messages into its automatic history notes\nCompaction handoff summaries now preserve operational state-to-action triggers (standing duties with their exact command) verbatim, so a duty like starting a bot once an approval arrives survives context compaction instead of being summarized away\nAfter context compaction summarizes a skill body away, the skill reminder can offer that skill again instead of treating it as already read for the rest of the session"
+          },
+          {
+            "title": {
+              "zh-TW": "檢查點精簡收錄拒絕指令，壓縮時完整保留進行中任務",
+              "en": "Checkpoints store rejected commands compactly and keep active tasks"
+            },
+            "body": {
+              "zh-TW": "工作階段長時間運作建立重啟檢查點時，現在不再保留已完工工作流程的子容量紀錄，檢查點更為輕巧。⟦看齊精簡檔案館的典藏作業，結案的工作流程移出日常備查抽屜，曾被退回的申請案也改以微縮膠片歸檔，節省空間的同時依然維持現役公文的完整度。⟧被使用者拒絕執行的指令在檢查點中會以精簡格式收錄，開啟這類檢查點需更新至相容版本。對話經歷多次壓縮時，進行中的任務會確實保留；曾由舊版修復中斷流程的工作階段，重新恢復儲存上下文檢查點。重新開啟工作階段時，若壓縮後的輪次重用了壓縮前的規則或指示，不再跳出錯誤。在上下文壓縮後重新寫入工具執行結果時，不再因權限校驗報錯；已壓縮的分支或旁軌對話不會再被後續檢查點掩蓋壓縮狀態。",
+              "en": "When long-running sessions create restart checkpoints, child capacity records from finished Workflows are no longer kept, keeping checkpoints lighter. ⟦Borrowing from a streamlined archive's filing routine, closed Workflows move out of the daily reference drawer and rejected applications go onto microfilm, saving space while keeping active paperwork intact.⟧ Commands rejected by the user are stored in a compact format in checkpoints, and opening such checkpoints requires updating to a compatible version. Active tasks are preserved across multiple compactions, and sessions whose interrupted Workflows were recovered by an older version resume saving context checkpoints. Reopening a session no longer throws an error when a post-compaction turn reuses rules or instructions from before compaction. Rewriting tool results after context compaction no longer fails permission validation, and compacted forks or side chats no longer have their compacted state hidden by later checkpoints."
+            },
+            "original": "Resume checkpoints of long sessions no longer keep every finished Workflow's child-capacity records, so they stay smaller; opening a session compacted this way needs this app version or later\nCompaction checkpoints keep rejected commands in a smaller form; chats whose checkpoint holds one require a compatible app update, and older versions cannot open them\nPreserve active tasks when compacting a conversation more than once\nSessions where an older Muse Code (1.4.5 or earlier) recovered an interrupted workflow save context checkpoints again, so compaction is no longer skipped or dropped in them\nReopening a session no longer fails when a turn after a compaction reuses rules or instructions from before it\nA long run no longer fails with \"Origin read requires valid checkpoint-suffix or origin-preserved full-replay authority\" when a tool result's saved copy has to be re-written after context compaction\nA fork or side chat that compacted no longer writes later checkpoints that hide the compaction, so its next resume still starts from the checkpoint"
+          },
+          {
+            "title": {
+              "zh-TW": "歷史回滾不再受待處理訊息卡死，審批決策重試直接回傳原結果",
+              "en": "Rewind avoids queued-message locks and approval retries return original results"
+            },
+            "body": {
+              "zh-TW": "當你想倒帶回滾（rewind）至先前的對話輪次時，若倒帶點落在代理忙碌時送出的排隊訊息之前，新分支不會再被卡在排隊狀態並拒絕所有後續輸入。⟦猶如時光機倒帶至關鍵分岔路口，原本在路上塞住的郵件直接清空，曾蓋章通過的公文調出原存根核對，不會因為中途改道而將整座車站鎖死。⟧即使在背景任務結果尚未送達期間曾觸發上下文壓縮，回滾到早期輪次也能順暢執行不報錯。從壓縮歷史重新載入工作階段後，若重試先前的審批決策、回答問題或移除排隊訊息，系統會直接返回先前的處理結果，不再重新處理。在自檢查點喚醒的對話中，若在對話進行中執行 `/goal set`，新目標能正常啟動，徹底排除儲存失敗導致後續訊息皆被拒送的問題。",
+              "en": "When you rewind to an earlier conversation turn before a queued message sent while the agent was busy, the new branch no longer gets stuck in a queued state and refuses all further input. ⟦Setting a time machine back to a key junction clears out any mail jammed in transit and pulls original stamped stubs for verification, so switching tracks never locks down the whole station.⟧ Rewinding to an earlier turn also succeeds without error even if context compaction ran while a background task result was still waiting to be delivered. After reloading a session from compacted history, retrying an earlier approval decision, question answer, or queued-message removal returns the original result directly instead of processing it again. In a session resumed from a checkpoint, running `/goal set` mid-conversation starts the new goal normally, eliminating the save failure that blocked all subsequent messages."
+            },
+            "original": "Rewinding past a message you sent while the agent was busy no longer leaves the new branch stuck refusing every message and showing that message as still queued\nAfter a session reopens from a compacted history, retrying an approval decision, a question answer or a queued-message removal returns the original result instead of handling it again\nRewinding to an earlier turn no longer fails after a compaction that ran while a finished background task's result was still waiting to be delivered\nIn a session resumed from a checkpoint, running `/goal set` while a turn was running could cancel the new goal turn and then refuse every later message with \"Message not sent — saving failed\"; the goal turn now starts and later messages go through"
+          },
+          {
+            "title": {
+              "zh-TW": "背景儲存遇到磁碟異常具備容錯，短暫錯誤不再卡死後續存檔",
+              "en": "Fault-tolerant background saves recover cleanly from brief disk errors"
+            },
+            "body": {
+              "zh-TW": "當背景儲存因短暫磁碟錯誤受阻時，系統現在能在下一輪自動解除異常並完成寫入，不必重啟工具才能解鎖。⟦就像收銀機碰上印表機短暫缺紙，系統會先將略過紀錄記在日誌中並繼續為顧客結帳，等下一批發票裝上後立刻恢復列印，不必整台關機重啟。⟧遇到磁碟異常導致定期存檔被迫略過時，即使連略過註記都無法寫入，對話也不會被強行中斷，而是記錄錯誤後繼續當前輪次。若因磁碟已滿導致任務連結或監視器未存檔，壓縮檢查點依然能持續運作。取消執行後立即輸入 `/new` 或 `/clear` 不再跳出檔案遺失錯誤；檢視落後的對話重新開啟時會正確展示最新一輪；長時間伺服對話在重啟後，能持續儲存檢查點而不被拒絕。",
+              "en": "When a background save is blocked by a brief disk error, the system now clears the error and completes the write on the next turn without needing a restart. ⟦When a cash register's receipt printer briefly runs out of paper, it logs the skipped print and keeps checking out customers, then resumes printing as soon as a new roll is loaded instead of rebooting the whole register.⟧ If a disk error forces a periodic save to be skipped and even the skip note cannot be written, the conversation continues the current turn after logging the error instead of aborting. Compaction checkpoints continue working even when a full disk prevented saving a task link or monitor. Running `/new` or `/clear` right after cancelling a run no longer raises a missing-file error, reopening a chat whose view fell behind shows the latest turn properly, and long-running served chats keep saving checkpoints after a restart without being refused."
+            },
+            "original": "After a brief disk error interrupts one background save, the next save on the same chat clears it and goes through, instead of being refused until restart\nWhile a storage error lasts, a periodic save that has to be skipped no longer ends the turn when the note recording the skip cannot be written either; the error is logged and the turn goes on\n`/new` or `/clear` right after cancelling a run no longer exits with a missing-file error\nReopening a chat whose saved view fell behind, for example after a cancelled turn, shows its latest turn instead of an older one\nWhen a full disk could not save a task link, a monitor line or, in most cases, a named workflow launch, compaction checkpoints now keep working without restarting the chat\nA chat reopened on an older build, whose log saved two background-result notices at the same spot, keeps saving compaction checkpoints in the running process instead of refusing them until the next reopen\nA long-running served chat whose earlier checkpoint was saved together with a compaction keeps saving checkpoints instead of refusing every one after a reopen"
+          },
+          {
+            "title": {
+              "zh-TW": "旁軌與分支支援跳過損毀輪次，自動重建可讀歷史",
+              "en": "Side Chats and Branches Skip Corrupted Turns and Rebuild Readable History"
+            },
+            "body": {
+              "zh-TW": "當對話因磁碟爆滿導致某一輪紀錄無法寫入時，以往整條對話都會癱瘓。⟦宛如書籍有一兩頁受潮沾黏，影印時影印機會主動略過無法辨識的那幾頁並註明缺漏，讓你順利裝訂出其餘完整的章節，不必把整本書作廢丟棄。⟧現在這類對話能重新進行分支、建立旁軌或執行回滾；系統會自動跳過無法讀取或寫入失敗的輪次，並在開場清楚提示一次。即使對話包含兩筆不同寫入失敗紀錄、提醒遺失或檢查點受損，分支也能自動重建可讀歷史並順暢開啟。舊版建立的旁軌對話現在能正確喚醒並保留歷史與權限設定；旁軌對話在壓縮後重開，不再每輪重讀全部舊紀錄，舊資料損壞也不會阻礙當前對話。",
+              "en": "Previously, when a full disk prevented a turn's record from being written, the entire chat would break down. ⟦A photocopier scanning a book with a couple of damp, stuck pages actively skips the unreadable sheets and notes the gaps, letting you bind the remaining complete chapters instead of discarding the entire volume.⟧ Now, these chats can be branched, side-chatted, or rewound again; the system automatically skips turns that cannot be read or failed to write, and clearly notes this once at the start. Even if a chat contains two different failed write records, a missing reminder, or a damaged checkpoint, branching automatically rebuilds a readable history and opens smoothly. Side chats created in older builds now resume properly while preserving their history and permission settings; when reopened after compaction, side chats no longer re-read their entire old history each turn, so damage in older data no longer blocks the current chat."
+            },
+            "original": "Restore resume for older Side chats while preserving their history and permission settings\nA chat in which one record of a turn could not be written to disk, even after a retry (for example on a full disk that stayed full), can be forked, side-chatted and rewound again; that turn is left out of the new chat, and Muse says so once\nA forked chat whose saved history has an unreadable part, and where the start of one of its own turns could not be written to disk, no longer refuses every message after it is reopened, forked or side-chatted; that turn is left out, and Muse says so once\nA chat in which a reminder for one turn could not be written to disk, even after a retry, can be forked and side-chatted again; that turn is left out of the new chat, and Muse says so once. Rewinding such a chat is still refused\nA forked chat whose copied checkpoint can no longer be replayed (written by an older build, or slightly damaged) opens, forks and side-chats again with its copied history rebuilt; only history that truly cannot be read is left out, and Muse says so once\nA chat in which a reminder for one turn could not be written to disk, even after a retry, can be rewound again; that turn is left out of the new chat, and Muse says so once\nA chat in which two different kinds of record could not be written to disk can be forked and side-chatted again; both turns are left out of the new chat, and Muse says so once for each\nA side chat reopened after it compacted no longer re-reads its whole history each turn, so damage in older history no longer stops it"
+          },
+          {
+            "title": {
+              "zh-TW": "支援 MCP 伺服器登入與壓縮後重啟，工具調用衝突自動重試",
+              "en": "MCP Server Login, Post-Compaction Restarts, and Automatic Tool-Call Retries"
+            },
+            "body": {
+              "zh-TW": "在對話中連接外部擴充時，經過審查核准的外掛 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器，現在可透過 `muse serve` 或 `muse mcp login` 完成登入。⟦恰如總機轉接外線電話，當前端安全檢查還在核對來電身分時會先亮起保留燈號，就算通話紀錄中途封存，重啟時也能自動重新接通專線。⟧在歷史壓縮後喚醒對話，MCP 伺服器會正常重啟，不再跳出啟動稽核失敗或工具遺失的錯誤。外部工具活動介面在呼叫前置掛鉤（特定事件發生時被觸發的小程式）評估時，能看到該次呼叫並標記為保留中。當模型的工具呼叫訊號出現名稱或識別碼分歧時，會自動重試該輪嘗試而非中斷對話。遭拒絕的跨來源重新導向不再覆寫已存的工作階段，重新導向的授權也不再套用到非 HTTP(S) 的來源；模型請求被拒時會帶有專門標記，方便介面顯示精確的拒絕說明。",
+              "en": "When connecting external extensions in a chat, review-approved plugin MCP (Model Context Protocol, a protocol that connects AI to external tools) servers can now sign in via `muse serve` or `muse mcp login`. ⟦Operators at a switchboard transferring an outside call keep the hold light lit while front-end security checks verify the caller's identity, and even if the call log is archived midway, the dedicated line reconnects automatically upon restart.⟧ When resuming a chat after history compaction, MCP servers restart properly instead of throwing startup audit failures or missing-tool errors. Interfaces showing external tool activity can now see a tool call while a pre-tool hook (a small program triggered when specific events occur) is still evaluating it, marked as held. When a model's tool-call signals disagree on the tool name or call ID, that attempt is automatically retried instead of ending the chat. Denied cross-origin redirects no longer overwrite the stored session, and redirect grants no longer apply to non-HTTP(S) origins. When a model request is denied, it carries a dedicated flag so the interface can display an accurate denial message."
+            },
+            "original": "A failed turn's error now carries `requestDenied: true` when the provider refused the request, so session protocol clients can show \"Request denied\" instead of a generic model failure\nApps that show tool activity now see a tool call while a pre-tool hook is still deciding on it, marked as held\nMCP servers start again when you resume a session after it was compacted, instead of every turn failing with \"MCP startup audit failed\" or the MCP tools going missing\nA denied cross-origin redirect no longer replaces the stored session for an Agent plugin's MCP server, and redirect grants no longer match non-HTTP(S) origins\nPlugin MCP servers approved in review can now sign in through `muse serve` as well as `muse mcp login`, instead of being refused as plugin-managed\nA model response whose tool-call signals disagree on the tool name or call id now retries that attempt instead of ending the whole run"
+          },
+          {
+            "title": {
+              "zh-TW": "降低長對話記憶體消耗，打字輸入不再因背景檢查卡頓",
+              "en": "Lower Memory Usage in Long Sessions, Eliminating Typing Jank"
+            },
+            "body": {
+              "zh-TW": "在包含多個子代理任務的長工作階段中打字時，介面不再發生輸入卡頓。⟦仿照現代倉儲的空間管理，大型貨架將相同規格的說明書共用一份存檔，不再每箱重複塞入厚重手冊，通道巡檢也改為按需抽查，讓現場搬運與紀錄始終靈活流暢。⟧以往每幀畫面都會將所有回傳結果與每次執行逐一比對，現在調整比對機制後打字反應依然敏捷。長工作階段的記憶體佔用顯著降低，結構化工作階段紀錄以緊湊文字常駐於記憶體中，每次執行的事件容量更小，模型指示與上下文設定也改為單一複本共用。喚醒包含子代理的工作階段時，不再重新讀取其壓縮前的舊紀錄；子代理多、又沒存檢查點的長工作階段，喚醒時逐一檢查子代理紀錄不必再解析每一筆，所以更快；閒置工作階段更取消了每兩秒讀取一次磁碟索引的常態行為。",
+              "en": "Typing in long sessions with multiple subagent tasks no longer suffers from input jank. ⟦Modern warehouses manage space by keeping a single shared copy of each spec manual on main shelves instead of stuffing heavy booklets into every box, and shifting aisle inspections to on-demand spot checks so on-site handling and logging stay agile and smooth.⟧ Previously, every delivered result was checked against every run on each frame; adjusting this comparison keeps typing responsive. Memory usage in long sessions is significantly reduced: structured session records stay in memory as compact text, each run's events take less space, and model instructions and context settings are shared as a single copy. Resuming a session with subagents no longer re-reads their old history from before compaction. Long sessions with many subagents and no saved checkpoints also resume faster because checking each subagent record no longer parses every entry, and idle sessions no longer perform a constant disk-index read every two seconds."
+            },
+            "original": "Resumed and long-running sessions use less memory, because saved copies of session records made mostly of structured data are kept as compact text instead of an expanded in-memory form\nLong sessions use less memory, because each saved run event takes less space in memory\nResumed long sessions use less memory, because each run's model instructions and context settings are kept once in memory instead of being copied for every run\nResuming a session with subagents no longer re-reads a subagent's history from before its last compaction\nTyping in long sessions with many subagent runs stays responsive, because the subagent tree no longer re-checks every delivered result against every run on each frame\nAn idle session no longer re-reads the whole session index every two seconds, which removes a constant background disk read on machines with many saved sessions\nResuming a long session that has many subagents and no saved context checkpoint is faster, because checking each subagent log for a checkpoint no longer parses every record"
+          }
+        ]
+      },
       "badges": [
         "new",
-        "fix",
         "new",
         "new",
-        "new",
-        "new",
-        "fix",
-        "new",
-        "fix",
-        "new",
-        "new",
-        "new",
-        "new",
-        "new",
-        "new",
-        "new",
-        "new",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "new",
-        "fix",
-        "fix",
-        "new",
-        "new",
-        "new",
-        "new",
-        "new",
-        "fix",
-        "new",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "new",
-        "new",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "new",
-        "new",
-        "new",
-        "fix",
-        "fix",
-        "fix",
-        "new",
-        "fix",
-        "fix",
-        "new",
-        "new",
-        "fix",
-        "new",
-        "fix",
-        "fix",
-        "new",
-        "fix",
-        "fix",
-        "new",
-        "new",
-        "new",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "new",
-        "new",
-        "fix",
-        "fix",
-        "new",
-        "new",
-        "new",
-        "fix",
-        "fix",
-        "fix",
-        "new",
-        "new",
-        "fix",
-        "new",
-        "fix",
-        "new",
-        "new",
-        "fix",
-        "new",
-        "fix",
-        "fix",
-        "fix",
-        "fix",
-        "new",
-        "fix",
         "new",
         "new",
         "fix",
@@ -253,27 +417,13 @@
         "fix",
         "fix",
         "new",
-        "fix",
-        "new",
-        "fix",
-        "fix",
-        "new",
-        "fix",
-        "fix",
-        "fix",
         "new",
         "fix",
         "fix",
         "fix",
         "fix",
         "fix",
-        "new",
-        "new",
         "fix",
-        "fix",
-        "new",
-        "new",
-        "new",
         "fix",
         "new",
         "fix",
