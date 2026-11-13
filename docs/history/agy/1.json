@@ -5,6 +5,74 @@
   "pages": 10,
   "versions": [
     {
+      "version": "1.5.8",
+      "raw": {
+        "version": "1.5.8",
+        "period": "2026-11-13",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-11-13",
+        "entries": [
+          "Added Gemini 4 Hydrogen (Low, Medium, High, and XHigh) and Gemini 4 Carbon (Low, Medium, and High) to `/model` and `--model` when you connect with a `GEMINI_API_KEY`, added Gemini 4 Hydrogen (Low, Medium, High, and XHigh) when you sign in with Application Default Credentials (`AGY_ADC_AUTH`), and added support for Gemini 4 Hydrogen through an enterprise model gateway.",
+          "Added click-to-expand in the `full screen (altscreen)` rendering mode: clicking a tool group, a thought, a prompt's attached images, or multi-line command output now expands or collapses just that item, so you no longer have to use `Ctrl+O`. The default `Rendering Mode` is unchanged.",
+          "Added context window usage updates to `agy acp` sessions, so editors such as JetBrains AI Chat can show how much of the model's context window the conversation is using; the value is sent when a session starts or is reloaded, after each model call, and after a model or thinking level change.",
+          "Added support for two admin settings: `gateway.routeWebFetch` stops the agent's web page reads from going around an enterprise model gateway by disabling URL reading unless a `proxy.address` is configured, and `featureControls.remoteControlEnabled` lets an organization turn off Remote Control. With an enterprise model gateway, web pages are now fetched directly from your machine (through `proxy.address` when set) instead of through Google's fetch service.",
+          "Improved the first message of a conversation in `--remote-agent` sessions, which no longer waits for its remote environment to start or resume: the CLI now prepares a new conversation's environment as soon as the session knows its remote project, and again after `/new` or switching projects, and starts a resumed conversation's idle environment in the background as soon as it opens with `--continue` or `--conversation=<id>`.",
+          "Fixed a security issue in the terminal sandbox's network proxy where a command could get around path-based network rules, such as those limiting where credentials are sent or which Git and API paths are allowed, by using percent-encoded slashes (`%2F`), backslashes, or `..` segments in a URL path; every way of reading the path is now checked against the rules, and the cleaned-up path is the one sent upstream.",
+          "Fixed always-allow command rules on Windows so they can no longer be bypassed when the shell is `cmd`, `cmd.exe`, `powershell.exe`, `pwsh.exe`, or a full path to one of them. Commands run in PowerShell or Command Prompt now always need an exact match, because their quoting rules differ from POSIX shells. A command with hidden extra statements, such as `git status '&& del secret.txt'`, could otherwise be approved by a rule meant only for `git status`.",
+          "Fixed permission rules for MCP tools, such as an `mcp(server/tool)` deny or ask rule, being ignored for MCP tools that are loaded up front (marked eager in `mcp_config.json`) and for the `/browser` subagent's Chrome DevTools tools; these tools now ask for approval or are blocked according to your rules, like other MCP tools.",
+          "Fixed `/plugin`, `agy plugin`, and headless `-p` runs ignoring your organization's Gemini Enterprise admin controls for plugins: when an administrator disables plugins, installing, importing, or enabling one now fails with `plugins are disabled by your organization`, and when the plugin marketplace is disabled, marketplace catalogs are not fetched and marketplace installs fail; listing, disabling, and uninstalling plugins still work.",
+          "Fixed hook commands on Windows that contain double quotes, such as `type \"C:\\my dir\\deny.json\"`, failing and being silently skipped, which let a `PreInvocation` or `PreToolUse` hook that should block the agent go unenforced; hook commands are now passed to `cmd.exe` exactly as written.",
+          "Fixed files saved with a UTF-8 byte order mark (BOM), as Windows PowerShell, Visual Studio, and Notepad's \"UTF-8 with BOM\" option do, being silently ignored: `settings.json` and files passed to `--settings` are no longer rejected as malformed, a `hooks.json` no longer leaves `/hooks` empty with none of its hooks running, and custom agent and rule files no longer go missing from `/agents` and the agent picker or lose their frontmatter trigger.",
+          "Fixed opening your external editor on Windows when `EDITOR` or the `Editor` setting is a normal Windows path such as `C:\\Tools\\ed.cmd` or `\"C:\\Program Files\\Vim\\vim.exe\"`; backslashes were dropped, so `Ctrl+G`, `/open`, `/keybindings`, and artifact review failed with an `editor ... not found in PATH` error.",
+          "Fixed `!` shell commands hanging forever with no output when the command wrote a lot to stderr, which was easy to hit on Windows with build tools that print progress or warnings to stderr; such commands now finish and show their stdout and stderr lines in the order they were written.",
+          "Fixed agent turns failing when a network connection silently went stale or the network dropped a shared HTTP/2 connection, for example with `http2: client connection force closed via ClientConn.Close` or after a socket write error; model requests now retry on a fresh connection and, if retries run out, show the CLI's network error message. Slow model responses also no longer time out after 60 seconds when an organization's admin settings configure a proxy or custom CA certificate.",
+          "Fixed the CLI sometimes never exiting after a session, and background requests such as generating a conversation title, worktree name, or commit message hanging, when the model answered one of those requests with an unexpectedly long reply.",
+          "Fixed a single empty or corrupted queued message file, for example one left behind by an unclean shutdown, blocking every later message to the agent, so background task completions, timers, and subagent replies no longer silently stop reaching it; the unreadable file is set aside and the remaining messages are delivered.",
+          "Fixed remote MCP servers that sign in with OAuth without a client secret signing you out as soon as the access token expired, typically after an hour; token refreshes now send the client ID the way the server requires, so you stay signed in, including with sign-ins saved by earlier versions.",
+          "Fixed the agent telling you to click a Sign in button or use an Accounts tab, which the CLI doesn't have, when a plugin or plugin MCP server needs you to sign in; it now tells you to sign in with `/plugin` and then send a message to continue, and `/mcp` shows the same `/plugin` guidance for a server that is waiting on a sign-in.",
+          "Fixed switching a conversation from a Gemini model to a custom or admin-managed non-Gemini model, such as Claude, failing with an `Invalid signature in thinking block` error.",
+          "Fixed `/btw` and `/help` side questions failing with `stream timed out after 5m0s` while the side question was still working: they now run until they finish or you press `Esc`, which the `Thinking...` line and the \"already in progress\" message now mention, and a side question that needs an approval the card can't show stops right away and tells you to ask in the main conversation instead.",
+          "Fixed `/learn` repeatedly appending to rule files such as `GEMINI.md` or `AGENTS.md` until they grew past the rule size limit, after which their endings were silently cut off on every turn. Before updating a rule, `/learn` now checks the documented size limits, and when an update would get close to or exceed them, it proposes condensing existing entries, splitting them into a scoped rule, or moving step-by-step guidance into a skill.",
+          "Fixed follow-up turns in a `--json-schema` conversation resumed with `--conversation` ending on a plain-text reply with no structured result once an earlier turn had produced one; each new message now gets its own reminders to return the structured output, up to the usual limit per message.",
+          "Fixed `/rewind` failing with a `step_index out of bounds` error when you pressed `Esc` while a turn was still starting and then rewound to remove that message.",
+          "Fixed `/diff` showing a made-up change at the end of a turn's diff for files larger than 500 KB when an earlier edit changed the file's length; the two versions are now cut off at the same line, so the preview shows only real edits.",
+          "Fixed `/` search in the artifact viewer missing text split across different styles, such as a sentence containing a number or inline code, and leaving the rest of a styled line unstyled after a highlighted match; the current match is also now easier to pick out from the other matches in every color scheme.",
+          "Fixed status messages such as \"Copied 3 lines (42 characters)\" after selecting text, settings save errors, and permission reload notices never appearing when you use a custom status line; they now briefly replace your custom status line, which comes back once the message clears, without shifting the layout.",
+          "Fixed the in-progress spinner line freezing until you restarted the CLI after you logged out while the agent was working and then signed back in; it now keeps animating."
+        ]
+      },
+      "curated": null,
+      "badges": [
+        "new",
+        "new",
+        "new",
+        "new",
+        "new",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix"
+      ]
+    },
+    {
       "version": "1.5.7",
       "raw": {
         "version": "1.5.7",
@@ -1007,78 +1075,6 @@
         ]
       },
       "badges": [
-        "new",
-        "fix"
-      ]
-    },
-    {
-      "version": "1.4.11",
-      "raw": {
-        "version": "1.4.11",
-        "period": "2026-10-30",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-10-30",
-        "entries": [
-          "Added a billing model choice after you sign in with Google Cloud, so you can pick either a Gemini subscription or Pay As You Go.",
-          "Added `terminationBehavior` to `PreInvocation` hooks: returning `\"terminate\"` stops the turn before the model is called, for example to block a prompt that contains sensitive data, and hooks can now inject an `errorMessage` whose `userMessage` is shown to you without being sent to the model, which also makes a `-p` run exit with a non-zero code.",
-          "Added a `finished_reason` field to the result of `--output-format json` and `stream-json` runs that says why a turn ended early, `print_timeout` when `--print-timeout` expired and the response is partial, `interrupted` when the run was canceled such as with `Ctrl+C`, or `error` for any other failure, so scripts can tell a cut-off answer from a complete one; the field is omitted when the turn finishes normally.",
-          "Improved the `/plugin` Discover tab for long shelves: each shelf now shows its first 6 plugins followed by a `⋯ N more — enter to show` row, `Ctrl+E` expands or collapses the shelf under the cursor, and `[` and `]` jump to the previous or next shelf.",
-          "Fixed `agy plugin import claude` printing `No claude extensions found.` for plugins installed from a Claude Code marketplace: it now reads Claude Code's list of installed plugins, skipping plugins disabled in Claude Code's settings and plugins installed for a single project only, and imported plugins now keep their remote MCP servers (`\"type\": \"http\"` with `url` and `headers`) and servers from `.mcp.json` files without an `mcpServers` wrapper, expand `${CLAUDE_PLUGIN_ROOT}` to the installed plugin's directory, and list servers that can't be converted, such as ones using the legacy SSE transport, with a warning instead of reporting them as installed."
-        ]
-      },
-      "curated": {
-        "version": "1.4.11",
-        "period": "2026-10-30",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Google Cloud 登入支援自選計費模式，可挑 Gemini 訂閱制或隨用隨付",
-              "en": "Google Cloud sign-in now supports selecting a billing model, allowing a choice between a Gemini subscription or Pay As You Go"
-            },
-            "body": {
-              "zh-TW": "如果你習慣使用 Google Cloud 帳號登入工具來處理專案，現在帳號綁定的付款機制多了清楚的選擇步驟。⟦跟到電信門市挑選門號資費一樣，以前完成登記後無法自選計費管道，現在你能依使用習慣挑選固定月租，或是用多少算多少的預付扣額。⟧以往透過 Google Cloud 登入時，無法在登入流程中直接決定開銷型態。現在只要完成 Google Cloud 登入驗證，畫面便會跳出計費模式選項。你可以直接勾選 Gemini 訂閱制（Gemini subscription）。如果偏好用多少算多少，也能挑選隨用隨付（Pay As You Go，按實際用量付費）方案。這讓你在登入當下就能敲定計費規則，避免扣款方式與預算規劃產生出入。",
-              "en": "If you are used to signing into tools with a Google Cloud account to handle projects, the payment mechanism tied to your account now includes a clear selection step. ⟦Much like choosing a mobile plan at a telecom store, where you could not choose your billing channel after registering before, you can now pick a fixed monthly rate or pay-as-you-go prepaid credits based on your usage habits.⟧ Previously when signing in through Google Cloud, you could not decide your expense type directly in the sign-in flow. Now once Google Cloud sign-in authentication is complete, a billing model option appears on screen. You can directly select a Gemini subscription. If you prefer to pay for what you use, you can also select the Pay As You Go (paying only for what you use) plan. This lets you settle the billing rules right when signing in, preventing discrepancies between charges and budget plans."
-            },
-            "original": "Added a billing model choice after you sign in with Google Cloud, so you can pick either a Gemini subscription or Pay As You Go."
-          },
-          {
-            "title": {
-              "zh-TW": "PreInvocation 掛鉤支援終止對話，攔截提示詞並回傳警示",
-              "en": "PreInvocation hooks now support terminating turns to block prompts and return alerts"
-            },
-            "body": {
-              "zh-TW": "當你在工具中設定自動檢查機制來保護機密時，現在能在送出請求的最前線精準把關。⟦如同機場託運安檢的掃描輸送帶，以前發現行李夾帶違禁品往往難以在中途攔截，現在能在送進貨艙前立刻截停，並向旅客出示退件通知單。⟧在 `PreInvocation` 掛鉤（hook，特定事件發生時被觸發的小程式）中，現在新增了 `terminationBehavior` 設定項。只要掛鉤回傳 `\"terminate\"`，就能在呼叫模型之前中止當前對話，例如及時攔截包含機敏資料的提示詞。掛鉤還能同時注入 `errorMessage` 物件，當中的 `userMessage` 訊息只會直接顯示在你的終端機畫面上，絕不會傳送給模型。若是透過 `-p` 參數執行的非互動流程，遇到終止時也會以非零狀態碼結束退出。",
-              "en": "When configuring automated checks in the tool to protect confidential data, you can now maintain precise guardrails at the very front line of outgoing requests. ⟦Think of an airport baggage screening conveyor belt: whereas luggage containing contraband was previously hard to intercept midway, it can now be halted immediately before entering the cargo hold, presenting a return notice to the passenger.⟧ In `PreInvocation` hooks (small programs triggered by specific events), a new `terminationBehavior` setting has been added. As long as the hook returns `\"terminate\"`, it can stop the current turn before the model is called, such as blocking a prompt that contains sensitive data in time. The hook can also inject an `errorMessage` object at the same time, whose `userMessage` is shown directly on your terminal screen and is never sent to the model. If running a non-interactive flow via the `-p` flag, encountering a termination will also exit with a non-zero status code."
-            },
-            "original": "Added `terminationBehavior` to `PreInvocation` hooks: returning `\"terminate\"` stops the turn before the model is called, for example to block a prompt that contains sensitive data, and hooks can now inject an `errorMessage` whose `userMessage` is shown to you without being sent to the model, which also makes a `-p` run exit with a non-zero code."
-          },
-          {
-            "title": {
-              "zh-TW": "JSON 輸出新增 finished_reason，精確標記提早中斷原因",
-              "en": "JSON output adds finished_reason to accurately indicate why a turn ended early"
-            },
-            "body": {
-              "zh-TW": "當你撰寫自動化腳本呼叫工具時，程式往往需要判斷回傳內容究竟有沒有講完。⟦好比自動櫃員機列印的明細表，以前交易中斷只能看著螢幕發愣，現在明細會印出逾時未領、手動取消還是連線異常，順利完成時則不留多餘標註。⟧現在使用 `--output-format json` 或 `stream-json` 格式輸出時，回傳結果新增了 `finished_reason` 欄位。如果執行過程因為 `--print-timeout` 時間耗盡而只產生部分回覆，該欄位會標示為 `print_timeout`。若因使用者按下 `Ctrl+C` 等操作取消執行，則會記錄為 `interrupted`。遭遇其他執行失敗時，會代入 `error`。這讓外部腳本能立刻釐清回答是被截斷還是完整輸出，而當對話正常結束時，輸出結果會直接省略此欄位。",
-              "en": "When writing automated scripts to call the tool, programs often need to determine whether the returned content has finished speaking. ⟦An ATM receipt once left users staring at the screen during an interrupted transaction, but now prints whether it timed out, was manually canceled, or suffered a connection anomaly, leaving no extra notes when completed smoothly.⟧ Now when outputting with `--output-format json` or `stream-json`, a `finished_reason` field has been added to the returned results. If the execution produces only a partial response because `--print-timeout` expired, this field is marked as `print_timeout`. If the execution is canceled by user actions such as pressing `Ctrl+C`, it is recorded as `interrupted`. When encountering other execution failures, it is populated with `error`. This allows external scripts to immediately clarify whether an answer was cut off or output completely, while the field is omitted directly when the turn finishes normally."
-            },
-            "original": "Added a `finished_reason` field to the result of `--output-format json` and `stream-json` runs that says why a turn ended early, `print_timeout` when `--print-timeout` expired and the response is partial, `interrupted` when the run was canceled such as with `Ctrl+C`, or `error` for any other failure, so scripts can tell a cut-off answer from a complete one; the field is omitted when the turn finishes normally."
-          },
-          {
-            "title": {
-              "zh-TW": "外掛探索分頁支援分層收合，並修復 Claude 外掛匯入與 MCP 轉換",
-              "en": "The plugin Discover tab supports collapsible shelves, fixing Claude plugin imports and MCP conversions"
-            },
-            "body": {
-              "zh-TW": "當你想在工具中尋找或搬移外掛時，介面排版與轉換相容性現在都有了改善。⟦就像整理零件貨架，以前排面過長難以翻閱、外來套件也常因規格不符碰壁，現在分層收合清楚，規格也自動對齊。⟧在 `/plugin` 的 Discover 分頁中，每層架子只列出前 6 個外掛與展開列，並新增快捷操作：\n\n```text\n# 快速鍵操作\nCtrl+E                  # 展開或收合游標處架子\n[ / ]                   # 跳至上一個或下一個架子\n\n# 外掛匯入與 MCP 轉換\n\"type\": \"http\"          # 保留含 url 與 headers 的遠端伺服器\n.mcp.json               # 支援未含 mcpServers 包裹層的設定\n${CLAUDE_PLUGIN_ROOT}   # 自動展開為外掛安裝目錄\n```\n\n執行 `agy plugin import claude` 匯入 Claude Code 市集外掛時，不再誤報找不到擴充。現在會讀取安裝清單，並略過停用或單一專案專用的外掛。匯入時會保留遠端 MCP（Model Context Protocol，讓 AI 連接外部工具的協定）伺服器與 `.mcp.json` 設定，若遇到舊版 SSE 等無法轉換的伺服器，會顯示警告而非回報為已安裝。",
-              "en": "When you want to search for or migrate plugins in the tool, interface layouts and conversion compatibility are now improved. ⟦Picture organizing a parts shelf: whereas excessively long displays were once cumbersome to browse and external packages frequently hit walls over mismatched specifications, shelves now collapse clearly into layers while specifications align automatically.⟧ In the Discover tab of `/plugin`, each shelf lists only its first 6 plugins along with an expand row, and introduces shortcut operations:\n\n```text\n# Shortcut operations\nCtrl+E                  # Expand or collapse the shelf under the cursor\n[ / ]                   # Jump to the previous or next shelf\n\n# Plugin import and MCP conversion\n\"type\": \"http\"          # Retain remote servers with url and headers\n.mcp.json               # Support configurations without an mcpServers wrapper\n${CLAUDE_PLUGIN_ROOT}   # Automatically expand to the plugin installation directory\n```\n\nWhen running `agy plugin import claude` to import Claude Code marketplace plugins, it no longer mistakenly reports that no extensions were found. It now reads the installation list, skipping disabled plugins or those dedicated to a single project. During import, remote MCP (Model Context Protocol, a protocol for connecting AI to external tools) servers and `.mcp.json` configurations are retained. If it encounters servers that cannot be converted, such as legacy SSE, it displays a warning instead of reporting them as installed."
-            },
-            "original": "Improved the `/plugin` Discover tab for long shelves: each shelf now shows its first 6 plugins followed by a `⋯ N more — enter to show` row, `Ctrl+E` expands or collapses the shelf under the cursor, and `[` and `]` jump to the previous or next shelf.\nFixed `agy plugin import claude` printing `No claude extensions found.` for plugins installed from a Claude Code marketplace: it now reads Claude Code's list of installed plugins, skipping plugins disabled in Claude Code's settings and plugins installed for a single project only, and imported plugins now keep their remote MCP servers (`\"type\": \"http\"` with `url` and `headers`) and servers from `.mcp.json` files without an `mcpServers` wrapper, expand `${CLAUDE_PLUGIN_ROOT}` to the installed plugin's directory, and list servers that can't be converted, such as ones using the legacy SSE transport, with a warning instead of reporting them as installed."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "new",
         "new",
         "fix"
       ]
