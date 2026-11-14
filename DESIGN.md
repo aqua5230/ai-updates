@@ -57,7 +57,7 @@ typography:
     fontWeight: 700
     lineHeight: 1.1
   serial:
-    fontFamily: Geist Mono
+    fontFamily: Plus Jakarta Sans
     fontSize: 1.125rem
     fontWeight: 600
     lineHeight: 1.4
@@ -120,7 +120,7 @@ components:
   analogy:
     textColor: "{colors.text}"
     typography: "{typography.analogy}"
-    rounded: 0 8px 8px 0
+    rounded: 0
     padding: 12px 16px
   badge-new:
     textColor: "{colors.tag-new}"
@@ -128,21 +128,18 @@ components:
     rounded: 0
     backgroundColor: transparent
     border: 0
-    indicator: currentColor 0.5rem circle
   badge-fix:
     textColor: "{colors.tag-fix}"
     typography: "{typography.ui}"
     rounded: 0
     backgroundColor: transparent
     border: 0
-    indicator: currentColor 0.5rem circle
   badge-perf:
     textColor: "{colors.tag-perf}"
     typography: "{typography.ui}"
     rounded: 0
     backgroundColor: transparent
     border: 0
-    indicator: currentColor 0.5rem circle
   filter-chip:
     backgroundColor: "{colors.soft-surface}"
     typography: "{typography.ui}"
@@ -182,11 +179,11 @@ components:
 
 風格名稱「深海琥珀」。深色底為 `#040B16`，淺色底為 `#F3F6FA`。更新卡以細線分隔，形成連續內容，不加底色、圓角或陰影。歷史摺疊區塊保留實心底色、外框與陰影。頁面頂端不放光暈。所有寬度都不使用背景模糊。
 
-四組主題分別是預設深色、系統淺色、手動淺色、手動深色。`--text-color` 用於正文，`--text-bright` 用於標題，`--muted-color` 用於日期與輔助文字，`--link-color` 用於連結。選中工具使用 `--accent-glow` 淡底、標題亮色 `--text-bright` 與 `--text-color` 版本號，桌機 1024px 以上左側加 `2px` `--accent-color` 內陰影線、1023px 以下改為底部 `2px` `--accent-color` 內陰影線；藍色主要留給選中工具、篩選膠囊與連結（switch 開關「開」的軌道用 `--text-bright`、圓鈕用 `--bg-color`）。`--selected-gradient` 的起訖同色。「最新版本／歷史版本」頁籤是次一層的切換，選中時用 `--accent-glow` 淡底配 `--text-bright` 文字，不和選中工具搶實心色。新功能、問題修復、效能優化標籤用各分類色的圓點與文字，不加外框或底色。琥珀色只留給比喻框，效能優化標籤用紫色。
+四組主題分別是預設深色、系統淺色、手動淺色、手動深色。`--text-color` 用於正文，`--text-bright` 用於標題，`--muted-color` 用於日期與輔助文字，`--link-color` 用於連結。選中工具使用 `--accent-glow` 淡底、標題亮色 `--text-bright` 與 `--text-color` 版本號，不加邊線或內陰影線；藍色主要留給選中工具、篩選膠囊與連結（switch 開關「開」的軌道用 `--text-bright`、圓鈕用 `--bg-color`）。`--selected-gradient` 的起訖同色。「最新版本／歷史版本」頁籤是次一層的切換，選中時用 `--accent-glow` 淡底配 `--text-bright` 文字，不和選中工具搶實心色。新功能、問題修復、效能優化標籤用各分類色文字，不加圓點、外框或底色。琥珀色只留給比喻框，效能優化標籤用紫色。
 
 ## 字體與中文排版
 
-Plus Jakarta Sans 承載標題、導覽與英文內文；Geist Mono 用於序號、日期與程式碼。中文依序使用 PingFang TC、Noto Sans TC、Microsoft JhengHei，再回退系統字型。本機字型分 latin 與 latin-ext，使用 `font-display:swap`；可變字重分別為 200–800 與 100–900。
+Plus Jakarta Sans 承載標題、導覽、序號、日期與英文內文（序號與日期使用等寬數字 `tabular-nums`）；Geist Mono 用於工具版本號、程式碼與搜尋快捷鍵。中文依序使用 PingFang TC、Noto Sans TC、Microsoft JhengHei，再回退系統字型。本機字型分 latin 與 latin-ext，使用 `font-display:swap`；可變字重分別為 200–800 與 100–900。
 
 字級限用七個 `--fs-*`：`--fs-2xs` 11px、`--fs-xs` 12px、`--fs-sm` 13px、`--fs-base` 15px、`--fs-md` 16px、`--fs-lg` 18px、`--fs-xl` 22px。11px 只用於工具版本號與搜尋快捷鍵等非中文文字。中文字最小 12px；含中文的元素不加字距、不套大寫。首頁標題顯示「工具名＋空格＋版本號」。標題保留 `clamp()` 寫法，桌機為 3rem，600px 以下為 2rem；字重 700、行距 1.1，使用等寬數字，既有字距不變。卡片標題用最接近原型 20px 的既有 22px token（共用值）、600、行距 1.4。正文 16px、400、行距 1.75；比喻 15px、400、行距 1.7；標籤和小按鈕 13px、500。
 
@@ -194,10 +191,10 @@ Plus Jakarta Sans 承載標題、導覽與英文內文；Geist Mono 用於序號
 
 - 桌機側欄固定 280px，主內容最多 880px；內容區沒有左右直導引線。卡片表頭一列放序號、標題與類型標籤；601px 以上正文與原文區向右縮排 2.75rem，對齊標題，比喻框前的文字整段當導言、不拆出第一句。600px 以下改成序號、類型標籤一列，標題自成一列。首頁正文最大寬度 42rem，版本頁不限。
 - 更新卡只有 `1px solid var(--border-color)` 上分隔線，無底色、圓角或陰影；各尺寸內距皆為 `2rem 0 1.5rem`，外距為 0，滑過不變。歷史摺疊區塊保留 14px 圓角、`--card-bg`、`--border-color` 與 `--glass-shadow`；標頭與內容各用 24px 28px 內距，1023px 以下 20px。歷史內容沿用細線分隔。首頁不播放卡片進場動畫。
-- 比喻框用琥珀色 3px 左線、向右淡出的暖色底、`0 8px 8px 0` 圓角、12px 16px 內距與 16px 上下間距。深色左線 `#F59E0B`，淺色 `#D97706`。偽元素依 `:lang()` 顯示「比喻」或「Analogy」，12px、600；後接的第一段不加分隔線或上內距。
-- 行內程式碼用 `--inline-code-fill`、`--inline-code-border`、`--accent-color`，5px 圓角、2px 6px 內距，字級用最接近原型 14px 的既有 13px token。「原始 CHANGELOG」展開後去框、去底色與圓角，改用 `--font-ui`、`--fs-base`、行距 1.7、`--muted-color`，左側加 `2px solid var(--border-color)` 細線、左內距 `1rem`、上下內距 `0`，並保留原文換行。展開指示（原始 CHANGELOG、歷史版本、版本頁原文）一律用 6px 線條箭頭：右框線加下框線轉 -45°，收合朝右、展開朝下。
-- 工具清單與頁籤用透明外框、無底色。工具清單內距 4px，桌機 1024px 以上改為 0，左右外距 -14px；1024px 以上側欄底部拿掉可見的「語言：」標籤與下拉選單，將語言、深淺色、複製 RSS 收成一排三顆 36px 圖示按鈕（間距 8px、靠左，沿用 1023px 以下標題列按鈕樣式與圖示，並保留 `<select>` 的 `aria-label` 與按鈕 `aria-label`、`title`），Usage App 推廣縮成一行（圖示＋「Usage App」＋「New」），確保 800px 視窗高度完整顯示。頁籤內距 0、下方間距 1.25rem；桌機頁籤最小高度 36px、上下內距 .3rem。1023px 以下標題列、工具清單、主內容與頁尾共用 `--gutter` 左右邊線：主內容置中時跟著置中，至少 24px，600px 以下 20px，480px 以下 16px；工具清單和搜尋框間距 32px。工具清單左右 3rem 淡出遮罩只作用在內容，透明邊框範圍保持完整；可捲動方向顯示 28px 圓形線條箭頭按鈕，貼齊外框內側並垂直置中，每次捲動清單寬度的 70%，減少動態效果時直接捲動。搜尋框各寬度皆顯示左側 16px 放大鏡線條圖示。工具按鈕與頁籤為 8px 圓角。分類標籤用圓點與彩色文字，篩選按鈕維持有框膠囊。「最新發布」為純文字，前置靜態 6px 綠點。
-- 主要控制列只有搜尋框與篩選膠囊保留可見外框；工具清單與頁籤去框（桌機 1024px 以上側欄底部三顆圖示按鈕沿用標題列按鈕有框樣式）。版本列的複製與分享按鈕在非複製成功狀態下無框、無底色，使用輔助文字色；滑過用淡藍底與亮色文字；601px 以上兩顆按鈕垂直中心對齊版本大標題（`h2.version-num`）。搜尋結果、分享選單與回到頂端按鈕保留既有外框與實心卡片色。搜尋框與搜尋結果不加陰影。複製、分享與程式碼複製按鈕為 6px 圓角；版本分享列（含歷史列）的複製連結與分享文字前各放 14px 鏈結與分享線條圖示，間距 6px；600px 以下只有首頁版本列的兩顆按鈕隱藏文字、保留 18px 圖示與無障礙標籤，歷史列文字維持顯示。首頁手機標題獨占首列，同步日期在第三列，分享操作靠右跨第二、三列；搜尋框下方間距 1rem，主內容底部內距於 600px 以下縮為 `1rem`（使「上一版」底部到頁尾 Usage App 頂端距離為 40px）。回到頂端、手機主題按鈕與通知為 8px。點擊區使用 `--control-sm` 32px、`--control-md` 36px、`--control-lg` 44px；手機控制項至少 44px。
+- 比喻框用琥珀色 3px 左線、無底色、0 圓角、12px 16px 內距與 16px 上下間距。深色左線 `#F59E0B`，淺色 `#D97706`。偽元素依 `:lang()` 顯示「比喻」或「Analogy」，12px、600；後接的第一段不加分隔線或上內距。
+- 行內程式碼無外框（`border:0`），用 `--inline-code-fill` 底色與 `--text-bright` 文字（滑過底色略深，不用藍色外框），4px 圓角、1px 5px 內距，字級用最接近原型 14px 的既有 13px token（`--inline-code-border` 變數保留不刪）。「原始 CHANGELOG」展開後去框、去底色與圓角，改用 `--font-ui`、`--fs-base`、行距 1.7、`--muted-color`，左側加 `2px solid var(--border-color)` 細線、左內距 `1rem`、上下內距 `0`，並保留原文換行。展開指示（原始 CHANGELOG、歷史版本、版本頁原文）一律用 6px 線條箭頭：右框線加下框線轉 -45°，收合朝右、展開朝下。
+- 工具清單與頁籤用透明外框、無底色。工具清單內距 4px，桌機 1024px 以上改為 0，左右外距 -14px；1024px 以上側欄底部拿掉可見的「語言：」標籤與下拉選單，將語言、深淺色、複製 RSS 收成一排三顆 36px 圖示按鈕（間距 8px、靠左，沿用 1023px 以下標題列按鈕樣式與圖示，並保留 `<select>` 的 `aria-label` 與按鈕 `aria-label`、`title`），Usage App 推廣縮成一行（圖示＋「Usage App」＋「New」），確保 800px 視窗高度完整顯示。頁籤內距 0、下方間距 1.25rem；桌機頁籤最小高度 36px、上下內距 .3rem。1023px 以下標題列、工具清單、主內容與頁尾共用 `--gutter` 左右邊線：主內容置中時跟著置中，至少 24px，600px 以下 20px，480px 以下 16px；工具清單和搜尋框間距 32px。工具清單左右 3rem 淡出遮罩只作用在內容，透明邊框範圍保持完整；可捲動方向顯示 28px 圓形線條箭頭按鈕，貼齊外框內側並垂直置中，每次捲動清單寬度的 70%，減少動態效果時直接捲動。搜尋框各寬度皆顯示左側 16px 放大鏡線條圖示。工具按鈕與頁籤為 8px 圓角。分類標籤用純彩色文字（無圓點），篩選按鈕維持有框膠囊且保留類型色圓點。「最新發布」為純文字（無綠點）。
+- 主要控制列只有搜尋框與篩選膠囊保留可見外框；工具清單與頁籤去框（桌機 1024px 以上側欄底部三顆圖示按鈕沿用標題列按鈕有框樣式）。版本列的複製與分享按鈕在非複製成功狀態下無框、無底色，使用輔助文字色；滑過用淡藍底與亮色文字；601px 以上兩顆按鈕垂直中心對齊版本大標題（`h2.version-num`）。搜尋結果、分享選單與回到頂端按鈕保留既有外框與實心卡片色。搜尋框與搜尋結果不加陰影。複製、分享與程式碼複製按鈕為 6px 圓角；程式碼區塊「複製」按鈕無外框與底色，只留 `--muted-color` 文字（`--fs-xs`、500），滑過或聚焦時變 `--text-bright`，點擊區至少 32px 高（`--control-sm`），「已複製」狀態亦無框無底；版本分享列（含歷史列）的複製連結與分享文字前各放 14px 鏈結與分享線條圖示，間距 6px；600px 以下只有首頁版本列的兩顆按鈕隱藏文字、保留 18px 圖示與無障礙標籤，歷史列文字維持顯示。首頁手機標題獨占首列，同步日期在第三列，分享操作靠右跨第二、三列；搜尋框下方間距 1rem，主內容底部內距於 600px 以下縮為 `1rem`（使「上一版」底部到頁尾 Usage App 頂端距離為 40px）。回到頂端、手機主題按鈕與通知為 8px。點擊區使用 `--control-sm` 32px、`--control-md` 36px、`--control-lg` 44px；手機控制項至少 44px。
 - 版本頁與 404 共用 `scripts/build.py` 的 `PAGE_CSS`、四組主題與細線分隔的更新卡。版本大標用 Plus Jakarta Sans、700、等寬數字。404 透過連結導回首頁、RSS 和工具頁。
 
 ## 保留的互動
