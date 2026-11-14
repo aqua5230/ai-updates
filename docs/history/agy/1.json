@@ -5,6 +5,58 @@
   "pages": 10,
   "versions": [
     {
+      "version": "1.5.9",
+      "raw": {
+        "version": "1.5.9",
+        "period": "2026-11-14",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-11-14",
+        "entries": [
+          "Added the `run_workflow` tool for everyone: the agent can run a Python workflow script that fans work out to many subagents in parallel or in stages and then combines their results. It uses the Python bundled with the CLI, so you don't need Python installed.",
+          "Added a `pluginControls` section to managed admin settings, so organizations that don't use Gemini Enterprise can control plugins too: `pluginsDisabled` stops all plugins from loading, including built-in ones, and blocks installing or enabling them, while `marketplaceDisabled` turns off the plugin marketplace but keeps installed plugins working. Gemini Enterprise users keep following their organization's Cloud Console policy.",
+          "Improved Auto mode's review of commands that would leave the terminal sandbox, so it decides faster and times out less often: the reviewer can now search the conversation, list directories, and search files directly instead of starting a sandboxed command for each check.",
+          "Improved `/resume`: the conversation picker no longer fetches the full history of every open conversation, so it no longer stalls on \"Loading conversations...\" in long sessions, and `/resume <id>` now accepts any prefix that matches exactly one conversation, such as the short ID shown in the status line, and reports `conversation <id> not found` for an unknown ID instead of silently opening the picker.",
+          "Improved `/browser` subagent session recordings, which are now `.mp4` files made with Chrome's built-in screen recording instead of `.webm`.",
+          "Fixed a security issue where custom headers configured for an HTTP MCP server, such as API keys, could be forwarded to a different host when the server responded with a redirect; they are now sent only to the configured server's own origin.",
+          "Fixed the terminal UI accepting malformed or implausible window-size reports, such as negative or extremely large dimensions from stray escape sequences, which could make the CLI freeze or use excessive memory; these reports are now ignored.",
+          "Fixed several `agy acp` issues: a session no longer fails with \"Authentication required\" after `agy acp --login` when `settings.json` names an auth method that has no credential (such as `gemini-api-key` without `GEMINI_API_KEY`), because the CLI now falls back to your saved login; prompts no longer fail when the ACP client passes an MCP server whose name contains spaces or other special characters; a failed turn now reports its specific error, such as a model or quota error, instead of \"Agent execution terminated due to error.\"; and the diffs sent for completed edits no longer carry an extra trailing newline in `oldText` and `newText`.",
+          "Fixed more cases of files saved with a UTF-8 byte order mark (BOM) being mishandled: `\"modelProvider\"` in `settings.json` is now honored on the first run, `agy acp` now loads your settings and authentication options instead of falling back to defaults, and `agy plugin validate` now runs all of its checks on such a `hooks.json` and reports the real syntax error and line instead of blaming the BOM.",
+          "Fixed `-i`/`--prompt-interactive` together with `--remote-agent` and `--conversation` or `--continue`: the prompt is now sent to the resumed conversation after its history loads, instead of starting a new conversation, and it is handled like typed input, so it shows right away, waits behind a running turn, and reports a failed send.",
+          "Fixed `!` shell commands on Windows: PowerShell no longer drops double quotes, so commands like `! git commit -m \"two words\"` run exactly as typed, and quitting the CLI or killing the task in the tasks panel now also ends the programs the command started instead of leaving them running and the task marked as running.",
+          "Fixed `/copy` and other clipboard actions on Windows over SSH: the copy now reaches your local clipboard, and the copied text is no longer written to the CLI log file.",
+          "Fixed scheduled automations on Windows receiving only the first line of a multi-line prompt; each scheduled or manually triggered run now gets the full prompt.",
+          "Fixed the macOS \"Keychain Not Found\" dialog reappearing about once an hour: after a keychain write fails, the CLI now saves your sign-in token to its file-based storage for the rest of the session instead of retrying the keychain on every token refresh.",
+          "Fixed a race where reloading MCP servers while several subagents were starting could launch duplicate MCP server processes, leaving some subagents with broken MCP tools or failed sign-ins.",
+          "Fixed MCP server and plugin OAuth sign-in on machines without an IPv4 loopback address, such as IPv6-only VMs; the sign-in callback now falls back to `[::1]` when `127.0.0.1` is unavailable instead of failing silently.",
+          "Fixed signing in to a plugin from `/plugin` sometimes reporting that the sign-in didn't finish when it had just succeeded.",
+          "Fixed tool groups jumping around when expanded with `Ctrl+O`: the collapse hint now stays on the same line as the expand hint, and in low verbosity the token summary line no longer disappears from the expanded view.",
+          "Fixed the model selector in the Remote Control browser view on phones, where the list could not be scrolled by touch past the first screen, so models near the end of the list could not be selected."
+        ]
+      },
+      "curated": null,
+      "badges": [
+        "new",
+        "new",
+        "perf",
+        "new",
+        "new",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix"
+      ]
+    },
+    {
       "version": "1.5.8",
       "raw": {
         "version": "1.5.8",
@@ -1244,51 +1296,6 @@
         "new",
         "new",
         "fix",
-        "fix"
-      ]
-    },
-    {
-      "version": "1.4.12",
-      "raw": {
-        "version": "1.4.12",
-        "period": "2026-10-31",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-10-31",
-        "entries": [
-          "Added `\"optional\": true` for API key providers in a plugin's `auth.json`, for services that work without a key but raise rate limits with one: when you haven't set the key, the plugin's commands now see the variable as unset and make unauthenticated requests at the free rate limit, instead of failing with `401` errors or asking you to sign in.",
-          "Fixed Markdown tables in long streaming replies leaving misaligned borders and repeated text in your terminal scrollback: a table's rows now stay in the live view until the table is complete, so they reach scrollback with their final column widths."
-        ]
-      },
-      "curated": {
-        "version": "1.4.12",
-        "period": "2026-10-31",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "外掛的 API 金鑰可以設成選填",
-              "en": "Plugin API Keys Can Now Be Optional"
-            },
-            "body": {
-              "zh-TW": "你剛裝好一個串接網路服務的外掛，想先試試基本功能，手邊卻還沒申請帳號。現在外掛作者可以在外掛的 `auth.json` 裡，把某個 API 金鑰（向線上服務證明身分的存取密碼）提供者標記成選填，做法是在那一項加上 `\"optional\": true`。它適用於不用金鑰也能用、但附上金鑰能提高限流（服務限制單位時間內請求次數的機制）門檻的服務。\n\n標成選填後，你還沒設定金鑰時，外掛指令會把存放金鑰的那個變數當成未設定，直接以免費的限流額度發出未驗證請求。以前同樣的情況會出現 `401` 錯誤，或跳出要你登入的畫面。⟦跟逛公立展覽館一樣，以前入口一律要看會員證，沒帶就被擋在門外；現在沒登記的訪客也能領普通號碼牌入場，出示會員卡則能換到更多參觀名額。⟧",
-              "en": "You've just installed a plugin that connects to an online service and want to try the basics, but you haven't signed up for an account yet. Plugin authors can now mark an API key (an access password that proves your identity to an online service) provider as optional in the plugin's `auth.json` by adding `\"optional\": true` to that entry. It is meant for services that work without a key but raise rate limits (caps on how many requests you can send per unit of time) when you have one.\n\nOnce a key is optional and you haven't set it, the plugin's commands see the variable holding the key as unset and make unauthenticated requests at the free rate limit. Before, the same situation failed with `401` errors or asked you to sign in. ⟦Think of a public exhibition hall: the entrance used to demand a membership card and turned away anyone without one; now walk-in visitors can take a regular ticket and enter, while members who show their card get a larger visiting allowance.⟧"
-            },
-            "original": "Added `\"optional\": true` for API key providers in a plugin's `auth.json`, for services that work without a key but raise rate limits with one: when you haven't set the key, the plugin's commands now see the variable as unset and make unauthenticated requests at the free rate limit, instead of failing with `401` errors or asking you to sign in."
-          },
-          {
-            "title": {
-              "zh-TW": "串流中的長表格完成後才進捲動紀錄，邊框不再歪斜",
-              "en": "Streamed Tables Now Reach Scrollback Only When Complete"
-            },
-            "body": {
-              "zh-TW": "在終端機收到很長的回覆時，如果裡面有 Markdown 表格，往上翻常會看到版面亂掉。以前在串流（模型一邊生成一邊即時顯示）輸出時，表格列太早被推進捲動紀錄，也就是往上翻看得到的舊畫面，結果留下歪斜的邊框和重複的文字。現在表格各列會先留在即時畫面，等整張表格完成，才用最終欄寬推進捲動紀錄，往上翻就不會再看到錯位。",
-              "en": "When you get a long reply in the terminal that contains a Markdown table, scrolling up often showed a broken layout. Before, while streaming (showing output in real time as the model generates it), table rows reached your terminal scrollback too early, leaving misaligned borders and repeated text. Now a table's rows stay in the live view until the table is complete, then reach scrollback with their final column widths, so scrolling up no longer shows the misalignment."
-            },
-            "original": "Fixed Markdown tables in long streaming replies leaving misaligned borders and repeated text in your terminal scrollback: a table's rows now stay in the live view until the table is complete, so they reach scrollback with their final column widths."
-          }
-        ]
-      },
-      "badges": [
-        "new",
         "fix"
       ]
     }
