@@ -785,19 +785,20 @@ PAGE_CSS = """\
     .log-analogy::before{display:inline;margin-right:.5rem;font-size:var(--fs-xs);font-weight:600;color:var(--analogy-label)}
     .log-analogy:lang(zh)::before{content:"比喻"}
     .log-analogy:lang(en)::before{content:"Analogy"}
-    .log-howto{margin:0;border:0;border-radius:6px;background:var(--soft-surface)}
-    .original-entry{margin:0 0 .6rem;background:var(--code-bg);border:1px solid var(--border-color);border-radius:12px;overflow:hidden}
-    .original-entry summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .6rem;list-style:none;padding:.65rem .85rem}
+    .log-howto{margin:0;border:0;border-radius:0;background:none}
+    .original-entry{margin:0 0 .6rem;background:none;border:0;border-radius:0;overflow:visible}
+    .original-entry summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .6rem;list-style:none;padding:.35rem 0}
     .original-entry summary::-webkit-details-marker{display:none}
     .original-entry summary::before{content:"";flex:0 0 auto;align-self:center;width:.375rem;height:.375rem;margin:0 .125rem;border:solid var(--accent-color);border-width:0 1.5px 1.5px 0;rotate:-45deg;transition:transform .2s ease}
     .original-entry[open] summary::before{transform:rotate(90deg)}
     .original-entry-title{color:var(--text-bright);font:500 var(--fs-sm)/1.6 var(--font-ui)}
-    .log-howto summary{padding:.65rem .85rem;cursor:pointer;color:var(--muted-color);font:500 var(--fs-xs)/1.5 var(--font-ui);line-height:1.5;min-height:var(--control-sm)}
-    .log-howto[open] summary{border-bottom:1px solid var(--border-color);color:var(--text-bright)}
-    .log-howto .log-code-block{margin:.75rem}
+    .log-howto summary{padding:.35rem 0;cursor:pointer;color:var(--muted-color);font:500 var(--fs-sm)/1.5 var(--font-ui);line-height:1.5;min-height:var(--control-sm)}
+    .log-howto[open] summary{border-bottom:0;color:var(--text-bright)}
+    .log-howto .log-code-block{margin:.5rem 0 0;padding:0 0 0 1rem;background:none;border:0;border-left:2px solid var(--border-color);border-radius:0;font:400 var(--fs-base)/1.7 var(--font-ui);font-family:var(--font-ui);color:var(--muted-color);white-space:pre-wrap}
     footer{border-top:1px solid var(--border-color);padding-top:1.5rem}
-    footer nav{display:flex;flex-wrap:wrap;gap:.75rem 1rem}
+    footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem 1rem}
     footer a{font:var(--fs-sm)/1.5 var(--font-ui);line-height:1.5}
+    .nav-neighbor{display:inline-flex;align-items:center;gap:.25rem;color:var(--link-color);font:var(--fs-sm)/1.5 var(--font-ui)}
     .back-to-top{position:fixed;right:calc(1rem + env(safe-area-inset-right));bottom:calc(1rem + env(safe-area-inset-bottom));z-index:20;display:grid;place-items:center;width:var(--control-lg);height:var(--control-lg);padding:0;border:1px solid var(--glass-border);color:var(--text-bright);cursor:pointer;box-shadow:var(--glass-shadow);background:var(--card-bg);border-color:var(--border-color);border-radius:8px}
     .back-to-top:hover,.back-to-top:focus-visible{background:color-mix(in srgb,var(--accent-color) 15%,var(--card-bg))}
     .back-to-top[hidden]{display:none}
@@ -932,7 +933,7 @@ def _render_static_page(
         },
     ]
     json_ld = json.dumps(structured_data, ensure_ascii=False).replace("</", "<\\/")
-    def neighbor_link(neighbor_index: int, label: str) -> str:
+    def neighbor_link(neighbor_index: int, label: str, prefix: str = "", suffix: str = "") -> str:
         if not 0 <= neighbor_index < len(versions):
             return ""
         neighbor = versions[neighbor_index]
@@ -941,10 +942,12 @@ def _render_static_page(
         neighbor_url = _page_url(tool_id, str(neighbor["version"]))
         if english:
             neighbor_url += "en/"
-        return f'<a href="{escape(neighbor_url, quote=True)}">{label}</a>'
+        left = f'<span aria-hidden="true">{prefix}</span>' if prefix else ""
+        right = f'<span aria-hidden="true">{suffix}</span>' if suffix else ""
+        return f'<span class="nav-neighbor">{left}<a href="{escape(neighbor_url, quote=True)}">{label}</a>{right}</span>'
 
-    previous_link = neighbor_link(index + 1, "Previous version" if english else "上一版")
-    next_link = neighbor_link(index - 1, "Next version" if english else "下一版")
+    previous_link = neighbor_link(index + 1, "Previous version" if english else "上一版", prefix="←")
+    next_link = neighbor_link(index - 1, "Next version" if english else "下一版", suffix="→")
     if english:
         language_sections = (
             '<section class="language-section" lang="en"><h2>Release notes</h2>'
