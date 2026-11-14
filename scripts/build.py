@@ -329,6 +329,18 @@ def _curated_items(version: dict[str, Any]) -> list[dict[str, Any]]:
     return [item for item in curated.get("items", []) if isinstance(item, dict)]
 
 
+def _first_titles(version: dict[str, Any]) -> dict[str, str]:
+    items = _curated_items(version)
+    if items:
+        return {
+            language: " ".join(_strip_analogy_marks(_localized(items[0].get("title"), language)).replace("`", "").split())
+            for language in ("zh-TW", "en")
+        }
+    entries = (version.get("raw") or {}).get("entries") or []
+    first = " ".join(str(entries[0]).split()) if entries else ""
+    return {"zh-TW": first, "en": first}
+
+
 def _headline(version: dict[str, Any], language: str) -> str:
     items = _curated_items(version)
     if not items:
@@ -1205,6 +1217,10 @@ def build() -> None:
                 if enterprise:
                     summary["enterprise"] = enterprise
             site_versions.append(summary)
+        if latest is not None:
+            previous_index = history_tool["versions"].index(latest) + 1
+            if previous_index < len(site_versions):
+                site_versions[previous_index]["first_title"] = _first_titles(history_tool["versions"][previous_index])
         site_tools.append(
             {
                 "id": tool_id,

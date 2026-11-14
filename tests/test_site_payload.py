@@ -123,7 +123,14 @@ def test_site_payload_splits_history_without_losing_data(
     assert len(payload["tools"]) == len(records)
     assert not (old_history / "alpha.json").exists()
     for tool in payload["tools"]:
-        assert all(set(version) == {"version", "period"} for version in tool["versions"])
+        versions = tool["versions"]
+        allowed = {"version", "period", "enterprise", "first_title"}
+        assert all({"version", "period"} <= set(version) <= allowed for version in versions)
+        names = [version["version"] for version in versions]
+        after_latest = names.index(tool["latest"]["version"]) + 1
+        titled = [i for i, version in enumerate(versions) if "first_title" in version]
+        assert titled == ([after_latest] if after_latest < len(versions) else [])
+        assert all(set(versions[i]["first_title"]) == {"zh-TW", "en"} for i in titled)
         assert "raw" not in tool["versions"][0]
         assert "curated" not in tool["versions"][0]
 
