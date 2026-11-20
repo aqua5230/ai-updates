@@ -5,6 +5,127 @@
   "pages": 10,
   "versions": [
     {
+      "version": "1.5.3",
+      "raw": {
+        "version": "1.5.3",
+        "period": "2026-11-07",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-11-07",
+        "entries": [
+          "Added each subagent's model next to its name in the subagent rows above the prompt and in `/agents` (hidden on narrow terminals), with the full model and effort in a subagent's detail view, and a `model` field on each `subagents` entry in the status line JSON; `/agents` now shows a single `Tip: Press enter on a subagent to view details.` line instead of repeating `[view details]` on every row.",
+          "Added the `PLUGIN_ROOT` and `PLUGIN_DATA` environment variables to hook commands that come from a plugin, pointing to the plugin's folder and its persistent data folder, so plugin hooks can use files bundled with the plugin and keep state between runs; `agy plugin validate` no longer warns that these variables are not set for hooks.",
+          "Changed the error shown when Vertex AI reports that the selected model does not exist or that your Google Cloud project cannot use it, which now reads `The requested model was not found, or your project does not have access to it.` instead of the raw API error.",
+          "Improved the plugin sign-in screen in `/plugin`, which now indents the sign-in link like the surrounding text and sets it apart with a blank line, no longer underlines trailing blank space in wrapped links, and uses the plugin's display name from `plugin.json`, such as `Canva` instead of `canva`.",
+          "Improved `agy plugin validate` so the `category` field in `plugin.json` is accepted instead of reported as an unknown field, with a warning only when it is not a non-empty string.",
+          "Improved auto-generated conversation titles, which now keep abbreviations and acronyms from your request as written instead of guessing what they stand for.",
+          "Fixed `agy plugin uninstall`, `agy plugin enable`, `agy plugin disable`, and uninstalling from `/plugin` failing for plugins installed as symbolic links, such as plugins installed from Antigravity, or for plugins whose names contain spaces or symbols such as `c++-tools`, and `agy plugin list` shows symlinked plugins again.",
+          "Fixed agent turns failing with `http2: timeout awaiting response headers` when the model took more than 60 seconds to start responding, which are now retried.",
+          "Fixed every model request failing with a 404 error when an enterprise model gateway URL ended in `/v1beta`, even though the model list loaded; a trailing `/v1beta` in the gateway URL is now ignored.",
+          "Fixed the agent's requests to sign in to a plugin being dropped from the conversation, so when a plugin needs a sign-in the CLI now shows a line such as `⚠ The <plugin> plugin needs you to sign in. Open /plugin to sign in.`",
+          "Fixed the agent's file tools mishandling text that is not UTF-8, mostly on Windows: reading a UTF-16 or legacy code-page file now returns its text instead of treating it as binary, edits keep a file's UTF-8 byte order mark or UTF-16 encoding, and PowerShell scripts (`.ps1`, `.psm1`, `.psd1`) with non-ASCII text are written with a UTF-8 byte order mark so Windows PowerShell 5.1 reads them correctly.",
+          "Fixed a message sent during a turn with the `Send Immediately` queued-messages mode briefly disappearing from the conversation and reappearing when it arrived just as the turn ended.",
+          "Fixed hooks receiving a placeholder or empty model name when the session uses a custom model, so hooks now get the name of the model actually in use.",
+          "Fixed files larger than the remote read limit being silently cut off in `--remote-agent` sessions, which now load in full up to 20 MiB and report an error above that instead of showing partial content.",
+          "Fixed `agy acp` sessions exiting before the agent backend finished shutting down when the client closed the connection, which could interrupt saving conversation data.",
+          "Fixed a security issue where a command run in the terminal sandbox could change environment state later loaded by persistent terminal commands run outside the sandbox, and hardened persistent terminal IDs against path traversal.",
+          "Fixed garbled characters in tool-call summaries when the CLI shortens file paths that contain non-ASCII characters.",
+          "Fixed paths that share a prefix with your home directory, such as `/home/alice` when your home is `/home/al`, showing with a mangled `~` prefix in the `/context` file list and the keybindings reset hint."
+        ]
+      },
+      "curated": {
+        "version": "1.5.3",
+        "period": "2026-11-07",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "子代理列出運作模型，詳細畫面可查思考力度",
+              "en": "Subagents List Their Running Models, and Detail Views Show Thinking Effort"
+            },
+            "body": {
+              "zh-TW": "當你在對話中啟用多個子代理分工時，能一眼看清每位助理背後運作的模型。現在輸入框上方的子代理清單與 `/agents` 列表中，代理名稱旁會直接標註所使用的模型，遇到寬度較窄的終端機則會自動隱藏。⟦就像瀏覽球隊的出賽名單，以前名牌上只印球員名字，看不出誰是主力；現在名字旁直接列出階級，點開詳情還能掌握每位選手的投入程度。⟧進入子代理詳細檢視畫面，還能查看完整模型名稱與思考力度設定。如果你透過 status line（顯示在終端機最底下的狀態列）讀取 JSON 資料，每筆 `subagents` 項目也補上了 `model` 欄位。`/agents` 列表不再每行重複顯示 `[view details]`，改在下方顯示單行 `Tip: Press enter on a subagent to view details.` 提示。",
+              "en": "When delegating tasks to multiple subagents in a conversation, you can immediately see the model running behind each assistant. In the subagent rows above the prompt and in `/agents`, the model in use is now marked directly next to each agent's name, and it is automatically hidden on narrow terminals. ⟦Think of checking a team roster where placards previously showed only player names without revealing starters; now each name displays their tier, and opening details reveals each player's level of effort.⟧ Entering a subagent's detail view also lets you see the full model name and effort setting. If you read JSON data through the status line (the status bar displayed at the bottom of the terminal), a `model` field has also been added to each `subagents` entry. The `/agents` list no longer repeats `[view details]` on every row, instead displaying a single `Tip: Press enter on a subagent to view details.` line below."
+            },
+            "original": "Added each subagent's model next to its name in the subagent rows above the prompt and in `/agents` (hidden on narrow terminals), with the full model and effort in a subagent's detail view, and a `model` field on each `subagents` entry in the status line JSON; `/agents` now shows a single `Tip: Press enter on a subagent to view details.` line instead of repeating `[view details]` on every row."
+          },
+          {
+            "title": {
+              "zh-TW": "外掛掛鉤支援專屬目錄，驗證工具接納分類欄位",
+              "en": "Plugin Hooks Gain Dedicated Directories, and Validation Accepts Category Field"
+            },
+            "body": {
+              "zh-TW": "開發或客製化外掛時，掛鉤程式現在能精準存取自身檔案並取得運作資訊。來自外掛的掛鉤（hook，特定事件發生時被觸發的小程式）指令，現在新增了 `PLUGIN_ROOT` 與 `PLUGIN_DATA` 兩個環境變數，分別指向外掛所在的目錄與會保留資料的目錄，方便掛鉤使用隨附檔案並在多次執行間保留狀態。執行 `agy plugin validate` 時，不會再針對掛鉤未設定這兩個變數發出警告。\n\n執行 `agy plugin validate` 檢查時，`plugin.json` 設定檔內的 `category` 分類欄位已被正式接納，不再誤報為未知欄位，僅在內容不是非空字串時提出警告。在工作階段使用自訂模型時，過去掛鉤常收到預留位置或空名稱，現在會確實取得當前運作的模型名稱。",
+              "en": "When developing or customizing plugins, hook programs can now accurately access their own files and retrieve runtime information. Hook commands coming from a plugin now add the `PLUGIN_ROOT` and `PLUGIN_DATA` environment variables, pointing respectively to the plugin's folder and its persistent data folder. This allows hooks (small programs triggered by specific events) to use bundled files and preserve state across runs. Running `agy plugin validate` no longer warns that these variables are not set for hooks.\n\nWhen running `agy plugin validate`, the `category` field in the `plugin.json` configuration file is now officially accepted instead of reported as an unknown field, with a warning issued only when it is not a non-empty string. When using a custom model in a session, hooks previously often received a placeholder or empty name, but they now reliably receive the name of the model actually in use."
+            },
+            "original": "Added the `PLUGIN_ROOT` and `PLUGIN_DATA` environment variables to hook commands that come from a plugin, pointing to the plugin's folder and its persistent data folder, so plugin hooks can use files bundled with the plugin and keep state between runs; `agy plugin validate` no longer warns that these variables are not set for hooks.\nImproved `agy plugin validate` so the `category` field in `plugin.json` is accepted instead of reported as an unknown field, with a warning only when it is not a non-empty string.\nFixed hooks receiving a placeholder or empty model name when the session uses a custom model, so hooks now get the name of the model actually in use."
+          },
+          {
+            "title": {
+              "zh-TW": "外掛管理支援符號連結，登入畫面與提示排版整齊",
+              "en": "Plugin Management Supports Symlinks, Tidying Sign-In Screens and Prompts"
+            },
+            "body": {
+              "zh-TW": "在終端機安裝、停用或登入各類外掛時，介面排版與特殊路徑的支援都補齊了。如果外掛以符號連結（symlink，指向另一個位置的捷徑檔）方式安裝，或名稱含有空格與符號，過去執行 `agy plugin uninstall`、`agy plugin enable`、`agy plugin disable` 或從 `/plugin` 移除時常會失敗，現在均已修復，且 `agy plugin list` 能重新列出符號連結外掛。\n\n在 `/plugin` 登入畫面中，登入連結會正常縮排並以空行隔開，折行不再替結尾空白加底線，名稱也會改採 `plugin.json` 的顯示名稱。當外掛需要登入時，請求不會再從對話消失，終端機會提示 `⚠ The <plugin> plugin needs you to sign in. Open /plugin to sign in.`。",
+              "en": "When installing, disabling, or signing in to plugins in the terminal, interface layouts and support for special paths are now fully rounded out. If a plugin was installed as a symbolic link (a shortcut pointing to another location) or has a name containing spaces or symbols, running `agy plugin uninstall`, `agy plugin enable`, `agy plugin disable`, or uninstalling from `/plugin` previously often failed; these issues are now fixed, and `agy plugin list` displays symlinked plugins again.\n\nIn the `/plugin` sign-in screen, sign-in links are now properly indented and set apart with a blank line, wrapped links no longer underline trailing blank space, and names use the display name from `plugin.json`. When a plugin requires a sign-in, requests are no longer dropped from the conversation, and the terminal displays a line such as `⚠ The <plugin> plugin needs you to sign in. Open /plugin to sign in.`."
+            },
+            "original": "Improved the plugin sign-in screen in `/plugin`, which now indents the sign-in link like the surrounding text and sets it apart with a blank line, no longer underlines trailing blank space in wrapped links, and uses the plugin's display name from `plugin.json`, such as `Canva` instead of `canva`.\nFixed `agy plugin uninstall`, `agy plugin enable`, `agy plugin disable`, and uninstalling from `/plugin` failing for plugins installed as symbolic links, such as plugins installed from Antigravity, or for plugins whose names contain spaces or symbols such as `c++-tools`, and `agy plugin list` shows symlinked plugins again.\nFixed the agent's requests to sign in to a plugin being dropped from the conversation, so when a plugin needs a sign-in the CLI now shows a line such as `⚠ The <plugin> plugin needs you to sign in. Open /plugin to sign in.`"
+          },
+          {
+            "title": {
+              "zh-TW": "企業模型閘道修復路徑錯誤，模型逾時自動重試",
+              "en": "Enterprise Model Gateways Fix Path Errors, and Model Timeouts Auto-Retry"
+            },
+            "body": {
+              "zh-TW": "連線至雲端模型或企業內部閘道時，網路延遲與路徑設定常影響對話能否順利展開。⟦宛如撥打跨國總機電話，以前只要線路忙線超過一分鐘就被直接切斷，分機號碼多帶斜線還會轉到空號；現在遇上線路延遲會自動重撥，轉接號碼多打尾碼也會自動校正接通。⟧當模型超過 60 秒才開始回傳標頭時，代理不會再以 `http2: timeout awaiting response headers` 中斷失敗，而是會主動重試。若企業模型閘道（gateway）網址結尾帶有 `/v1beta`，系統會自動忽略該後綴，避免請求全數回傳 404 錯誤。透過 Vertex AI 呼叫模型時，若模型不存在或專案無權限，錯誤訊息改以 `The requested model was not found, or your project does not have access to it.` 取代原始 API 報錯。",
+              "en": "When connecting to cloud models or enterprise internal gateways, network latency and path configurations often affect whether conversations start smoothly. ⟦Picture dialing an international switchboard where lines busy for over a minute were abruptly disconnected and an extra slash in the extension forwarded to a dead line; now line delays trigger an automatic redial, and accidental trailing suffixes in the extension are corrected to connect.⟧ When a model takes more than 60 seconds to begin returning response headers, agent turns no longer fail with `http2: timeout awaiting response headers` and are retried instead. If an enterprise model gateway URL ends in `/v1beta`, the system automatically ignores that suffix to prevent every request from failing with a 404 error. When calling models through Vertex AI, if the requested model does not exist or your project lacks permissions, the error message now displays `The requested model was not found, or your project does not have access to it.` instead of the raw API error."
+            },
+            "original": "Changed the error shown when Vertex AI reports that the selected model does not exist or that your Google Cloud project cannot use it, which now reads `The requested model was not found, or your project does not have access to it.` instead of the raw API error.\nFixed agent turns failing with `http2: timeout awaiting response headers` when the model took more than 60 seconds to start responding, which are now retried.\nFixed every model request failing with a 404 error when an enterprise model gateway URL ended in `/v1beta`, even though the model list loaded; a trailing `/v1beta` in the gateway URL is now ignored."
+          },
+          {
+            "title": {
+              "zh-TW": "對話標題保留英文縮寫，送出排隊訊息不再閃爍消失",
+              "en": "Conversation Titles Keep Abbreviations, and Queued Messages No Longer Flicker Away"
+            },
+            "body": {
+              "zh-TW": "日常使用對話視窗交辦任務時，文字顯示與歷史紀錄保存變得更為可靠。現在自動產生的對話標題，會依你在提問中輸入的原樣保留英文簡寫與首字母縮寫，不再自行猜測並展開全名。\n\n當你使用立即送出（Send Immediately）排隊訊息模式時，若在上一輪剛好結束的瞬間送出訊息，過去常在對話中短暫消失又重新出現，這個問題已經修好。\n\n如果你透過 `agy acp` 連線工作階段，過去當用戶端切斷連線時，常在代理後端關閉前過早退出，容易打斷對話紀錄的儲存；這個問題已經修好，對話資料不會再因此在儲存途中被打斷。",
+              "en": "When assigning tasks in daily conversation windows, text display and history retention have become more reliable. Auto-generated conversation titles now preserve abbreviations and acronyms as originally written in your request, without guessing and expanding their full names.\n\nWhen using the `Send Immediately` queued-messages mode, sending a message right as the previous turn ended previously caused it to briefly disappear and reappear in the conversation; this issue is now resolved.\n\nIf you connect to sessions via `agy acp`, client disconnections previously caused sessions to exit prematurely before the agent backend finished shutting down, which could easily interrupt saving conversation history; this issue is now fixed so conversation data is no longer cut short during saving."
+            },
+            "original": "Improved auto-generated conversation titles, which now keep abbreviations and acronyms from your request as written instead of guessing what they stand for.\nFixed a message sent during a turn with the `Send Immediately` queued-messages mode briefly disappearing from the conversation and reappearing when it arrived just as the turn ended.\nFixed `agy acp` sessions exiting before the agent backend finished shutting down when the client closed the connection, which could interrupt saving conversation data."
+          },
+          {
+            "title": {
+              "zh-TW": "檔案工具支援舊版編碼頁，遠端讀取上限放寬至 20 MiB",
+              "en": "File Tools Support Legacy Code Pages, and Remote Read Limit Expands to 20 MiB"
+            },
+            "body": {
+              "zh-TW": "當代理在不同系統間讀取程式碼或路徑時，非標準編碼與長路徑常引發解析異常。在 Windows 環境下，檔案工具讀取 UTF-16 與傳統編碼頁文字時不再誤判為二進位檔，編輯時也會保留 UTF-16 編碼或既有的 UTF-8 位元組順序記號（BOM）。寫入含非 ASCII 字元的 PowerShell 腳本時也會加上 UTF-8 BOM，讓 Windows PowerShell 5.1 能正確讀取。\n\n使用 `--remote-agent` 遠端工作階段時，超過讀取限制的檔案不再被悄悄截斷，最高可完整讀取 20 MiB，超過上限則明確報錯。此外，工具呼叫摘要縮短非 ASCII 路徑時已修正亂碼，路徑與家目錄前綴重疊時也不再於 `/context` 清單顯示損壞的 `~` 符號。",
+              "en": "When the agent reads code or paths across different systems, non-standard encodings and long paths often trigger parsing anomalies. On Windows, file tools reading UTF-16 and legacy code-page text no longer misidentify files as binary, and edits preserve UTF-16 encoding or existing UTF-8 byte order marks (BOMs). Writing PowerShell scripts containing non-ASCII characters also attaches a UTF-8 BOM so that Windows PowerShell 5.1 can read them properly.\n\nIn `--remote-agent` remote sessions, files exceeding the read limit are no longer silently truncated, loading fully up to 20 MiB and reporting a clear error above that limit. In addition, garbled characters have been fixed when tool-call summaries shorten paths containing non-ASCII characters, and paths sharing a prefix with your home directory no longer show a broken `~` symbol in the `/context` list."
+            },
+            "original": "Fixed the agent's file tools mishandling text that is not UTF-8, mostly on Windows: reading a UTF-16 or legacy code-page file now returns its text instead of treating it as binary, edits keep a file's UTF-8 byte order mark or UTF-16 encoding, and PowerShell scripts (`.ps1`, `.psm1`, `.psd1`) with non-ASCII text are written with a UTF-8 byte order mark so Windows PowerShell 5.1 reads them correctly.\nFixed files larger than the remote read limit being silently cut off in `--remote-agent` sessions, which now load in full up to 20 MiB and report an error above that instead of showing partial content.\nFixed garbled characters in tool-call summaries when the CLI shortens file paths that contain non-ASCII characters.\nFixed paths that share a prefix with your home directory, such as `/home/alice` when your home is `/home/al`, showing with a mangled `~` prefix in the `/context` file list and the keybindings reset hint."
+          },
+          {
+            "title": {
+              "zh-TW": "隔離終端機沙盒環境狀態，強化連線識別碼安全性",
+              "en": "Terminal Sandbox State Is Isolated, Hardening Connection ID Security"
+            },
+            "body": {
+              "zh-TW": "當你在終端機沙盒中執行不受信任的指令時，本機環境的隔離防護變得更為嚴密。⟦如同在密閉防護艙內試驗原料，以前艙內殘留的氣體可能滲漏到外部常態作業區，控制台識別碼也缺乏防護；現在內部操作徹底阻斷外洩，終端編號也強化防禦以防止越區穿透。⟧過去在終端機沙盒（sandbox，隔離執行指令的受限環境）內執行的指令，曾可能改動環境狀態，導致沙盒外部執行的常駐終端機指令載入受污染的設定。這個安全問題已經修好，沙盒內的狀態變更不會再影響外部終端機。常駐終端機的連線識別碼也針對路徑遍歷（path traversal）加強了防護。",
+              "en": "When running untrusted commands in a terminal sandbox, local environment isolation becomes significantly tighter. ⟦Like testing raw materials inside a sealed containment chamber where residual gases once leaked into routine work areas outside while console IDs lacked protection, internal operations now thoroughly block leaks and terminal numbers are fortified against cross-zone traversal.⟧ Commands run inside the terminal sandbox (an isolated, restricted environment for running commands) previously could alter environment state, causing persistent terminal commands run outside the sandbox to load contaminated configurations. This security issue has been resolved, so state changes inside the sandbox no longer affect external terminals. Connection IDs for persistent terminals have also been hardened against path traversal."
+            },
+            "original": "Fixed a security issue where a command run in the terminal sandbox could change environment state later loaded by persistent terminal commands run outside the sandbox, and hardened persistent terminal IDs against path traversal."
+          }
+        ]
+      },
+      "badges": [
+        "new",
+        "new",
+        "new",
+        "fix",
+        "new",
+        "fix",
+        "fix"
+      ]
+    },
+    {
       "version": "1.5.2",
       "raw": {
         "version": "1.5.2",
@@ -999,144 +1120,6 @@
         "new",
         "new",
         "fix",
-        "fix",
-        "fix"
-      ]
-    },
-    {
-      "version": "1.4.6",
-      "raw": {
-        "version": "1.4.6",
-        "period": "2026-10-23",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-10-23",
-        "entries": [
-          "Added a `Configure MCP servers...` row for installed plugins in `/plugin`, so you can set or change a plugin's MCP server variables at any time without disabling and re-enabling it; plugins with missing values show `⚠ needs setup`, each server shows `✓ configured` or the variables it still needs, and saving restarts an enabled plugin's servers so the new values take effect.",
-          "Improved terminal sandbox defaults to protect more credentials: sandboxed commands can no longer read or modify `~/.docker`, `~/.kube`, or `~/_netrc` unless you grant access explicitly. Previously `~/.docker` and `~/.kube` were writable inside the sandbox, so sandboxed commands that use Docker registry or Kubernetes cluster credentials now need an explicit grant.",
-          "Improved context compaction, including `/compact`, to keep images, PDFs, and other files you attached in the conversation summary, so the agent can still see them after older history is summarized.",
-          "Improved permission prompts so that allowing an action for the conversation, in the main agent or in a subagent, applies across the main conversation and all of its subagents instead of asking again for the same action.",
-          "Improved the in-progress status line to show what the agent is waiting on, such as initializing MCP servers or retrying an unavailable model (for example `Model unavailable (attempt 2/10), retrying in 12s` with a live countdown), instead of a generic working label.",
-          "Improved `/diff` to highlight the exact words that changed within each modified line, in every color scheme.",
-          "Improved `agy plugin validate`: it now has `--help`, checks a plugin's context providers (missing `label` or `command`, invalid or duplicate triggers, unknown fields, missing command files), warns about `skills` entries in `plugin.json` that don't exist or contain no `SKILL.md`, and reports every `SKILL.md` the plugin loader skips, including skills listed through `plugin.json` or `skills.json`.",
-          "Fixed terminal commands occasionally failing to start with `argument list too long` when the model returned a very large reasoning signature with the tool call.",
-          "Fixed text cursors drifting away from the insertion point after wide characters (CJK, emoji), tabs, other Unicode spaces, and on soft-wrapped lines, including `Up`/`Down` landing on the wrong row, in the prompt and in the settings, permission amend, plugin setup, feedback, hooks, and artifact search boxes.",
-          "Fixed the `Esc disabled during file edits` warning naming the wrong reject key when the prompt shows an extra choice, such as for edits outside the workspace in accept-edits mode.",
-          "Fixed sign-in not persisting across restarts on macOS and Windows for enterprise accounts, because the saved credential exceeded the system keychain's size limit."
-        ]
-      },
-      "curated": {
-        "version": "1.4.6",
-        "period": "2026-10-23",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "外掛清單新增 MCP 伺服器設定列，不必停用再啟用即可改變數",
-              "en": "Plugin List Adds MCP Server Configuration Row, Updating Variables Without Disabling and Re-enabling"
-            },
-            "body": {
-              "zh-TW": "平時替終端機安裝各種外掛後，若想微調連線金鑰或伺服器參數，現在不必再先停用、再重新啟用外掛。輸入 `/plugin` 檢視已安裝的外掛清單，現在每一筆外掛底下都會出現 `Configure MCP servers...` 設定選項。⟦彷彿在舞台音響架旁微調效果器的獨立旋鈕，以前更換參數就得拔掉總電源重新開機；現在面板清楚標出哪些線路仍待調整，轉完旋鈕後新設定立刻接手生效。⟧若外掛還有未填寫的變數，清單會標示 `⚠ needs setup` 提醒補齊；每個伺服器也會標出狀態，已備妥的會顯示 `✓ configured`，尚未完成的則列出具體缺少的變數名稱。儲存後，已啟用的外掛會自動重啟對應的 MCP（讓 AI 連接外部工具的協定）伺服器，讓新數值立即生效。",
-              "en": "When fine-tuning connection keys or server parameters after installing plugins in your terminal, there is no longer a need to disable and re-enable them. Entering `/plugin` to view the list of installed plugins now displays a `Configure MCP servers...` option beneath every entry. ⟦Picture tweaking an individual knob on a stage audio rack, where changing parameters once required pulling the main power plug to restart the entire system; now the panel clearly marks which lines still need adjustment, and after turning the knob, new settings take effect immediately.⟧ If a plugin still has empty variables, the list marks them with `⚠ needs setup` as a reminder to fill them in; each server shows `✓ configured` for ready ones and lists specific missing variable names for incomplete ones. After saving, enabled plugins automatically restart their corresponding MCP (a protocol connecting AI to external tools) servers to apply new values immediately."
-            },
-            "original": "Added a `Configure MCP servers...` row for installed plugins in `/plugin`, so you can set or change a plugin's MCP server variables at any time without disabling and re-enabling it; plugins with missing values show `⚠ needs setup`, each server shows `✓ configured` or the variables it still needs, and saving restarts an enabled plugin's servers so the new values take effect."
-          },
-          {
-            "title": {
-              "zh-TW": "終端機沙盒預設保護更多憑證，存取 Docker 與 Kubernetes 需明確授權",
-              "en": "Terminal Sandbox Protects More Credentials by Default, Requiring Explicit Authorization for Docker and Kubernetes Access"
-            },
-            "body": {
-              "zh-TW": "在沙盒環境執行各類指令時，本機存放的敏感憑證現在有了更嚴格的預設隔離防護。沙盒指令預設不再允許讀取或修改 `~/.docker`、`~/.kube` 與 `~/_netrc` 這三處路徑，除非你明確授權放行。⟦跟入住出租套房的生活規範一樣，以前抽屜裡的私人證件預設敞開任人翻動；現在重要暗格直接上鎖，除非屋主親自授權放行，否則誰也不能隨意翻看。⟧過去沙盒內部預設開放寫入 `~/.docker` 與 `~/.kube`，因此現在任何需要使用 Docker registry（存放容器映像檔的倉庫）或 Kubernetes 叢集憑證的沙盒指令，都必須先取得你的明確授權才能繼續執行。",
-              "en": "When running commands inside sandbox environments, locally stored sensitive credentials now receive stricter default isolation safeguards. Sandboxed commands no longer allow reading or modifying `~/.docker`, `~/.kube`, or `~/_netrc` by default unless you grant explicit authorization. ⟦Much like living rules in a rented studio, private documents inside drawers were previously left open for anyone to rummage through; now important compartments are locked directly, and no one may browse them without the owner's explicit permission.⟧ In the past, sandbox environments permitted writes to `~/.docker` and `~/.kube` by default. Consequently, any sandboxed command requiring Docker registry (a repository storing container images) credentials or Kubernetes cluster credentials must now obtain your explicit authorization before proceeding."
-            },
-            "original": "Improved terminal sandbox defaults to protect more credentials: sandboxed commands can no longer read or modify `~/.docker`, `~/.kube`, or `~/_netrc` unless you grant access explicitly. Previously `~/.docker` and `~/.kube` were writable inside the sandbox, so sandboxed commands that use Docker registry or Kubernetes cluster credentials now need an explicit grant."
-          },
-          {
-            "title": {
-              "zh-TW": "對話壓縮保留上傳圖片與 PDF，精簡歷史不漏看附件",
-              "en": "Conversation Compaction Preserves Uploaded Images and PDFs, Keeping Attachments Accessible After History Pruning"
-            },
-            "body": {
-              "zh-TW": "面對累積了大量訊息的長對話，手動或自動執行對話壓縮時，不用再擔心先前上傳的檔案就此消失。現在無論是系統自動觸發歷史壓縮，或是你在終端機手動輸入 `/compact`，對話摘要都會完整保留你先前上傳的圖片、PDF 與各類附件檔案。⟦翻閱裝訂成冊的案件卷宗，以前把過往紀錄濃縮成大綱時，夾在中間的現場照片與附件常被一併收進封存箱；現在所有參考文件都會直接釘在摘要首頁，回顧時隨時都能對照細節。⟧這讓 AI 即使在舊對話被精簡整合之後，依然能清楚讀取這些附加檔案，繼續針對檔案內的細節回答問題。",
-              "en": "When facing long conversations with accumulated messages, you no longer need to worry about previously uploaded files disappearing during manual or automatic conversation compaction. Whether the system automatically triggers history compaction or you manually enter `/compact` in the terminal, the conversation summary completely preserves your previously uploaded images, PDFs, and various attachment files. ⟦Leafing through a bound case file where past records were condensed into outlines, crime scene photos and attachments clipped inside once got tucked away into storage boxes; now all reference documents remain pinned directly to the front page of the summary, ready for checking details at any review.⟧ This ensures the AI can still clearly inspect these attached files and continue answering questions regarding details within them, even after older exchanges are condensed and consolidated."
-            },
-            "original": "Improved context compaction, including `/compact`, to keep images, PDFs, and other files you attached in the conversation summary, so the agent can still see them after older history is summarized."
-          },
-          {
-            "title": {
-              "zh-TW": "授權範圍涵蓋主對話與子代理，同項操作不必重複確認",
-              "en": "Authorization Scope Extends Across Main Conversation and Subagents, Eliminating Repeated Confirmations for the Same Operation"
-            },
-            "body": {
-              "zh-TW": "把複雜任務交給子代理（在背景協助分工的獨立 AI 助理）分頭處理時，頻繁跳出的授權確認常打斷工作節奏。現在選擇針對整個對話允許這項操作後，無論你是在主對話還是子代理的授權提示中做出選擇，這項權限都會直接套用到整個主對話與旗下所有子代理。⟦持同一張專案通行證進出實驗大樓，以前只要換了不同助理人員進場操作，門禁警衛就得把主管叫出來重新簽核；現在只要主專案獲准通行，旗下所有支援團隊都能共用這項授權直接開工。⟧這省去了子代理遇到相同操作時再次請你確認的麻煩，分工作業不再頻繁中斷。",
-              "en": "When delegating complex tasks to subagents (independent AI assistants helping divide work in the background), frequent authorization prompts often interrupt your workflow. Now, after choosing to allow an operation for the entire conversation, that permission applies directly across the entire main conversation and all of its subagents, regardless of whether you approved it from the main thread or a subagent's prompt. ⟦Holding a single project pass to access a research facility, bringing in a new assistant previously required security guards to call a manager for fresh sign-offs; now once the main project clears access, all supporting teams share that authorization to begin work immediately.⟧ This saves you from repeated approval prompts when subagents perform the same operation, keeping distributed work uninterrupted."
-            },
-            "original": "Improved permission prompts so that allowing an action for the conversation, in the main agent or in a subagent, applies across the main conversation and all of its subagents instead of asking again for the same action."
-          },
-          {
-            "title": {
-              "zh-TW": "狀態列顯示具體等待進度，模型重試附帶動態倒數",
-              "en": "Status Line Displays Specific Waiting Progress with Dynamic Countdown for Model Retries"
-            },
-            "body": {
-              "zh-TW": "送出複雜任務等待回應時，終端機不再只丟給你一個模糊的處理中標籤。終端機底部的 status line（顯示在終端機最底下的狀態列）現在會具體列出 AI 當下正在等待的環節，取代過去籠統的運作標籤。例如它正在初始化 MCP（讓 AI 連接外部工具的協定）伺服器，或是遇到模型暫時無法使用而自動重試時，都能即時掌握當前狀態。遇到重試狀況時，狀態列會直接出現類似 `Model unavailable (attempt 2/10), retrying in 12s` 的動態倒數秒數與嘗試次數。⟦看著候機室的電子告示牌，以前遇到班機延誤只顯示含糊的處理中，讓人只能盯著螢幕乾等；現在看板會即時標明正在調度登機門，並附上精確的倒數時間。⟧",
-              "en": "When submitting complex tasks and waiting for responses, the terminal no longer leaves you with a vague in-progress label. The status line (the status bar displayed at the very bottom of the terminal) now specifically lists the exact step the AI is waiting on, replacing previous generic activity indicators. Whether it is initializing an MCP (a protocol connecting AI to external tools) server or automatically retrying when a model is temporarily unavailable, you can monitor current status in real time. During retry scenarios, the status line directly shows a dynamic countdown in seconds alongside the attempt count, such as `Model unavailable (attempt 2/10), retrying in 12s`. ⟦Flight display boards in an airport departure lounge once showed only a vague processing notice during flight delays, leaving passengers to stare helplessly at screens; now the board clearly states that a gate is being scheduled alongside an exact countdown.⟧"
-            },
-            "original": "Improved the in-progress status line to show what the agent is waiting on, such as initializing MCP servers or retrying an unavailable model (for example `Model unavailable (attempt 2/10), retrying in 12s` with a live countdown), instead of a generic working label."
-          },
-          {
-            "title": {
-              "zh-TW": "`/diff` 逐字突顯行內修改差異，各配色主題皆能清楚辨識",
-              "en": "`/diff` Highlights Word-Level Inline Changes with Clear Visibility Across All Color Themes"
-            },
-            "body": {
-              "zh-TW": "想看清程式碼或文字修改前後究竟動了哪幾個字，比對畫面現在能精準指出變更核心。只要在終端機輸入 `/diff` 查看修改差異，在所有色彩配置主題下，畫面都會直接在變動的那一行當中，標出真正發生變更的字詞。⟦拿螢光筆校對合約草稿時，圈出實際替換的字詞，就能把目光集中到修改的位置；現在的比對畫面也會替你標出這些重點，讓你查看每個修改行內究竟換了哪些字詞。⟧",
-              "en": "When you want to see exactly which words were altered before and after code or text modifications, the diff view now pinpoints the core of every change with precision. Simply entering `/diff` in the terminal to inspect modifications highlights the exact words that changed right within the modified line across all color themes. ⟦Using a highlighter to proofread contract drafts, circling replaced words once helped focus attention on actual modifications; now the diff view flags those focal points for you so you can inspect exactly which words were swapped within each modified line.⟧"
-            },
-            "original": "Improved `/diff` to highlight the exact words that changed within each modified line, in every color scheme."
-          },
-          {
-            "title": {
-              "zh-TW": "外掛驗證支援說明選單，全面檢驗設定結構與技能檔",
-              "en": "Plugin Validation Adds Help Flag, Thoroughly Verifying Config Structures and Skill Files"
-            },
-            "body": {
-              "zh-TW": "開發自訂外掛時若想排查設定檔結構是否合法，現在有了更詳盡的驗證工具。在終端機執行外掛驗證指令，現在支援 `--help` 查看說明參數，並針對各項設定進行完整檢驗：\n\n```bash\nagy plugin validate --help\n```\n\n它會檢查情境提供者（context providers）的設定細節，抓出缺少 `label` 或 `command`、觸發字詞無效或重複、未知欄位，以及執行指令檔遺失等問題。針對技能設定，若 `plugin.json` 裡宣告的 `skills` 項目不存在或缺少 `SKILL.md`，驗證工具會主動發出警告，並詳細回報載入器跳過的所有 `SKILL.md`，包含透過 `plugin.json` 或 `skills.json` 引入的技能檔案。⟦檢查即將出廠的組裝模型盒，以前只粗略核對外盒印製的零件總數；現在檢驗員逐一對照說明書，抓出缺漏的組裝步驟與對不上的零件，連跳過未裝的模組都詳細列出。⟧",
-              "en": "When troubleshooting configuration file structures while developing custom plugins, more detailed validation tooling is now available. Running the plugin validation command in the terminal now supports `--help` to inspect parameter documentation and performs comprehensive verification across settings:\n\n```bash\nagy plugin validate --help\n```\n\nIt inspects configuration details for context providers, catching missing `label` or `command` entries, invalid or duplicate trigger words, unknown fields, and missing executable script files. For skill configuration, if a `skills` entry declared in `plugin.json` does not exist or lacks `SKILL.md`, the validation tool issues a warning and reports in detail all `SKILL.md` files skipped by the loader, including skill files brought in via `plugin.json` or `skills.json`. ⟦A factory inspector examining a boxed model kit once only checked the total part count printed on the packaging; now the inspector cross-checks the instruction manual step by step to catch missing assembly steps and mismatched components, listing even the unmounted modules that were skipped.⟧"
-            },
-            "original": "Improved `agy plugin validate`: it now has `--help`, checks a plugin's context providers (missing `label` or `command`, invalid or duplicate triggers, unknown fields, missing command files), warns about `skills` entries in `plugin.json` that don't exist or contain no `SKILL.md`, and reports every `SKILL.md` the plugin loader skips, including skills listed through `plugin.json` or `skills.json`."
-          },
-          {
-            "title": {
-              "zh-TW": "終端機游標修正全形字與換行偏誤，上下方向鍵精準對位",
-              "en": "Terminal Cursor Resolves Offsets for Full-Width Characters and Line Wraps, Aligning Up and Down Arrow Keys Accurately"
-            },
-            "body": {
-              "zh-TW": "打字輸入中文、日文、韓文或表情符號時，終端機游標現在能精準停在插入點。以前在指令提示列，以及設定、權限修改、外掛設定、意見回饋、掛鉤與成品搜尋框中，輸入中日韓全形字（CJK）、表情符號、定位字元、特殊空白或文字遇到自動換行時，游標常會偏離插入點，按上下方向鍵也會跳到錯誤的行數。這個問題已經修好，游標與方向鍵現在都能正確停在對應文字位置。",
-              "en": "When typing Chinese, Japanese, Korean, or emoji, the terminal cursor now stays accurately positioned at the insertion point. Previously, entering full-width CJK (Chinese, Japanese, and Korean) characters, emoji, tab characters, special whitespace, or wrapped text in the command prompt, as well as in the settings, permission amendment, plugin setup, feedback, hooks, or artifact search boxes, often caused the cursor to drift from the insertion point and made up and down arrow keys jump to the wrong line. This issue has been resolved, and both the cursor and arrow keys now land on the correct text positions."
-            },
-            "original": "Fixed text cursors drifting away from the insertion point after wide characters (CJK, emoji), tabs, other Unicode spaces, and on soft-wrapped lines, including `Up`/`Down` landing on the wrong row, in the prompt and in the settings, permission amend, plugin setup, feedback, hooks, and artifact search boxes."
-          },
-          {
-            "title": {
-              "zh-TW": "指令啟動、檔案編輯提示與企業登入的三項異常修復",
-              "en": "Three Fixes for Command Execution, File Edit Prompts, and Enterprise Login Issues"
-            },
-            "body": {
-              "zh-TW": "平時呼叫工具跑指令、想退回工作區外的變更，或是重新啟動後準備上工時，你可能曾碰過莫名報錯或被迫重新登入。\n\n工具呼叫附帶很大的 reasoning signature（推論簽章，模型隨工具呼叫回傳的資料）時，指令以前偶爾無法啟動並回報 `argument list too long`；這個問題已修好。\n\n提示畫面多出一個選項時，例如在接受編輯模式（accept-edits mode）下修改工作區外的檔案，警告標語 `Esc disabled during file edits` 先前會寫錯拒絕鍵的名稱，現在會寫出正確的拒絕鍵。\n\nmacOS 與 Windows 上的企業帳號先前若因登入憑證超出系統鑰匙圈的大小上限，重新啟動後登入狀態便會失效；這個問題已經修好，登入狀態現在能在重新啟動後正常延續。",
-              "en": "When calling tools to execute commands, reverting changes outside your workspace, or preparing to work after a restart, you might have occasionally encountered unexpected errors or forced re-logins.\n\nWhen tool calls included a large reasoning signature (data returned by models alongside tool calls), commands occasionally failed to launch with `argument list too long`; this issue has been resolved.\n\nWhen the prompt shows an extra choice, such as for edits outside the workspace in accept-edits mode, the warning banner `Esc disabled during file edits` previously named the wrong reject key; it now names the correct one.\n\nWhen enterprise accounts on macOS and Windows had login credentials exceeding the system keychain size limit, their login state was previously lost upon restarting; this issue has been resolved, and login status now persists properly across restarts."
-            },
-            "original": "Fixed terminal commands occasionally failing to start with `argument list too long` when the model returned a very large reasoning signature with the tool call.\nFixed the `Esc disabled during file edits` warning naming the wrong reject key when the prompt shows an extra choice, such as for edits outside the workspace in accept-edits mode.\nFixed sign-in not persisting across restarts on macOS and Windows for enterprise accounts, because the saved credential exceeded the system keychain's size limit."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "new",
-        "new",
-        "new",
-        "new",
-        "new",
-        "new",
         "fix",
         "fix"
       ]

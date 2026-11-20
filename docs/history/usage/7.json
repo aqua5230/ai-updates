@@ -5,6 +5,51 @@
   "pages": 25,
   "versions": [
     {
+      "version": "0.30.14",
+      "raw": {
+        "version": "0.30.14",
+        "period": "2026-09-12",
+        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
+        "fetched_at": "2026-09-13",
+        "entries": [
+          "**No more black console windows flashing at Windows startup** ([#130](https://github.com/aqua5230/usage/issues/130)). `usage.exe` is packaged without a console, but no `subprocess` call in the project passed `CREATE_NO_WINDOW`, so Windows created and closed a console window for every child process. The flash count equalled the number of distinct project directories in the Claude history — `resolve_project_name()` runs `git worktree list --porcelain` once per directory and caches per process, so every launch repeated it. A shared `usage_common/subprocess_utils.py` now supplies the `creationflags`, every child process in the project goes through it, and the missing `stdin=subprocess.DEVNULL` was added along the way. `usage_session_resume.py` and `usage_statusline_forwarder.py` are copied verbatim into `~/.claude/` and run by the system Python, so they keep an inlined equivalent instead of importing the project; a new test uses `ast` to keep every copied-out script free of project imports. The forwarder also had no version-upgrade path at all — `_copy_forwarder_script()` was only called on reinstall or when the state looked broken — so it gained `FORWARDER_VERSION` and a `self_heal()` upgrade step like the other hooks.",
+          "**The Windows panel no longer flashes at its old position before moving.** pywebview's WinForms backend passes `SWP_SHOWWINDOW` in both `resize()` and `move()`, so the `resize()` in `_place_window_on_ui_thread()` made the still-hidden window visible at the previous coordinates; the following `move()` then moved it and only then did `show()` run. Measured at 1 ms sampling, the window sat visible in the wrong place for 36 ms, about two frames. Position and size are now applied while the window is hidden in a single `SetWindowPos` without `SWP_SHOWWINDOW`, leaving display to the existing `show()` path; without a native handle, or off Windows, it falls back to `resize()` + `move()` unchanged. Applying geometry is also skipped entirely when the current physical-pixel geometry already matches, so `_apply_content_height_now()` no longer makes a pointless native call when the content height has not changed."
+        ]
+      },
+      "curated": {
+        "version": "0.30.14",
+        "period": "2026-09-12",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "Windows 啟動時不再連閃黑色主控台視窗，子行程全面安靜呼叫",
+              "en": "Windows startup no longer flashes black console windows, child processes fully silenced"
+            },
+            "body": {
+              "zh-TW": "在 Windows 啟動 Usage 時，桌面不再連閃黑色主控台視窗。⟦這好比助手出門採買，每趟都按門鈴吵到客人；改走安靜通道後，前台才重回安寧。⟧usage.exe 打包時無主控台，但呼叫子行程未帶 CREATE_NO_WINDOW，使系統每次都開關黑窗。閃爍次數等於歷史目錄數，因 resolve_project_name() 跑 git worktree list --porcelain。現由 usage_common/subprocess_utils.py 統一為子行程帶旗標與標準輸入 stdin=subprocess.DEVNULL。複製至 ~/.claude/ 的腳本改採內聯實作且經 ast 測試零相依，轉發器補上 FORWARDER_VERSION 與 self_heal()，比照其他 hook（掛鉤，特定事件發生時被觸發的小程式）自動換新。",
+              "en": "When launching Usage on Windows, the desktop no longer repeatedly flashes black console windows. ⟦This is like an assistant going out for errands and ringing the doorbell every trip, disturbing guests; switching to a quiet hallway restores peace to the front desk.⟧ usage.exe is packaged without a console, but calling child processes did not pass CREATE_NO_WINDOW, causing the system to open and close a black window every time. The flash count equaled the number of history directories because resolve_project_name() runs git worktree list --porcelain. usage_common/subprocess_utils.py now uniformly supplies flags for child processes along with standard input stdin=subprocess.DEVNULL. Scripts copied to ~/.claude/ now use inlined implementations verified by ast tests to have zero dependencies, and the forwarder adds FORWARDER_VERSION and self_heal() to auto-update just like other hooks."
+            },
+            "original": "**No more black console windows flashing at Windows startup** ([#130](https://github.com/aqua5230/usage/issues/130)). `usage.exe` is packaged without a console, but no `subprocess` call in the project passed `CREATE_NO_WINDOW`, so Windows created and closed a console window for every child process. The flash count equalled the number of distinct project directories in the Claude history — `resolve_project_name()` runs `git worktree list --porcelain` once per directory and caches per process, so every launch repeated it. A shared `usage_common/subprocess_utils.py` now supplies the `creationflags`, every child process in the project goes through it, and the missing `stdin=subprocess.DEVNULL` was added along the way. `usage_session_resume.py` and `usage_statusline_forwarder.py` are copied verbatim into `~/.claude/` and run by the system Python, so they keep an inlined equivalent instead of importing the project; a new test uses `ast` to keep every copied-out script free of project imports. The forwarder also had no version-upgrade path at all — `_copy_forwarder_script()` was only called on reinstall or when the state looked broken — so it gained `FORWARDER_VERSION` and a `self_heal()` upgrade step like the other hooks."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 面板不再先閃現舊位置，單次設定尺寸坐標徹底消除跳動",
+              "en": "Windows panel no longer flashes at old position, single geometry update eliminates jumpiness"
+            },
+            "body": {
+              "zh-TW": "點開 Windows 面板時，畫面不再先在舊坐標閃爍一下才跳回定位。pywebview 的 WinForms 後端在 resize() 與 move() 都帶 SWP_SHOWWINDOW，使 _place_window_on_ui_thread() 提早在舊坐標顯示視窗，隨後才移到定點。以 1 毫秒取樣實測，面板在錯位可見 36 毫秒，約兩個畫面幀。現在視窗改在隱藏時以單次 SetWindowPos 一起設定位置與大小且不帶顯示旗標，顯示交由 show() 處理；非 Windows 或取不到原生視窗時退回既有備援流程。套用前也會先比對目前的實體像素幾何，完全相同便跳過，避免 _apply_content_height_now() 在高度未變時白白呼叫。⟦這種穿幫宛如舞台劇換幕，道具桌還留在上一場的站位，工作人員就失手拉開布幕才急忙把它推定位。⟧",
+              "en": "When opening the Windows panel, the screen no longer flashes briefly at its old coordinates before snapping into position. The WinForms backend of pywebview passed SWP_SHOWWINDOW in both resize() and move(), causing _place_window_on_ui_thread() to prematurely display the window at previous coordinates before moving it to its target location. Measured at 1 ms sampling, the panel was visible in the wrong position for 36 ms, or about two frames. The window now sets position and size together via a single SetWindowPos without show flags while hidden, leaving display to show(), and falls back to the existing fallback flow off Windows or when native handles are unavailable. It also compares the current physical-pixel geometry before applying and skips entirely if identical, preventing _apply_content_height_now() from being called unnecessarily when height is unchanged. ⟦This glitch is like a stage scene change where the prop table is still at the previous scene's spot when staff accidentally pull open the curtain before hastily shoving it into place.⟧"
+            },
+            "original": "**The Windows panel no longer flashes at its old position before moving.** pywebview's WinForms backend passes `SWP_SHOWWINDOW` in both `resize()` and `move()`, so the `resize()` in `_place_window_on_ui_thread()` made the still-hidden window visible at the previous coordinates; the following `move()` then moved it and only then did `show()` run. Measured at 1 ms sampling, the window sat visible in the wrong place for 36 ms, about two frames. Position and size are now applied while the window is hidden in a single `SetWindowPos` without `SWP_SHOWWINDOW`, leaving display to the existing `show()` path; without a native handle, or off Windows, it falls back to `resize()` + `move()` unchanged. Applying geometry is also skipped entirely when the current physical-pixel geometry already matches, so `_apply_content_height_now()` no longer makes a pointless native call when the content height has not changed."
+          }
+        ]
+      },
+      "badges": [
+        "new",
+        "fix"
+      ]
+    },
+    {
       "version": "0.30.13",
       "raw": {
         "version": "0.30.13",
@@ -908,64 +953,6 @@
         ]
       },
       "badges": [
-        "new"
-      ]
-    },
-    {
-      "version": "0.30.4",
-      "raw": {
-        "version": "0.30.4",
-        "period": "2026-08-30",
-        "source_url": "https://raw.githubusercontent.com/aqua5230/usage/main/CHANGELOG.md",
-        "fetched_at": "2026-08-30",
-        "entries": [
-          "**Scaled Windows panels now show all their content, with no blank strip below the footer.** `_WindowsTrayController._apply_panel_zoom()` now calls `window.usageApplyPanelZoom()` from a background thread before passing only resize and move work to the UI thread, avoiding a WebView2 deadlock. `usageApplyPanelZoom()` receives the natural height, expands `body` before applying CSS `zoom`, and `naturalContentHeight()` temporarily removes that compensation while measuring, so the scaled layout has enough space instead of clipping cards.",
-          "**Windows now counts Grok CLI activity in today's cost, token total, and project list.** `_WindowsTrayController._load_entries()` now calls `grok_loader.load_entries()` alongside the Claude and Codex loaders. If reading the Grok log fails, its matching error handling leaves the Claude and Codex entries already collected intact.",
-          "**Token Saver now gives short replies three concrete rules for plainer language.** The `terse_mode_instruction` strings in `i18n.json` and their standalone copies in `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now turn nominalizations back into verbs, cut sentences that announce without informing, and put known information before new information, in all five languages. `TERSE_HOOK_VERSION` in `installer/session_hooks.py` and `__version__` in `usage_terse_mode.py` both move to 1.3, so `_installed_terse_version()` keeps installed sidecars current instead of rewriting them on every session."
-        ]
-      },
-      "curated": {
-        "version": "0.30.4",
-        "period": "2026-08-30",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "Windows 面板縮放完整呈現，消弭底部空白且防範死結",
-              "en": "Scaled Windows panels show full content without footer gaps or deadlocks"
-            },
-            "body": {
-              "zh-TW": "⟦就像裁縫師在布料縮水前先預留延伸長度，量測尺寸時暫時扣除這段預留值，處理完後版型恰好合身，既不緊繃也不拖地。⟧ Windows 上的經過縮放的面板能完整顯示所有內容，頁尾下方不再殘留空白條帶。控制器 `_WindowsTrayController._apply_panel_zoom()` 改由背景執行緒呼叫 `window.usageApplyPanelZoom()`，隨後僅將調整大小與位移交給 UI 執行緒，避開了 WebView2 的死結（deadlock，處理序互相等待而卡住）。函式 `usageApplyPanelZoom()` 接收自然高度並在套用 CSS `zoom` 前擴展 `body`，而 `naturalContentHeight()` 量測時會暫時移除該補償，確保縮放版面有足夠空間而不裁切卡片。",
-              "en": "⟦Like a tailor allowing extra length for fabric shrinkage and temporarily deducting that allowance during measurements, ensuring the finished garment fits neatly without being cropped or dragging.⟧ Scaled Windows panels now display all their content completely, eliminating the blank strip below the footer. `_WindowsTrayController._apply_panel_zoom()` now invokes `window.usageApplyPanelZoom()` from a background thread before delegating only resize and move work to the UI thread, avoiding a WebView2 deadlock. The `usageApplyPanelZoom()` function receives natural height and expands `body` before applying CSS `zoom`, while `naturalContentHeight()` temporarily removes that compensation during measurements so the scaled layout preserves ample space instead of clipping cards."
-            },
-            "original": "**Scaled Windows panels now show all their content, with no blank strip below the footer.** `_WindowsTrayController._apply_panel_zoom()` now calls `window.usageApplyPanelZoom()` from a background thread before passing only resize and move work to the UI thread, avoiding a WebView2 deadlock. `usageApplyPanelZoom()` receives the natural height, expands `body` before applying CSS `zoom`, and `naturalContentHeight()` temporarily removes that compensation while measuring, so the scaled layout has enough space instead of clipping cards."
-          },
-          {
-            "title": {
-              "zh-TW": "Windows 納入 Grok CLI 用量統計，日誌讀取失敗不影響既有紀錄",
-              "en": "Windows tracks Grok CLI activity with fault-isolated log loaders"
-            },
-            "body": {
-              "zh-TW": "在 Windows 開啟今日用量面板查看費用、token（AI 計費與文字計量單位）總數與專案清單時，Grok CLI 紀錄會一併出現。控制器 `_WindowsTrayController._load_entries()` 在載入既有的 Claude 與 Codex 資料時，會一併呼叫 `grok_loader.load_entries()` 讀取記錄。若 Grok 日誌讀取失敗，對應的錯誤處理機制會保留已收集的 Claude 與 Codex 項目。⟦像三條獨立水管流進同一個水槽，第三條堵住時，前兩條已流入的水仍留在槽裡。⟧",
-              "en": "When you open today's usage panel on Windows to check costs, token totals, and the project list, Grok CLI records now appear too. Inside `_WindowsTrayController._load_entries()`, the controller calls `grok_loader.load_entries()` alongside the existing Claude and Codex loaders. If reading the Grok log fails, dedicated error handling preserves the Claude and Codex entries already collected. ⟦Like three separate pipes feeding one tank, a blockage in the third pipe leaves the water from the first two in place.⟧"
-            },
-            "original": "**Windows now counts Grok CLI activity in today's cost, token total, and project list.** `_WindowsTrayController._load_entries()` now calls `grok_loader.load_entries()` alongside the Claude and Codex loaders. If reading the Grok log fails, its matching error handling leaves the Claude and Codex entries already collected intact."
-          },
-          {
-            "title": {
-              "zh-TW": "Token Saver 導入三項白話寫作規則，版號升級免除重複重寫",
-              "en": "Token Saver enforces three plain-language rules with versioned sidecars"
-            },
-            "body": {
-              "zh-TW": "你請 Token Saver 把一段回覆縮短時，這 3 條規則會套用。在 `i18n.json` 的 `terse_mode_instruction`，以及其在 `_DEFAULT_INSTRUCTION` 中的獨立副本裡，5 種語言皆要求將名詞化還原為動詞、刪除只報幕不提供資訊的句子，並先放已知資訊，再放新資訊。同時 `installer/session_hooks.py` 的 `TERSE_HOOK_VERSION` 與 `usage_terse_mode.py` 的 `__version__` 皆升至 1.3，讓 `_installed_terse_version()` 維持已安裝 sidecar（隨附輔助檔）最新，免於每個工作階段重寫。⟦像一台有三個調整鈕的機器，三種寫法依設定一起運作；標記升至 1.3 時，只替已裝好的小模組換新版。⟧",
-              "en": "When you ask Token Saver to shorten a reply, these three rules apply. Across all five languages, `terse_mode_instruction` in `i18n.json` and its standalone copies in `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` turn nominalizations back into verbs, cut sentences that announce without informing, and put known information before new information. Meanwhile, `TERSE_HOOK_VERSION` in `installer/session_hooks.py` and `__version__` in `usage_terse_mode.py` both move to 1.3, so `_installed_terse_version()` keeps installed sidecars current instead of rewriting them on every session. ⟦Like a machine with three adjustment knobs, the three writing rules work together; when its marker reaches 1.3, only the installed small module is swapped for the new version.⟧"
-            },
-            "original": "**Token Saver now gives short replies three concrete rules for plainer language.** The `terse_mode_instruction` strings in `i18n.json` and their standalone copies in `usage_terse_mode.py`'s `_DEFAULT_INSTRUCTION` now turn nominalizations back into verbs, cut sentences that announce without informing, and put known information before new information, in all five languages. `TERSE_HOOK_VERSION` in `installer/session_hooks.py` and `__version__` in `usage_terse_mode.py` both move to 1.3, so `_installed_terse_version()` keeps installed sidecars current instead of rewriting them on every session."
-          }
-        ]
-      },
-      "badges": [
-        "new",
-        "new",
         "new"
       ]
     }
