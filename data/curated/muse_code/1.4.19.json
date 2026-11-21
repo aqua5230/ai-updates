@@ -1,0 +1,105 @@
+{
+  "version": "1.4.19",
+  "period": "2026-11-21",
+  "items": [
+    {
+      "title": {
+        "zh-TW": "Claude 模型現在能直接讀取圖片",
+        "en": "Claude models can now read images directly"
+      },
+      "body": {
+        "zh-TW": "貼上報表截圖想請 Claude 幫忙核對數字，過去一送出就整回合失敗。現在 Claude 模型能正常收到這幾類來源的圖片，包含你直接附加的圖片、工具讀取到的圖片，以及接續舊工作階段時裡頭既有的圖片，不會再中斷這回合。⟦跟拿現場照片去問修繕師傅一樣，以前他一看到圖就整單退回，現在不管是你帶來、助手找出來，還是舊紀錄裡夾著的照片，都能照常看圖處理。⟧",
+        "en": "Pasting a screenshot of a report to ask Claude to check the numbers used to fail the entire turn as soon as you sent it. Now Claude models properly receive images from these sources, including images you attach directly, images a tool reads, and existing images inside a resumed session, without interrupting the turn. ⟦Picture bringing an on-site photo to ask a repair technician for help: before, he would reject the whole job as soon as he saw a picture, whereas now he can look at the photo and handle it as usual whether you brought it, an assistant found it, or it was tucked inside an old record.⟧"
+      },
+      "original": "Claude models can read images: attached images, images a tool reads, and images in a resumed session now reach the model instead of failing the turn"
+    },
+    {
+      "title": {
+        "zh-TW": "SDK 用戶端現在能接收通知與斷線事件",
+        "en": "SDK clients can now receive notifications and disconnect events"
+      },
+      "body": {
+        "zh-TW": "給串接 TypeScript 與 Python SDK（供外部程式呼叫這套工具的開發介面）的開發者，寫程式時常要追蹤工具端傳來的訊息與連線狀態。現在用戶端能收到每一則通知、被拒收的訊息，以及連線關閉的事件。",
+        "en": "For developers integrating the TypeScript and Python SDK (the developer interface for external programs to call this tool), writing code often means tracking messages and connection status from the tool. Now clients can receive every notification, rejected messages, and connection closing events."
+      },
+      "original": "The TypeScript and Python SDK clients can now hear every notification, rejected messages, and the connection closing through `onNotification`/`on_notification`, `onProtocolError`/`on_protocol_error`, and `closed`"
+    },
+    {
+      "title": {
+        "zh-TW": "工作階段協定與 muse serve 控管更到位",
+        "en": "More complete session protocol and muse serve control"
+      },
+      "body": {
+        "zh-TW": "拿外部程式串接後端控管任務，過去會碰上深層背景指令停不掉，或中途叫停卻得等整個回合跑完。\n\n透過工作階段協定，上層工作階段現在能停掉底下任何層級子代理（主任務派出去分頭工作的分身）啟動的背景指令，不再只限直屬的那一層。\n\n傳送開啟請求給 `muse serve` 時，現在可以附帶標記把新工作階段當成 `/clear` 重置，讓 `SessionStart` hook（特定事件發生時會觸發的小程式）收到清除來源通知。\n\n某個目標的回合還在跑時，經由 `muse serve` 送出的暫停或清除指令現在會直接傳進該回合。模型隨即會停下該目標的工作，不再繼續執行到回合結束。",
+        "en": "When connecting an external program to the backend to control tasks, deep background commands used to be impossible to stop, or pausing midway still required waiting for the whole turn to finish.\n\nThrough the session protocol, a parent session can now stop background commands started by a subagent (an assistant spawned by the main task to work separately) at any depth below it, no longer limited to the direct level.\n\nWhen sending a start request to `muse serve`, you can now attach a flag to treat the new session as a `/clear` reset so that `SessionStart` hooks (small programs triggered when specific events happen) receive the clear source notice.\n\nWhen a goal's turn is still running, a pause or clear command sent through `muse serve` now goes straight into that turn. The model then stops working on that goal instead of continuing until the turn ends."
+      },
+      "original": "Over the session protocol, a session can now stop a background command that a subagent at any depth below it started, not only one its direct subagents started\nA `session/start` sent to `muse serve` can now mark the new session as a `/clear` with the optional `clear` field, so its `SessionStart` hooks get the `clear` source\nA `goal/pause` or `goal/clear` sent over `muse serve` while the goal's turn is running now reaches that turn, so the model stops working for the paused or cleared goal instead of carrying on until the turn ends"
+    },
+    {
+      "title": {
+        "zh-TW": "Linux 沙盒守住尚未建立的受保護資料夾",
+        "en": "Linux sandbox keeps rules for uncreated protected folders"
+      },
+      "body": {
+        "zh-TW": "在 Linux 上開沙盒（限制指令亂動檔案的隔離環境）執行指令，就算 `.git` 這類受保護位置還沒建出來，裡面的拒絕規則照樣會留著。即使同工作區另一道沙盒指令看不到前者的沙盒紀錄，例如兩者使用不同的執行期目錄，也一樣。⟦就像社區空地上還沒蓋起機房，值班警衛仍會保留預定地的禁入規定；即使另一位警衛看不到這位值班警衛的巡邏本，規定依然有效。⟧",
+        "en": "When running commands in a Linux sandbox (an isolated environment that keeps commands from altering files freely), deny rules inside a protected location such as `.git` still remain even if that folder has not been created yet. This holds even when another sandboxed command in the same workspace cannot see the first one's sandbox records, for example because the two use different runtime directories. ⟦Think of an empty lot in a neighborhood where a utility room has not been built yet: the guard on duty still keeps the no-entry rule for the reserved site, and even if another guard cannot see that guard's patrol log, the rule still holds.⟧"
+      },
+      "original": "On Linux, a sandboxed shell command keeps a deny inside a missing protected folder such as `.git` even when another sandboxed command in the same workspace cannot see its sandbox records, for example because the two use different runtime directories"
+    },
+    {
+      "title": {
+        "zh-TW": "tui.keymap 單鍵無效不再重置其他快捷鍵",
+        "en": "Invalid single key in tui.keymap no longer resets other shortcuts"
+      },
+      "body": {
+        "zh-TW": "從跨版本複製過來的快捷鍵設定裡，只要混進一個目前版本沒有的動作，以前一啟動就會把整份自訂按鍵洗回預設。現在啟動時若 `tui.keymap` 裡有對應不到動作的按鍵，程式只會略過那一顆按鍵，並跳出一則寫明該按鍵名稱的通知，其餘自訂按鍵都會保留。⟦好比遙控器裡多存了一個這台電視沒有的功能鈕，以前整支遙控器的個人設定會跟著歸零，現在只把那顆鈕放著不管，並亮牌提醒是哪一顆。⟧",
+        "en": "When keybinding settings copied across versions include an action that the current build does not have, starting up used to wipe the entire custom key configuration back to defaults. Now, if `tui.keymap` has a key that maps to no action at startup, the app skips only that key and pops up a notice naming it, while keeping all other custom keys. ⟦Imagine a remote control with an extra button saved for a feature this TV does not have: before, all personal settings on the remote would reset to zero, whereas now that single button is left alone and a sign lights up to show which one it is.⟧"
+      },
+      "original": "At start, a key in `tui.keymap` for an action that your build does not have no longer resets your other custom keys. The build ignores only that key and shows one notice that names it"
+    },
+    {
+      "title": {
+        "zh-TW": "修正 search 工具依檔名查不到檔案",
+        "en": "Fix search tool not finding files by name"
+      },
+      "body": {
+        "zh-TW": "要找特定檔名的檔案而呼叫 `search` 工具時，過去總是拿不到任何結果、只看到空白回應。這個問題已經修好，現在依檔名尋找檔案會正常列出符合的清單。",
+        "en": "When calling the `search` tool to find files with a specific name, it used to return no results and show only an empty response. That issue is now fixed, and searching for files by name properly lists the matching files."
+      },
+      "original": "Asking the `search` tool for files by name now lists the matching files instead of returning nothing"
+    },
+    {
+      "title": {
+        "zh-TW": "muse exec 持續監看被拒或停止會寫明原因",
+        "en": "muse exec now states the reason when a persistent watch is refused or stopped"
+      },
+      "body": {
+        "zh-TW": "執行 `muse exec` 已經給出回答後，若還要開啟持續性的 Monitor（常駐監看程序），過去會先啟動一次再被立刻停掉。現在這種情況會直接拒絕啟動並附上原因，不再先啟動再被停掉。而原本在執行結束時收掉的持續監看，現在的停止通知也會寫明停止的原因。⟦餐廳打烊收桌後還想加點，以前服務生會先收單再馬上退回來，現在當場婉拒並講明原因，原本收攤時的停單通知也會寫清楚為何停止。⟧",
+        "en": "After `muse exec` has already given an answer, trying to open a persistent Monitor (a background watching process) used to start it once and immediately stop it. Now that attempt is refused directly with a reason instead of starting and stopping again. And for a persistent watch closed when a run ends, the stop notice now also states why it stopped. ⟦A diner tries to add an order after the restaurant has closed and cleared the tables: before, the server would take the ticket and immediately send it back, whereas now the request is politely refused on the spot with an explanation, and the closing notice at the end of service also states clearly why orders stopped.⟧"
+      },
+      "original": "In `muse exec`, a persistent Monitor started after the run has answered is refused with a reason instead of starting and being stopped again, and the stop notice for a persistent watch at the end of the run now says why it stopped"
+    },
+    {
+      "title": {
+        "zh-TW": "Linux 內建沙盒無法啟動指令會回報環境錯誤",
+        "en": "Bundled Linux sandbox reports environment errors when unable to start commands"
+      },
+      "body": {
+        "zh-TW": "在 Linux 上準備執行指令，結果連第一步都跑不起來，這時候最需要明確的提示。碰到內建沙盒無法啟動指令的情況，現在會直接回報環境錯誤。",
+        "en": "When preparing to run a command on Linux and even the first step fails to start, a clear prompt is what you need most. When the bundled sandbox cannot start a command, it now directly reports an environment error."
+      },
+      "original": "Report environment errors when the bundled Linux sandbox cannot start a command"
+    },
+    {
+      "title": {
+        "zh-TW": "長工作階段與多子代理執行更省記憶體",
+        "en": "Long sessions and multi-subagent runs use less memory"
+      },
+      "body": {
+        "zh-TW": "在同一個對話開過許多子代理，記憶體裡不再保留那麼多份各個子代理的啟動紀錄複本。\n\n包含許多工具步驟的長工作階段也會減少記憶體用量，因為監看任務或執行過程的新紀錄時，不再預先留好一千筆紀錄的空間。\n\n經歷對話壓縮（把較早的聊天內容濃縮整理以騰出空間）後的長工作階段同樣更省記憶體，因為子代理檢視畫面不再把早先的每一筆事件都留著。",
+        "en": "When many subagents have been opened in the same conversation, memory no longer keeps as many copies of each subagent's start record.\n\nLong sessions with many tool steps also use less memory, because watching a task or a run for new records no longer reserves room for a thousand records in advance.\n\nLong sessions after conversation compaction (condensing earlier chat messages to free up space) also use less memory, because the subagent view no longer keeps every earlier event."
+      },
+      "original": "A session that has started many subagents uses less memory, because fewer copies of each subagent start record are kept in memory\nLong sessions with many tool steps use less memory, because watching a task or a run for new records no longer sets aside room for a thousand records in advance\nLong sessions use less memory after a compaction, because the subagent view no longer keeps every earlier event"
+    }
+  ]
+}
