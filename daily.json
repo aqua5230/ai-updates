@@ -2804,220 +2804,403 @@
           "period": "2026-11-21",
           "items": [
             {
+              "title": {
+                "zh-TW": "exec --list-models 列出模型清單",
+                "en": "exec --list-models lists available models"
+              },
+              "body": {
+                "zh-TW": "在終端機執行 `exec` 卻不小心打錯 `--model` 的名稱，不用退出畫面也能補救。執行 `exec --list-models` 會一行一個印出供應商提供的所有模型 ID，照著改對再重跑即可。⟦就像在飲料店唸錯品項時，直接看一眼櫃檯價目表，就能立刻改點正確的那一杯。⟧",
+                "en": "If you run `exec` in the terminal and mistype the `--model` name, you can fix it without leaving the screen. Running `exec --list-models` prints every model ID your provider offers, one per line, so you can correct it and rerun. ⟦Picture mispronouncing a drink name at a beverage shop: one glance at the counter menu lets you immediately reorder the right cup.⟧"
+              },
               "original": "`exec --list-models` prints the model IDs your provider offers, one per line, so a mistyped `--model` is recoverable without leaving the terminal"
             },
             {
+              "title": {
+                "zh-TW": "太久的 MCP 呼叫可先轉入背景執行",
+                "en": "Move slow MCP calls to the background"
+              },
+              "body": {
+                "zh-TW": "遇到某個 MCP（讓 AI 連接外部工具的協定）工具呼叫跑太久，現在不必乾等它卡住整個對話。按下 `Ctrl+B` 或直接送出下一則訊息，這個呼叫就會轉入背景繼續跑，等它跑完，結果會自動接回原本的對話裡。⟦好比在餐廳點了需要現做的餐點，拿到震動叫號器就能先回座位聊天，不用一直罰站等在櫃檯前。⟧",
+                "en": "When an MCP (a protocol that lets AI connect to external tools) tool call takes too long, you no longer have to sit and wait while it blocks the whole conversation. Press `Ctrl+B` or simply send your next message to move the call into the background, and its result will rejoin the conversation once it finishes. ⟦Think of ordering a made-to-order dish at a restaurant: once they hand you a buzzer, you can head back to your table and chat instead of standing by the counter.⟧"
+              },
               "original": "A slow MCP tool call can move to the background with Ctrl+B or when you send another message, and its result joins the conversation when it finishes"
             },
             {
+              "title": {
+                "zh-TW": "技能與驗證提醒改為預設關閉",
+                "en": "Skill and verify reminders are now off by default"
+              },
+              "body": {
+                "zh-TW": "對話剛結束，你馬上想接著下一個指令，不用再被額外檢查拖住節奏。現在每一輪結束不再等待驗證檢查，整個工作階段也能少花一些 token（AI 處理與計費的文字單位）在技能建議上。\n\n若想重新開啟其中一項，可以到 `/plugins` 切換，或在 `settings.json` 加入對應設定：\n\n```json\n{\n  \"plugins\": {\n    \"skill-reminder\": {\n      \"enabled\": true\n    },\n    \"verify-reminder\": {\n      \"enabled\": true\n    }\n  }\n}\n```\n\n⟦跟新手機用熟後關掉系統的新手導覽一樣，不再每按一步都跳提醒，真的想看隨時再打開就好。⟧",
+                "en": "Right after a conversation wraps up, you can jump straight to your next command without extra checks slowing your pace. Turns now end without waiting on the verify check, and sessions spend fewer tokens (the text units AI processes and bills by) on skill suggestions.\n\nTo turn either one back on, toggle it in `/plugins` or add the corresponding setting in `settings.json`:\n\n```json\n{\n  \"plugins\": {\n    \"skill-reminder\": {\n      \"enabled\": true\n    },\n    \"verify-reminder\": {\n      \"enabled\": true\n    }\n  }\n}\n```\n\n⟦Like turning off the onboarding tips on a new phone once you know your way around, you no longer get a prompt on every tap, and you can always switch them back on if you need them.⟧"
+              },
               "original": "The skill and verify reminders are now off by default, so turns end without the verify check's wait and sessions spend fewer tokens on skill suggestions. Turn either back on in `/plugins` or by setting `plugins.skill-reminder.enabled` or `plugins.verify-reminder.enabled` to `true` in `settings.json`"
             },
             {
-              "original": "Long command output now reaches the model in the same `<persisted-output>` or `<truncated-output>` block, showing its start and end and the size of the part left out"
+              "title": {
+                "zh-TW": "過長輸出統一改用截斷與存檔區塊呈現",
+                "en": "Long output now uses unified truncation and saved blocks"
+              },
+              "body": {
+                "zh-TW": "跑指令、讀檔或抓網頁一次吐出大量內容時，對話視窗常被塞滿。\n\n指令的過長輸出改以 `<persisted-output>` 或 `<truncated-output>` 區塊傳給模型，顯示頭尾內容與略過大小。\n\n讀檔、搜尋等工具的過長輸出，會用簡短的 `<persisted-output>` 區塊標出完整檔案，無法存檔時改用 `<truncated-output>`。\n\n截斷的背景指令通知、Monitor 事件與抓取網頁，也在 `<persisted-output>` 區塊列出完整存檔。\n\n終端機指令失敗且沙盒指引超過上限時，會保留已儲存的輸出，並回報訊息已縮短。⟦如同收到幾百頁的厚重紙本報告時，郵差只先遞給你附頭尾摘要的索引單，完整原文則收進檔案櫃供隨時調閱。⟧",
+                "en": "When running a command, reading a file, or fetching a web page dumps a lot of content at once, the chat window often gets flooded.\n\nLong command output now goes to the model in a `<persisted-output>` or `<truncated-output>` block, showing the beginning, the end, and the size of the omitted part.\n\nLong output from file reads, searches, and other tools uses a short `<persisted-output>` block pointing to the full file, or `<truncated-output>` when nothing can be saved.\n\nTruncated background command notices, Monitor events, and fetched web pages also list the saved full file in a `<persisted-output>` block.\n\nWhen a terminal command fails and the sandbox guidance exceeds the limit, the saved output is kept and the message reports that it was shortened. ⟦A courier handing over a massive paper report works the same way: you first get an index sheet with the opening and closing summary, while the full original goes into a filing cabinet for whenever you want to pull it.⟧"
+              },
+              "original": "Long command output now reaches the model in the same `<persisted-output>` or `<truncated-output>` block, showing its start and end and the size of the part left out\nLong output from file reads, searches and other tools now reaches the model as a short `<persisted-output>` block that names the file holding the full output, or a `<truncated-output>` block when nothing could be saved\nBackground command notices, Monitor events and fetched web pages that had to be cut now name the saved full output in the same `<persisted-output>` block\nA shell command that fails with sandbox guidance longer than the output limit keeps its saved output and reports that the message was shortened"
             },
             {
-              "original": "Long output from file reads, searches and other tools now reaches the model as a short `<persisted-output>` block that names the file holding the full output, or a `<truncated-output>` block when nothing could be saved"
-            },
-            {
+              "title": {
+                "zh-TW": "內建技能新舊代號與企業名單規則更新",
+                "en": "Updated built-in skill IDs and enterprise list rules"
+              },
+              "body": {
+                "zh-TW": "在設定檔、受管技能檔或企業允許與封鎖清單裡，現在都能寫入內建技能的 `bundled:<id>` 與舊寫法。寫進 `allowed_identities` 的技能不管 `allowed_sources` 設定都會放行，想保留特定技能直接列在這裡即可。該處若寫舊寫法只代表內建技能而不含同名使用者技能，但寫進 `denied_identities` 則兩者都擋。\n\n受管技能檔若把同一技能寫了兩次，例如新舊寫法並存或同時列出 `plugin:<pkg>:<skill>` 與路徑，該檔案仍會保留。兩邊設定值相同就照常套用，互相衝突就會關閉該技能並跳出列出兩個鍵名的警告。開關或重設內建技能時，設定檔裡其他寫法也會跟著移除。⟦彷彿公司換發新式員工證時，舊編號仍暫時通用，但只要同一人的兩張通行證權限打架，門禁就會先鎖卡並通知管理員。⟧",
+                "en": "In settings files, managed skill files, or enterprise allow and deny lists, you can now specify a built-in skill using `bundled:<id>` or its older spellings. Skills listed in `allowed_identities` are admitted regardless of `allowed_sources`, so you can list any specific skill there to keep it available. An older spelling in `allowed_identities` refers only to the built-in skill and not a user skill with the same name, whereas in `denied_identities` it blocks both.\n\nIf a managed skill file lists the same skill twice, such as mixing old and new spellings or placing `plugin:<pkg>:<skill>` alongside its path, the file is still kept. Matching values apply as normal, while conflicting values turn that skill off and raise a warning naming both keys. Turning a built-in skill on or off, or resetting it, also removes its other spellings from that settings file. ⟦Imagine a company issuing new staff badges where old ID numbers still work for now, yet the moment one person's two passes have conflicting permissions, the door system locks the card and alerts an admin.⟧"
+              },
               "original": "Settings, managed skill files and enterprise allow and deny lists accept a built-in skill's `bundled:<id>` name and its older spellings, and a skill named in `allowed_identities` is admitted whatever `allowed_sources` says (an older spelling there names only the built-in skill, never a user skill of that name, while in `denied_identities` it refuses both); name a skill there to keep it available whatever its source. A managed skill file that names one skill twice (two spellings, or a plugin skill's `plugin:<pkg>:<skill>` id beside its path) is kept: matching values apply, and conflicting values turn that skill off with a warning naming both keys. Turning a built-in skill on or off, or resetting it, removes the other spellings of it from that settings file"
             },
             {
-              "original": "Resuming a session that ended without a clean exit now shows the abnormal-exit warning even when Muse was started again in between"
+              "title": {
+                "zh-TW": "技能撞名時明確分辨並改列內建代號",
+                "en": "Clearer handling and built-in IDs for skill name collisions"
+              },
+              "body": {
+                "zh-TW": "自訂或外掛技能跟內建技能取了一樣的短名稱，新版把優先順序與代號標示清楚了。\n\n呼叫短名稱時如果只有已安裝外掛跟內建技能撞名，Muse 會直接開啟內建技能，不再跳出來要你二選一。\n\n如果是你自己的使用者或專案技能跟內建技能同名，終端機介面會在啟動時主動提醒，並告訴你用 `bundled:<name>` 這個代號依然能打開內建版。\n\n執行 `muse plugins inspect` 檢視外掛時，內建技能現在也會照技能清單的格式列出如 `bundled:plan` 的代號，不再顯示帶外掛前綴的 ID。",
+                "en": "When a custom or plugin skill shares a short name with a built-in skill, the new version makes the precedence and ID clear.\n\nIf you invoke a short name and only an installed plugin collides with a built-in skill, Muse opens the built-in skill directly instead of asking you to choose.\n\nIf your own user or project skill has the same name as a built-in skill, the terminal UI alerts you at startup and shows that `bundled:<name>` still opens the built-in version.\n\nWhen running `muse plugins inspect`, built-in skills now use the same ID format as the skills list, such as `bundled:plan`, instead of a plugin-prefixed ID."
+              },
+              "original": "When you name a skill by its short name and only an installed plugin shares that name with a built-in skill, Muse opens the built-in skill instead of asking you to choose\nWhen your own user or project skill has the same name as a built-in skill, the TUI says so at startup and shows the `bundled:<name>` id that still opens the built-in\n`muse plugins inspect` lists each built-in skill by the id the skills list uses, such as `bundled:plan`, instead of a plugin-qualified id"
             },
             {
-              "original": "`muse trace inspect` says when a session log holds no per-lane samples for a request, and still checks the request against its replay"
-            },
-            {
-              "original": "When a shell command runs without a Git directory that was swapped for a symlink, the agent is told which directory moved and how to make it usable again"
-            },
-            {
-              "original": "Background command notices, Monitor events and fetched web pages that had to be cut now name the saved full output in the same `<persisted-output>` block"
-            },
-            {
-              "original": "After a long conversation is compacted, the commands it keeps from earlier work are real commands, not file or log lines that only mention a command word mid-line; commands the agent ran itself are left to the written summary"
-            },
-            {
+              "title": {
+                "zh-TW": "外掛檢查與安裝明確提示略過舊繼承欄位",
+                "en": "Plugin validation and install clearly note ignored formerUnits"
+              },
+              "body": {
+                "zh-TW": "外掛作者或管理員使用 `muse plugins validate` 與 `muse plugins install` 時，若資訊檔帶有 `formerUnits` 欄位，現在會看到 `ignored-former-units` 提示。因為只有隨產品內建的外掛能接手舊外掛的設定，這個欄位會被略過。不過外掛依然會完成安裝，裡面的技能和 hook（特定事件發生時會被觸發的小程式）都能照常運作。⟦就像拿舊門牌去新社區報到，管理室會跳過那張舊證件不認帳，但照樣讓你辦好入住、屋裡的家電都能正常用。⟧",
+                "en": "When plugin authors or admins run `muse plugins validate` or `muse plugins install`, a manifest containing a `formerUnits` field now displays an `ignored-former-units` notice. Because only plugins bundled with the product can take over a former plugin's settings, this field is ignored. The plugin still finishes installing, and its skills and hooks (small programs triggered when specific events happen) continue to work normally. ⟦Suppose you check into a new apartment complex with an old street-number plate: the management office ignores that outdated card, yet still checks you in so all the appliances inside work fine.⟧"
+              },
               "original": "`muse plugins validate` and `muse plugins install` now say a plugin manifest's `formerUnits` field is ignored (`ignored-former-units`), because only plugins that ship in the product can take over a former plugin's settings; the plugin still installs and its skills and hooks still work"
             },
             {
-              "original": "When you name a skill by its short name and only an installed plugin shares that name with a built-in skill, Muse opens the built-in skill instead of asking you to choose"
-            },
-            {
-              "original": "When your own user or project skill has the same name as a built-in skill, the TUI says so at startup and shows the `bundled:<name>` id that still opens the built-in"
-            },
-            {
-              "original": "`muse plugins inspect` lists each built-in skill by the id the skills list uses, such as `bundled:plan`, instead of a plugin-qualified id"
-            },
-            {
-              "original": "Security: Goal cards no longer print raw terminal control sequences hidden in goal text"
-            },
-            {
-              "original": "Security: Writes to `~/.npmrc`, `~/.pypirc`, `~/.docker/config.json` or `~/.kube/config` now ask for approval before Muse changes them"
-            },
-            {
-              "original": "Security: Installed plugin hooks ask for review again when an update changes the code they run, and hooks you approved before this release ask once more"
-            },
-            {
-              "original": "The `run.usage` line of `muse exec --json` now counts every model call of the run; after a context compaction inside the run it counted only the later calls. When exec cannot count the whole run, it leaves the line out and prints a notice to stderr"
-            },
-            {
-              "original": "When a new session's log is deleted while the session starts, the start now stops and says so, instead of writing a new log without the session's permission settings that a later `--session-id` run would pick up"
-            },
-            {
-              "original": "Long sessions that run many Workflows no longer stop saving checkpoints: once a Workflow has ended, its finished subagents drop out of the saved session instead of being carried in every later checkpoint"
-            },
-            {
-              "original": "`muse serve` now applies `-c` overrides such as `-c model_catalog=[]` to the model list it serves, not only when `--preset` is given"
-            },
-            {
-              "original": "A session can still message another local session after an earlier session that messaged it from the same app has closed"
-            },
-            {
-              "original": "Stopping a run or subagent just before its tool calls start, with a `PreToolUse` hook configured, now ends it as cancelled instead of failed with \"tool batch ended without result\""
-            },
-            {
-              "original": "A forked session hosted by `muse serve` no longer loses its own earlier turns from what the model sees; from the fork's third turn on, the model was sent the turns inherited from the parent, the fork's first turn and the newest message, but none of the fork's turns in between"
-            },
-            {
-              "original": "In a sandboxed shell under the ProxyOnly network mode, an approved plain-HTTP request to a server that closes on an early client half-close now receives that server's response instead of an empty reply"
-            },
-            {
-              "original": "The web3d skill's page checker takes phone screenshots at device scale 1 on a software renderer, so they time out far less often"
-            },
-            {
-              "original": "Listing sessions no longer hangs when the session index is upgraded in the middle of the request"
-            },
-            {
-              "original": "Starting Muse no longer writes into your earlier sessions' files, so a session that a file-sync tool copies between machines is no longer refused with \"the session log was replaced by another file outside Muse\""
-            },
-            {
-              "original": "A terminal or `tbh exec` session started with `--no-session-log`, including a read-only resume, no longer writes the built-in skill and plugin caches into your data folder; it reuses them when they are already there and otherwise keeps a temporary copy that is removed when it exits"
-            },
-            {
-              "original": "On Windows, symbols such as ✓, →, € and —, combining accents, emoji joiners and variation selectors are no longer dropped from what you type or paste into the composer"
-            },
-            {
-              "original": "On Windows, a corrupt session index is now set aside and rebuilt from your session logs, so `/resume` stops scanning every saved session each time it opens and you no longer have to delete the file by hand"
-            },
-            {
-              "original": "On Windows, `--worktree create` now creates the session worktree instead of failing while Git writes the new worktree's `.git` file"
-            },
-            {
-              "original": "On Windows, when the agent tries to read a folder as a file, the listing command it is pointed to now works for folder names with spaces, quotes or non-ASCII characters"
-            },
-            {
-              "original": "Reopening a session no longer leaves out a turn that started while a session checkpoint or a context compaction was being saved"
-            },
-            {
-              "original": "A Workflow agent or an Auto-review reviewer that has stopped responding is now ended 30 seconds after it is cancelled, instead of staying open indefinitely"
-            },
-            {
-              "original": "A command or MCP server that a session starts and leaves running can no longer stop `muse serve` or `muse acp` from indexing history for rewind"
-            },
-            {
-              "original": "A turn waiting on a monitor or background task no longer wakes for an update the model already received"
-            },
-            {
-              "original": "When a turn dies unexpectedly while a tool call is still starting, that tool task now ends as failed instead of staying open forever"
-            },
-            {
-              "original": "Sessions that switch model providers keep working after a crash resume; sessions saved by earlier builds are unchanged"
-            },
-            {
-              "original": "Pressing Esc right after sending a prompt in a long session no longer shows the prompt in the composer and above the status row at the same time"
-            },
-            {
-              "original": "Nested subagents report their true depth in the subagent roster and in subagent items, so a grandchild no longer reads as a direct child"
-            },
-            {
-              "original": "Resuming a session no longer shows a false \"runtime closed before context compaction completed\" error after a `/compact` whose result could not be saved"
-            },
-            {
-              "original": "When a streaming endpoint answers with no Content-Type header at all, the run now keeps retrying briefly before failing, matching how a transitory proxy rewrite of the header behaves; a page explicitly labelled with a non-SSE content type still fails at once"
-            },
-            {
-              "original": "Stopping a Workflow at the moment it finishes no longer leaves it shown as `unresolved`"
-            },
-            {
-              "original": "`exec --json` lines now carry a unique `id` and the real `recorded_at` time instead of the same placeholder ids and fixed 2026-06-04 times in every run, so scripts can join and time runs from the JSONL output"
-            },
-            {
-              "original": "A `!` command that ends while the session finishes an automatic context compaction in the background no longer fails and loses its output when a tool hook ran for it"
-            },
-            {
-              "original": "When the model service is overloaded (HTTP 503) or times out (HTTP 504), the first retry, and any retry wait the server does not set, now varies a little between sessions, so fewer sessions retry at the same moment and pile onto a service that is already busy"
-            },
-            {
-              "original": "A fork or side chat of a compacted session hosted by `muse serve` now starts from everything the session did after the compaction; a fork could be sent a redundant note restating its delegation settings, and in rarer cases a fork or side chat started without the session's newest turns"
-            },
-            {
-              "original": "After a context compaction in a session that does not write its own session log, a repeated subagent start no longer fails its lookup of the first start"
-            },
-            {
-              "original": "Forked conversations preserve accepted followup turns"
-            },
-            {
-              "original": "Automations that saved a subagent result the app could not finish storing need a newer app version to resume"
-            },
-            {
-              "original": "Large images returned by MCP tools are now resized and re-encoded the same way as images read from files, so a few big tool images no longer make every later request too large"
-            },
-            {
-              "original": "The queue key now keeps command intent when the command trigger is remapped, so a remapped exit or clear during a run acts as the command instead of queueing its text"
-            },
-            {
-              "original": "Preserve exit status and output in notifications for long background commands"
-            },
-            {
-              "original": "When a Workflow subagent's run fails after it has completed model calls, the tokens of those completed calls now count in the Workflow's token total and against a token budget you set"
-            },
-            {
-              "original": "A shell command that fails with sandbox guidance longer than the output limit keeps its saved output and reports that the message was shortened"
-            },
-            {
-              "original": "After a crash, when the session could only reopen from its last checkpoint, the startup notice now lists the tool calls and `!` commands the resume had already cancelled before it fell back to that checkpoint"
-            },
-            {
-              "original": "When a new session's log is deleted while a client starts the session through the session server (`session/start`), the start now stops and says the log was deleted, instead of writing a new log without the session's permission settings"
-            },
-            {
+              "title": {
+                "zh-TW": "讀不到 settings.json 時預設關閉技能",
+                "en": "Skills default to off when settings.json is unreadable"
+              },
+              "body": {
+                "zh-TW": "如果 `settings.json` 暫時無法讀取，過去會默默把你在那份檔案裡關閉的技能重新啟用。現在只要讀不到 `settings.json`，該次執行的技能啟用狀態一律預設為關閉，不再意外打開已停用的技能。",
+                "en": "Previously, if `settings.json` was temporarily unreadable, skills you had disabled in that file were silently re-enabled. Now, whenever `settings.json` cannot be read, skill activation defaults to off for that run so disabled skills are never turned back on by mistake."
+              },
               "original": "When settings.json cannot be read, skill activation defaults to off for that run instead of silently re-enabling skills the unreadable file had turned off"
             },
             {
-              "original": "`/compact` in a session whose latest turn included a pasted image now compacts the conversation instead of refusing it as an invalid target"
+              "title": {
+                "zh-TW": "目標卡過濾隱藏的終端機控制碼",
+                "en": "Goal cards filter hidden terminal control codes"
+              },
+              "body": {
+                "zh-TW": "打開目標檢視畫面時，文字裡若夾帶了不該直接顯示的指令，過去會原封不動被印出來。現在目標卡不再輸出這些藏在目標文字裡的原始終端機控制序列。",
+                "en": "Previously, when opening the goal view, any hidden instructions embedded in the text were printed as-is. Goal cards now strip out these raw terminal control sequences hidden inside goal text."
+              },
+              "original": "Security: Goal cards no longer print raw terminal control sequences hidden in goal text"
             },
             {
-              "original": "A full-context fork taken after switching model providers keeps working; forks saved by earlier builds are unchanged"
+              "title": {
+                "zh-TW": "修改指定四種設定檔前先徵求核准",
+                "en": "Ask for approval before modifying four specified config files"
+              },
+              "body": {
+                "zh-TW": "Muse 準備寫入 `~/.npmrc`、`~/.pypirc`、`~/.docker/config.json` 或 `~/.kube/config` 之前，現在會先徵求你的核准才會修改。⟦有如請幫手整理書桌時，一般文件可以自行歸位，遇到放存摺和印章的抽屜一定要先問過你才敢動手。⟧",
+                "en": "Before Muse writes to `~/.npmrc`, `~/.pypirc`, `~/.docker/config.json`, or `~/.kube/config`, it now asks for your approval first. ⟦When you ask an assistant to tidy your desk, everyday papers can be put away on their own, while the drawer holding your bankbooks and personal seals stays untouched until they ask you first.⟧"
+              },
+              "original": "Security: Writes to `~/.npmrc`, `~/.pypirc`, `~/.docker/config.json` or `~/.kube/config` now ask for approval before Muse changes them"
             },
             {
-              "original": "On case-insensitive mounts such as WSL2 DrvFs, Muse's file tools now resolve protected files like `auth.json` and `trust.json` to the file they actually name, so opening the same file through a differently-cased path (for example `MUSE/auth.json`) is denied just like the exact spelling; a sandboxed shell refuses to start when a denied file lives on such a mount, because no path mask can cover the alias"
+              "title": {
+                "zh-TW": "外掛 hook 執行程式碼變動後須重審",
+                "en": "Plugin hooks require re-review after code changes"
+              },
+              "body": {
+                "zh-TW": "已安裝的外掛在更新後若改動了執行的程式碼，裡面的 hook 都會再次請你審查確認。你在這一版之前就核准過的 hook，這次也會再詢問確認一次。⟦換作社區物業調整了巡邏或門禁合約，就算住戶去年簽過同意書，今年換新內容還是得請你重新過目簽字。⟧",
+                "en": "When an update changes the code an installed plugin runs, its hooks will ask for your review again. Hooks you approved before this release will also ask for confirmation once more. ⟦A neighborhood property manager revising a patrol or gate-access contract still has to ask residents to read and sign the new terms, even if they signed a consent form last year.⟧"
+              },
+              "original": "Security: Installed plugin hooks ask for review again when an update changes the code they run, and hooks you approved before this release ask once more"
             },
             {
-              "original": "The TUI no longer stops reading keys and drawing while the subagent workspace check waits for a session record to reach a slow disk; on a busy machine this froze the TUI for seconds at a time during turns and subagent runs"
+              "title": {
+                "zh-TW": "強化保護檔在別名與捷徑下的存取鎖定",
+                "en": "Stronger access locks for protected files via aliases and symlinks"
+              },
+              "body": {
+                "zh-TW": "在 WSL2 DrvFs 這類不區分大小寫的掛載磁區上，檔案工具現在會把 `auth.json`、`trust.json` 等受保護檔案解析到實際位置。即使改用不同大小寫的路徑像是 `MUSE/auth.json` 開啟，也會和原本拼法一樣被拒絕。如果被拒絕的檔案位於這類磁區，沙盒終端機也會因為路徑遮罩無法涵蓋所有別名而拒絕啟動。\n\n`auth.json` 與 `trust.json` 的檔案鎖現在改放在解析後的實際寫入位置旁，因此透過 symlink（指向另一個位置的捷徑檔）存取時，各種寫法都會共用同一把鎖，不再各鎖各的。⟦好比替同一間保險箱掛了大小寫不同的門牌與捷徑，以前換個寫法就認不出來，現在全認準同一扇門與同一把鎖。⟧",
+                "en": "On case-insensitive mounts such as WSL2 DrvFs, file tools now resolve protected files like `auth.json` and `trust.json` to their actual location. Opening one through a differently cased path such as `MUSE/auth.json` is denied just like the exact spelling. If a denied file resides on such a mount, the sandboxed terminal also refuses to start because path masks cannot cover every alias.\n\nFile locks for `auth.json` and `trust.json` now sit beside the resolved write destination, so accessing them through a symlink (a shortcut file pointing to another location) makes every spelling share one lock instead of locking separately. ⟦Hanging differently cased doorplates and shortcuts on the same vault used to make it unrecognizable under another spelling, whereas now everything points to the same door and the same lock.⟧"
+              },
+              "original": "On case-insensitive mounts such as WSL2 DrvFs, Muse's file tools now resolve protected files like `auth.json` and `trust.json` to the file they actually name, so opening the same file through a differently-cased path (for example `MUSE/auth.json`) is denied just like the exact spelling; a sandboxed shell refuses to start when a denied file lives on such a mount, because no path mask can cover the alias\nAuth and trust file locks now sit beside the resolved write destination, so a symlinked auth.json or trust.json shares one lock across every spelling instead of two"
             },
             {
-              "original": "A session started with `/new` or `/clear` now saves session checkpoints; before, it saved none, so reopening it after a context compaction read its whole history"
+              "title": {
+                "zh-TW": "exec --json 補齊用量與真實時間",
+                "en": "exec --json completes usage counts and real timestamps"
+              },
+              "body": {
+                "zh-TW": "寫自動化腳本剖析 `muse exec --json` 輸出，過去常因重複編號、固定日期與漏算呼叫次數而失真。\n\n`run.usage` 那一行現在會統計整趟執行的每一次模型呼叫，不再因為中途做過上下文壓縮就只算後半段。如果無法統計整趟執行，則會略過該行並將通知印到標準錯誤。\n\n`exec --json` 的每一行現在都會帶上唯一的 `id` 和真實的 `recorded_at` 時間，取代過去重複的佔位編號與固定的 `2026-06-04` 時間。這樣腳本就能直接依據 JSONL 輸出串接資料並計算耗時。⟦跟結帳收據補上每張獨立單號與真實刷卡時間一樣，中間就算換過紙捲，整筆消費也能對得清清楚楚。⟧",
+                "en": "Automation scripts parsing `muse exec --json` output used to get skewed results from duplicate IDs, a fixed date, and missed call counts.\n\nThe `run.usage` line now counts every model call across the entire run, rather than only counting the later half after a mid-run context compaction. If the whole run cannot be counted, that line is omitted and a notice is printed to stderr.\n\nEach `exec --json` line now carries a unique `id` and the real `recorded_at` time, replacing the repeated placeholder IDs and fixed `2026-06-04` timestamp. Scripts can now join data and calculate durations directly from the JSONL output. ⟦Just as checkout receipts gain individual receipt numbers and real card-swipe timestamps, the entire purchase reconciles cleanly even if the paper roll is swapped mid-transaction.⟧"
+              },
+              "original": "The `run.usage` line of `muse exec --json` now counts every model call of the run; after a context compaction inside the run it counted only the later calls. When exec cannot count the whole run, it leaves the line out and prints a notice to stderr\n`exec --json` lines now carry a unique `id` and the real `recorded_at` time instead of the same placeholder ids and fixed 2026-06-04 times in every run, so scripts can join and time runs from the JSONL output"
             },
             {
-              "original": "When hooks stop a turn on more than one tool call of a batch, a stop on a call that a `PostToolUseFailure` hook corrected with `updatedInput` no longer replaces the stop reason of an earlier call"
+              "title": {
+                "zh-TW": "啟動時若紀錄檔被刪會立刻中止不重寫",
+                "en": "Startup aborts instead of rewriting if the log is deleted"
+              },
+              "body": {
+                "zh-TW": "新工作階段啟動過程如果紀錄檔被刪掉，過去會重寫一份沒有原本權限設定的新紀錄檔，讓之後的 `--session-id` 讀到錯誤設定。\n\n現在無論是直接啟動，還是透過工作階段伺服器執行 `session/start` 啟動，只要紀錄檔在啟動中途被刪除，就會立刻中止並提示該檔案已遭刪除。這樣就不會再產生一份缺少原本權限設定的新紀錄檔。⟦像門禁名單剛開好卻被抽走時，警衛寧可當場喊停也不隨便補發空白通行證，免得之後放錯人進門。⟧",
+                "en": "If a new session's log file was deleted during startup, it used to rewrite a new log without the original permission settings, causing a later `--session-id` run to read the wrong configuration.\n\nNow, whether started directly or via `session/start` through the session server, startup immediately aborts and reports that the log file was deleted if it disappears mid-start. This prevents creating a new log missing the original permission settings. ⟦Once a freshly prepared access list goes missing, a guard halts entry on the spot rather than handing out blank passes that could let the wrong person in later.⟧"
+              },
+              "original": "When a new session's log is deleted while the session starts, the start now stops and says so, instead of writing a new log without the session's permission settings that a later `--session-id` run would pick up\nWhen a new session's log is deleted while a client starts the session through the session server (`session/start`), the start now stops and says the log was deleted, instead of writing a new log without the session's permission settings"
             },
             {
-              "original": "Auth and trust file locks now sit beside the resolved write destination, so a symlinked auth.json or trust.json shares one lock across every spelling instead of two"
+              "title": {
+                "zh-TW": "異常退出與當機後接續工作階段更完整",
+                "en": "More complete session resumes after abnormal exits and crashes"
+              },
+              "body": {
+                "zh-TW": "工作階段中途當機或非正常結束後想接著做，這批修復讓檢查點保存與啟動提示更可靠。\n\n沒正常退出就結束的工作階段，就算中間重開過 Muse，接續時依然會看到異常退出的警告。\n\n重開工作階段時，剛好在儲存檢查點或進行上下文壓縮期間開始的那一輪對話，不會再被遺漏。\n\n切換過模型供應商的工作階段在當機接續後能繼續正常使用，舊版本已存下的紀錄則維持不變。\n\n當機後若只能從上一個檢查點重開，啟動通知會列出接續過程退回檢查點前已經取消的工具呼叫與 `!` 指令。\n\n用 `/new` 或 `/clear` 開啟的工作階段現在會儲存檢查點，不像以前完全沒存而導致壓縮後重開得重讀全部歷史。",
+                "en": "When you need to continue after a mid-session crash or abnormal exit, these fixes make checkpoint saving and startup notices more reliable.\n\nResuming a session that ended without a clean exit still shows the abnormal-exit warning, even if Muse was restarted in between.\n\nReopening a session no longer drops a turn that started while a checkpoint was being saved or a context compaction was running.\n\nSessions that switched model providers continue working normally after a crash resume, while logs saved by earlier builds remain unchanged.\n\nAfter a crash, when a session can only reopen from its last checkpoint, the startup notice lists the tool calls and `!` commands that were already cancelled before falling back to that checkpoint.\n\nSessions started with `/new` or `/clear` now save checkpoints, instead of saving none and forcing a full history re-read when reopened after compaction."
+              },
+              "original": "Resuming a session that ended without a clean exit now shows the abnormal-exit warning even when Muse was started again in between\nReopening a session no longer leaves out a turn that started while a session checkpoint or a context compaction was being saved\nSessions that switch model providers keep working after a crash resume; sessions saved by earlier builds are unchanged\nAfter a crash, when the session could only reopen from its last checkpoint, the startup notice now lists the tool calls and `!` commands the resume had already cancelled before it fell back to that checkpoint\nA session started with `/new` or `/clear` now saves session checkpoints; before, it saved none, so reopening it after a context compaction read its whole history"
             },
             {
-              "original": "A hook from a settings or hooks file that runs when a session starts, resumes, clears, compacts or forks no longer leaves a record in the session log when it exits 0, writes nothing but whitespace to stderr and adds or changes nothing (no context, system message or error); any other run of these hooks is recorded when it ends, and runs of a plugin's hook at these events are recorded as before; plain text that a hook prints to stdout when a session starts, resumes, clears, compacts or forks, or when a subagent starts, becomes context, so that run is recorded"
+              "title": {
+                "zh-TW": "工作階段紀錄縮減體積並修好跨機同步",
+                "en": "Smaller session logs and fixed cross-machine sync"
+              },
+              "body": {
+                "zh-TW": "在兩台電腦之間搬移對話紀錄，或對話越積越長時，以往容易碰到檔案衝突、查詢卡住與硬碟佔用過大的問題。這幾項讀取與寫入行為都已經調整改善。\n\n查詢工作階段清單時剛好遇上索引升級，現在不會再卡住不動。\n\n啟動 Muse 不會再改寫先前的工作階段檔案。透過檔案同步工具跨機複製的紀錄，也不再跳出「the session log was replaced by another file outside Muse」而遭拒絕。\n\n由於每次模型請求寫入的追蹤紀錄更精簡，硬碟上的工作階段紀錄檔也跟著變小。\n\n在長工作階段裡開始新一輪對話時，不用再把前面每一輪的紀錄全部重讀一遍。",
+                "en": "Moving conversation logs between two computers or letting sessions grow long used to cause file conflicts, stalled queries, and excessive disk usage. Several read and write behaviors have now been improved.\n\nQuerying the session list no longer hangs when an index upgrade happens at the same time.\n\nStarting Muse no longer modifies earlier session files. Logs copied across machines by a file-sync tool are no longer rejected with \"the session log was replaced by another file outside Muse\".\n\nBecause each model request writes a leaner trace entry, session log files on disk are smaller as well.\n\nStarting a new turn in a long session no longer re-reads the records of every earlier turn."
+              },
+              "original": "Listing sessions no longer hangs when the session index is upgraded in the middle of the request\nStarting Muse no longer writes into your earlier sessions' files, so a session that a file-sync tool copies between machines is no longer refused with \"the session log was replaced by another file outside Muse\"\nSession logs on disk are smaller, because each model request now writes a shorter trace entry\nStarting a new turn in a long session no longer re-reads the records of every earlier turn"
             },
             {
-              "original": "Session logs on disk are smaller, because each model request now writes a shorter trace entry"
+              "title": {
+                "zh-TW": "無紀錄模式不再把快取寫進資料夾",
+                "en": "No-session-log mode stops writing caches to your folder"
+              },
+              "body": {
+                "zh-TW": "想開一個不留痕跡的對話或進行唯讀接續，在終端機或 `tbh exec` 加上 `--no-session-log` 參數現在更徹底。這類工作階段不會再把內建技能與外掛的快取（把算過或查過的資料暫存起來直接用的檔案）寫進你的資料夾。如果資料夾裡原本就有就沿用，否則只保留結束時會刪除的暫存副本。⟦像借用朋友電腦開無痕視窗查資料時，只暫用現成工具、不把私人暫存檔塞進他的資料夾，關掉視窗就乾乾淨淨。⟧",
+                "en": "Starting a traceless conversation or a read-only resume with `--no-session-log` in the terminal or `tbh exec` is now more thorough. These sessions no longer write built-in skill and plugin caches into your folder. If they already exist in the folder, they are reused; otherwise, only a temporary copy is kept and deleted on exit. ⟦Borrowing a friend's computer in an incognito window lets you use existing tools without stuffing personal temp files into their folders, leaving everything clean when you close the window.⟧"
+              },
+              "original": "A terminal or `tbh exec` session started with `--no-session-log`, including a read-only resume, no longer writes the built-in skill and plugin caches into your data folder; it reuses them when they are already there and otherwise keeps a temporary copy that is removed when it exits"
             },
             {
-              "original": "Starting a new turn in a long session no longer re-reads the records of every earlier turn"
+              "title": {
+                "zh-TW": "上下文壓縮的保留準則與異常狀況修復",
+                "en": "Context compaction retention rules and edge-case fixes"
+              },
+              "body": {
+                "zh-TW": "把長對話壓縮變短的過程，現在更能正確保留指令並避開幾項儲存衝突。\n\n長對話壓縮後保留下來的過去指令，現在只會是實際執行過的指令，不會再誤抓中間剛好提到指令關鍵字的檔案或紀錄行；代理自己跑過的指令則留給文字摘要處理。\n\n執行 `/compact` 卻未能存下結果時，之後接續該工作階段不會再誤報「runtime closed before context compaction completed」錯誤。\n\n在背景完成自動上下文壓縮的同時，若有搭配工具 hook 執行的 `!` 指令剛好結束，現在不會再失敗並遺失輸出。\n\n沒有寫入自身紀錄檔的工作階段在做完上下文壓縮後，重複啟動子代理時不會再找不到第一次啟動的紀錄。\n\n最新一輪對話若包含貼上的圖片，執行 `/compact` 現在會正常壓縮對話，不再把它當成無效對象而拒絕。",
+                "en": "Compacting long conversations now preserves commands more accurately and avoids several storage conflicts.\n\nPast commands kept after compacting a long conversation are now only commands that were actually run, rather than file or log lines that happen to mention a command keyword mid-line; commands the agent ran itself are left to the written summary.\n\nWhen `/compact` fails to save its result, resuming that session later no longer shows a false \"runtime closed before context compaction completed\" error.\n\nIf a `!` command running with a tool hook finishes just as automatic context compaction completes in the background, it no longer fails and loses its output.\n\nAfter context compaction in a session that does not write its own log file, starting a subagent again no longer fails to find the record of its first start.\n\nIf the latest turn includes a pasted image, running `/compact` now compacts the conversation normally instead of rejecting it as an invalid target."
+              },
+              "original": "After a long conversation is compacted, the commands it keeps from earlier work are real commands, not file or log lines that only mention a command word mid-line; commands the agent ran itself are left to the written summary\nResuming a session no longer shows a false \"runtime closed before context compaction completed\" error after a `/compact` whose result could not be saved\nA `!` command that ends while the session finishes an automatic context compaction in the background no longer fails and loses its output when a tool hook ran for it\nAfter a context compaction in a session that does not write its own session log, a repeated subagent start no longer fails its lookup of the first start\n`/compact` in a session whose latest turn included a pasted image now compacts the conversation instead of refusing it as an invalid target"
             },
             {
-              "original": "A `Stop` hook no longer leaves a record in the session log when it exits 0, writes nothing but whitespace to stderr and adds or changes nothing (it does not keep the turn going, add a system message or fail); any other run of a `Stop` hook is recorded when it ends"
+              "title": {
+                "zh-TW": "分支對話與旁聊能完整保留前後輪脈絡",
+                "en": "Forked sessions and side chats preserve full turn context"
+              },
+              "body": {
+                "zh-TW": "從既有對話開出分支或旁聊繼續問下去，模型現在不會再漏看中間講過的內容。\n\n由 `muse serve` 託管的分支工作階段，過去從第三輪開始只會把繼承自母對話的紀錄、分支第一輪與最新訊息送給模型而漏掉中間各輪，現在已經補回。\n\n由 `muse serve` 託管且做過壓縮的工作階段，開出的分支或旁聊現在會從壓縮後的所有操作接續，不再重複收到重申委派設定的冗餘附註，也不會漏掉最新幾輪。\n\n分支對話中已經被接受的後續接問輪次，現在都會妥善保留下來。\n\n切換模型供應商之後建立的完整上下文分支可以繼續正常運作，舊版本儲存的分支則維持原樣。",
+                "en": "When you branch off an existing conversation into a fork or side chat, the model no longer misses turns in the middle.\n\nForked sessions hosted by `muse serve` used to send the model only the turns inherited from the parent, the fork's first turn, and the newest message starting from the third turn, dropping the turns in between; those missing turns are now included.\n\nA fork or side chat opened from a compacted session hosted by `muse serve` now continues from everything done after compaction, no longer receives a redundant note restating delegation settings, and no longer drops the newest turns.\n\nAccepted follow-up turns in forked conversations are now properly preserved.\n\nFull-context forks created after switching model providers continue to work normally, while forks saved by earlier builds remain unchanged."
+              },
+              "original": "A forked session hosted by `muse serve` no longer loses its own earlier turns from what the model sees; from the fork's third turn on, the model was sent the turns inherited from the parent, the fork's first turn and the newest message, but none of the fork's turns in between\nA fork or side chat of a compacted session hosted by `muse serve` now starts from everything the session did after the compaction; a fork could be sent a redundant note restating its delegation settings, and in rarer cases a fork or side chat started without the session's newest turns\nForked conversations preserve accepted followup turns\nA full-context fork taken after switching model providers keeps working; forks saved by earlier builds are unchanged"
+            },
+            {
+              "title": {
+                "zh-TW": "Workflow 代理清理與額度計算問題修正",
+                "en": "Fixes for Workflow agent cleanup and token accounting"
+              },
+              "body": {
+                "zh-TW": "跑多輪 Workflow 容易遇上的檢查點停存、代理掛起與 token 漏算問題，新版都有對應修正。\n\nWorkflow 一旦結束，已完成的子代理就會從儲存的工作階段移出，不再塞進後續每一個檢查點，長工作階段跑很多次 Workflow 也不再因此停存檢查點。\n\n沒有回應的 Workflow 代理或 Auto-review 審查員在取消 30 秒後就會強制結束，不會再無限期掛著。\n\n剛好在 Workflow 快完成的那一刻停止它，狀態不再錯留成 `unresolved`。\n\nWorkflow 子代理在完成幾次模型呼叫後才失敗，那些已完成的呼叫所消耗的 token 現在照樣計入 Workflow 的 token 總數，並從你設的 token 預算裡扣除。",
+                "en": "Issues commonly seen when running multiple Workflows—stopped checkpoint saving, hung agents, and uncounted tokens—have been fixed in this release.\n\nOnce a Workflow ends, its finished subagents are removed from the saved session instead of being carried into every subsequent checkpoint, so long sessions running many Workflows no longer stop saving checkpoints.\n\nAn unresponsive Workflow agent or Auto-review reviewer is forcefully terminated 30 seconds after cancellation instead of hanging indefinitely.\n\nStopping a Workflow right as it is about to finish no longer leaves its status stuck as `unresolved`.\n\nWhen a Workflow subagent fails after completing several model calls, the tokens used by those completed calls still count toward the Workflow's token total and are deducted from your configured token budget."
+              },
+              "original": "Long sessions that run many Workflows no longer stop saving checkpoints: once a Workflow has ended, its finished subagents drop out of the saved session instead of being carried in every later checkpoint\nA Workflow agent or an Auto-review reviewer that has stopped responding is now ended 30 seconds after it is cancelled, instead of staying open indefinitely\nStopping a Workflow at the moment it finishes no longer leaves it shown as `unresolved`\nWhen a Workflow subagent's run fails after it has completed model calls, the tokens of those completed calls now count in the Workflow's token total and against a token budget you set"
+            },
+            {
+              "title": {
+                "zh-TW": "設有 hook 時中止工具呼叫的狀態更準確",
+                "en": "More accurate status when stopping tool calls with hooks configured"
+              },
+              "body": {
+                "zh-TW": "已設定 `PreToolUse` hook 時，若在工具呼叫即將開始前中止執行或子代理，現在會以已取消結束，不再報錯「tool batch ended without result」。\n\n同一批若有多個工具呼叫被 hook 中止，其中某個呼叫經 `PostToolUseFailure` hook 以 `updatedInput` 修正後也觸發中止。現在它的中止原因不會再覆蓋掉較早那次呼叫的中止原因。⟦跟餐廳臨時撤單一樣，櫃台會註記為已取消而非出餐失敗，後面幾道菜的退單理由也不會蓋掉最先喊停的那一張。⟧",
+                "en": "When a `PreToolUse` hook is configured, stopping a run or subagent just before its tool calls start now ends it as cancelled instead of failing with the error \"tool batch ended without result\".\n\nIf multiple tool calls in the same batch are stopped by hooks, and one of those calls also triggers a stop after a `PostToolUseFailure` hook corrects it with `updatedInput`, its stop reason no longer overwrites the stop reason of the earlier call. ⟦At a restaurant when an order is canceled unexpectedly, the counter marks it as cancelled rather than a failed dish, and the cancellation reasons for later dishes do not overwrite the first one that called a halt.⟧"
+              },
+              "original": "Stopping a run or subagent just before its tool calls start, with a `PreToolUse` hook configured, now ends it as cancelled instead of failed with \"tool batch ended without result\"\nWhen hooks stop a turn on more than one tool call of a batch, a stop on a call that a `PostToolUseFailure` hook corrected with `updatedInput` no longer replaces the stop reason of an earlier call"
+            },
+            {
+              "title": {
+                "zh-TW": "無實質改動的 hook 不再寫進工作階段紀錄",
+                "en": "Hooks making no substantive changes no longer write to the session log"
+              },
+              "body": {
+                "zh-TW": "來自設定檔或 hooks 檔的 hook，會在工作階段啟動、接續、清除、壓縮或分支時觸發。如果它以 0 退出、標準錯誤只有空白，且沒有新增或修改任何上下文、系統訊息或錯誤，就不會寫進工作階段紀錄。其他情況和外掛 hook 在這些事件執行時都在結束後照舊紀錄。若這類事件或子代理啟動時把純文字印到標準輸出，因為會成為上下文，所以同樣會留下記錄。\n\n`Stop` hook 同樣以退出碼 0 結束、標準錯誤只有空白，而且沒讓該輪繼續、沒加系統訊息也沒失敗時，不會留下記錄。其餘執行結果則在結束時照常寫進紀錄。⟦就像巡邏員繞了一圈回報一切正常且沒留便條，值班簿便不再多記一筆，只有真的出狀況或交辦事項時才寫上去。⟧",
+                "en": "A hook from a settings or hooks file triggers when a session starts, resumes, clears, compacts, or forks. If it exits with 0, writes only whitespace to standard error, and adds or modifies no context, system message, or error, it is not written to the session log. Other runs and plugin hooks executing on these events are still recorded as before after they finish. If plain text is printed to standard output during these events or when a subagent starts, it becomes context and is therefore still recorded.\n\nSimilarly, a `Stop` hook leaves no record if it finishes with exit code 0, writes only whitespace to standard error, does not keep the turn going, adds no system message, and does not fail. All other execution results are written to the log as usual when they finish. ⟦A patrol guard who finishes a round, reports everything is fine, and leaves no note does not get an extra entry in the duty logbook; only actual incidents or handoff items are written down.⟧"
+              },
+              "original": "A hook from a settings or hooks file that runs when a session starts, resumes, clears, compacts or forks no longer leaves a record in the session log when it exits 0, writes nothing but whitespace to stderr and adds or changes nothing (no context, system message or error); any other run of these hooks is recorded when it ends, and runs of a plugin's hook at these events are recorded as before; plain text that a hook prints to stdout when a session starts, resumes, clears, compacts or forks, or when a subagent starts, becomes context, so that run is recorded\nA `Stop` hook no longer leaves a record in the session log when it exits 0, writes nothing but whitespace to stderr and adds or changes nothing (it does not keep the turn going, add a system message or fail); any other run of a `Stop` hook is recorded when it ends"
+            },
+            {
+              "title": {
+                "zh-TW": "Windows 輸入符號與檔案索引等問題修復",
+                "en": "Fixes for Windows symbol input, session indexing, and related issues"
+              },
+              "body": {
+                "zh-TW": "Windows 使用者在輸入框打特殊符號、開啟 `/resume` 或建立專案副本，過去容易碰上各種卡關。\n\n在輸入框打字或貼上內容時，`✓`、`→`、`€`、`—` 等符號、組合重音符號，以及表情符號的連接與變體選擇字元不會再漏字。\n\n損毀的工作階段索引檔現在會先挪到一旁並從工作階段紀錄重建，開 `/resume` 不必每次重掃所有已存紀錄，也不用自己手動刪檔。\n\n使用 `--worktree create` 建立工作階段的 worktree（讓同一個專案平行開出多份副本的功能）時，不再因為 Git 寫入 `.git` 檔失敗而中斷。\n\n代理誤把資料夾當成檔案讀時，畫面指給它改用的列出指令現在能正確處理含空白、引號或非 ASCII 字元的資料夾名稱。",
+                "en": "Windows users previously ran into various snags when typing special symbols in the composer, opening `/resume`, or creating project copies.\n\nWhen typing or pasting into the composer, symbols such as `✓`, `→`, `€`, and `—`, combining accents, emoji joiners, and variation selectors are no longer dropped.\n\nA corrupt session index file is now set aside and rebuilt from the session logs, so opening `/resume` no longer rescans every saved log each time, and you do not have to delete the file manually.\n\nCreating a session worktree (a feature for opening multiple parallel copies of the same project) with `--worktree create` no longer aborts because Git fails to write the `.git` file.\n\nWhen the agent mistakenly tries to read a folder as a file, the listing command it is pointed to now handles folder names containing spaces, quotes, or non-ASCII characters properly."
+              },
+              "original": "On Windows, symbols such as ✓, →, € and —, combining accents, emoji joiners and variation selectors are no longer dropped from what you type or paste into the composer\nOn Windows, a corrupt session index is now set aside and rebuilt from your session logs, so `/resume` stops scanning every saved session each time it opens and you no longer have to delete the file by hand\nOn Windows, `--worktree create` now creates the session worktree instead of failing while Git writes the new worktree's `.git` file\nOn Windows, when the agent tries to read a folder as a file, the listing command it is pointed to now works for folder names with spaces, quotes or non-ASCII characters"
+            },
+            {
+              "title": {
+                "zh-TW": "終端機畫面與按鍵反應卡頓問題修復",
+                "en": "Fixes for terminal display freezes and key responsiveness issues"
+              },
+              "body": {
+                "zh-TW": "快速連按快捷鍵或在忙碌的電腦上執行長對話時，操作體驗現在更順暢，不再突然凍結或顯示重複文字。\n\n長工作階段剛送出提示就立刻按 `Esc`，同一段提示不再同時出現在輸入框和狀態列上方。\n\n重新映射指令觸發鍵後，排隊鍵現在仍會保留原本的指令意圖，因此在執行中途按下重設後的離開或清除操作，會直接當作指令執行，不會把文字放進排隊。\n\n在等待工作階段紀錄寫入慢速硬碟以檢查子代理工作區期間，終端機介面不會再停止讀取按鍵或重繪畫面，在忙碌的機器上跑對話或子代理時不會再卡住畫面。",
+                "en": "Pressing shortcuts in quick succession or running long conversations on a busy machine is now smoother, without sudden freezes or duplicate text.\n\nPressing `Esc` right after sending a prompt in a long session no longer displays the same prompt in both the composer and above the status row.\n\nAfter remapping the command trigger key, the queue key now preserves the original command intent, so pressing the remapped exit or clear action mid-run executes it directly as a command instead of queueing its text.\n\nWhile waiting for a session log to write to a slow disk for the subagent workspace check, the terminal interface no longer stops reading keystrokes or redrawing the screen, preventing freezes when running conversations or subagents on a busy machine."
+              },
+              "original": "Pressing Esc right after sending a prompt in a long session no longer shows the prompt in the composer and above the status row at the same time\nThe queue key now keeps command intent when the command trigger is remapped, so a remapped exit or clear during a run acts as the command instead of queueing its text\nThe TUI no longer stops reading keys and drawing while the subagent workspace check waits for a session record to reach a slow disk; on a busy machine this froze the TUI for seconds at a time during turns and subagent runs"
+            },
+            {
+              "title": {
+                "zh-TW": "背景指令通知與任務異常中止處理修正",
+                "en": "Fixes for background command notifications and unexpected task aborts"
+              },
+              "body": {
+                "zh-TW": "等待長時間執行的工作或子工具啟動時，過去偶爾會遇到重複喚醒、漏掉執行結果或狀態一直卡住的情況，這些收尾邏輯已經調整好。\n\n正在等候 monitor 或背景任務的對話輪次，不再因為模型已經收過的舊更新而被重複喚醒。\n\n執行長背景指令時，完成通知現在會保留結束狀態與輸出內容。\n\n工具呼叫剛啟動時如果該輪對話意外中止，對應的工具任務現在會直接標為失敗並結束，不再一直掛在進行中。",
+                "en": "When waiting for long-running tasks or subtools to start, occasional issues like duplicate wakeups, missing execution results, or stuck statuses have now been cleaned up.\n\nA conversation turn waiting on a monitor or background task is no longer woken up repeatedly by old updates the model has already received.\n\nWhen running long background commands, completion notifications now preserve the exit status and output content.\n\nIf a turn aborts unexpectedly while a tool call has just started, the corresponding tool task is now immediately marked as failed and ended instead of remaining stuck in progress."
+              },
+              "original": "A turn waiting on a monitor or background task no longer wakes for an update the model already received\nWhen a turn dies unexpectedly while a tool call is still starting, that tool task now ends as failed instead of staying open forever\nPreserve exit status and output in notifications for long background commands"
+            },
+            {
+              "title": {
+                "zh-TW": "串流標頭遺漏與過載重試等待機制改善",
+                "en": "Improved handling of missing streaming headers and overload retry waits"
+              },
+              "body": {
+                "zh-TW": "串流端點回應如果完全沒有 `Content-Type` 標頭，現在會先短暫重試再失敗，以應對代理伺服器暫時改寫標頭的狀況。至於明確標註為非 SSE 類型的頁面，仍會立刻判定失敗。\n\n遇到模型服務回傳 HTTP 503 過載或 HTTP 504 逾時時，第一次重試與伺服器未指定時間的重試等待，現在會在各工作階段間錯開一點。這能減少許多工作階段同時重試、一起擠向原本就忙碌的服務。⟦跟尖峰時段電話佔線時，大家各自等幾秒再錯開重撥一樣，才不會同一瞬間全擠進總機把線路塞爆。⟧",
+                "en": "If a streaming endpoint responds with no `Content-Type` header at all, it now retries briefly before failing to handle cases where a proxy temporarily rewrites the header. Pages explicitly labeled as a non-SSE type still fail immediately.\n\nWhen the model service returns an HTTP 503 overload or HTTP 504 timeout, the first retry and any retry wait not specified by the server are now staggered slightly across sessions. This reduces the chance of many sessions retrying simultaneously and piling onto an already busy service. ⟦Like callers facing a busy line during peak hours, everyone waits a few seconds and staggers their redials so they do not flood the switchboard all at once.⟧"
+              },
+              "original": "When a streaming endpoint answers with no Content-Type header at all, the run now keeps retrying briefly before failing, matching how a transitory proxy rewrite of the header behaves; a page explicitly labelled with a non-SSE content type still fails at once\nWhen the model service is overloaded (HTTP 503) or times out (HTTP 504), the first retry, and any retry wait the server does not set, now varies a little between sessions, so fewer sessions retry at the same moment and pile onto a service that is already busy"
+            },
+            {
+              "title": {
+                "zh-TW": "muse trace inspect 補上缺樣本提示",
+                "en": "muse trace inspect adds a notice for missing samples"
+              },
+              "body": {
+                "zh-TW": "想確認某段請求追蹤有沒有遺漏取樣時，現在執行 `muse trace inspect` 除了會照舊對照重播紀錄檢查，還會在工作階段紀錄沒有各車道取樣時主動告訴你。",
+                "en": "When checking whether a request trace is missing samples, running `muse trace inspect` still checks against the replay log as before, and now also proactively notifies you when the session log has no per-lane samples."
+              },
+              "original": "`muse trace inspect` says when a session log holds no per-lane samples for a request, and still checks the request against its replay"
+            },
+            {
+              "title": {
+                "zh-TW": "Git 目錄換成捷徑後找不到時提供修復提示",
+                "en": "Recovery hint when a Git directory swapped for a shortcut is missing"
+              },
+              "body": {
+                "zh-TW": "終端機指令找不到 Git 目錄，且該目錄已被換成 symlink（符號連結，指向另一個位置的捷徑檔）時，代理現在會收到明確訊息。訊息會指出哪個目錄被移走，以及如何恢復可用。",
+                "en": "When a terminal command cannot find a Git directory and that directory has been replaced with a symlink (a shortcut file pointing to another location), the agent now receives a clear message. The message points out which directory was moved and how to make it usable again."
+              },
+              "original": "When a shell command runs without a Git directory that was swapped for a symlink, the agent is told which directory moved and how to make it usable again"
+            },
+            {
+              "title": {
+                "zh-TW": "muse serve 隨時套用 -c 模型清單覆寫",
+                "en": "muse serve now always applies -c model list overrides"
+              },
+              "body": {
+                "zh-TW": "啟動本機服務時如果想臨時調整可用的模型選項，以前得額外搭配 `--preset` 參數才會生效。現在只要對 `muse serve` 直接傳入 `-c`（例如 `-c model_catalog=[]`），就能直接套用覆寫後的模型清單。",
+                "en": "When starting the local service and wanting to temporarily adjust the available model options, you previously had to also pass the `--preset` flag for it to take effect. Now, passing `-c` directly to `muse serve` (such as `-c model_catalog=[]`) applies the overridden model list right away."
+              },
+              "original": "`muse serve` now applies `-c` overrides such as `-c model_catalog=[]` to the model list it serves, not only when `--preset` is given"
+            },
+            {
+              "title": {
+                "zh-TW": "先前來源關閉後其他工作階段仍可傳訊",
+                "en": "Other sessions can still message after an earlier sender closes"
+              },
+              "body": {
+                "zh-TW": "同一應用程式裡，A 工作階段先前曾傳訊給本機的 B 工作階段。A 關閉後，其他工作階段現在仍能傳訊給 B。",
+                "en": "Within the same application, if session A previously messaged local session B, other sessions can now still send messages to B after A closes."
+              },
+              "original": "A session can still message another local session after an earlier session that messaged it from the same app has closed"
+            },
+            {
+              "title": {
+                "zh-TW": "ProxyOnly 模式能收到早關連線的回應",
+                "en": "ProxyOnly mode receives responses on early closes"
+              },
+              "body": {
+                "zh-TW": "在 `ProxyOnly` 網路模式的沙盒終端機送出已核准的純 HTTP 請求，遇上伺服器在用戶端提早半關閉後隨即斷線，過去只會拿到空回應。現在這種情況已能正常收到伺服器傳回的回應內容。",
+                "en": "In a sandboxed shell using the `ProxyOnly` network mode, sending an approved plain-HTTP request to a server that disconnects right after an early client half-close previously returned only an empty reply. This scenario now properly receives the response sent back by the server."
+              },
+              "original": "In a sandboxed shell under the ProxyOnly network mode, an approved plain-HTTP request to a server that closes on an early client half-close now receives that server's response instead of an empty reply"
+            },
+            {
+              "title": {
+                "zh-TW": "web3d 頁面檢查降低手機截圖逾時機率",
+                "en": "web3d page checker reduces phone screenshot timeouts"
+              },
+              "body": {
+                "zh-TW": "`web3d` 技能的頁面檢查器在軟體渲染器截取手機版畫面，過去比較容易發生逾時。現在這類環境的手機截圖改以裝置縮放倍率 1 執行，逾時次數比過去少得多。",
+                "en": "The `web3d` skill's page checker used to time out more easily when capturing phone screenshots on a software renderer. Now, phone screenshots in these environments run at device scale 1, resulting in far fewer timeouts."
+              },
+              "original": "The web3d skill's page checker takes phone screenshots at device scale 1 on a software renderer, so they time out far less often"
+            },
+            {
+              "title": {
+                "zh-TW": "背景指令不再卡住回溯歷史的索引作業",
+                "en": "Background commands no longer block history indexing for rewind"
+              },
+              "body": {
+                "zh-TW": "工作階段啟動某個指令或 MCP 伺服器後若留著它在背景繼續跑，過去會卡住 `muse serve` 或 `muse acp` 建立用於倒轉回溯的歷史索引。這個狀況已經修好，留著背景程序繼續執行不再阻礙索引建立。",
+                "en": "If a session starts a command or MCP server and leaves it running in the background, it previously blocked `muse serve` or `muse acp` from building the history index used for rewinding. This issue is now fixed, so leaving background processes running no longer blocks indexing."
+              },
+              "original": "A command or MCP server that a session starts and leaves running can no longer stop `muse serve` or `muse acp` from indexing history for rewind"
+            },
+            {
+              "title": {
+                "zh-TW": "巢狀子代理清單現在會顯示真實層級深度",
+                "en": "Nested subagent list now shows true depth"
+              },
+              "body": {
+                "zh-TW": "子代理底下再開出更深一層的子代理，過去在名冊和項目裡會把孫代顯示成直屬子代理。現在名冊與項目都會回報真實的巢狀深度，各層上下關係一目了然。",
+                "en": "When a subagent spawns deeper subagents underneath it, the roster and items previously displayed grandchild subagents as direct children. Both the roster and items now report the true nesting depth, making the hierarchy across levels clear at a glance."
+              },
+              "original": "Nested subagents report their true depth in the subagent roster and in subagent items, so a grandchild no longer reads as a direct child"
+            },
+            {
+              "title": {
+                "zh-TW": "部分未寫完的自動化紀錄需用新版接續",
+                "en": "Partially written automation records require a newer version to resume"
+              },
+              "body": {
+                "zh-TW": "自動化作業若曾存下一份應用程式當時沒能完成寫入的子代理結果，舊版應用程式無法接手。這類存檔紀錄現在必須使用較新版本的應用程式才能繼續執行。",
+                "en": "If an automation saved a subagent result that the app could not finish writing at the time, older app versions cannot take over. These saved records now require a newer version of the app to continue running."
+              },
+              "original": "Automations that saved a subagent result the app could not finish storing need a newer app version to resume"
+            },
+            {
+              "title": {
+                "zh-TW": "MCP 工具回傳的大圖也會先縮圖重編碼",
+                "en": "Large images from MCP tools are also resized and re-encoded"
+              },
+              "body": {
+                "zh-TW": "MCP 工具回傳的圖片只要太大張，過去就會讓後面每一輪請求都跟著過大。現在工具回傳的大圖會比照從檔案讀取的圖片一樣先縮小尺寸並重新編碼，避免後續對話請求繼續被撐大。⟦就像傳訊時把幾張過大的原始照片先縮圖再送出，免得相簿塞爆、後面每一則訊息都傳不出去。⟧",
+                "en": "Whenever an MCP tool returned an oversized image, it used to make every subsequent request too large as well. Now, large images returned by tools are resized and re-encoded just like images read from files, preventing later conversation requests from bloating. ⟦You shrink a few oversized original photos before sending them in a chat so the album does not overflow and block every message that follows.⟧"
+              },
+              "original": "Large images returned by MCP tools are now resized and re-encoded the same way as images read from files, so a few big tool images no longer make every later request too large"
             }
           ],
-          "curated": false
+          "curated": true
         },
         {
           "version": "1.4.23",
