@@ -2,8 +2,133 @@
   "id": "agy",
   "name": "Antigravity",
   "page": 2,
-  "pages": 10,
+  "pages": 11,
   "versions": [
+    {
+      "version": "1.5.7",
+      "raw": {
+        "version": "1.5.7",
+        "period": "2026-11-13",
+        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
+        "fetched_at": "2026-11-13",
+        "entries": [
+          "Changed the default `Agent Mode` from Default to Auto: sessions with no saved mode, including headless `-p` runs, now start in Auto wherever Auto mode is available and in Default elsewhere; to keep the previous behavior, choose Default for `Agent Mode` in `/config`, which saves `\"agentMode\": \"\"` to `settings.json`. A `Tool Permission` setting of `strict` now also takes precedence over Auto and accept-edits modes, so file edits still ask for approval under `strict`.",
+          "Fixed multi-second UI freezes, which also stalled streaming and window resizing, when a command printed a very long line without spaces; line wrapping now takes time proportional to the line's length.",
+          "Fixed agent replies stalling for 20 seconds or more while a group of tool calls with long output was still animating its token counts; streamed steps now keep appearing while the group re-renders.",
+          "Fixed the agent not noticing that a command it moved to the background was waiting for input, such as a password or `y/n` prompt printed before the command went to the background; the agent is now notified once that output settles instead of waiting silently.",
+          "Fixed browser sign-in on Windows sometimes failing to complete because the CLI's local sign-in callback listened on only IPv4 or IPv6 while the browser redirected over the other; the callback now listens on both.",
+          "Fixed Gemini 4 Carbon requests through an enterprise model gateway failing with an HTTP 400 `Thinking budget is not supported for this model` error; the CLI now sends Gemini 4 Carbon a thinking level and no longer leaves the Low, Medium, or High suffix in the model ID it sends to the gateway.",
+          "Fixed a `PreToolUse` hook returning `auto_approve`, or a wildcard `command(*)` allow rule, bypassing an organization's admin-enforced review: commands that would leave the terminal sandbox, commands the admin policy holds for review, and file reads or writes outside the workspace under an \"always ask\" file-access policy now always ask for your approval.",
+          "Fixed saved command allow and deny rules being ignored, so that every command asked for approval, when an organization's admin policy requires commands to run in the terminal sandbox but the machine has no OS sandbox; your saved rules now apply and unlisted commands still ask before running.",
+          "Fixed background task details from `manage_task` losing their formatting when the task's recent output, or input sent to the task, contained Markdown code blocks or runs of backticks.",
+          "Fixed Remote Control showing a link that could not be opened at the end of some agent replies, such as the swarm coordinator's link to the swarm UI; Remote Control now leaves these links out."
+        ]
+      },
+      "curated": {
+        "version": "1.5.7",
+        "period": "2026-11-13",
+        "items": [
+          {
+            "title": {
+              "zh-TW": "代理人預設改為自動模式，嚴格權限優先守護檔案修改",
+              "en": "Agent defaults to Auto mode while strict permissions protect file edits"
+            },
+            "body": {
+              "zh-TW": "打開終端機請代理人處理工作時，若你還沒儲存過模式設定，啟動方式就會受這次調整影響。尚未儲存模式的工作階段，包含使用 `-p` 參數的無頭模式（沒有終端機畫面的執行模式），只要環境支援 `Auto` 就會預設自動啟動，其餘則維持 `Default`。⟦相機以前開機預設選一般模式，現在支援自動模式的機型會預設選自動模式，其餘仍選一般模式；改的是開機時先選哪個模式。⟧若想維持過去習慣，可在 `/config` 將 `Agent Mode` 選為 `Default`，設定會儲存到 `settings.json`：\n\n```json\n{\n  \"agentMode\": \"\"\n}\n```\n\n另外，`Tool Permission` 的 `strict` 嚴格權限優先於 `Auto` 與 `accept-edits` 模式，修改檔案前依然會主動詢問並等待你同意。",
+              "en": "When you open the terminal to ask the agent to handle work, if you have not saved a mode setting yet, how it starts is affected by this change. Sessions with no saved mode, including headless mode (an execution mode without a terminal screen) using the `-p` flag, now start in `Auto` by default wherever `Auto` is supported, while the rest stay in `Default`. ⟦A camera used to select normal mode by default at startup, and now models that support auto mode select auto mode by default while the rest still select normal mode; what changed is which mode is selected at power-on.⟧ To keep the previous behavior, you can set `Agent Mode` to `Default` in `/config`, which saves the setting to `settings.json`:\n\n```json\n{\n  \"agentMode\": \"\"\n}\n```\n\nIn addition, `strict` under `Tool Permission` takes precedence over `Auto` and `accept-edits` modes, so it still asks and waits for your approval before editing files."
+            },
+            "original": "Changed the default `Agent Mode` from Default to Auto: sessions with no saved mode, including headless `-p` runs, now start in Auto wherever Auto mode is available and in Default elsewhere; to keep the previous behavior, choose Default for `Agent Mode` in `/config`, which saves `\"agentMode\": \"\"` to `settings.json`. A `Tool Permission` setting of `strict` now also takes precedence over Auto and accept-edits modes, so file edits still ask for approval under `strict`."
+          },
+          {
+            "title": {
+              "zh-TW": "終端機長行折行不再卡住，工具群組重繪時步驟持續顯示",
+              "en": "Terminal line wrapping stops freezing and steps keep streaming during tool group redraws"
+            },
+            "body": {
+              "zh-TW": "在終端機執行會印出大量記錄的指令或呼叫工具時，畫面有時會突然整面卡住。以前如果某個指令印出一整行完全沒有空格的超長字串，會直接引發數秒的介面凍結，連帶讓文字串流與視窗縮放跟著動彈不得。現在文字折行所花費的時間會與該行長度成正比，不再長時間卡死。另外，當一組輸出很長的工具呼叫正在以動畫跳動顯示記號（token，AI 處理文字的計算單位）數量時，代理人的回覆以前會停頓 20 秒以上。現在該工具群組重新繪製時，後續串流的執行步驟依然會持續顯示。以前遇到無空格長文字或工具輸出動畫會卡死畫面，現在介面縮放與步驟串流都能即時反應。",
+              "en": "When running commands that print large logs or calling tools in the terminal, the screen could sometimes freeze all at once. Previously, if a command printed a very long line with no spaces at all, it triggered multi-second UI freezes that also stalled text streaming and window resizing. Line wrapping now takes time proportional to the line's length instead of locking up for seconds. Also, while a group of tool calls with long output was animating its token (the unit AI uses to process text) counts, agent replies used to stall for 20 seconds or more. Now, streamed execution steps continue to appear while that tool group re-renders. Where long spaceless text or tool output animations used to freeze the screen, window resizing and step streaming now respond immediately."
+            },
+            "original": "Fixed multi-second UI freezes, which also stalled streaming and window resizing, when a command printed a very long line without spaces; line wrapping now takes time proportional to the line's length.\nFixed agent replies stalling for 20 seconds or more while a group of tool calls with long output was still animating its token counts; streamed steps now keep appearing while the group re-renders."
+          },
+          {
+            "title": {
+              "zh-TW": "背景指令等待密碼或確認提示時，代理人主動接收通知",
+              "en": "Agent receives notifications when background commands wait for passwords or prompts"
+            },
+            "body": {
+              "zh-TW": "交辦代理人跑耗時較長的工作時，你可能遇過整個流程突然無聲卡住。以前當移至背景的指令正在等待輸入，例如指令轉入背景前印出密碼或 `y/n` 確認提示，代理人不會察覺並只會靜默等待。現在只要輸出內容穩定下來，代理人就會收到通知，不再無聲乾等。現在輸出穩定下來後，代理人會收到等待輸入的通知，不再無聲乾等。",
+              "en": "When you ask the agent to run a long-running task, you may have seen the whole process suddenly stall in silence. Previously, when a command moved to the background was waiting for input, such as a password or `y/n` confirmation prompt printed before going to the background, the agent did not notice and just waited silently. Now, once the output settles, the agent receives a notification instead of waiting silently. Once the output settles, the agent is now notified that input is needed rather than waiting in silence."
+            },
+            "original": "Fixed the agent not noticing that a command it moved to the background was waiting for input, such as a password or `y/n` prompt printed before the command went to the background; the agent is now notified once that output settles instead of waiting silently."
+          },
+          {
+            "title": {
+              "zh-TW": "Windows 版瀏覽器登入同時支援 IPv4 與 IPv6 回傳",
+              "en": "Windows browser sign-in supports both IPv4 and IPv6 callbacks"
+            },
+            "body": {
+              "zh-TW": "在 Windows 系統透過瀏覽器進行帳號登入時，偶爾會碰上網頁跳轉後終端機卻沒有反應的狀況。以前指令列工具的本機登入回呼只監聽 IPv4 或 IPv6 其中一種協定，若瀏覽器透過另一種協定重新導向，登入就無法順利完成。現在本機回呼會同時監聽這兩種協定。以前登入容易因為網路協定不一致而卡在驗證畫面，現在瀏覽器重新導向後便能正常完成登入流程。",
+              "en": "When signing in through a browser on Windows, the terminal would occasionally not respond after the web page redirected. Previously, the CLI's local sign-in callback listened on only IPv4 or IPv6, so if the browser redirected over the other protocol, sign-in could not complete. Now, the local callback listens on both protocols. Sign-in used to get stuck on the verification screen due to protocol mismatches, and now it completes normally after the browser redirects."
+            },
+            "original": "Fixed browser sign-in on Windows sometimes failing to complete because the CLI's local sign-in callback listened on only IPv4 or IPv6 while the browser redirected over the other; the callback now listens on both."
+          },
+          {
+            "title": {
+              "zh-TW": "企業閘道請求 Gemini 4 Carbon 調整參數，排除 HTTP 400 錯誤",
+              "en": "Enterprise gateway requests to Gemini 4 Carbon adjust parameters to prevent HTTP 400 errors"
+            },
+            "body": {
+              "zh-TW": "當你在企業環境透過模型閘道使用 Gemini 4 Carbon 時，發送請求可能曾遇到連線失敗。以前請求會跳出 HTTP 400 錯誤，提示 `Thinking budget is not supported for this model`。現在指令列工具會改向 Gemini 4 Carbon 發送思考層級（thinking level），發給閘道的模型識別碼也不再殘留 Low、Medium 或 High 後綴。以前發送請求會被閘道直接退回，現在格式修正後便能正常呼叫。",
+              "en": "When using Gemini 4 Carbon through a model gateway in an enterprise environment, your requests may have failed to connect. Previously, requests returned an HTTP 400 error with the message `Thinking budget is not supported for this model`. Now, the CLI sends a thinking level to Gemini 4 Carbon instead, and the model ID sent to the gateway no longer retains a Low, Medium, or High suffix. Requests that used to be rejected directly by the gateway now succeed with the corrected format."
+            },
+            "original": "Fixed Gemini 4 Carbon requests through an enterprise model gateway failing with an HTTP 400 `Thinking budget is not supported for this model` error; the CLI now sends Gemini 4 Carbon a thinking level and no longer leaves the Low, Medium, or High suffix in the model ID it sends to the gateway."
+          },
+          {
+            "title": {
+              "zh-TW": "企業安全政策強化審核機制，並恢復無系統沙盒時的自訂規則",
+              "en": "Enterprise security policies tighten review checks and restore custom rules without an OS sandbox"
+            },
+            "body": {
+              "zh-TW": "在受組織管理政策管制的環境下執行指令或存取檔案時，審核機制迎來了兩項修正。以前若設定了回傳 `auto_approve` 的 `PreToolUse` 掛鉤（特定事件發生時被觸發的小程式），或使用 `command(*)` 萬用允許規則，會意外略過管理員強制要求的審查。現在跳脫終端機沙盒的指令、管理員政策保留審查的指令，以及「一律詢問」政策下讀寫工作區外的操作，一律會向你要求確認。當組織政策要求在終端機沙盒內執行指令，但電腦缺少系統沙盒時，以前會忽略已儲存的允許與拒絕規則，導致每條指令都反覆跳出確認。現在儲存的允許與拒絕規則會正常套用，未列出的指令執行前仍會詢問。以前容易因規則漏洞略過公司審核，或在缺少系統沙盒時被繁瑣提示打擾，現在審查嚴謹且自訂名單正常生效。",
+              "en": "When running commands or accessing files under organization-managed policies, two fixes have been made to the review mechanism. Previously, a `PreToolUse` hook (a small program triggered by specific events) returning `auto_approve`, or a wildcard `command(*)` allow rule, could accidentally bypass admin-enforced reviews. Now, commands that leave the terminal sandbox, commands held for review by admin policy, and file reads or writes outside the workspace under an \"always ask\" policy always ask for your approval. When an organization policy requires commands to run inside a terminal sandbox but the machine lacks an OS sandbox, saved allow and deny rules used to be ignored, causing every command to prompt repeatedly. Now, saved allow and deny rules apply normally, while unlisted commands still ask before running. Instead of rule gaps bypassing company reviews or missing OS sandboxes triggering repetitive prompts, reviews are now enforced and custom lists work as expected."
+            },
+            "original": "Fixed a `PreToolUse` hook returning `auto_approve`, or a wildcard `command(*)` allow rule, bypassing an organization's admin-enforced review: commands that would leave the terminal sandbox, commands the admin policy holds for review, and file reads or writes outside the workspace under an \"always ask\" file-access policy now always ask for your approval.\nFixed saved command allow and deny rules being ignored, so that every command asked for approval, when an organization's admin policy requires commands to run in the terminal sandbox but the machine has no OS sandbox; your saved rules now apply and unlisted commands still ask before running."
+          },
+          {
+            "title": {
+              "zh-TW": "檢視背景任務詳情時，保留程式碼區塊與反引號格式",
+              "en": "Background task details preserve code blocks and backtick formatting"
+            },
+            "body": {
+              "zh-TW": "當你透過 `manage_task` 工具查看背景任務的執行狀態時，文字排版可能曾出現錯亂。以前如果任務近期的輸出內容，或是傳送給任務的輸入包含 Markdown 程式碼區塊或連續反引號，任務詳情的排版格式會跑版損毀。這個問題現在已經修好，相關內容會完整保留原有排版。以前閱讀包含程式碼的任務資訊容易版面混亂，現在都能維持工整外觀。",
+              "en": "When checking a background task's status with the `manage_task` tool, the text formatting may have been garbled. Previously, if the task's recent output or input sent to the task contained Markdown code blocks or runs of backticks, the task details formatting broke. This issue is now fixed, and the content preserves its original formatting. Where reading task details with code used to look messy, everything now stays cleanly formatted."
+            },
+            "original": "Fixed background task details from `manage_task` losing their formatting when the task's recent output, or input sent to the task, contained Markdown code blocks or runs of backticks."
+          },
+          {
+            "title": {
+              "zh-TW": "遠端操控介面隱藏無效連結，不再顯示無法開啟的網址",
+              "en": "Remote Control hides broken links instead of showing unopenable URLs"
+            },
+            "body": {
+              "zh-TW": "使用遠端操控（Remote Control）功能查看代理人回覆時，結尾可能曾出現點不開的連結。以前在部分回覆末端，例如多代理人群組協調員（swarm coordinator）連往群組介面的連結，遠端操控會顯示無法開啟的網址。現在遠端操控會直接略過這些連結。以前在遠端介面常看見無法點擊的網址，現在遠端操控會略過這些無法開啟的連結。",
+              "en": "When viewing agent replies with Remote Control, unclickable links could sometimes appear at the end. Previously, at the end of some replies, such as a swarm coordinator's link to the swarm UI, Remote Control showed URLs that could not be opened. Remote Control now omits these links. Where unclickable URLs used to show up in the remote interface, Remote Control now skips these unopenable links."
+            },
+            "original": "Fixed Remote Control showing a link that could not be opened at the end of some agent replies, such as the swarm coordinator's link to the swarm UI; Remote Control now leaves these links out."
+          }
+        ]
+      },
+      "badges": [
+        "new",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix",
+        "fix"
+      ]
+    },
     {
       "version": "1.5.6",
       "raw": {
@@ -1046,91 +1171,6 @@
         "new",
         "new",
         "new",
-        "fix"
-      ]
-    },
-    {
-      "version": "1.4.10",
-      "raw": {
-        "version": "1.4.10",
-        "period": "2026-10-29",
-        "source_url": "https://raw.githubusercontent.com/google-antigravity/antigravity-cli/main/CHANGELOG.md",
-        "fetched_at": "2026-10-29",
-        "entries": [
-          "Improved streaming of agent replies: lines that scroll off the top of the screen are now scrolled into your terminal's scrollback instead of repainting the whole screen, and text wrapping writes whole runs of text at a time, so streaming writes about 70% fewer bytes to the terminal and stays much smoother over slow SSH connections.",
-          "Improved memory use shortly after startup: the CLI now returns about 100 MB of memory left over from startup to the operating system 15 seconds after the interactive UI opens; print and headless modes are unaffected.",
-          "Improved the after-compaction size shown in the compaction marker and in `/context` to also count what the summary carries into the next prompt, such as your earlier requests and artifact, subagent, and running-task snapshots, so it is closer to the real size; the `(N summary)` label still shows the summary alone.",
-          "Fixed subagents losing the task their parent agent gave them, and the parent's ID, after their context was compacted, including with `/compact`; a subagent's summary now keeps the parent agent's 10 most recent messages.",
-          "Fixed conversations with many or large images, such as screenshots or pasted images, being rejected for exceeding the model's request size limit: images are now capped at 2000 pixels per side and large PNGs are sent as JPEGs when that is much smaller, and an image saved as JPEG but labeled PNG, such as a pasted image or browser screenshot, is no longer rejected for a mismatched type.",
-          "Fixed the `/browser` subagent not receiving the current page's snapshot when the selected page belongs to an isolated browser context, such as a page opened with `isolatedContext` or attached from an Incognito window."
-        ]
-      },
-      "curated": {
-        "version": "1.4.10",
-        "period": "2026-10-29",
-        "items": [
-          {
-            "title": {
-              "zh-TW": "串流輸出改用終端回捲，連線傳輸減少約七成位元組",
-              "en": "Streaming output switches to terminal scrollback, cutting transmitted bytes by about 70%"
-            },
-            "body": {
-              "zh-TW": "透過遠端連線指揮工具工作時，終端機逐字跑出長篇回覆常會遇到畫面卡頓與延遲。⟦如同傳真機連續吐出紙張，新內容推進時直接讓舊頁面順著捲紙滾入底槽，不必每印一行就把整面白板擦掉重描。⟧以往串流輸出在文字超出螢幕頂端時，總會重新繪製整個終端機畫面。現在超出螢幕頂部的行數會直接滾入終端機的回捲緩衝區（scrollback，往上滾動查看歷史紀錄的區域）。文字折行也改為一次寫入整串連續文字，讓寫入終端機的傳輸量減少約 70% 位元組。即使透過慢速的 SSH 連線（Secure Shell，加密遠端連線協定）操作，接收長篇回覆也能維持滑順流暢。",
-              "en": "When directing tools over a remote connection, watching a terminal print long replies word by word often runs into screen stutter and latency. ⟦Like a fax machine feeding paper continuously, incoming content lets older pages roll into the bottom tray along the paper feed instead of erasing and redrawing an entire whiteboard for every printed line.⟧ Previously, streaming output always repainted the entire terminal screen whenever text went past the top of the screen. Now, lines that scroll off the top of the screen scroll directly into the terminal's scrollback (an area for scrolling up to view history). Text wrapping also switches to writing whole runs of continuous text at a time, cutting the bytes written to the terminal by about 70%. Even when operating over a slow SSH connection (Secure Shell, an encrypted remote connection protocol), receiving long replies stays smooth and fluid."
-            },
-            "original": "Improved streaming of agent replies: lines that scroll off the top of the screen are now scrolled into your terminal's scrollback instead of repainting the whole screen, and text wrapping writes whole runs of text at a time, so streaming writes about 70% fewer bytes to the terminal and stays much smoother over slow SSH connections."
-          },
-          {
-            "title": {
-              "zh-TW": "互動介面開啟十五秒後，自動歸還啟動殘留記憶體",
-              "en": "Startup memory returned automatically fifteen seconds after interactive UI opens"
-            },
-            "body": {
-              "zh-TW": "開啟終端機工具並常駐在背景時，程式佔用的硬體資源往往會影響電腦的整體流暢度。⟦跟大型演出進場一樣，工作人員在開演前搬進大量裝箱工具，等到演出開始十五秒後，便把卸貨的推車撤出場館，將走道空間交還給大樓。⟧以往命令列介面在完成初始化後，載入過程所消耗的暫存記憶體會一直被工具佔用。現在只要互動式介面開啟 15 秒，工具就會主動把啟動階段殘留的約 100 MB 記憶體歸還給作業系統。如果你是透過列印模式，或是無頭模式（headless，沒有終端機視窗的執行模式）執行一次性指令，運作行為則不受影響。",
-              "en": "When opening a terminal tool and keeping it running in the background, the hardware resources consumed by the program often affect overall system responsiveness. ⟦In a large stage production setup, stagehands haul in stacks of boxed tools before showtime, and fifteen seconds after the performance begins, they wheel the unloading carts out of the venue to return aisle space to the building.⟧ Previously, after the command line interface finished initialization, the temporary memory consumed during the loading process remained occupied by the tool. Now, fifteen seconds after the interactive UI opens, the tool actively returns about 100 MB of memory left over from the startup phase to the operating system. If you run one-off commands through print mode or headless mode (an execution mode without a terminal window), operation remains unaffected."
-            },
-            "original": "Improved memory use shortly after startup: the CLI now returns about 100 MB of memory left over from startup to the operating system 15 seconds after the interactive UI opens; print and headless modes are unaffected."
-          },
-          {
-            "title": {
-              "zh-TW": "壓縮對話納入附加快照估算，子代理摘要保留上層任務",
-              "en": "Compacted conversations count attached snapshots, and subagent summaries preserve parent tasks"
-            },
-            "body": {
-              "zh-TW": "想要在長對話中執行 `/compact` 壓縮歷史紀錄，或是交由子代理分頭處理複雜專案，精簡上下文之餘更要確保資訊不漏失。⟦好比專案交接整理摘要，以前只計算備忘錄字數而漏算隨附圖表，助理甚至在精簡時忘記委託人編號；現在清單如實計入所有附件重量，並完整保留指派人交付的任務與最新叮嚀。⟧以前壓縮標記與 `/context` 顯示的壓縮後數值，只計算了純摘要本身。現在統計會納入摘要帶入下一輪提示的所有內容，包含早先的請求，以及產出物、子代理與執行中任務的快照，讓數值更貼近真實大小；標籤 `(N summary)` 則維持單獨標示純摘要。過去子代理在上下文經過壓縮後（包含使用 `/compact`），容易遺失上層代理指派的任務與上層 ID。現在子代理的摘要會保留原任務與上層識別碼，並留存上層代理最近 10 則訊息。",
-              "en": "When running `/compact` to compress history in long conversations or handing off complex projects to subagents, trimming context must never come at the cost of losing information. ⟦Picture a project handover briefing. Previously, staff counted only the memo words while overlooking attached diagrams, and the assistant even dropped the client ID when condensing notes. Now the manifest faithfully tallies the weight of all attachments while fully preserving the assigner's delegated task and latest reminders.⟧ Previously, the after-compaction size shown in the compaction marker and in `/context` counted only the pure summary itself. Now the tally includes everything the summary carries into the next prompt, such as your earlier requests along with artifact, subagent, and running-task snapshots, bringing the figure closer to the real size. The `(N summary)` label continues to show the summary alone. In the past, subagents often lost the task assigned by their parent agent and the parent ID after their context was compacted (including when using `/compact`). A subagent's summary now preserves the original task and parent ID, while keeping the parent agent's 10 most recent messages."
-            },
-            "original": "Improved the after-compaction size shown in the compaction marker and in `/context` to also count what the summary carries into the next prompt, such as your earlier requests and artifact, subagent, and running-task snapshots, so it is closer to the real size; the `(N summary)` label still shows the summary alone.\nFixed subagents losing the task their parent agent gave them, and the parent's ID, after their context was compacted, including with `/compact`; a subagent's summary now keeps the parent agent's 10 most recent messages."
-          },
-          {
-            "title": {
-              "zh-TW": "對話圖檔限制兩千像素並自動轉檔，避免超出請求上限",
-              "en": "Conversation images capped at 2000 pixels and converted automatically to avoid request limits"
-            },
-            "body": {
-              "zh-TW": "在對話中貼上多張高解析度截圖或照片時，送出請求常會因為資料量過大而遭到模型直接拒絕。⟦就像郵局寄送包裹，以前包裹只要尺寸超標或貼錯標籤就會直接退件；現在收件窗口會先幫超大包裹修剪體積，在不影響內容下把厚重包裝換成輕便紙袋，遇到標籤貼錯的信件也主動辨識放行。⟧現在輸入對話的圖片每邊最長會被限制在 2000 像素以內。體積較大的 PNG 圖片若轉為 JPEG 能明顯縮減大小，便會自動改以 JPEG 格式傳送。針對剪貼簿貼上的圖片或瀏覽器截圖，如果檔案本體是 JPEG 卻被標記成 PNG，工具也不會再因為型別不一致而拒絕請求。",
-              "en": "When pasting multiple high-resolution screenshots or photos into a conversation, sending requests often led to outright rejection by the model due to excessive payload size. ⟦At a postal parcel counter, packages exceeding dimensions or bearing mismatched labels were once returned immediately. Now, counter staff trim down oversized parcels first, swapping heavy packaging for lightweight mailers without altering the contents, and actively identify mislabeled letters to let them pass.⟧ Images entered into conversations are now capped at 2000 pixels per side. Large PNG images that become significantly smaller when converted to JPEG are now automatically sent in JPEG format. For images pasted from the clipboard or browser screenshots where the file is actually a JPEG but labeled PNG, the tool no longer rejects requests because of a mismatched type."
-            },
-            "original": "Fixed conversations with many or large images, such as screenshots or pasted images, being rejected for exceeding the model's request size limit: images are now capped at 2000 pixels per side and large PNGs are sent as JPEGs when that is much smaller, and an image saved as JPEG but labeled PNG, such as a pasted image or browser screenshot, is no longer rejected for a mismatched type."
-          },
-          {
-            "title": {
-              "zh-TW": "修復瀏覽器子代理在無痕與隔離視窗下遺漏頁面快照",
-              "en": "Fixed browser subagent missing page snapshots in Incognito and isolated contexts"
-            },
-            "body": {
-              "zh-TW": "如果請 `/browser` 子代理操作特定網頁，遇到以 `isolatedContext` 開啟的頁面或附加自無痕視窗（Incognito）等隔離環境，以前子代理會抓不到當前頁面的快照。這個問題已經修好，子代理現在能正常接收該頁面的快照資訊。",
-              "en": "When asking the `/browser` subagent to operate on a specific page that belongs to an isolated environment, such as a page opened with `isolatedContext` or attached from an Incognito window, the subagent previously failed to capture snapshots of the current page. This issue has been fixed, and the subagent now receives the page's snapshot information normally."
-            },
-            "original": "Fixed the `/browser` subagent not receiving the current page's snapshot when the selected page belongs to an isolated browser context, such as a page opened with `isolatedContext` or attached from an Incognito window."
-          }
-        ]
-      },
-      "badges": [
-        "perf",
-        "perf",
-        "new",
-        "fix",
         "fix"
       ]
     }
