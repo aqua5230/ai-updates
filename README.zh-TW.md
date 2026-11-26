@@ -1,5 +1,7 @@
 # AI Updates
 
+> **已搬家。** 這個專案已併入 getusage.app：<https://getusage.app/zh-TW/blog/updates/>。這個 repo 已封存，不再更新。
+
 [English](README.md) | 繁體中文
 
 AI Updates 追蹤 Claude Code、Codex、Antigravity、Grok Build、Muse Code、Usage 與 GitHub CLI 的官方 changelog。它保存不可覆寫的官方原文紀錄，提供 AI 改寫的繁中與英文白話速報（zh-TW、en），每則都由另一個 AI 模型對照官方原文查核，並產出靜態網站與相容應用程式使用的資料 feed。
