@@ -1,5 +1,7 @@
 # AI Updates
 
+> **Moved.** This project now lives in getusage.app: <https://getusage.app/blog/updates/>. This repository is archived and no longer updated.
+
 English | [繁體中文](README.zh-TW.md)
 
 AI Updates tracks the official changelogs for Claude Code, Codex, Antigravity, Grok Build, Muse Code, Usage, and GitHub CLI. It preserves immutable source records, supports AI-written plain-language updates in Traditional Chinese (zh-TW) and English (en), each fact-checked against the official text by a second AI model, and publishes feeds for a static website and compatible applications.
